@@ -2,6 +2,7 @@ import { globalIgnores } from 'eslint/config'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 // To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
 // import { configureVueProject } from '@vue/eslint-config-typescript'
@@ -19,4 +20,16 @@ export default defineConfigWithVueTs(
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
   skipFormatting,
+  eslintConfigPrettier,
+  {
+    name: 'app/temporary-migration-rules', // Дайте этому блоку осмысленное имя
+    // Применяем эти правила ко всем файлам, которые обрабатываются
+    // files: ['**/*.{ts,mts,tsx,vue}'], // Можно ограничить, но для миграции обычно на весь проект
+    rules: {
+      // Отключаем 'any'
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-namespace': 'off',
+      'vue/multi-word-component-names': 'off',
+    }
+  }
 )

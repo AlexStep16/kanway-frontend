@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+/* Preline UI */
+@import 'preline/variants.css';
+@source "../../node_modules/preline/dist/*.js";
+
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --color-blue-500: #3b82f6;
+  --color-blue-400: #8ab6ff;
+  --color-purple-400: #cfbbff;
+
+  --font-sans: 'Inter', sans-serif;
+  --text-custom-sm: 0.8125rem;
+}
+
+/* Adds pointer cursor to buttons */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Defaults hover styles on all devices */
+@custom-variant hover (&:hover);
