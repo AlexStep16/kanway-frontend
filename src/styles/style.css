@@ -3,6 +3,7 @@
 /* Preline UI */
 @import 'preline/variants.css';
 @source "../../node_modules/preline/dist/*.js";
+@import '../../node_modules/preline/src/plugins/datepicker/styles.css';
 
 @plugin "@tailwindcss/forms";
 

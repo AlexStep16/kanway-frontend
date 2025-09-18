@@ -6,6 +6,7 @@ import timezone from 'dayjs/plugin/timezone'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import calendar from 'dayjs/plugin/calendar'
 import updateLocale from 'dayjs/plugin/updateLocale'
+import 'vanilla-calendar-pro/styles/index.css'
 
 import('preline/dist/index.js')
 
