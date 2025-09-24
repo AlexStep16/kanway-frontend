@@ -14,7 +14,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
-      "@assets/*": ["src/assets/*"]
+      "@assets/*": ["src/assets/*"],
+      "@helpers/*": ["src/helpers/*"]
     }
   },
   "ts-node": {

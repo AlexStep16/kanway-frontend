@@ -13,7 +13,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-gray-100 flex flex-col gap-y-3 py-3 px-4 rounded-md h-full w-75 group/category">
+  <div
+    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-75 group/category"
+  >
     <!-- Header -->
     <div class="flex w-full justify-between items-center">
       <span class="text-sm font-semibold text-gray-800">{{ category.name }}</span>

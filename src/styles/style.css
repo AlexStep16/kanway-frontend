@@ -14,6 +14,7 @@
 
   --font-sans: 'Inter', sans-serif;
   --text-custom-sm: 0.8125rem;
+  --text-custom-sm--line-height: calc(1.125 / 0.8125);
 }
 
 /* Adds pointer cursor to buttons */

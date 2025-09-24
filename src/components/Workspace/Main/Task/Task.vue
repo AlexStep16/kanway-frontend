@@ -12,7 +12,7 @@ enum TimeStatus {
   COMPLETED = 3,
 }
 
-defineProps<{
+const props = defineProps<{
   task: {
     id: number
     name: string
@@ -22,6 +22,9 @@ defineProps<{
     is_completed: boolean
     tags?: Array<any>
   }
+  hasBorder?: boolean
+  isInteractive?: boolean
+  taskClasses?: string
 }>()
 
 const WORKSPACE_STORE = useWorkspaceStore()
@@ -53,6 +56,8 @@ function getTimeInReadableFormat(date: Date | string) {
 }
 
 function edit(task: any) {
+  if (!props.isInteractive) return
+
   const taskStore = useTaskStore()
 
   taskStore.taskToEdit = task
@@ -63,7 +68,13 @@ function edit(task: any) {
 
 <template>
   <div
-    class="flex flex-col rounded-md shadow-sm shadow-gray-200 bg-white cursor-pointer hover:shadow-md hover:shadow-gray-300 transition-all duration-200 overflow-hidden"
+    class="flex flex-col rounded-md min-w-60 max-w-90 shadow-gray-200 bg-white transition-all duration-200 overflow-hidden"
+    :class="{
+      'border border-gray-200': hasBorder,
+      'shadow-sm': !hasBorder,
+      'cursor-pointer hover:shadow-md hover:shadow-gray-300': isInteractive,
+      [taskClasses || '']: !!taskClasses,
+    }"
     @click="edit(task)"
   >
     <div
@@ -81,34 +92,26 @@ function edit(task: any) {
         </div>
         <div class="flex pt-0.5 items-center gap-x-2">
           <span
-            class="text-gray-400 hover:text-gray-500 opacity-0 transition-opacity duration-300 group-hover/task:opacity-100"
+            class="text-gray-400 hover:text-gray-500 opacity-0 transition-opacity duration-300"
+            :class="{
+              'group-hover/task:opacity-100': isInteractive,
+            }"
             title="Копировать"
             @click.stop=""
           >
             <Copy class="size-4" />
           </span>
           <span
-            class="text-gray-400 hover:text-gray-500 opacity-0 transition-opacity duration-300 group-hover/task:opacity-100"
+            class="text-gray-400 hover:text-gray-500 opacity-0 transition-opacity duration-300"
+            :class="{
+              'group-hover/task:opacity-100': isInteractive,
+            }"
             title="Удалить"
             @click.stop=""
           >
             <Trash class="size-4" />
           </span>
         </div>
-
-        <!-- <Options
-          :options="{
-            edit: true,
-            copy: true,
-            move: true,
-            favorite: false,
-            archive: true,
-          }"
-          @edit="edit"
-          :item="{ id: 3, name: '33' }"
-          group_name="task"
-          class="text-gray-600"
-        /> -->
       </div>
 
       <!-- Теги -->
@@ -134,6 +137,8 @@ function edit(task: any) {
         <Clock class="size-4" />
         <span v-if="task.due_date">{{ getTimeInReadableFormat(task.due_date) }}</span>
       </div>
+
+      <slot />
     </div>
   </div>
 </template>

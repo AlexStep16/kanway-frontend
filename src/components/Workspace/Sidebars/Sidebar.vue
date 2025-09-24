@@ -299,7 +299,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
               >
                 <Trash class="size-4" />
 
-                Корзина
+                Архив
               </a>
             </li>
           </ul>
@@ -334,7 +334,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
           <button
             id="hs-sidebar-footer"
             type="button"
-            class="w-full inline-flex shrink-0 items-center gap-x-2 p-2 text-start text-sm text-gray-800 bg-gray-50 border border-gray-200 shadow-2xs rounded-md hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200"
+            class="w-full inline-flex shrink-0 items-center gap-x-2 p-2 text-start text-sm text-gray-800 bg-gray-50 border border-gray-200 shadow-2xs rounded-md hover:bg-gray-200 transition-colors duration-200 focus:outline-hidden focus:bg-gray-200"
             aria-haspopup="menu"
             aria-expanded="false"
             aria-label="Dropdown"
