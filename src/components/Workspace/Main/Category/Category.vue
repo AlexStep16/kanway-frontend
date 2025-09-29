@@ -28,7 +28,7 @@ defineProps<{
           favorite: false,
           archive: true,
         }"
-        :item="{ id: 2, name: '33' }"
+        :item="category"
         :is_always_visible="true"
         group_name="category"
         class="text-gray-600"
@@ -39,7 +39,7 @@ defineProps<{
     <div class="flex flex-col gap-y-2 mb-3">
       <ButtonCreate text="Добавить задачу" />
 
-      <Task v-for="task in category.tasks" :key="task.id" :task="task" />
+      <Task v-for="task in category.tasks" :key="task.id" :task="task" :isInteractive="true" />
     </div>
   </div>
 </template>

@@ -7,6 +7,7 @@ defineProps<{
     id: number
     name: string
   }
+  type: 'board' | 'workspace' | 'chat'
 }>()
 </script>
 
@@ -25,7 +26,7 @@ defineProps<{
     </a>
     <Options
       :options="{
-        edit: false,
+        edit: type === 'chat' ? false : true,
         copy: true,
         move: true,
         favorite: true,
@@ -34,6 +35,7 @@ defineProps<{
       :item
       class="absolute right-2.5"
       group_name="sidebar-item"
+      :edit_type="type"
     />
   </li>
 </template>

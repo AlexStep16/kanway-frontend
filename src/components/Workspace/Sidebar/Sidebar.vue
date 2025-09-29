@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ButtonCreate from '@components/Buttons/ButtonCreate.vue'
-import SidebarItem from '@components/Workspace/Sidebars/SidebarItem.vue'
+import SidebarItem from '@components/Workspace/Sidebar/SidebarItem.vue'
 import {
   MessagesSquare,
   Star,
@@ -15,8 +15,41 @@ import {
 } from 'lucide-vue-next'
 import NumberBadge from '@components/Badges/NumberBadge.vue'
 import { useWorkspaceStore } from '@/stores/workspace'
+import CreateDropdown from '@components/Dropdowns/Create/CreateDropdown.vue'
+import { onMounted, ref } from 'vue'
+import { HSDropdown } from 'preline'
 
 const WORKSPACE_STORE = useWorkspaceStore()
+
+const workspaceDropdown = ref<HTMLElement | null>(null)
+
+const getBoardCreateModalWidth = () => {
+  if (WORKSPACE_STORE.createBoardButtonRef) {
+    const rect = WORKSPACE_STORE.createBoardButtonRef.getBoundingClientRect()
+    return rect.width
+  }
+  return 0
+}
+
+onMounted(() => {
+  if (workspaceDropdown.value && workspaceDropdown.value instanceof HTMLElement) {
+    const dropdownInstance = HSDropdown.getInstance(workspaceDropdown.value) as HSDropdown | null
+
+    if (dropdownInstance) {
+      document.addEventListener('click', (e: any) => {
+        if (
+          dropdownInstance &&
+          workspaceDropdown.value &&
+          !workspaceDropdown.value.contains(e.target)
+        ) {
+          if (dropdownInstance) {
+            dropdownInstance.close()
+          }
+        }
+      })
+    }
+  }
+})
 </script>
 
 <template>
@@ -36,7 +69,8 @@ const WORKSPACE_STORE = useWorkspaceStore()
       <!-- Header -->
       <header class="py-3 border-b border-gray-200">
         <div
-          class="hs-dropdown [--strategy:absolute] [--auto-close:inside] relative w-full inline-flex"
+          class="hs-dropdown [--strategy:absolute] [--auto-close:false] relative w-full inline-flex"
+          ref="workspaceDropdown"
         >
           <button
             id="hs-sidebar-workspace"
@@ -80,7 +114,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
             <span class="block p-2 text-xs text-gray-500 font-medium">Пространства</span>
 
             <ul class="p-1 space-y-1">
-              <SidebarItem :item="{ id: 1, name: 'Личное пространство' }">
+              <SidebarItem :item="{ id: 1, name: 'Личное пространство' }" type="workspace">
                 <template v-slot:link>
                   <div
                     class="size-5 bg-blue-500 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
@@ -89,7 +123,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
                   </div>
                 </template>
               </SidebarItem>
-              <SidebarItem :item="{ id: 11, name: 'Работа' }">
+              <SidebarItem :item="{ id: 11, name: 'Работа' }" type="workspace">
                 <template v-slot:link>
                   <div
                     class="size-5 bg-red-500 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
@@ -99,7 +133,9 @@ const WORKSPACE_STORE = useWorkspaceStore()
                 </template>
               </SidebarItem>
 
-              <ButtonCreate />
+              <CreateDropdown :id="'hs-sidebar-workspace-create'">
+                <ButtonCreate id="hs-sidebar-workspace-create" />
+              </CreateDropdown>
             </ul>
           </div>
           <!-- End Account Dropdown -->
@@ -145,9 +181,18 @@ const WORKSPACE_STORE = useWorkspaceStore()
                 <ul
                   class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
                 >
-                  <SidebarItem :item="{ id: 2, name: 'Спорт' }" />
+                  <SidebarItem :item="{ id: 2, name: 'Спорт' }" type="board" />
 
-                  <ButtonCreate />
+                  <CreateDropdown
+                    :dropdownClasses="'[--scope:window]'"
+                    :dropdownMenuWidth="getBoardCreateModalWidth()"
+                    :id="'hs-sidebar-board-create'"
+                  >
+                    <ButtonCreate
+                      id="hs-sidebar-board-create"
+                      @refEvent="WORKSPACE_STORE.createBoardButtonRef = $event"
+                    />
+                  </CreateDropdown>
                 </ul>
               </div>
             </li>
@@ -185,6 +230,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
                       id: 3,
                       name: 'Удали задачу с названием Сделать домашку по математике',
                     }"
+                    type="chat"
                   />
                 </ul>
               </div>
@@ -243,7 +289,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
                       aria-labelledby="users-accordion-sub-1"
                     >
                       <ul class="pt-1 ps-2 space-y-1">
-                        <SidebarItem :item="{ id: 4, name: 'Личное' }" />
+                        <SidebarItem :item="{ id: 4, name: 'Личное' }" type="workspace" />
                       </ul>
                     </div>
                   </li>
@@ -273,7 +319,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
                       aria-labelledby="users-accordion-sub-2"
                     >
                       <ul class="pt-1 ps-2 space-y-1">
-                        <SidebarItem :item="{ id: 5, name: 'Спорт' }" />
+                        <SidebarItem :item="{ id: 5, name: 'Спорт' }" type="board" />
                       </ul>
                     </div>
                   </li>
@@ -284,23 +330,24 @@ const WORKSPACE_STORE = useWorkspaceStore()
 
           <ul class="mt-1 flex flex-col gap-y-1 mb-3">
             <li>
-              <a
+              <button
+                type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
-                href="#"
+                @click="WORKSPACE_STORE.openSettingsModal()"
               >
                 <Settings class="size-4" />
                 Настройки
-              </a>
+              </button>
             </li>
             <li>
-              <a
+              <button
+                type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
-                href="#"
               >
                 <Trash class="size-4" />
 
                 Архив
-              </a>
+              </button>
             </li>
           </ul>
         </div>
@@ -316,7 +363,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
             </p>
             <button
               type="button"
-              class="text-xs text-white py-2 mt-2 px-3 w-full items-center gap-x-2 font-medium rounded-lg bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
+              class="text-xs text-white py-2 mt-2 px-3 w-full items-center gap-x-2 font-medium rounded-md bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
             >
               Повысить до Премиум
             </button>
@@ -329,7 +376,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
       <footer class="mt-auto pt-0 pb-3 border-t border-gray-200">
         <!-- Account Dropdown -->
         <div
-          class="hs-dropdown [--strategy:absolute] [--auto-close:inside] pt-3 relative w-full inline-flex"
+          class="hs-dropdown [--strategy:absolute] [--auto-close:true] pt-3 relative w-full inline-flex"
         >
           <button
             id="hs-sidebar-footer"

@@ -161,7 +161,7 @@ onUnmounted(() => {
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-3.5 w-3.5"
+                    class="size-3"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                     stroke="currentColor"
@@ -180,7 +180,7 @@ onUnmounted(() => {
           </button>
 
           <button
-            class="transition-colors duration-200 text-gray-500 hover:bg-gray-100 p-1 rounded-full"
+            class="transition-colors duration-200 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
             @click="WORKSPACE_STORE.closeEditTaskModal()"
           >

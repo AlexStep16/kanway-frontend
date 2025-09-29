@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import Sidebar from '@/components/Workspace/Sidebars/Sidebar.vue'
+import Sidebar from '@/components/Workspace/Sidebar/Sidebar.vue'
 import Edit from '@/components/Workspace/Main/Task/Edit.vue'
 import Board from '@/components/Workspace/Main/Board.vue'
 import Archive from '@/components/Workspace/Main/Archive/Archive.vue'
@@ -8,6 +8,7 @@ import Start from '@/components/Workspace/Main/Start.vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useTaskStore } from '@/stores/task'
 import { HSOverlay } from 'preline/dist'
+import Settings from '@/components/Workspace/Settings/Settings.vue'
 
 const WORKSPACE_STORE = useWorkspaceStore()
 const TASK_STORE = useTaskStore()
@@ -22,10 +23,16 @@ function initEditTaskModal() {
   }
 }
 
+function initSettingsModal() {
+  if (WORKSPACE_STORE.settingsModalRef) {
+    WORKSPACE_STORE.settingsModalHSInstance = new HSOverlay(WORKSPACE_STORE.settingsModalRef)
+  }
+}
+
 onMounted(() => {
   window.HSStaticMethods.autoInit()
-
   initEditTaskModal()
+  initSettingsModal()
 })
 </script>
 
@@ -38,13 +45,17 @@ onMounted(() => {
     <div
       class="h-full overflow-hidden flex flex-col px-5 bg-white border border-gray-200 shadow-xs rounded-md"
     >
-      <Board v-if="false" />
-      <Archive />
+      <Board />
+      <Archive v-if="false" />
       <Start v-if="false" />
     </div>
 
     <Teleport to="body">
       <Edit />
+    </Teleport>
+
+    <Teleport to="body">
+      <Settings />
     </Teleport>
   </main>
 </template>

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { HSComboBox, ICollectionItem } from 'preline'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
   placeholder?: string
 }>()
 
 const searchBoxRef = ref<HTMLElement | null>(null)
+const preventAutofill = ref(true)
 
-function keyDownSearch(event: Event) {
+function inputSearch(event: Event) {
   const input = event.target as HTMLInputElement
 
   if (input && searchBoxRef.value) {
@@ -26,6 +27,12 @@ function keyDownSearch(event: Event) {
     }
   }
 }
+
+onMounted(() => {
+  setTimeout(() => {
+    preventAutofill.value = false
+  }, 10)
+})
 </script>
 
 <template>
@@ -35,12 +42,12 @@ function keyDownSearch(event: Event) {
       class="relative"
       ref="searchBoxRef"
       data-hs-combo-box='{
-              "groupingType": "default",
-              "preventSelection": true,
-              "outputEmptyTemplate": "<div class=\"py-2 px-4 w-full text-sm text-gray-800 rounded-lg dark:bg-neutral-900 dark:text-neutral-200\">Ничего не найдено...</div>",
-              "isOpenOnFocus": false,
-              "groupingTitleTemplate": "<div class=\"block text-xs text-gray-500 px-2.5 pt-2 mb-1\"></div>"
-            }'
+        "groupingType": "default",
+        "preventSelection": true,
+        "outputEmptyTemplate": "<div class=\"py-2 px-4 w-full text-sm text-gray-800 rounded-lg dark:bg-neutral-900 dark:text-neutral-200\">Ничего не найдено...</div>",
+        "isOpenOnFocus": false,
+        "groupingTitleTemplate": "<div class=\"block text-xs text-gray-500 px-2.5 pt-2 mb-1\"></div>"
+      }'
     >
       <div class="relative">
         <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
@@ -61,16 +68,17 @@ function keyDownSearch(event: Event) {
           </svg>
         </div>
         <input
-          id="search-input"
-          class="py-1.5 ps-10 pe-4 block w-full border border-gray-200 bg-gray-100 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+          id="header-search-input"
+          class="py-1.5 ps-10 pe-4 block w-full border border-gray-200 bg-gray-100 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none"
           type="text"
-          name="search"
+          name="header-search-input"
           autocomplete="off"
           role="combobox"
           aria-expanded="false"
           :placeholder="placeholder ? placeholder : 'Найти задачи на доске...'"
-          @input="keyDownSearch"
+          @input="inputSearch"
           value=""
+          :disabled="preventAutofill"
           data-hs-combo-box-input=""
         />
       </div>

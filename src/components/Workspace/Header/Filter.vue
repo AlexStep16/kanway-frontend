@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { ListFilter } from 'lucide-vue-next'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+})
 </script>
 
 <template>
-  <div class="hs-dropdown [--auto-close:inside] relative inline-flex">
+  <div class="hs-dropdown [--auto-close:true] relative inline-flex">
     <button
       id="hs-dropdown-filter"
       type="button"
