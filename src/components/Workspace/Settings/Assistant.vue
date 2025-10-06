@@ -85,7 +85,7 @@
   <div class="flex items-center justify-end w-full pt-2 gap-x-2 border-t border-gray-200">
     <button
       type="button"
-      class="py-2 px-3 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-md transition-colors duration-200 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
+      class="py-2 px-3 bg-blue-500 hover:opacity-90 transition-opacity text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
     >
       Сохранить
     </button>

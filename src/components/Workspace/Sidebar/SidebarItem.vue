@@ -8,17 +8,18 @@ defineProps<{
     name: string
   }
   type: 'board' | 'workspace' | 'chat'
+  selected?: boolean
 }>()
 </script>
 
 <template>
   <li
     class="flex items-center justify-between relative group/sidebar-item"
-    :class="item.id === 1 ? 'text-blue-500 ' : 'text-gray-600'"
+    :class="selected ? 'text-blue-500 ' : 'text-gray-600'"
   >
     <a
-      class="flex items-center w-full flex-grow py-2 pl-2.5 pr-8.5 rounded-lg text-sm focus:outline-none"
-      :class="item.id === 1 ? 'bg-blue-100' : 'hover:bg-gray-200'"
+      class="flex items-center w-full flex-grow py-2 pl-2.5 pr-8.5 rounded-lg text-sm focus:outline-none transition-colors duration-100"
+      :class="selected ? 'bg-blue-100' : 'hover:bg-gray-200'"
       href="#"
     >
       <slot name="link"></slot>
@@ -35,6 +36,7 @@ defineProps<{
       :item
       class="absolute right-2.5"
       group_name="sidebar-item"
+      :hover_class="selected ? 'hover:bg-blue-200' : 'hover:bg-gray-200'"
       :edit_type="type"
     />
   </li>

@@ -18,8 +18,10 @@ import { useWorkspaceStore } from '@/stores/workspace'
 import CreateDropdown from '@components/Dropdowns/Create/CreateDropdown.vue'
 import { onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
+import { useTipsStore } from '@/stores/tips'
 
 const WORKSPACE_STORE = useWorkspaceStore()
+const TIPS_STORE = useTipsStore()
 
 const workspaceDropdown = ref<HTMLElement | null>(null)
 
@@ -49,6 +51,15 @@ onMounted(() => {
       })
     }
   }
+
+  if (WORKSPACE_STORE.createBoardButtonRef) {
+    TIPS_STORE.addTip({
+      title: 'Создание доски',
+      description: `Чтобы создать новую доску, нажмите на соответствующую кнопку, которая находится в разделе <b>Доски</b>.`,
+      anchorElement: WORKSPACE_STORE.createBoardButtonRef,
+      buttonNextText: 'Понятно',
+    })
+  }
 })
 </script>
 
@@ -75,7 +86,7 @@ onMounted(() => {
           <button
             id="hs-sidebar-workspace"
             type="button"
-            class="w-full inline-flex shrink-0 items-center gap-x-2 px-2 h-11.5 text-start text-sm text-gray-800 bg-gray-50 border border-gray-200 shadow-2xs rounded-md hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200"
+            class="w-full inline-flex shrink-0 items-center gap-x-2 px-2 h-11.5 text-start text-sm text-gray-800 bg-gray-50 border border-gray-200 shadow-2xs rounded-md hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden focus:bg-gray-200"
             aria-haspopup="menu"
             aria-expanded="false"
             aria-label="Dropdown"
@@ -114,7 +125,11 @@ onMounted(() => {
             <span class="block p-2 text-xs text-gray-500 font-medium">Пространства</span>
 
             <ul class="p-1 space-y-1">
-              <SidebarItem :item="{ id: 1, name: 'Личное пространство' }" type="workspace">
+              <SidebarItem
+                :item="{ id: 1, name: 'Личное пространство' }"
+                :selected="true"
+                type="workspace"
+              >
                 <template v-slot:link>
                   <div
                     class="size-5 bg-blue-500 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
@@ -156,7 +171,7 @@ onMounted(() => {
             <li class="hs-accordion active" id="boards-accordion">
               <button
                 type="button"
-                class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                 aria-expanded="true"
                 aria-controls="boards-accordion-sub-1-collapse-1"
               >
@@ -200,7 +215,7 @@ onMounted(() => {
             <li class="hs-accordion active" id="boards-accordion">
               <button
                 type="button"
-                class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                 aria-expanded="true"
                 aria-controls="boards-accordion-sub-1-collapse-1"
               >
@@ -239,7 +254,7 @@ onMounted(() => {
             <li class="hs-accordion" id="users-accordion">
               <button
                 type="button"
-                class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                 aria-expanded="true"
                 aria-controls="users-accordion-collapse-1"
               >
@@ -267,7 +282,7 @@ onMounted(() => {
                   <li class="hs-accordion" id="users-accordion-sub-1">
                     <button
                       type="button"
-                      class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                      class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                       aria-expanded="true"
                       aria-controls="users-accordion-sub-1-collapse-1"
                     >
@@ -297,7 +312,7 @@ onMounted(() => {
                   <li class="hs-accordion" id="users-accordion-sub-2">
                     <button
                       type="button"
-                      class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                      class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                       aria-expanded="true"
                       aria-controls="users-accordion-sub-2-collapse-1"
                     >
@@ -332,7 +347,7 @@ onMounted(() => {
             <li>
               <button
                 type="button"
-                class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                 @click="WORKSPACE_STORE.openSettingsModal()"
               >
                 <Settings class="size-4" />
@@ -342,7 +357,7 @@ onMounted(() => {
             <li>
               <button
                 type="button"
-                class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-hidden"
+                class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
               >
                 <Trash class="size-4" />
 
@@ -376,12 +391,12 @@ onMounted(() => {
       <footer class="mt-auto pt-0 pb-3 border-t border-gray-200">
         <!-- Account Dropdown -->
         <div
-          class="hs-dropdown [--strategy:absolute] [--auto-close:true] pt-3 relative w-full inline-flex"
+          class="hs-dropdown [--strategy:absolute] [--auto-close:inside] pt-3 relative w-full inline-flex"
         >
           <button
             id="hs-sidebar-footer"
             type="button"
-            class="w-full inline-flex shrink-0 items-center gap-x-2 p-2 text-start text-sm text-gray-800 bg-gray-50 border border-gray-200 shadow-2xs rounded-md hover:bg-gray-200 transition-colors duration-200 focus:outline-hidden focus:bg-gray-200"
+            class="w-full inline-flex shrink-0 items-center gap-x-2 p-2 text-start text-sm text-gray-800 bg-gray-50 border border-gray-200 shadow-2xs rounded-md hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden focus:bg-gray-200"
             aria-haspopup="menu"
             aria-expanded="false"
             aria-label="Dropdown"
@@ -421,7 +436,7 @@ onMounted(() => {
           >
             <div class="p-1">
               <a
-                class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
+                class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
                 href="#"
               >
                 <LogOut class="size-4" />
@@ -429,7 +444,7 @@ onMounted(() => {
                 Выйти
               </a>
               <a
-                class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
+                class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
                 href="#"
               >
                 <MessageCircleQuestionMark class="size-4" />

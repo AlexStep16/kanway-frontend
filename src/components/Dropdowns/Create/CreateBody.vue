@@ -1,14 +1,5 @@
 <script setup lang="ts">
-const availableColors = [
-  'bg-red-400',
-  'bg-yellow-400',
-  'bg-green-400',
-  'bg-blue-500',
-  'bg-indigo-400',
-  'bg-purple-400',
-  'bg-pink-400',
-  'bg-gray-400',
-]
+import ColorButtons from '@/components/ColorButtons.vue'
 
 defineProps<{
   dropdownMenuWidth?: number
@@ -39,21 +30,13 @@ defineProps<{
 
     <div class="flex flex-col gap-y-1">
       <span class="text-xs font-bold text-gray-500">Цвет</span>
-      <div class="flex flex-wrap gap-1">
-        <button
-          type="button"
-          class="inline-block size-7 rounded-md"
-          v-for="color in availableColors"
-          :key="color"
-          :class="color"
-        ></button>
-      </div>
+      <ColorButtons />
     </div>
 
     <div class="flex justify-end gap-x-2 pt-2 border-t border-gray-200">
       <button
         type="button"
-        class="px-2.5 py-1.5 w-full bg-blue-500 text-custom-sm text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
+        class="px-2.5 py-1.5 w-full bg-blue-500 text-custom-sm text-white rounded-md hover:opacity-90 transition-opacity duration-100"
       >
         Создать
       </button>

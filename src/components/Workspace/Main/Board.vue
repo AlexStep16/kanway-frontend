@@ -18,11 +18,11 @@ import { Plus } from 'lucide-vue-next'
         name: 'Категория 1',
         tasks: [
           { id: 1, name: 'Задача 1', is_completed: false, tags: ['важно'] },
-          { id: 2, name: 'Задача 2', color: '#FFEEAA', is_completed: false },
+          { id: 2, name: 'Задача 2', color: '#ffdf20', is_completed: false },
           {
             id: 3,
             name: 'Задача 3',
-            color: '#EEAABB',
+            color: '#ff6467',
             due_date: '2025-09-15T14:14:00',
             is_completed: false,
             tags: ['отчеты', 'встречи'],
@@ -62,7 +62,7 @@ import { Plus } from 'lucide-vue-next'
     <div class="h-full flex items-center">
       <button
         type="button"
-        class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors duration-200 focus:outline-hidden"
+        class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
         title="Добавить категорию"
       >
         <Plus class="size-6" />

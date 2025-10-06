@@ -69,7 +69,7 @@ onMounted(() => {
         </div>
         <input
           id="header-search-input"
-          class="py-1.5 ps-10 pe-4 block w-full border border-gray-200 bg-gray-100 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none"
+          class="py-1.5 ps-10 pe-4 block w-full border border-gray-200 bg-gray-100 hover:bg-gray-200 transition-colors duration-100 focus:bg-gray-100 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none"
           type="text"
           name="header-search-input"
           autocomplete="off"
@@ -98,7 +98,7 @@ onMounted(() => {
             tabindex="1"
           >
             <a
-              class="py-2 px-2.5 flex items-center gap-x-3 hover:bg-gray-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+              class="py-2 px-2.5 flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
               href="/"
             >
               <span

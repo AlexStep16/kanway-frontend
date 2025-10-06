@@ -8,7 +8,9 @@ function onCreateApp(pageContext: PageContext) {
     // Don't add the plugin when rendering <head> (see Lifecycle)
     return
   }
-  const app = pageContext.app!
+  const app = pageContext.app
 
-  VueTheMask(app)
+  if (app) {
+    app.use(VueTheMask as any)
+  }
 }

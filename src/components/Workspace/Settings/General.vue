@@ -2,6 +2,7 @@
 import { Camera } from 'lucide-vue-next'
 import dayjs from 'dayjs'
 import { useRootStore } from '@/stores/root'
+import Avatar from '@/components/Workspace/Settings/Avatar.vue'
 
 const STORE = useRootStore()
 
@@ -28,19 +29,9 @@ function getAllTimezoneOptions(): string[] {
     <div class="flex flex-col gap-y-3">
       <div class="flex flex-col gap-y-1">
         <label class="text-custom-sm font-medium text-gray-500">Аватар</label>
-        <div class="size-15 rounded-full bg-gray-300 relative">
-          <img
-            class="shrink-0 size-full rounded-full"
-            src="https://images.unsplash.com/photo-1734122415415-88cb1d7d5dc0?q=80&w=320&h=320&auto=format&fit=facearea&facepad=3&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Avatar"
-          />
-
-          <div
-            class="size-full flex items-center justify-center absolute cursor-pointer text-white inset-0 rounded-full bg-black outline-2 outline-transparent opacity-0 hover:opacity-70 hover:outline-blue-500 transition-all duration-200"
-          >
-            <Camera class="size-5" />
-          </div>
-        </div>
+        <Avatar class="size-15">
+          <Camera class="size-5" />
+        </Avatar>
       </div>
 
       <div class="flex flex-col gap-y-1">
@@ -106,7 +97,7 @@ function getAllTimezoneOptions(): string[] {
   <div class="flex items-center justify-end w-full pt-2 gap-x-2 border-t border-gray-200">
     <button
       type="button"
-      class="py-2 px-3 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-md transition-colors duration-200 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
+      class="py-2 px-3 bg-blue-500 hover:opacity-90 transition-opacity text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
     >
       Сохранить
     </button>

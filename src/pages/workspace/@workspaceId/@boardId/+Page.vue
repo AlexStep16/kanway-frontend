@@ -1,10 +1,6 @@
 <script lang="ts" setup>
-import * as UserHelper from '../../../../helpers/user';
-
 import { clientOnly } from 'vike-vue/clientOnly'
-const WorkspaceView = clientOnly(() => import('../../WorkspaceView.vue'))
-
-UserHelper.updateUserByPageContext();
+const WorkspaceView = clientOnly(() => import('@views/WorkspaceView.vue'))
 </script>
 
 <template>

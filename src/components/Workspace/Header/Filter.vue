@@ -8,7 +8,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="hs-dropdown [--auto-close:true] relative inline-flex">
+  <div class="hs-dropdown [--auto-close:inside] relative inline-flex">
     <button
       id="hs-dropdown-filter"
       type="button"
@@ -28,7 +28,7 @@ onMounted(() => {
         <ul class="max-w-sm flex flex-col">
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -43,7 +43,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -62,7 +62,7 @@ onMounted(() => {
         <ul class="max-w-sm flex flex-col">
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -77,7 +77,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -92,7 +92,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -107,7 +107,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -128,7 +128,7 @@ onMounted(() => {
         <ul class="max-w-sm flex flex-col">
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input
@@ -143,7 +143,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
             >
               <div class="flex items-center h-5">
                 <input

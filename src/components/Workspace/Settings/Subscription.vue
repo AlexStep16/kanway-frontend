@@ -34,7 +34,7 @@
               <span>Следующий платеж: 01.01.2026</span>
               <button
                 type="button"
-                class="text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-200"
+                class="text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-100"
               >
                 Отменить
               </button>

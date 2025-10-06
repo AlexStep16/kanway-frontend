@@ -9,6 +9,8 @@ import { useWorkspaceStore } from '@/stores/workspace'
 import { useTaskStore } from '@/stores/task'
 import { HSOverlay } from 'preline/dist'
 import Settings from '@/components/Workspace/Settings/Settings.vue'
+import Chat from '@/components/Workspace/Main/Chat/Chat.vue'
+import Tip from '@/components/Tip/Tip.vue'
 
 const WORKSPACE_STORE = useWorkspaceStore()
 const TASK_STORE = useTaskStore()
@@ -29,10 +31,18 @@ function initSettingsModal() {
   }
 }
 
+function initChatModal() {
+  if (WORKSPACE_STORE.chatModalRef) {
+    WORKSPACE_STORE.chatModalHSInstance = new HSOverlay(WORKSPACE_STORE.chatModalRef)
+  }
+}
+
 onMounted(() => {
   window.HSStaticMethods.autoInit()
+
   initEditTaskModal()
   initSettingsModal()
+  initChatModal()
 })
 </script>
 
@@ -56,6 +66,14 @@ onMounted(() => {
 
     <Teleport to="body">
       <Settings />
+    </Teleport>
+
+    <Teleport to="body">
+      <Chat />
+    </Teleport>
+
+    <Teleport to="body">
+      <Tip />
     </Teleport>
   </main>
 </template>

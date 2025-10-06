@@ -39,7 +39,14 @@ defineProps<{
     <div class="flex flex-col gap-y-2 mb-3">
       <ButtonCreate text="Добавить задачу" />
 
-      <Task v-for="task in category.tasks" :key="task.id" :task="task" :isInteractive="true" />
+      <Task
+        v-for="task in category.tasks"
+        :key="task.id"
+        :task="task"
+        :isEditable="true"
+        :hasCopy="true"
+        :hasDelete="true"
+      />
     </div>
   </div>
 </template>

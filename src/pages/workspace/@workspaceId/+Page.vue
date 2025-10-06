@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { clientOnly } from 'vike-vue/clientOnly'
-const WorkspaceView = clientOnly(() => import('../WorkspaceView.vue'))
+const WorkspaceView = clientOnly(() => import('@views/WorkspaceView.vue'))
 </script>
 
 <template>

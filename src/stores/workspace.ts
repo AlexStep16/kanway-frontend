@@ -8,6 +8,9 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const createBoardButtonRef = ref<HTMLElement | null>(null)
   const settingsModalRef = ref<HTMLElement | null>(null)
   const settingsModalHSInstance = ref<HSOverlay | null>(null)
+  const chatModalRef = ref<HTMLElement | null>(null)
+  const chatModalHSInstance = ref<HSOverlay | null>(null)
+  const tipRef = ref<HTMLElement | null>(null)
 
   const isSidebarOpen = ref(true)
 
@@ -35,6 +38,18 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     }
   }
 
+  function openChatModal() {
+    if (chatModalHSInstance.value) {
+      chatModalHSInstance.value.open()
+    }
+  }
+
+  function closeChatModal() {
+    if (chatModalHSInstance.value) {
+      chatModalHSInstance.value.close()
+    }
+  }
+
   function $reset() {}
 
   return {
@@ -45,12 +60,17 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     createBoardButtonRef,
     settingsModalRef,
     settingsModalHSInstance,
+    chatModalRef,
+    chatModalHSInstance,
+    tipRef,
 
     // Actions
     openEditTaskModal,
     closeEditTaskModal,
     openSettingsModal,
     closeSettingsModal,
+    openChatModal,
+    closeChatModal,
     $reset,
   }
 })

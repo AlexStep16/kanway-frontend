@@ -257,7 +257,7 @@ const newPasswordAgain = ref('')
     <div class="flex items-center justify-start w-full gap-x-2">
       <button
         type="button"
-        class="py-2 px-3 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-md transition-colors duration-200 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
+        class="py-2 px-3 bg-blue-500 hover:opacity-90 transition-opacity text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
       >
         Сохранить
       </button>
@@ -276,7 +276,7 @@ const newPasswordAgain = ref('')
       </p>
       <button
         type="button"
-        class="py-2 px-3 text-xs self-start font-semibold rounded-md border border-transparent bg-red-100 text-red-500 transition-colors duration-200 hover:bg-red-200 disabled:opacity-50 disabled:pointer-events-none"
+        class="py-2 px-3 text-xs self-start font-semibold rounded-md border border-transparent bg-red-100 text-red-500 transition-colors duration-100 hover:bg-red-200 disabled:opacity-50 disabled:pointer-events-none"
       >
         Удалить аккаунт
       </button>

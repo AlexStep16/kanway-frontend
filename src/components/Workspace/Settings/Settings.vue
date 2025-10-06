@@ -36,7 +36,7 @@ const currentTab = ref(SettingTabs.GENERAL)
         <div class="flex justify-between items-center gap-x-2 pb-2 border-b border-gray-200">
           <h5 id="hs-task-edit-label" class="text-lg font-semibold text-gray-900">Настройки</h5>
           <button
-            class="transition-colors duration-200 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
+            class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
             @click="WORKSPACE_STORE.closeSettingsModal()"
           >
