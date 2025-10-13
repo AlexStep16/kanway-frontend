@@ -8,7 +8,7 @@ export default {
   prerender: false,
   extends: [vikeVue, vikeVuePinia],
   hooksTimeout: false,
-  bodyAttributes: { class: 'overflow-hidden bg-gray-100 dark:bg-neutral-900 hs-overlay-body-open' },
+  bodyAttributes: { class: 'bg-gray-100 dark:bg-neutral-900 hs-overlay-body-open' },
 } satisfies Config
 
 declare global {

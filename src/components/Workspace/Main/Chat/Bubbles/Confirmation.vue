@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <Assistant :text />
   <ul class="text-sm text-gray-700 mt-2">
-    <li
+    <!-- <li
       class="relative before:content-['•'] before:absolute before:left-0 before:inline-block ps-4"
     >
       <span class="font-semibold">Имя: </span>Сходить в парк
@@ -23,7 +23,7 @@ defineProps<{
       class="relative before:content-['•'] before:absolute before:left-0 before:inline-block ps-4"
     >
       <span class="font-semibold">Дата: </span>Завтра в 19:00
-    </li>
+    </li> -->
     <li
       class="relative before:content-['•'] before:absolute before:left-0 before:inline-block ps-4"
     >
@@ -32,7 +32,7 @@ defineProps<{
     <li
       class="relative before:content-['•'] before:absolute before:left-0 before:inline-block ps-4"
     >
-      <span class="font-semibold">Категория: </span>Прогулка
+      <span class="font-semibold">Категория: </span>Срочное
     </li>
   </ul>
 </template>

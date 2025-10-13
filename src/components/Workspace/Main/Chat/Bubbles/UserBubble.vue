@@ -1,9 +1,17 @@
+<script setup lang="ts">
+import { defineProps } from 'vue'
+
+defineProps<{
+  text: string
+}>()
+</script>
+
 <template>
   <div class="w-full flex flex-col justify-start items-end gap-y-1 group/bubble">
     <div class="flex items-end gap-x-2">
-      <div class="rounded-lg rounded-br-none bg-gray-100 p-3 max-w-lg">
+      <div class="rounded-lg rounded-br-none bg-blue-100 p-3 max-w-lg">
         <p class="text-sm text-gray-700">
-          Привет! Создай задачу на завтра - Сходить в магазин и назначь ей дату 17 июля 2026 года
+          {{ text }}
         </p>
       </div>
       <div

@@ -27,7 +27,7 @@ defineProps<{
     </div>
 
     <div
-      class="flex items-center ps-10 justify-start gap-1"
+      class="flex flex-wrap items-center ps-10 justify-start gap-1"
       v-if="fastQuestions && fastQuestions.length"
     >
       <button

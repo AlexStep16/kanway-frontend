@@ -53,12 +53,12 @@ onMounted(() => {
   }
 
   if (WORKSPACE_STORE.createBoardButtonRef) {
-    TIPS_STORE.addTip({
+    /*TIPS_STORE.addTip({
       title: 'Создание доски',
       description: `Чтобы создать новую доску, нажмите на соответствующую кнопку, которая находится в разделе <b>Доски</b>.`,
       anchorElement: WORKSPACE_STORE.createBoardButtonRef,
       buttonNextText: 'Понятно',
-    })
+    })*/
   }
 })
 </script>

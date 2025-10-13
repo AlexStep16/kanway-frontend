@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useWorkspaceStore } from '@/stores/workspace'
-import { X } from 'lucide-vue-next'
+import { X, MessagesSquare } from 'lucide-vue-next'
 import UserBubble from '@/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import AIBubble from '@/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import Confirmation from '@/components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
@@ -101,8 +101,11 @@ const categoryColumns = computed(() => {
         class="flex flex-col size-full max-w-4xl max-h-160 bg-white rounded-md pointer-events-auto px-4 py-3 overflow-auto"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center gap-x-2 pb-2 border-b border-gray-200">
-          <h5 id="hs-task-edit-label" class="text-base font-semibold text-gray-900">Чат с ИИ</h5>
+        <div class="flex justify-between items-center gap-x-2 pb-1 border-b border-gray-200">
+          <div class="flex items-center justify-center gap-x-2">
+            <MessagesSquare class="size-4" />
+            <h5 id="hs-task-edit-label" class="text-sm font-medium text-gray-800">Чат с ИИ</h5>
+          </div>
           <button
             class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
@@ -114,7 +117,9 @@ const categoryColumns = computed(() => {
 
         <!-- Body -->
         <div class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1">
-          <UserBubble />
+          <UserBubble
+            text="Привет! Создай задачу сходить в магазин и назначь ей дату 17 июля 2026"
+          />
 
           <AIBubble :hideBackground="true">
             <Status :currentToolStatus="currentToolStatus" />
@@ -122,13 +127,21 @@ const categoryColumns = computed(() => {
 
           <AIBubble
             date="18 ноября в 15:00"
-            :fastQuestions="['Создать задачу', 'Запланировать встречу', 'Показать отчёт']"
+            :fastQuestions="[
+              'Добавь хлеб, молоко в описание',
+              'Добавь ей тег покупки',
+              'Перенеси на завтра',
+            ]"
           >
             <Assistant
               text="Привет! Конечно! Я создал задачу 'Сходить в магазин' и назначил ей дату на 17 июля 2026
           года. Если тебе нужно что-то еще, просто скажи!"
             />
           </AIBubble>
+
+          <UserBubble
+            text="Давай изменим цвет на синий и переместим в категорию Срочно все задачи с тегом 'Покупки'"
+          />
 
           <AIBubble :hideAvatar="true">
             <Confirmation text="Следующим задачам будут присвоены значения:" />

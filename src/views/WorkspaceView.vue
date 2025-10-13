@@ -43,6 +43,8 @@ onMounted(() => {
   initEditTaskModal()
   initSettingsModal()
   initChatModal()
+
+  WORKSPACE_STORE.openChatModal()
 })
 </script>
 

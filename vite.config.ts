@@ -5,6 +5,7 @@ import compressPlugin from 'vite-plugin-compression'
 import tailwindcss from '@tailwindcss/vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import path from 'path'
+import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
   resolve: {
@@ -18,6 +19,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    svgLoader(),
     vike({
       prerender: {
         partial: true,
