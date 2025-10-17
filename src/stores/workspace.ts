@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ICollectionItem } from 'preline'
-import { HSOverlay } from 'preline/dist'
+import type { HSOverlay } from 'preline'
+
 import { ref } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 
@@ -54,15 +54,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     }
   }
 
-  function openMobileSearch() {
-    const mobileSearch = document.getElementById('hs-mobile-search')
-
-    if (mobileSearch) {
-      const { element } = HSOverlay.getInstance(mobileSearch, true) as ICollectionItem<HSOverlay>
-      element.open()
-    }
-  }
-
   function openSidebar() {
     isSidebarOpen.value = true
   }
@@ -95,7 +86,6 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     closeChatModal,
     openSidebar,
     closeSidebar,
-    openMobileSearch,
     $reset,
   }
 })

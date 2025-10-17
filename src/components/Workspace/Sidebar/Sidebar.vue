@@ -83,6 +83,7 @@ onMounted(() => {
     <div class="relative flex flex-col h-full max-h-full">
       <!-- Header -->
       <header class="py-3 border-b border-gray-200 flex items-center gap-x-1">
+        <!-- Workspace Dropdown -->
         <div
           class="hs-dropdown [--strategy:absolute] [--auto-close:false] relative w-full inline-flex flex-1 min-w-0"
           ref="workspaceDropdown"
@@ -119,7 +120,7 @@ onMounted(() => {
               <path d="m7 9 5-5 5 5" />
             </svg>
           </button>
-          <!-- Account Dropdown -->
+          <!-- Workspaces Dropdown -->
           <div
             class="hs-dropdown-menu w-full min-w-70 hs-dropdown-open:opacity-100 transition-[opacity,margin] duration opacity-0 hidden z-20 bg-white border border-gray-200 rounded-lg shadow-lg"
             role="menu"
@@ -157,9 +158,9 @@ onMounted(() => {
               </Dropdown>
             </ul>
           </div>
-          <!-- End Account Dropdown -->
+          <!-- End Workspaces Dropdown -->
         </div>
-        <!-- End Account Dropdown -->
+        <!-- End Workspace Dropdown -->
 
         <button
           type="button"
@@ -210,7 +211,7 @@ onMounted(() => {
                 >
                   <SidebarItem :item="{ id: 2, name: 'Спорт' }" type="board" />
 
-                  <CreateDropdown
+                  <Dropdown
                     :dropdownClasses="'[--scope:window]'"
                     :dropdownMenuWidth="getBoardCreateModalWidth()"
                     :id="'hs-sidebar-board-create'"
@@ -219,7 +220,7 @@ onMounted(() => {
                       id="hs-sidebar-board-create"
                       @refEvent="WORKSPACE_STORE.createBoardButtonRef = $event"
                     />
-                  </CreateDropdown>
+                  </Dropdown>
                 </ul>
               </div>
             </li>

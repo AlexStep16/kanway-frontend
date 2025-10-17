@@ -167,7 +167,7 @@ onMounted(() => {
         </div>
 
         <div
-          class="flex flex-col shrink-0 w-full p-1"
+          class="flex flex-col shrink-0 w-full p-1 min-w-60 max-w-70"
           v-show="showTransfer"
           v-if="['board', 'workspace'].includes(edit_type || '')"
         >

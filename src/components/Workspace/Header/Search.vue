@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { useWorkspaceStore } from '@/stores/workspace'
 import SearchBox from '@/components/Workspace/Header/SearchBox.vue'
+import { HSOverlay } from 'preline'
+import type { ICollectionItem } from 'preline'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+function openMobileSearch() {
+  const mobileSearch = document.getElementById('hs-mobile-search')
+
+  if (mobileSearch) {
+    const { element } = HSOverlay.getInstance(mobileSearch, true) as ICollectionItem<HSOverlay>
+    element.open()
+  }
+}
 </script>
 
 <template>
@@ -13,7 +21,7 @@ const WORKSPACE_STORE = useWorkspaceStore()
 
     <!-- Mobile Icon -->
     <button
-      @click="WORKSPACE_STORE.openMobileSearch"
+      @click="openMobileSearch"
       type="button"
       class="flex items-center justify-center text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-200 focus:bg-blue-100 focus:text-blue-500 transition-colors duration-100 rounded-md ms-2 sm:hidden"
     >
