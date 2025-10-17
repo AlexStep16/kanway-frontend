@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Mic } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { HSTextareaAutoHeight } from 'preline'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
   theme?: 'light' | 'dark'
@@ -9,17 +10,31 @@ defineProps<{
 }>()
 
 const waveScale = ref(1)
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
 setInterval(() => {
   waveScale.value = 1 + Math.random() * 0.5
 }, 200)
+
+onMounted(() => {
+  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+
+  window.addEventListener('resize', () => {
+    if (textareaRef.value && textareaRef.value instanceof HTMLTextAreaElement) {
+      const { element } = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
+
+      element?.destroy()
+      element?.init()
+    }
+  })
+})
 </script>
 
 <template>
   <div
     class="w-full relative p-2 rounded-md bg-white"
     :class="{
-      'bg-gray-100': theme === 'dark',
+      'bg-gray-100!': theme === 'dark',
       'border border-gray-200': theme === 'light' || !theme,
       ' mb-3 mt-1.5': !noInputMargin,
     }"
@@ -27,6 +42,7 @@ setInterval(() => {
     <div class="flex gap-x-1 items-end">
       <div class="w-full min-h-8 flex items-center">
         <textarea
+          ref="textareaRef"
           class="block p-0 w-full ps-1 max-h-60 text-gray-700 bg-transparent placeholder:text-gray-500 border-none focus:ring-0 text-sm disabled:opacity-50 disabled:pointer-events-none resize-none"
           :placeholder="placeholder ? placeholder : 'Напишите что вы хотите сделать...'"
           data-hs-textarea-auto-height='{

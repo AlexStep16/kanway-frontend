@@ -1,18 +1,38 @@
 <script setup lang="ts">
 import { HSComboBox, ICollectionItem } from 'preline'
 import { onMounted, ref } from 'vue'
+import { useWorkspaceStore } from '@/stores/workspace'
+import Tabs from '@/enums/TabsEnum'
 
-defineProps<{
-  placeholder?: string
+const props = defineProps<{
+  isAlwaysVisible?: boolean
 }>()
+
+const emit = defineEmits<{
+  (e: 'input', value: string): void
+}>()
+
+const WORKSPACE_STORE = useWorkspaceStore()
 
 const searchBoxRef = ref<HTMLElement | null>(null)
 const preventAutofill = ref(true)
+const dataHsComboBox = ref({
+  groupingType: 'default',
+  preventSelection: true,
+  outputEmptyTemplate:
+    '<div class="py-2 ' +
+    (props.isAlwaysVisible ? 'px-2.5' : 'px-4') +
+    ' text-sm text-gray-800 rounded-lg">Ничего не найдено...</div>',
+  isOpenOnFocus: false,
+  groupingTitleTemplate: '<div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1"></div>',
+})
 
 function inputSearch(event: Event) {
   const input = event.target as HTMLInputElement
 
   if (input && searchBoxRef.value) {
+    emit('input', input.value)
+
     const { element } = HSComboBox.getInstance(
       searchBoxRef.value,
       true,
@@ -21,14 +41,27 @@ function inputSearch(event: Event) {
     if (element) {
       if (input.value.length === 0) {
         element.close()
-
         event.stopImmediatePropagation()
       }
     }
   }
 }
 
+function getPlaceholder() {
+  if (WORKSPACE_STORE.currentTab === Tabs.Archive) {
+    return 'Поиск в архиве...'
+  } else if (WORKSPACE_STORE.currentTab === Tabs.Board) {
+    return 'Поиск на доске...'
+  } else {
+    return 'Поиск...'
+  }
+}
+
 onMounted(() => {
+  if (window.HSStaticMethods) {
+    window.HSStaticMethods.autoInit()
+  }
+
   setTimeout(() => {
     preventAutofill.value = false
   }, 10)
@@ -36,23 +69,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-sm">
-    <!-- SearchBox -->
-    <div
-      class="relative"
-      ref="searchBoxRef"
-      data-hs-combo-box='{
-        "groupingType": "default",
-        "preventSelection": true,
-        "outputEmptyTemplate": "<div class=\"py-2 px-4 w-full text-sm text-gray-800 rounded-lg dark:bg-neutral-900 dark:text-neutral-200\">Ничего не найдено...</div>",
-        "isOpenOnFocus": false,
-        "groupingTitleTemplate": "<div class=\"block text-xs text-gray-500 px-2.5 pt-2 mb-1\"></div>"
-      }'
-    >
+  <!-- SearchBox -->
+  <div class="relative" ref="searchBoxRef" :data-hs-combo-box="JSON.stringify(dataHsComboBox)">
+    <div :class="{ 'pb-2 border-b border-gray-200': isAlwaysVisible }">
       <div class="relative">
         <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
           <svg
-            class="shrink-0 size-4 text-gray-400 dark:text-white/60"
+            class="shrink-0 size-4 text-gray-400"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
@@ -75,51 +98,58 @@ onMounted(() => {
           autocomplete="off"
           role="combobox"
           aria-expanded="false"
-          :placeholder="placeholder ? placeholder : 'Найти задачи на доске...'"
+          :placeholder="getPlaceholder()"
           @input="inputSearch"
           value=""
           :disabled="preventAutofill"
           data-hs-combo-box-input=""
         />
       </div>
+    </div>
 
-      <!-- SearchBox Dropdown -->
+    <!-- SearchBox Dropdown -->
+    <div
+      class="z-50 bg-white rounded-xl hidden"
+      :class="{
+        'absolute w-80 shadow-xl': !isAlwaysVisible,
+        'static w-full mt-2!': isAlwaysVisible,
+      }"
+      data-hs-combo-box-output=""
+    >
       <div
-        class="absolute z-50 w-80 bg-white rounded-xl shadow-xl dark:bg-neutral-800"
-        style="display: none"
-        data-hs-combo-box-output=""
+        class="[&::-webkit-scrollbar]:w-2 overflow-y-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+        :class="{
+          'p-2 max-h-125': !isAlwaysVisible,
+          'max-h-80': isAlwaysVisible,
+        }"
+        data-hs-combo-box-output-items-wrapper=""
       >
         <div
-          class="max-h-125 p-2 overflow-y-auto overflow-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
-          data-hs-combo-box-output-items-wrapper=""
+          data-hs-combo-box-output-item='{"group": {"name": "tasks", "title": "Задачи"}}'
+          tabindex="1"
         >
-          <div
-            data-hs-combo-box-output-item='{"group": {"name": "tasks", "title": "Задачи"}}'
-            tabindex="1"
+          <a
+            class="py-2 px-2.5 flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
+            href="/"
           >
-            <a
-              class="py-2 px-2.5 flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
-              href="/"
+            <span
+              class="text-sm text-gray-800 truncate"
+              data-hs-combo-box-search-text="Составить отчёт"
+              data-hs-combo-box-value=""
+              title="Составить отчёт"
+              >Составить отчёт</span
             >
-              <span
-                class="text-sm text-gray-800 dark:text-neutral-200 truncate"
-                data-hs-combo-box-search-text="Составить отчёт"
-                data-hs-combo-box-value=""
-                title="Составить отчёт"
-                >Составить отчёт</span
-              >
-              <span
-                class="ms-auto text-xs text-gray-400"
-                data-hs-combo-box-search-text="Online"
-                data-hs-combo-box-value=""
-                >Работа</span
-              >
-            </a>
-          </div>
+            <span
+              class="ms-auto text-xs text-gray-400"
+              data-hs-combo-box-search-text="Online"
+              data-hs-combo-box-value=""
+              >Работа</span
+            >
+          </a>
         </div>
       </div>
-      <!-- End SearchBox Dropdown -->
     </div>
-    <!-- End SearchBox -->
+    <!-- End SearchBox Dropdown -->
   </div>
+  <!-- End SearchBox -->
 </template>

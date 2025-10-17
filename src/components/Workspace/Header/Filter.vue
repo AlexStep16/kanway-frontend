@@ -12,14 +12,14 @@ onMounted(() => {
     <button
       id="hs-dropdown-filter"
       type="button"
-      class="hs-dropdown-toggle text-sm text-gray-700 inline-flex items-center font-medium justify-center gap-x-2 px-3 rounded-md border border-gray-200"
+      class="hs-dropdown-toggle text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-1 focus:bg-blue-100 sm:focus:bg-white sm:hover:bg-white sm:hover:text-blue-500 sm:hover:border-blue-500 focus:border-blue-500 focus:text-blue-500 sm:text-gray-700 inline-flex items-center font-medium justify-center sm:gap-x-2 sm:px-3 rounded-md sm:border sm:border-gray-200 transition-colors duration-100"
     >
-      <ListFilter class="size-4" />
-      Фильтр
+      <ListFilter class="size-5 sm:size-4" />
+      <span class="hidden sm:inline">Фильтр</span>
     </button>
 
     <div
-      class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 max-h-120 overflow-y-auto bg-white shadow-md rounded-lg mt-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+      class="hs-dropdown-menu transition-[opacity,margin] duration z-50 hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 max-h-120 overflow-y-auto bg-white shadow-md rounded-lg mt-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
       role="menu"
       aria-orientation="vertical"
     >

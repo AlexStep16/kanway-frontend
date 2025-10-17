@@ -7,11 +7,12 @@ import Confirmation from '@/components/Workspace/Main/Chat/Bubbles/Confirmation.
 import AIInput from '@/components/Workspace/Main/Chat/AIInput.vue'
 import Assistant from '@/components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 import Status from '@/components/Workspace/Main/Chat/Bubbles/Status.vue'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Task from '@/components/Workspace/Main/Task/Task.vue'
 import EntityCard from '@/components/Workspace/Main/Archive/EntityCard.vue'
 
 const WORKSPACE_STORE = useWorkspaceStore()
+const numCols = ref(2)
 
 const tasks = ref([
   { id: 1, name: 'Задача 1', is_completed: false, tags: ['важно'] },
@@ -65,21 +66,34 @@ setInterval(() => {
 }, 3000)
 
 const taskColumns = computed(() => {
-  const numCols = 2
-  const result: any = Array.from({ length: numCols }, () => [])
+  const result: any = Array.from({ length: numCols.value }, () => [])
   tasks.value.forEach((task, index) => {
-    result[index % numCols].push(task)
+    result[index % numCols.value].push(task)
   })
   return result
 })
 
 const categoryColumns = computed(() => {
-  const numCols = 2
-  const result: any = Array.from({ length: numCols }, () => [])
+  const result: any = Array.from({ length: numCols.value }, () => [])
   categories.value.forEach((category, index) => {
-    result[index % numCols].push(category)
+    result[index % numCols.value].push(category)
   })
   return result
+})
+
+function updateTaskColumns() {
+  const windowWidth = window.innerWidth
+
+  if (windowWidth <= 640) {
+    numCols.value = 1
+  } else {
+    numCols.value = 2
+  }
+}
+
+onMounted(() => {
+  updateTaskColumns()
+  window.addEventListener('resize', updateTaskColumns)
 })
 </script>
 
@@ -96,7 +110,7 @@ const categoryColumns = computed(() => {
     tabindex="-1"
     aria-labelledby="hs-chat-label"
   >
-    <div class="size-full flex items-center justify-center p-4">
+    <div class="size-full flex items-center justify-center p-2 sm:p-4">
       <div
         class="flex flex-col size-full max-w-4xl max-h-160 bg-white rounded-md pointer-events-auto px-4 py-3 overflow-auto"
       >
@@ -116,7 +130,9 @@ const categoryColumns = computed(() => {
         </div>
 
         <!-- Body -->
-        <div class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1">
+        <div
+          class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+        >
           <UserBubble
             text="Привет! Создай задачу сходить в магазин и назначь ей дату 17 июля 2026"
           />

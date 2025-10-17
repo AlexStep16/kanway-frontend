@@ -8,11 +8,15 @@ import Assistant from '@/components/Workspace/Settings/Assistant.vue'
 import Subscription from '@/components/Workspace/Settings/Subscription.vue'
 import Payments from '@/components/Workspace/Settings/Payments.vue'
 import { SettingTabs } from '@/enums/SettingTabs'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const WORKSPACE_STORE = useWorkspaceStore()
 
 const currentTab = ref(SettingTabs.GENERAL)
+
+onMounted(() => {
+  window.HSStaticMethods.autoInit()
+})
 </script>
 
 <template>
@@ -28,13 +32,15 @@ const currentTab = ref(SettingTabs.GENERAL)
     tabindex="-1"
     aria-labelledby="hs-task-edit-label"
   >
-    <div class="size-full flex items-center justify-center p-4">
+    <div class="size-full flex items-center justify-center p-2 sm:p-4">
       <div
-        class="flex flex-col size-full max-w-4xl max-h-160 bg-white rounded-md pointer-events-auto px-4 py-3 gap-y-4 overflow-auto"
+        class="flex flex-col size-full max-w-4xl max-h-160 bg-white rounded-md pointer-events-auto px-3 sm:px-4 py-2 sm:py-3 gap-y-2 sm:gap-y-4 overflow-auto"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center gap-x-2 pb-2 border-b border-gray-200">
-          <h5 id="hs-task-edit-label" class="text-lg font-semibold text-gray-900">Настройки</h5>
+        <div
+          class="flex justify-between items-center gap-x-2 pb-1 sm:pb-2 border-b border-gray-200"
+        >
+          <h5 id="hs-task-edit-label" class="sm:text-lg font-semibold text-gray-900">Настройки</h5>
           <button
             class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
@@ -55,36 +61,12 @@ const currentTab = ref(SettingTabs.GENERAL)
             :currentTab
           />
           <!-- Content -->
-          <div
-            class="grow-1 flex flex-col gap-y-4 ps-6 pe-1 overflow-y-auto"
-            v-show="currentTab === SettingTabs.GENERAL"
-          >
-            <General />
-          </div>
-          <div
-            class="grow-1 flex flex-col gap-y-4 ps-6 pe-1 overflow-y-auto"
-            v-show="currentTab === SettingTabs.SECURITY"
-          >
-            <Security />
-          </div>
-          <div
-            class="grow-1 flex flex-col gap-y-4 ps-6 pe-1 overflow-y-auto"
-            v-show="currentTab === SettingTabs.ASSISTANT"
-          >
-            <Assistant />
-          </div>
-          <div
-            class="grow-1 flex flex-col gap-y-4 ps-6 pe-1 overflow-y-auto"
-            v-show="currentTab === SettingTabs.SUBSCRIPTION"
-          >
-            <Subscription />
-          </div>
-
-          <div
-            class="grow-1 flex flex-col gap-y-4 ps-6 pe-1 overflow-y-auto"
-            v-show="currentTab === SettingTabs.PAYMENTS"
-          >
-            <Payments />
+          <div class="grow-1 flex flex-col gap-y-4 ps-3 sm:ps-6 pe-1 overflow-y-auto">
+            <General v-if="currentTab === SettingTabs.GENERAL" />
+            <Security v-if="currentTab === SettingTabs.SECURITY" />
+            <Assistant v-if="currentTab === SettingTabs.ASSISTANT" />
+            <Subscription v-if="currentTab === SettingTabs.SUBSCRIPTION" />
+            <Payments v-if="currentTab === SettingTabs.PAYMENTS" />
           </div>
         </div>
       </div>

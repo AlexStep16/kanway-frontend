@@ -12,16 +12,21 @@ import {
   Gem,
   ChevronDown,
   ChevronUp,
+  PanelLeftClose,
 } from 'lucide-vue-next'
 import NumberBadge from '@components/Badges/NumberBadge.vue'
 import { useWorkspaceStore } from '@/stores/workspace'
-import CreateDropdown from '@components/Dropdowns/Create/CreateDropdown.vue'
+import Dropdown from '@components/Dropdowns/CreateWorkspace/Dropdown.vue'
 import { onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
 import { useTipsStore } from '@/stores/tips'
 
 const WORKSPACE_STORE = useWorkspaceStore()
 const TIPS_STORE = useTipsStore()
+
+if (window.innerWidth < 1280) {
+  WORKSPACE_STORE.isSidebarOpen = false
+}
 
 const workspaceDropdown = ref<HTMLElement | null>(null)
 
@@ -66,11 +71,10 @@ onMounted(() => {
 <template>
   <!-- Sidebar -->
   <div
-    id="hs-sidebar-collapsible-group"
-    class="hs-overlay block end-auto bottom-0 w-70 px-3 transition-all duration-300 transform h-full fixed top-0 start-0 z-60"
+    class="end-auto bg-gray-100 bottom-0 w-70 px-3 transition-all duration-300 transform h-full fixed top-0 start-0 z-60 block"
     :class="{
-      'translate-x-0': WORKSPACE_STORE.isSidebarOpen,
       '-translate-x-full': !WORKSPACE_STORE.isSidebarOpen,
+      'translate-x-0': WORKSPACE_STORE.isSidebarOpen,
     }"
     role="dialog"
     tabindex="-1"
@@ -78,9 +82,9 @@ onMounted(() => {
   >
     <div class="relative flex flex-col h-full max-h-full">
       <!-- Header -->
-      <header class="py-3 border-b border-gray-200">
+      <header class="py-3 border-b border-gray-200 flex items-center gap-x-1">
         <div
-          class="hs-dropdown [--strategy:absolute] [--auto-close:false] relative w-full inline-flex"
+          class="hs-dropdown [--strategy:absolute] [--auto-close:false] relative w-full inline-flex flex-1 min-w-0"
           ref="workspaceDropdown"
         >
           <button
@@ -97,7 +101,7 @@ onMounted(() => {
               W
             </div>
             <div class="flex flex-col truncate">
-              <span class="text-sm truncate">Личное пространство</span>
+              <span class="text-sm truncate" title="Личное пространство">Личное пространство</span>
             </div>
             <svg
               class="shrink-0 size-3.5 ms-auto"
@@ -117,7 +121,7 @@ onMounted(() => {
           </button>
           <!-- Account Dropdown -->
           <div
-            class="hs-dropdown-menu w-full hs-dropdown-open:opacity-100 transition-[opacity,margin] duration opacity-0 hidden z-20 bg-white border border-gray-200 rounded-lg shadow-lg"
+            class="hs-dropdown-menu w-full min-w-70 hs-dropdown-open:opacity-100 transition-[opacity,margin] duration opacity-0 hidden z-20 bg-white border border-gray-200 rounded-lg shadow-lg"
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="hs-sidebar-workspace"
@@ -148,20 +152,28 @@ onMounted(() => {
                 </template>
               </SidebarItem>
 
-              <CreateDropdown :id="'hs-sidebar-workspace-create'">
+              <Dropdown :id="'hs-sidebar-workspace-create'">
                 <ButtonCreate id="hs-sidebar-workspace-create" />
-              </CreateDropdown>
+              </Dropdown>
             </ul>
           </div>
           <!-- End Account Dropdown -->
         </div>
         <!-- End Account Dropdown -->
+
+        <button
+          type="button"
+          class="inline-flex p-1.5 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100"
+          @click="WORKSPACE_STORE.closeSidebar()"
+        >
+          <PanelLeftClose class="size-4" />
+        </button>
       </header>
       <!-- End Header -->
 
       <!-- Body -->
       <nav
-        class="h-full overflow-y-auto py-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 flex flex-col"
+        class="h-full overflow-y-auto py-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 flex flex-col"
       >
         <div
           class="hs-accordion-group grow-1 w-full flex flex-col flex-wrap justify-between"
@@ -461,4 +473,14 @@ onMounted(() => {
     </div>
   </div>
   <!-- End Sidebar -->
+
+  <!-- Backdrop mobile -->
+  <div
+    class="fixed inset-0 transition duration bg-gray-900/50 lg:hidden z-50"
+    :class="{
+      'opacity-100 visible': WORKSPACE_STORE.isSidebarOpen,
+      'opacity-0 invisible': !WORKSPACE_STORE.isSidebarOpen,
+    }"
+    @click="WORKSPACE_STORE.closeSidebar()"
+  ></div>
 </template>

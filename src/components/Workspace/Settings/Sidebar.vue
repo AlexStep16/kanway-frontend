@@ -13,9 +13,11 @@ const emit = defineEmits<{
 
 <template>
   <div class="flex flex-col">
-    <nav class="flex flex-col gap-y-4 w-50">
+    <nav
+      class="flex flex-col gap-y-1 p-1 bg-gray-100 rounded-md h-full sm:p-0 sm:bg-transparent sm:rounded-none sm:gap-y-4 w-auto sm:w-50"
+    >
       <div class="flex flex-col gap-y-2">
-        <span class="text-xs text-gray-500">ОБЩИЕ НАСТРОЙКИ</span>
+        <span class="text-xs text-gray-500 hidden sm:block">ОБЩИЕ НАСТРОЙКИ</span>
 
         <div class="flex flex-col gap-y-1">
           <button
@@ -27,8 +29,8 @@ const emit = defineEmits<{
             }"
             @click="emit('selectTab', SettingTabs.GENERAL)"
           >
-            <CircleUserRound class="size-4" />
-            <span>Профиль</span>
+            <CircleUserRound class="size-4.5" />
+            <span class="hidden sm:inline">Профиль</span>
           </button>
 
           <button
@@ -40,14 +42,14 @@ const emit = defineEmits<{
             }"
             @click="emit('selectTab', SettingTabs.SECURITY)"
           >
-            <Lock class="size-4" />
-            <span>Безопасность</span>
+            <Lock class="size-4.5" />
+            <span class="hidden sm:inline">Безопасность</span>
           </button>
         </div>
       </div>
 
       <div class="flex flex-col gap-y-2">
-        <span class="text-xs text-gray-500">НАСТРОЙКА АССИСТЕНТА</span>
+        <span class="text-xs text-gray-500 hidden sm:block">НАСТРОЙКА АССИСТЕНТА</span>
 
         <div class="flex flex-col gap-y-1">
           <button
@@ -59,14 +61,14 @@ const emit = defineEmits<{
             }"
             @click="emit('selectTab', SettingTabs.ASSISTANT)"
           >
-            <Bot class="size-4" />
-            <span>Ассистент</span>
+            <Bot class="size-4.5" />
+            <span class="hidden sm:inline">Ассистент</span>
           </button>
         </div>
       </div>
 
       <div class="flex flex-col gap-y-2">
-        <span class="text-xs text-gray-500">ПОДПИСКА И ПЛАТЕЖИ</span>
+        <span class="text-xs text-gray-500 hidden sm:block">ПОДПИСКА И ПЛАТЕЖИ</span>
 
         <div class="flex flex-col gap-y-1">
           <button
@@ -79,8 +81,8 @@ const emit = defineEmits<{
             }"
             @click="emit('selectTab', SettingTabs.SUBSCRIPTION)"
           >
-            <Gem class="size-4" />
-            <span>Подписка</span>
+            <Gem class="size-4.5" />
+            <span class="hidden sm:inline">Подписка</span>
           </button>
 
           <button
@@ -92,8 +94,8 @@ const emit = defineEmits<{
             }"
             @click="emit('selectTab', SettingTabs.PAYMENTS)"
           >
-            <CreditCard class="size-4" />
-            <span>Платежи</span>
+            <CreditCard class="size-4.5" />
+            <span class="hidden sm:inline">Платежи</span>
           </button>
         </div>
       </div>

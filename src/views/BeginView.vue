@@ -2,7 +2,7 @@
 import { navigate } from 'vike/client/router'
 import { LogOut, Camera } from 'lucide-vue-next'
 import ColorButtons from '@/components/ColorButtons.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { HSAccordion } from 'preline'
 import Avatar from '@/components/Workspace/Settings/Avatar.vue'
 
@@ -16,6 +16,8 @@ const colorsAccordion = ref<HTMLElement | null>(null)
 const colorsAccordionInstance = ref<HSAccordion | null>(null)
 const workspaceName = ref('')
 const currentTab = ref(Tab.WORKSPACE)
+const progressLabelRef = ref<HTMLElement | null>(null)
+const progressBarRef = ref<HTMLElement | null>(null)
 
 function workspaceNameInputHandler() {
   if (colorsAccordionInstance.value) {
@@ -36,6 +38,32 @@ const getCurrentProgress = computed((): number => {
   }
 })
 
+function getProgressLabelWidth() {
+  if (progressLabelRef.value) {
+    return progressLabelRef.value.offsetWidth
+  }
+  return 40
+}
+
+function updateProgressLabel() {
+  nextTick(() => {
+    const labelWidth = getProgressLabelWidth()
+
+    if (progressLabelRef.value && progressBarRef.value) {
+      const progressBarWidth = progressBarRef.value.offsetWidth
+
+      let left = progressBarWidth * (getCurrentProgress.value / 100) - labelWidth / 2
+
+      if (left < 0) left = 0
+      if (left + labelWidth > progressBarWidth) left = progressBarWidth - labelWidth
+
+      progressLabelRef.value.style.left = left + 'px'
+    }
+  })
+}
+
+watch(getCurrentProgress, () => updateProgressLabel(), { immediate: true })
+
 onMounted(() => {
   window.HSStaticMethods.autoInit()
 
@@ -44,12 +72,14 @@ onMounted(() => {
 
     colorsAccordionInstance.value = element
   }
+
+  window.addEventListener('resize', () => updateProgressLabel())
 })
 </script>
 
 <template>
   <div class="size-full bg-gray-100 fixed inset-0 flex flex-col">
-    <header class="w-full py-5 px-10 flex justify-between items-center">
+    <header class="w-full py-5 px-4 sm:px-10 flex justify-between items-center">
       <a @click="navigate('/')" class="cursor-pointer" aria-label="На главную">
         <svg height="33" viewBox="0 0 103 26" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -73,18 +103,18 @@ onMounted(() => {
     </header>
 
     <main class="flex items-center justify-center grow-1">
-      <div class="flex flex-col gap-y-6 max-h-100 h-full py-4 justify-between">
+      <div class="flex flex-col gap-y-6 max-h-100 h-full p-4 justify-between w-full max-w-90">
         <TransitionGroup
           class="flex items-center justify-center h-full"
           tag="div"
           name="slide-left"
         >
-          <div class="flex items-center justify-center min-w-90" :key="currentTab">
+          <div class="flex items-center justify-center w-full" :key="currentTab">
             <div
-              class="rounded-lg flex flex-col gap-y-4 items-center w-full"
+              class="rounded-lg flex flex-col gap-y-2 sm:gap-y-4 items-center w-full"
               v-if="currentTab === Tab.WORKSPACE"
             >
-              <h1 class="text-3xl text-gray-800 font-bold">Давайте начнем!</h1>
+              <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Давайте начнем!</h1>
               <div class="flex flex-col items-start w-full">
                 <div class="flex flex-col items-start gap-y-1 w-full">
                   <p class="text-sm text-gray-500">Введите название вашего первого пространства</p>
@@ -130,10 +160,10 @@ onMounted(() => {
             </div>
 
             <div
-              class="rounded-lg flex flex-col gap-y-4 items-center w-full"
+              class="rounded-lg flex flex-col gap-y-2 sm:gap-y-4 items-center w-full"
               v-if="currentTab === Tab.USER"
             >
-              <h1 class="text-3xl text-gray-800 font-bold">Представьтесь</h1>
+              <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Представьтесь</h1>
               <div class="flex flex-col gap-y-2 items-start w-full">
                 <div class="flex flex-col items-start gap-y-1 w-full">
                   <p class="text-sm text-gray-500">Введите ваше имя</p>
@@ -160,13 +190,13 @@ onMounted(() => {
             </div>
 
             <div
-              class="rounded-lg flex flex-col gap-y-4 items-center w-full"
+              class="rounded-lg flex flex-col gap-y-2 sm:gap-y-4 items-center w-full"
               v-if="currentTab === Tab.AVATAR"
             >
-              <h1 class="text-3xl text-gray-800 font-bold">Выберите аватар</h1>
+              <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Выберите аватар</h1>
               <div class="flex flex-col items-center gap-y-3 w-full">
                 <div class="w-full flex justify-center">
-                  <Avatar class="size-20">
+                  <Avatar class="size-17">
                     <Camera class="size-8" />
                   </Avatar>
                 </div>
@@ -187,21 +217,22 @@ onMounted(() => {
             <!-- Progress -->
             <div>
               <div
-                class="flex w-full h-2 bg-gray-200 rounded-full overflow-hidden dark:bg-neutral-700"
+                class="flex w-full h-2 bg-gray-200 rounded-full overflow-hidden"
                 role="progressbar"
+                ref="progressBarRef"
                 :aria-valuenow="getCurrentProgress"
                 aria-valuemin="0"
                 aria-valuemax="100"
               >
                 <div
-                  class="flex flex-col justify-center rounded-full overflow-hidden bg-blue-600 text-xs text-white text-center whitespace-nowrap transition-width duration-500 dark:bg-blue-500"
+                  class="flex flex-col justify-center rounded-full overflow-hidden bg-blue-600 text-xs text-white text-center whitespace-nowrap transition-width duration-500"
                   :style="{ width: getCurrentProgress + '%' }"
                 ></div>
               </div>
 
               <div
-                class="inline-block mt-2 py-0.5 px-1.5 bg-blue-50 border border-blue-200 text-xs font-medium transition-all duration-500 text-blue-600 rounded-lg dark:bg-blue-800/30 dark:border-blue-800 dark:text-blue-500"
-                :style="{ marginInlineStart: 'calc(' + getCurrentProgress + '% - 20px)' }"
+                class="relative inline-block mt-2 py-0.5 px-1.5 bg-blue-50 border border-blue-200 text-xs font-medium transition-all duration-500 text-blue-600 rounded-lg"
+                ref="progressLabelRef"
               >
                 {{ getCurrentProgress }}%
               </div>

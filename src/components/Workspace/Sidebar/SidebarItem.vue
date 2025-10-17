@@ -29,14 +29,14 @@ defineProps<{
       :options="{
         edit: type === 'chat' ? false : true,
         copy: true,
-        move: true,
+        move: type === 'chat' ? false : true,
         favorite: true,
         archive: true,
       }"
       :item
       class="absolute right-2.5"
       group_name="sidebar-item"
-      :hover_class="selected ? 'hover:bg-blue-200' : 'hover:bg-gray-200'"
+      :hover_class="selected ? 'lg:hover:bg-blue-200' : 'lg:hover:bg-gray-200'"
       :edit_type="type"
     />
   </li>

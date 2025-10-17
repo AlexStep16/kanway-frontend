@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { X, Check } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const oldPassword = ref('')
 const newPassword = ref('')
 const newPasswordAgain = ref('')
+
+onMounted(() => {
+  window.HSStaticMethods.autoInit()
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200">
+    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
       Безопасность аккаунта
     </h3>
 
@@ -30,7 +34,7 @@ const newPasswordAgain = ref('')
               data-hs-toggle-password='{
               "target": "#settings-old-password"
             }'
-              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
             >
               <svg
                 class="shrink-0 size-4"
@@ -77,7 +81,7 @@ const newPasswordAgain = ref('')
                     data-hs-toggle-password='{
               "target": "#settings-new-password"
             }'
-                    class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+                    class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
                   >
                     <svg
                       class="shrink-0 size-4"
@@ -131,18 +135,16 @@ const newPasswordAgain = ref('')
 
             <div id="settings-strong-password-hints" class="mb-2" v-show="newPassword.length > 0">
               <div>
-                <span class="text-sm text-gray-700 dark:text-neutral-200">Сложность: </span>
+                <span class="text-sm text-gray-700">Сложность: </span>
                 <span
                   data-hs-strong-password-hints-weakness-text='["Нет", "Слабый", "Средний", "Сильный", "Очень Сильный", "Супер Сильный"]'
-                  class="text-sm font-semibold text-gray-700 dark:text-neutral-200"
+                  class="text-sm font-semibold text-gray-700"
                 ></span>
               </div>
 
-              <h4 class="my-2 text-sm font-semibold text-gray-700 dark:text-white">
-                Ваш пароль должен содержать:
-              </h4>
+              <h4 class="my-2 text-sm font-semibold text-gray-700">Ваш пароль должен содержать:</h4>
 
-              <ul class="space-y-1 text-sm text-gray-500 dark:text-neutral-500">
+              <ul class="space-y-1 text-sm text-gray-500">
                 <li
                   data-hs-strong-password-hints-rule-text="min-length"
                   class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
@@ -219,7 +221,7 @@ const newPasswordAgain = ref('')
               data-hs-toggle-password='{
               "target": "#settings-old-password"
             }'
-              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
             >
               <svg
                 class="shrink-0 size-4"
@@ -265,7 +267,9 @@ const newPasswordAgain = ref('')
   </div>
 
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200 mt-4">
+    <h3
+      class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
+    >
       Удаление аккаунта
     </h3>
 

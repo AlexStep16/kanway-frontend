@@ -15,7 +15,7 @@ defineProps<{
     />
 
     <div
-      class="shrink-0 size-full rounded-full text-4xl font-bold flex items-center justify-center text-white"
+      class="shrink-0 size-full rounded-full text-3xl sm:text-4xl font-bold flex items-center justify-center text-white"
       :style="{ backgroundColor: 'green' }"
       alt="Аватар"
     >

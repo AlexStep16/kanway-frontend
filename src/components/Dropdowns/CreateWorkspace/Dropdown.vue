@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CreateBody from '@components/Dropdowns/Create/CreateBody.vue'
+import Body from '@components/Dropdowns/CreateWorkspace/Body.vue'
 import { HSDropdown } from 'preline'
 import { onMounted, ref } from 'vue'
 
@@ -46,7 +46,7 @@ onMounted(() => {
       aria-orientation="vertical"
       aria-labelledby="hs-sidebar-workspace-create"
     >
-      <CreateBody :dropdownMenuWidth="dropdownMenuWidth" :id="id" />
+      <Body :dropdownMenuWidth="dropdownMenuWidth" :id="id" />
     </div>
   </div>
 </template>

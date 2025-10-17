@@ -3,18 +3,26 @@ import ButtonCreate from '@/components/Buttons/ButtonCreate.vue'
 import Options from '@components/Options.vue'
 import Task from '../Task/Task.vue'
 
-defineProps<{
+const props = defineProps<{
   category: {
     id: number
     name: string
     tasks: Array<any>
   }
 }>()
+
+const emit = defineEmits<{
+  (e: 'updateTask', task: any, category: any): void
+}>()
+
+function updateTask(task: any, data: any) {
+  emit('updateTask', { ...task, ...data }, props.category)
+}
 </script>
 
 <template>
   <div
-    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-75 group/category"
+    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-70 sm:w-75 group/category"
   >
     <!-- Header -->
     <div class="flex w-full justify-between items-center">
@@ -43,6 +51,7 @@ defineProps<{
         v-for="task in category.tasks"
         :key="task.id"
         :task="task"
+        @updateTask="updateTask(task, $event)"
         :isEditable="true"
         :hasCopy="true"
         :hasDelete="true"

@@ -1,8 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  window.HSStaticMethods.autoInit()
+})
+</script>
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200">
+    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
       Ваша текущая подписка
     </h3>
 
@@ -11,7 +17,7 @@
         <div class="flex items-start justify-between p-3">
           <div class="flex flex-col grow-1 gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовая</span>
-            <span class="text-xl text-gray-800 font-bold">Бесплатно</span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
           </div>
         </div>
       </div>
@@ -19,14 +25,15 @@
       <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70">
         <div class="flex items-start justify-between p-3">
           <div class="flex flex-col grow-1 gap-y-1">
-            <div class="flex items-center justify-between w-full">
+            <div class="flex items-center justify-between w-full relative">
               <span class="text-sm font-medium text-gray-800">Премиум</span>
-              <span class="text-xs text-green-500 py-1.5 px-2.5 bg-green-100 rounded-full"
+              <span
+                class="absolute right-0 text-xs text-green-500 py-1.5 px-2.5 bg-green-100 rounded-full"
                 >Активна</span
               >
             </div>
             <span class="text-sm text-gray-400">
-              <span class="text-xl text-gray-800 font-bold">₽599</span>
+              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
               /месяц
             </span>
             <div class="flex flex-col text-gray-400 text-xs items-start">
@@ -46,14 +53,16 @@
   </div>
 
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200">Текущие лимиты</h3>
+    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
+      Текущие лимиты
+    </h3>
 
-    <div class="flex gap-2">
+    <div class="flex flex-wrap lg:flex-nowrap gap-2">
       <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70">
         <div class="flex items-start justify-between p-3">
           <div class="flex flex-col grow-1 gap-y-1">
             <span class="text-sm text-gray-500">Пространств осталось:</span>
-            <span class="text-xl text-gray-800 font-bold">1</span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold">1</span>
           </div>
         </div>
       </div>
@@ -62,7 +71,7 @@
         <div class="flex items-start justify-between p-3">
           <div class="flex flex-col grow-1 gap-y-1">
             <span class="text-sm text-gray-500">Досок осталось:</span>
-            <span class="text-xl text-gray-800 font-bold">5</span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold">5</span>
           </div>
         </div>
       </div>
@@ -71,7 +80,7 @@
         <div class="flex items-start justify-between p-3">
           <div class="flex flex-col grow-1 gap-y-1">
             <span class="text-sm text-gray-500">Сообщений осталось:</span>
-            <span class="text-xl text-gray-800 font-bold">235</span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold">235</span>
           </div>
         </div>
       </div>
@@ -79,16 +88,18 @@
   </div>
 
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200 mt-4">
+    <h3
+      class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
+    >
       Доступные планы
     </h3>
 
-    <div class="grid gap-2 grid-cols-2 grid-flow-row auto-rows-max">
+    <div class="grid gap-2 grid-cols-1 md:grid-cols-2 grid-flow-row auto-rows-max">
       <div class="rounded-md bg-white border border-gray-200 grow-1">
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовая</span>
-            <span class="text-xl text-gray-800 font-bold">Бесплатно</span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
             <div class="flex flex-col mt-1 gap-y-1 grow-1">
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <svg
@@ -201,7 +212,7 @@
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Премиум</span>
             <span class="text-sm text-gray-400">
-              <span class="text-xl text-gray-800 font-bold">₽599</span>
+              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
               /месяц
             </span>
             <div class="flex flex-col mt-1 gap-y-1 grow-1">
@@ -316,7 +327,7 @@
           <div class="flex flex-col gap-y-1 size-full">
             <span class="text-sm font-medium text-gray-800">Бизнес</span>
             <span class="text-sm text-gray-400">
-              <span class="text-xl text-gray-800 font-bold">₽999</span>
+              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
               /месяц
             </span>
             <div class="flex flex-col mt-1 gap-y-1 grow-1">

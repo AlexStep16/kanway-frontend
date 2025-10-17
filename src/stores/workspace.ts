@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
+import { ICollectionItem } from 'preline'
 import { HSOverlay } from 'preline/dist'
 import { ref } from 'vue'
+import Tabs from '@/enums/TabsEnum'
 
 export const useWorkspaceStore = defineStore('workspace', () => {
   const editTaskModalRef = ref<HTMLElement | null>(null)
@@ -11,6 +13,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   const chatModalRef = ref<HTMLElement | null>(null)
   const chatModalHSInstance = ref<HSOverlay | null>(null)
   const tipRef = ref<HTMLElement | null>(null)
+
+  const currentTab = ref<Tabs>(Tabs.Board)
 
   const isSidebarOpen = ref(true)
 
@@ -50,19 +54,37 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     }
   }
 
+  function openMobileSearch() {
+    const mobileSearch = document.getElementById('hs-mobile-search')
+
+    if (mobileSearch) {
+      const { element } = HSOverlay.getInstance(mobileSearch, true) as ICollectionItem<HSOverlay>
+      element.open()
+    }
+  }
+
+  function openSidebar() {
+    isSidebarOpen.value = true
+  }
+
+  function closeSidebar() {
+    isSidebarOpen.value = false
+  }
+
   function $reset() {}
 
   return {
     // State
     editTaskModalRef,
-    isSidebarOpen,
     editTaskModalHSInstance,
     createBoardButtonRef,
     settingsModalRef,
     settingsModalHSInstance,
     chatModalRef,
     chatModalHSInstance,
+    isSidebarOpen,
     tipRef,
+    currentTab,
 
     // Actions
     openEditTaskModal,
@@ -71,6 +93,9 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     closeSettingsModal,
     openChatModal,
     closeChatModal,
+    openSidebar,
+    closeSidebar,
+    openMobileSearch,
     $reset,
   }
 })

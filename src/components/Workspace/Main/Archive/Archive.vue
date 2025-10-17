@@ -6,8 +6,10 @@ import NumberBadge from '@/components/Badges/NumberBadge.vue'
 import RecoverButtons from '@/components/Workspace/Main/Archive/RecoverButtons.vue'
 
 import Tabs from '@/enums/TabsEnum'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Trash } from 'lucide-vue-next'
+
+const numCols = ref(3)
 
 const tasks = ref([
   { id: 1, name: 'Задача 1', is_completed: false, tags: ['важно'] },
@@ -45,12 +47,31 @@ const tasks = ref([
 ])
 
 const taskColumns = computed(() => {
-  const numCols = 4
-  const result: any = Array.from({ length: numCols }, () => [])
+  const result: any = Array.from({ length: numCols.value }, () => [])
   tasks.value.forEach((task, index) => {
-    result[index % numCols].push(task)
+    result[index % numCols.value].push(task)
   })
   return result
+})
+
+function updateTaskColumns() {
+  const windowWidth = window.innerWidth
+
+  if (windowWidth < 824) {
+    numCols.value = 1
+  } else if (windowWidth < 1090) {
+    numCols.value = 2
+  } else {
+    numCols.value = 3
+  }
+}
+
+onMounted(() => {
+  updateTaskColumns()
+
+  window.addEventListener('resize', () => {
+    updateTaskColumns()
+  })
 })
 </script>
 <template>
@@ -66,7 +87,9 @@ const taskColumns = computed(() => {
     </div>
   </div>
 
-  <div class="size-full py-3 flex flex-col gap-5 overflow-y-auto">
+  <div
+    class="size-full py-3 flex flex-col gap-5 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+  >
     <div class="w-full">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Задачи</span>

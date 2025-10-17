@@ -11,6 +11,8 @@ import { HSOverlay } from 'preline/dist'
 import Settings from '@/components/Workspace/Settings/Settings.vue'
 import Chat from '@/components/Workspace/Main/Chat/Chat.vue'
 import Tip from '@/components/Tip/Tip.vue'
+import MobileSearch from '@/components/Workspace/MobileSearch.vue'
+import Tabs from '@/enums/TabsEnum'
 
 const WORKSPACE_STORE = useWorkspaceStore()
 const TASK_STORE = useTaskStore()
@@ -43,23 +45,23 @@ onMounted(() => {
   initEditTaskModal()
   initSettingsModal()
   initChatModal()
-
-  WORKSPACE_STORE.openChatModal()
 })
 </script>
 
 <template>
   <Sidebar />
   <main
-    class="bg-gray-100 transition-all duration-300 fixed inset-0 py-3 px-3"
-    :class="{ 'ps-70': WORKSPACE_STORE.isSidebarOpen }"
+    class="bg-gray-100 transition-all duration-300 fixed inset-0 lg:py-3 lg:px-3 lg:ps-70"
+    :class="{
+      'lg:ps-3!': !WORKSPACE_STORE.isSidebarOpen,
+    }"
   >
     <div
-      class="h-full overflow-hidden flex flex-col px-5 bg-white border border-gray-200 shadow-xs rounded-md"
+      class="h-full overflow-hidden flex flex-col px-3 sm:px-5 bg-white lg:border lg:border-gray-200 lg:shadow-xs lg:rounded-md"
     >
-      <Board />
-      <Archive v-if="false" />
-      <Start v-if="false" />
+      <Board v-if="WORKSPACE_STORE.currentTab === Tabs.Board" />
+      <Archive v-if="WORKSPACE_STORE.currentTab === Tabs.Archive" />
+      <Start v-if="WORKSPACE_STORE.currentTab === Tabs.Start" />
     </div>
 
     <Teleport to="body">
@@ -76,6 +78,10 @@ onMounted(() => {
 
     <Teleport to="body">
       <Tip />
+    </Teleport>
+
+    <Teleport to="body">
+      <MobileSearch />
     </Teleport>
   </main>
 </template>

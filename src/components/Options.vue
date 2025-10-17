@@ -10,7 +10,7 @@ import {
 } from 'lucide-vue-next'
 import { HSDropdown } from 'preline'
 import { computed, onMounted, ref } from 'vue'
-import CreateBody from './Dropdowns/Create/CreateBody.vue'
+import Body from './Dropdowns/CreateWorkspace/Body.vue'
 
 const props = defineProps<{
   options: {
@@ -34,19 +34,19 @@ const dropdown = ref<HTMLElement | null>(null)
 const dropdownMenu = ref<HTMLElement | null>(null)
 const dropdownInstance = ref<HSDropdown | null>(null)
 const showEdit = ref(false)
+const showTransfer = ref(false)
 const hoverClass = computed(() => {
-  // Если props.hover_class существует и не пуст, используем его
   if (props.hover_class) {
     return props.hover_class
   }
-  // Иначе, возвращаем класс по умолчанию
+
   return 'hover:bg-gray-200'
 })
 const visibilityClasses = computed(() => {
   if (props.is_always_visible) {
     return 'opacity-100'
   }
-  return `group-hover/${props.group_name}:opacity-100 opacity-0`
+  return `group-hover/${props.group_name}:opacity-100 opacity-100 pointer-fine:opacity-0`
 })
 
 onMounted(() => {
@@ -99,9 +99,9 @@ onMounted(() => {
       :aria-labelledby="'hs-dropdown-button-' + item.id"
     >
       <div class="flex overflow-hidden">
-        <div class="p-1 space-y-0.5 shrink-0 w-full" v-show="!showEdit">
+        <div class="p-1 space-y-0.5 shrink-0 w-full" v-show="!showEdit && !showTransfer">
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 dark:text-neutral-400"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
             @click="showEdit = true"
             v-if="options.edit"
           >
@@ -110,7 +110,7 @@ onMounted(() => {
             Редактировать
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 dark:text-neutral-400"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
             v-if="options.copy"
           >
             <Copy class="size-4" />
@@ -118,7 +118,8 @@ onMounted(() => {
             Копировать
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 dark:text-neutral-400"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            @click="showTransfer = true"
             v-if="options.move"
           >
             <MoveHorizontal class="size-4" />
@@ -126,7 +127,7 @@ onMounted(() => {
             Переместить
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 dark:text-neutral-400"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
             v-if="options.favorite"
           >
             <Star class="size-4" />
@@ -134,7 +135,7 @@ onMounted(() => {
             В избранное
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 dark:text-neutral-400"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
             v-if="options.archive"
           >
             <Trash class="size-4" />
@@ -143,7 +144,11 @@ onMounted(() => {
           </button>
         </div>
 
-        <div class="flex flex-col shrink-0 w-full min-w-75 p-1" v-show="showEdit" v-if="edit_type">
+        <div
+          class="flex flex-col shrink-0 w-full min-w-75 p-1"
+          v-show="showEdit"
+          v-if="['board', 'workspace'].includes(edit_type || '')"
+        >
           <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
             <button
               type="button"
@@ -158,7 +163,33 @@ onMounted(() => {
             >
           </div>
 
-          <CreateBody :id="'hs-sidebar-' + edit_type + '-edit-' + item.id" />
+          <Body :id="'hs-sidebar-' + edit_type + '-edit-' + item.id" />
+        </div>
+
+        <div
+          class="flex flex-col shrink-0 w-full p-1"
+          v-show="showTransfer"
+          v-if="['board', 'workspace'].includes(edit_type || '')"
+        >
+          <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
+            <button
+              type="button"
+              class="flex items-center absolute left-0 gap-x-1 p-1 hover:bg-gray-200 transition-colors duration-100 rounded-md"
+              @click="showTransfer = false"
+            >
+              <ChevronLeft class="size-5" />
+            </button>
+
+            <span class="text-custom-sm font-bold">Переместить в</span>
+          </div>
+
+          <div class="p-1 space-y-0.5 shrink-0 w-full">
+            <button
+              class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            >
+              Личное
+            </button>
+          </div>
         </div>
       </div>
     </div>

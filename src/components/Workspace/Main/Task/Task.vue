@@ -4,7 +4,7 @@ import { useTaskStore } from '@/stores/task'
 import { useWorkspaceStore } from '@/stores/workspace'
 import dayjs from 'dayjs'
 import { Clock, TextAlignStart, Trash, Copy, SquareKanban, Layers } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 enum TimeStatus {
   EXPIRED = 0,
@@ -62,6 +62,10 @@ function getTimeInReadableFormat(date: Date | string) {
   return output
 }
 
+const getTaskIsCompleted = computed(() => {
+  return props.task.is_completed
+})
+
 function edit(task: any) {
   if (!props.isEditable) return
 
@@ -75,7 +79,7 @@ function edit(task: any) {
 
 <template>
   <div
-    class="flex flex-col rounded-md min-w-60 max-w-90 shadow-gray-200 bg-white transition-all duration-100 overflow-hidden"
+    class="flex flex-col rounded-md min-w-60 max-w-75 w-full shadow-gray-200 bg-white transition-all duration-100 overflow-hidden"
     :class="{
       'border border-gray-200': hasBorder,
       'shadow-sm': !hasBorder,
@@ -97,11 +101,53 @@ function edit(task: any) {
       </div>
 
       <div class="flex items-start justify-between gap-x-2">
-        <div class="flex items-start gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800">
-          <span class="pt-0.5" title="Есть описание" v-if="task.description">
-            <TextAlignStart class="size-4 text-gray-600" />
-          </span>
-          <span class="text-sm overflow-hidden break-words">{{ task.name }}</span>
+        <div
+          class="flex items-center gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform -translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
+          :class="{ 'translate-x-0!': getTaskIsCompleted }"
+        >
+          <div
+            class="inline-flex items-center opacity-0 pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
+            :class="{ 'opacity-100! pointer-events-auto!': getTaskIsCompleted }"
+            v-if="props.isEditable"
+          >
+            <div class="size-5 flex items-center justify-center">
+              <label
+                class="flex items-center cursor-pointer relative transition-all select-none"
+                @click.stop
+              >
+                <input
+                  type="checkbox"
+                  class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
+                  :checked="getTaskIsCompleted"
+                  id="check-custom-style"
+                  @change="$emit('updateTask', { is_completed: !getTaskIsCompleted })"
+                />
+                <span
+                  class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="size-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="1"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </span>
+              </label>
+            </div>
+          </div>
+          <span
+            class="text-sm overflow-hidden break-words"
+            :class="{ 'text-gray-300 decoration-1 line-through': task.is_completed }"
+            >{{ task.name }}</span
+          >
         </div>
 
         <div
@@ -136,9 +182,9 @@ function edit(task: any) {
         </div>
 
         <div
-          class="flex items-center absolute right-2 opacity-0 transition-all pointer-events-none duration-100 top-1"
+          class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-1"
           :class="{
-            'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto':
+            'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto!':
               hasCopy || hasDelete,
           }"
         >
@@ -161,6 +207,12 @@ function edit(task: any) {
             <Trash class="size-4" />
           </button>
         </div>
+      </div>
+
+      <!-- Описание -->
+      <div class="flex items-center text-xs text-gray-500 gap-1" v-if="task.description">
+        <TextAlignStart class="size-3" />
+        <span class="decoration-1 hover:underline">Есть описание</span>
       </div>
 
       <!-- Теги -->

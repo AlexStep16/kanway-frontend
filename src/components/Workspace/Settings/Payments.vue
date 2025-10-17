@@ -1,14 +1,22 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  window.HSStaticMethods.autoInit()
+})
+</script>
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200">Способ оплаты</h3>
+    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
+      Способ оплаты
+    </h3>
 
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
       <div class="bg-blue-50 border border-blue-300 rounded-md">
         <label
           for="payment-method-card-1"
-          class="cursor-pointer flex items-center px-4 py-2 gap-x-3"
+          class="cursor-pointer flex items-center px-2 sm:px-4 py-2 gap-x-3"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 size-10" viewBox="0 0 400 120">
             <linearGradient id="a" x1="370" x2="290" gradientUnits="userSpaceOnUse">
@@ -62,7 +70,7 @@
       <div class="border border-gray-200 rounded-md">
         <label
           for="payment-method-card-2"
-          class="cursor-pointer flex items-center px-4 py-2 gap-x-3"
+          class="cursor-pointer flex items-center px-2 sm:px-4 py-2 gap-x-3"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 size-10" viewBox="0 0 400 120">
             <linearGradient id="a" x1="370" x2="290" gradientUnits="userSpaceOnUse">
@@ -114,15 +122,17 @@
     </div>
   </div>
   <div class="grow-1 flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-2 border-b border-gray-200 mt-4">
+    <h3
+      class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
+    >
       История платежей
     </h3>
 
     <div class="flex flex-col">
       <div class="overflow-x-auto">
         <div class="min-w-full inline-block align-middle">
-          <div class="border border-gray-200 rounded-lg overflow-hidden dark:border-neutral-700">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
                   <th
