@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AIInput from '@/components/Workspace/Main/AIInput.vue'
+import AIInput from '@components/Workspace/Main/AIInput.vue'
 import { PanelLeftOpen } from 'lucide-vue-next'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 
 const inputPlaceholder = `Например, создай доску "Главное"`
 </script>
@@ -12,8 +12,8 @@ const inputPlaceholder = `Например, создай доску "Главн�
     <button
       type="button"
       class="inline-flex p-1.5 absolute left-0 top-5 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100"
-      @click="WORKSPACE_STORE.openSidebar()"
-      v-if="!WORKSPACE_STORE.isSidebarOpen"
+      @click="UI_STORE.openSidebar()"
+      v-if="!UI_STORE.isSidebarOpen"
     >
       <PanelLeftOpen class="size-5" />
     </button>

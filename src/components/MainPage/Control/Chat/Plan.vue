@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AIBubble from '@/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
-import UserBubble from '@/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
-import Confirmation from '@/components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
-import AIInput from '@/components/Workspace/Main/Chat/AIInput.vue'
-import Task from '@/components/Workspace/Main/Task/Task.vue'
+import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
+import UserBubble from '@components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
+import Confirmation from '@components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
+import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
+import Task from '@components/Workspace/Main/Task/Task.vue'
 import { onMounted } from 'vue'
 
 defineProps<{

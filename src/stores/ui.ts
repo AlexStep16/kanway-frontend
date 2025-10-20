@@ -4,7 +4,7 @@ import type { HSOverlay } from 'preline'
 import { ref } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 
-export const useWorkspaceStore = defineStore('workspace', () => {
+export const useUIStore = defineStore('ui', () => {
   const editTaskModalRef = ref<HTMLElement | null>(null)
   const editTaskModalHSInstance = ref<HSOverlay | null>(null)
   const createBoardButtonRef = ref<HTMLElement | null>(null)
@@ -62,7 +62,18 @@ export const useWorkspaceStore = defineStore('workspace', () => {
     isSidebarOpen.value = false
   }
 
-  function $reset() {}
+  function $reset() {
+    editTaskModalRef.value = null
+    editTaskModalHSInstance.value = null
+    createBoardButtonRef.value = null
+    settingsModalRef.value = null
+    settingsModalHSInstance.value = null
+    chatModalRef.value = null
+    chatModalHSInstance.value = null
+    isSidebarOpen.value = true
+    tipRef.value = null
+    currentTab.value = Tabs.Board
+  }
 
   return {
     // State

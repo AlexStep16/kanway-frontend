@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import RecoverButtons from '@/components/Workspace/Main/Archive/RecoverButtons.vue'
+import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vue'
 import { SquareKanban } from 'lucide-vue-next'
 
 defineProps<{

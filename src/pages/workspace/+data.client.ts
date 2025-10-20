@@ -1,5 +1,20 @@
 import type { PageContextClient } from 'vike/types'
+import { checkAuthApi } from '@api/auth'
+import { workspacesErrorRedirect } from '@helpers/workspacesErrorRedirect'
+import { redirectToWorkspace } from '@helpers/workspaceRoute'
 
 export { data }
 
-const data = async (pageContext: PageContextClient) => {}
+const data = async (pageContext: PageContextClient) => {
+  try {
+    const user = await checkAuthApi()
+
+    await redirectToWorkspace(pageContext)
+
+    return {
+      user,
+    }
+  } catch (e) {
+    workspacesErrorRedirect(pageContext, e)
+  }
+}

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AIBubble from '@/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
-import UserBubble from '@/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
-import Assistant from '@/components/Workspace/Main/Chat/Bubbles/Assistant.vue'
-import AIInput from '@/components/Workspace/Main/Chat/AIInput.vue'
-import Status from '@/components/Workspace/Main/Chat/Bubbles/Status.vue'
+import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
+import UserBubble from '@components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
+import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
+import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
+import Status from '@components/Workspace/Main/Chat/Bubbles/Status.vue'
 import { onMounted } from 'vue'
 
 onMounted(() => {

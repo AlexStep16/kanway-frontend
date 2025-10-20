@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Assistant from '@/components/Workspace/Main/Chat/Bubbles/Assistant.vue'
+import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 
 defineProps<{
   text?: string

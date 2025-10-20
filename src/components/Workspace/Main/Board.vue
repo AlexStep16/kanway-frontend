@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Header from '@/components/Workspace/Header/Header.vue'
-import Category from '@/components/Workspace/Main/Category/Category.vue'
-import AIInput from '@/components/Workspace/Main/AIInput.vue'
+import Header from '@components/Workspace/Header/Header.vue'
+import Category from '@components/Workspace/Main/Category/Category.vue'
+import AIInput from '@components/Workspace/Main/AIInput.vue'
 
 import { Plus } from 'lucide-vue-next'
 import { ref } from 'vue'

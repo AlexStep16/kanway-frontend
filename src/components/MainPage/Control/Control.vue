@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Check, Map, Undo } from 'lucide-vue-next'
 import { onMounted } from 'vue'
-import Plan from '@/components/MainPage/Control/Chat/Plan.vue'
-import Confirmation from '@/components/MainPage/Control/Chat/Confirmation.vue'
-import Cancellation from '@/components/MainPage/Control/Chat/Cancellation.vue'
+import Plan from '@components/MainPage/Control/Chat/Plan.vue'
+import Confirmation from '@components/MainPage/Control/Chat/Confirmation.vue'
+import Cancellation from '@components/MainPage/Control/Chat/Cancellation.vue'
 
 defineProps<{
   taskColumns: Array<Array<any>>

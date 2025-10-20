@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import RegisterView from '@/views/RegisterView.vue'
+import RegisterView from '@views/RegisterView.vue'
 </script>
 
 <template>

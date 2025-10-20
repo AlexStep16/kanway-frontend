@@ -2,17 +2,17 @@
 import { computed, onMounted, ref, shallowRef } from 'vue'
 
 import AOS from 'aos'
-import Header from '@/components/MainPage/Header.vue'
-import Hero from '@/components/MainPage/Hero.vue'
-import Photo from '@/components/MainPage/Photo.vue'
-import Problem from '@/components/MainPage/Problem.vue'
-import CommandCenter from '@/components/MainPage/CommandCenter.vue'
-import Control from '@/components/MainPage/Control/Control.vue'
-import Prices from '@/components/MainPage/Prices.vue'
-import FAQ from '@/components/MainPage/FAQ.vue'
-import Ready from '@/components/MainPage/Ready.vue'
-import Footer from '@/components/MainPage/Footer.vue'
-import Plan from '@/components/MainPage/Control/Chat/Plan.vue'
+import Header from '@components/MainPage/Header.vue'
+import Hero from '@components/MainPage/Hero.vue'
+import Photo from '@components/MainPage/Photo.vue'
+import Problem from '@components/MainPage/Problem.vue'
+import CommandCenter from '@components/MainPage/CommandCenter.vue'
+import Control from '@components/MainPage/Control/Control.vue'
+import Prices from '@components/MainPage/Prices.vue'
+import FAQ from '@components/MainPage/FAQ.vue'
+import Ready from '@components/MainPage/Ready.vue'
+import Footer from '@components/MainPage/Footer.vue'
+import Plan from '@components/MainPage/Control/Chat/Plan.vue'
 
 const activeTab = shallowRef<typeof Plan>(Plan)
 

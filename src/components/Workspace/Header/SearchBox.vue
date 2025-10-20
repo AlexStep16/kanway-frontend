@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HSComboBox, ICollectionItem } from 'preline'
 import { onMounted, ref } from 'vue'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import Tabs from '@/enums/TabsEnum'
 
 const props = defineProps<{
@@ -12,7 +12,7 @@ const emit = defineEmits<{
   (e: 'input', value: string): void
 }>()
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 
 const searchBoxRef = ref<HTMLElement | null>(null)
 const preventAutofill = ref(true)
@@ -48,9 +48,9 @@ function inputSearch(event: Event) {
 }
 
 function getPlaceholder() {
-  if (WORKSPACE_STORE.currentTab === Tabs.Archive) {
+  if (UI_STORE.currentTab === Tabs.Archive) {
     return 'Поиск в архиве...'
-  } else if (WORKSPACE_STORE.currentTab === Tabs.Board) {
+  } else if (UI_STORE.currentTab === Tabs.Board) {
     return 'Поиск на доске...'
   } else {
     return 'Поиск...'

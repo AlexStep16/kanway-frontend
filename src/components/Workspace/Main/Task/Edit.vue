@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useTaskStore } from '@/stores/task'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import { HSDropdown, HSStaticMethods } from 'preline'
 import { ref, watch, nextTick, onUnmounted } from 'vue'
 import { Clock, Hash, Palette, X, CircleOff, Layers } from 'lucide-vue-next'
-import { datepickerOptions } from '@/helpers/datepickerOptions'
-import ButtonCreate from '@/components/Buttons/ButtonCreate.vue'
+import { datepickerOptions } from '@helpers/datepickerOptions'
+import ButtonCreate from '@components/Buttons/ButtonCreate.vue'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 const TASK_STORE = useTaskStore()
 
 const textareaNameAutoHeight = ref<HTMLTextAreaElement | null>(null)
@@ -122,7 +122,7 @@ onUnmounted(() => {
     id="hs-task-edit"
     :ref="
       (el) => {
-        if (el) WORKSPACE_STORE.editTaskModalRef = el as HTMLElement
+        if (el) UI_STORE.editTaskModalRef = el as HTMLElement
       }
     "
     class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-90 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
@@ -273,7 +273,7 @@ onUnmounted(() => {
           <button
             class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
-            @click="WORKSPACE_STORE.closeEditTaskModal()"
+            @click="UI_STORE.closeEditTaskModal()"
           >
             <X class="size-5" />
           </button>

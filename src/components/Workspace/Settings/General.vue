@@ -2,7 +2,7 @@
 import { Camera } from 'lucide-vue-next'
 import dayjs from 'dayjs'
 import { useRootStore } from '@/stores/root'
-import Avatar from '@/components/Workspace/Settings/Avatar.vue'
+import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { onMounted } from 'vue'
 
 const STORE = useRootStore()

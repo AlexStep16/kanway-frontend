@@ -15,24 +15,24 @@ import {
   PanelLeftClose,
 } from 'lucide-vue-next'
 import NumberBadge from '@components/Badges/NumberBadge.vue'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import Dropdown from '@components/Dropdowns/CreateWorkspace/Dropdown.vue'
 import { onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
 import { useTipsStore } from '@/stores/tips'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 const TIPS_STORE = useTipsStore()
 
 if (window.innerWidth < 1280) {
-  WORKSPACE_STORE.isSidebarOpen = false
+  UI_STORE.isSidebarOpen = false
 }
 
 const workspaceDropdown = ref<HTMLElement | null>(null)
 
 const getBoardCreateModalWidth = () => {
-  if (WORKSPACE_STORE.createBoardButtonRef) {
-    const rect = WORKSPACE_STORE.createBoardButtonRef.getBoundingClientRect()
+  if (UI_STORE.createBoardButtonRef) {
+    const rect = UI_STORE.createBoardButtonRef.getBoundingClientRect()
     return rect.width
   }
   return 0
@@ -57,11 +57,11 @@ onMounted(() => {
     }
   }
 
-  if (WORKSPACE_STORE.createBoardButtonRef) {
+  if (UI_STORE.createBoardButtonRef) {
     /*TIPS_STORE.addTip({
       title: 'Создание доски',
       description: `Чтобы создать новую доску, нажмите на соответствующую кнопку, которая находится в разделе <b>Доски</b>.`,
-      anchorElement: WORKSPACE_STORE.createBoardButtonRef,
+      anchorElement: UI_STORE.createBoardButtonRef,
       buttonNextText: 'Понятно',
     })*/
   }
@@ -73,8 +73,8 @@ onMounted(() => {
   <div
     class="end-auto bg-gray-100 bottom-0 w-70 px-3 transition-all duration-300 transform h-full fixed top-0 start-0 z-60 block"
     :class="{
-      '-translate-x-full': !WORKSPACE_STORE.isSidebarOpen,
-      'translate-x-0': WORKSPACE_STORE.isSidebarOpen,
+      '-translate-x-full': !UI_STORE.isSidebarOpen,
+      'translate-x-0': UI_STORE.isSidebarOpen,
     }"
     role="dialog"
     tabindex="-1"
@@ -165,7 +165,7 @@ onMounted(() => {
         <button
           type="button"
           class="inline-flex p-1.5 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100"
-          @click="WORKSPACE_STORE.closeSidebar()"
+          @click="UI_STORE.closeSidebar()"
         >
           <PanelLeftClose class="size-4" />
         </button>
@@ -218,7 +218,7 @@ onMounted(() => {
                   >
                     <ButtonCreate
                       id="hs-sidebar-board-create"
-                      @refEvent="WORKSPACE_STORE.createBoardButtonRef = $event"
+                      @refEvent="UI_STORE.createBoardButtonRef = $event"
                     />
                   </Dropdown>
                 </ul>
@@ -361,7 +361,7 @@ onMounted(() => {
               <button
                 type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
-                @click="WORKSPACE_STORE.openSettingsModal()"
+                @click="UI_STORE.openSettingsModal()"
               >
                 <Settings class="size-4" />
                 Настройки
@@ -479,9 +479,9 @@ onMounted(() => {
   <div
     class="fixed inset-0 transition duration bg-gray-900/50 lg:hidden z-50"
     :class="{
-      'opacity-100 visible': WORKSPACE_STORE.isSidebarOpen,
-      'opacity-0 invisible': !WORKSPACE_STORE.isSidebarOpen,
+      'opacity-100 visible': UI_STORE.isSidebarOpen,
+      'opacity-0 invisible': !UI_STORE.isSidebarOpen,
     }"
-    @click="WORKSPACE_STORE.closeSidebar()"
+    @click="UI_STORE.closeSidebar()"
   ></div>
 </template>

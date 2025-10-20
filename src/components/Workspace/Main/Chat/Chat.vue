@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import { X, MessagesSquare } from 'lucide-vue-next'
-import UserBubble from '@/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
-import AIBubble from '@/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
-import Confirmation from '@/components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
-import AIInput from '@/components/Workspace/Main/Chat/AIInput.vue'
-import Assistant from '@/components/Workspace/Main/Chat/Bubbles/Assistant.vue'
-import Status from '@/components/Workspace/Main/Chat/Bubbles/Status.vue'
+import UserBubble from '@components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
+import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
+import Confirmation from '@components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
+import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
+import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
+import Status from '@components/Workspace/Main/Chat/Bubbles/Status.vue'
 import { computed, onMounted, ref } from 'vue'
-import Task from '@/components/Workspace/Main/Task/Task.vue'
-import EntityCard from '@/components/Workspace/Main/Archive/EntityCard.vue'
+import Task from '@components/Workspace/Main/Task/Task.vue'
+import EntityCard from '@components/Workspace/Main/Archive/EntityCard.vue'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 const numCols = ref(2)
 
 const tasks = ref([
@@ -102,7 +102,7 @@ onMounted(() => {
     id="hs-chat"
     :ref="
       (el) => {
-        if (el) WORKSPACE_STORE.chatModalRef = el as HTMLElement
+        if (el) UI_STORE.chatModalRef = el as HTMLElement
       }
     "
     class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
@@ -123,7 +123,7 @@ onMounted(() => {
           <button
             class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
-            @click="WORKSPACE_STORE.closeChatModal()"
+            @click="UI_STORE.closeChatModal()"
           >
             <X class="size-5" />
           </button>

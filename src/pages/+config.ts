@@ -1,12 +1,12 @@
 import vikeVue from 'vike-vue/config'
-import vikeVuePinia from 'vike-vue-pinia/config'
 import type { Config } from 'vike/types'
-import User from '../Interfaces/User'
+import User from '../interfaces/User'
+import { Pinia } from 'pinia'
 
 export default {
   ssr: false,
   prerender: false,
-  extends: [vikeVue, vikeVuePinia],
+  extends: [vikeVue],
   hooksTimeout: false,
   bodyAttributes: { class: 'bg-gray-100 hs-overlay-body-open' },
 } satisfies Config
@@ -19,6 +19,7 @@ declare global {
       hasErrorFetchingUser?: boolean
       isSkipWorkspaceCheck?: boolean
       isHydration?: boolean
+      pinia?: Pinia
       shouldSkipLoader?: boolean
       workspaceId?: string
       boardId?: string

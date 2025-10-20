@@ -6,7 +6,6 @@ import noUiSlider from 'nouislider'
 import 'datatables.net'
 import 'dropzone/dist/dropzone-min.js'
 import * as VanillaCalendarPro from 'vanilla-calendar-pro'
-import 'aos/dist/aos.css'
 
 window._ = _
 window.$ = $

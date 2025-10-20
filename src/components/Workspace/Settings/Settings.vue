@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import { X } from 'lucide-vue-next'
-import Sidebar from '@/components/Workspace/Settings/Sidebar.vue'
-import General from '@/components/Workspace/Settings/General.vue'
-import Security from '@/components/Workspace/Settings/Security.vue'
-import Assistant from '@/components/Workspace/Settings/Assistant.vue'
-import Subscription from '@/components/Workspace/Settings/Subscription.vue'
-import Payments from '@/components/Workspace/Settings/Payments.vue'
+import Sidebar from '@components/Workspace/Settings/Sidebar.vue'
+import General from '@components/Workspace/Settings/General.vue'
+import Security from '@components/Workspace/Settings/Security.vue'
+import Assistant from '@components/Workspace/Settings/Assistant.vue'
+import Subscription from '@components/Workspace/Settings/Subscription.vue'
+import Payments from '@components/Workspace/Settings/Payments.vue'
 import { SettingTabs } from '@/enums/SettingTabs'
 import { onMounted, ref } from 'vue'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 
 const currentTab = ref(SettingTabs.GENERAL)
 
@@ -24,7 +24,7 @@ onMounted(() => {
     id="hs-settings"
     :ref="
       (el) => {
-        if (el) WORKSPACE_STORE.settingsModalRef = el as HTMLElement
+        if (el) UI_STORE.settingsModalRef = el as HTMLElement
       }
     "
     class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
@@ -44,7 +44,7 @@ onMounted(() => {
           <button
             class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
             type="button"
-            @click="WORKSPACE_STORE.closeSettingsModal()"
+            @click="UI_STORE.closeSettingsModal()"
           >
             <X class="size-5" />
           </button>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ColorButtons from '@/components/ColorButtons.vue'
+import ColorButtons from '@components/ColorButtons.vue'
 
 defineProps<{
   dropdownMenuWidth?: number

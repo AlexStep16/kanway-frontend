@@ -11,7 +11,16 @@ import timezone from 'dayjs/plugin/timezone'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import calendar from 'dayjs/plugin/calendar'
 import updateLocale from 'dayjs/plugin/updateLocale'
+
+// Import global styles
 import 'vanilla-calendar-pro/styles/index.css'
+import 'vue-sonner/style.css'
+import 'aos/dist/aos.css'
+import '@vuepic/vue-datepicker/dist/main.css'
+import '../styles/style.css'
+import '../styles/spinner.css'
+import '../styles/transitions.css'
+import '../styles/fonts.css'
 
 function onCreateApp(pageContext: PageContext) {
   if (pageContext.isRenderingHead) {
@@ -40,6 +49,7 @@ function onCreateApp(pageContext: PageContext) {
   })
 
   if (app) {
+    if (pageContext.pinia) app.use(pageContext.pinia)
     app.use(VueTheMask as any)
   }
 }

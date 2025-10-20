@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SearchBox from '@/components/Workspace/Header/SearchBox.vue'
+import SearchBox from '@components/Workspace/Header/SearchBox.vue'
 import { HSOverlay } from 'preline'
 import type { ICollectionItem } from 'preline'
 

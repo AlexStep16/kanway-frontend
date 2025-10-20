@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 
 interface Tip {
   title: string
@@ -14,7 +14,7 @@ export const useTipsStore = defineStore('tips', () => {
   const tipsStack = ref<Tip[]>([])
   const currentTip = ref<Tip | null>(null)
 
-  const WORKSPACE_STORE = useWorkspaceStore()
+  const UI_STORE = useUIStore()
 
   function $reset() {
     tipsStack.value = []
@@ -43,10 +43,10 @@ export const useTipsStore = defineStore('tips', () => {
   }
 
   function initTip() {
-    if (currentTip.value && currentTip.value.anchorElement && WORKSPACE_STORE.tipRef) {
+    if (currentTip.value && currentTip.value.anchorElement && UI_STORE.tipRef) {
       const anchor = currentTip.value.anchorElement
       const anchorClone = currentTip.value.anchorElement.cloneNode(true) as HTMLElement
-      const tip = WORKSPACE_STORE.tipRef
+      const tip = UI_STORE.tipRef
 
       if (window.FloatingUIDOM) {
         window.FloatingUIDOM.computePosition(anchor, tip, {

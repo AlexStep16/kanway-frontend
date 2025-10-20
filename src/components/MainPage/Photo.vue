@@ -11,7 +11,7 @@ import Blow from '@assets/blow.svg?component'
       class="my-4 md:my-10 mx-auto max-w-4xl z-1 p-4 md:p-8 bg-white/30 rounded-md relative"
     >
       <div class="border relative z-2 border-gray-100 rounded-md overflow-hidden">
-        <img class="w-full h-auto" src="@/assets/chat.png" alt="Hero Image" />
+        <img class="w-full h-auto" src="@assets/chat.png" alt="Hero Image" />
       </div>
       <div class="size-full absolute z-1 -top-60 left-0 opacity-60">
         <Blow class="scale-[2.5]" />

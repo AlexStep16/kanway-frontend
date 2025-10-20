@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRootStore } from '@/stores/root'
 import { useTaskStore } from '@/stores/task'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import dayjs from 'dayjs'
 import { Clock, TextAlignStart, Trash, Copy, SquareKanban, Layers } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
@@ -34,7 +34,7 @@ const props = defineProps<{
 
 const isChecked = ref(true)
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 
 function getTimeStatus(date: Date | string, is_completed: boolean): TimeStatus {
   if (is_completed) return TimeStatus.COMPLETED
@@ -73,7 +73,7 @@ function edit(task: any) {
 
   taskStore.taskToEdit = task
 
-  WORKSPACE_STORE.openEditTaskModal()
+  UI_STORE.openEditTaskModal()
 }
 </script>
 

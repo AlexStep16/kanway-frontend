@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ButtonCreate from '@/components/Buttons/ButtonCreate.vue'
+import ButtonCreate from '@components/Buttons/ButtonCreate.vue'
 import Options from '@components/Options.vue'
 import Task from '../Task/Task.vue'
 

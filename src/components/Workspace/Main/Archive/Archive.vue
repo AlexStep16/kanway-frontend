@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Header from '@/components/Workspace/Header/Header.vue'
-import EntityCard from '@/components/Workspace/Main/Archive/EntityCard.vue'
-import Task from '@/components/Workspace/Main/Task/Task.vue'
-import NumberBadge from '@/components/Badges/NumberBadge.vue'
-import RecoverButtons from '@/components/Workspace/Main/Archive/RecoverButtons.vue'
+import Header from '@components/Workspace/Header/Header.vue'
+import EntityCard from '@components/Workspace/Main/Archive/EntityCard.vue'
+import Task from '@components/Workspace/Main/Task/Task.vue'
+import NumberBadge from '@components/Badges/NumberBadge.vue'
+import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vue'
 
 import Tabs from '@/enums/TabsEnum'
 import { computed, onMounted, ref } from 'vue'

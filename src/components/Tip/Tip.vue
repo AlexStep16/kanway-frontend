@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 import { useTipsStore } from '@/stores/tips'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 const TIPS_STORE = useTipsStore()
 </script>
 
@@ -10,7 +10,7 @@ const TIPS_STORE = useTipsStore()
   <div v-show="TIPS_STORE.currentTip" class="size-full fixed top-0 z-200 left-0 bg-black/50">
     <div
       class="flex flex-col gap-y-3 w-full max-w-80 bg-white shadow-md shadow-gray-400 rounded-md pointer-events-auto p-4 self-start absolute inset-0"
-      :ref="(el) => (WORKSPACE_STORE.tipRef = el as HTMLElement)"
+      :ref="(el) => (UI_STORE.tipRef = el as HTMLElement)"
     >
       <h3 class="text-lg font-medium text-gray-900">{{ TIPS_STORE.currentTip?.title }}</h3>
       <div class="text-sm text-gray-700">

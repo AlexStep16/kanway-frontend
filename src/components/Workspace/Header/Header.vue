@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import TitleBoard from '@/components/Workspace/Header/TitleBoard.vue'
-import TitleArchive from '@/components/Workspace/Header/TitleArchive.vue'
-import Search from '@/components/Workspace/Header/Search.vue'
-import Filter from '@/components/Workspace/Header/Filter.vue'
+import TitleBoard from '@components/Workspace/Header/TitleBoard.vue'
+import TitleArchive from '@components/Workspace/Header/TitleArchive.vue'
+import Search from '@components/Workspace/Header/Search.vue'
+import Filter from '@components/Workspace/Header/Filter.vue'
 import Tabs from '@/enums/TabsEnum'
 import { PanelLeftOpen } from 'lucide-vue-next'
-import { useWorkspaceStore } from '@/stores/workspace'
+import { useUIStore } from '@/stores/ui'
 
-const WORKSPACE_STORE = useWorkspaceStore()
+const UI_STORE = useUIStore()
 </script>
 
 <template>
@@ -18,13 +18,13 @@ const WORKSPACE_STORE = useWorkspaceStore()
     <button
       type="button"
       class="inline-flex p-1.5 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100"
-      @click="WORKSPACE_STORE.openSidebar()"
-      v-if="!WORKSPACE_STORE.isSidebarOpen"
+      @click="UI_STORE.openSidebar()"
+      v-if="!UI_STORE.isSidebarOpen"
     >
       <PanelLeftOpen class="size-4" />
     </button>
-    <TitleBoard v-if="WORKSPACE_STORE.currentTab === Tabs.Board" />
-    <TitleArchive v-if="WORKSPACE_STORE.currentTab === Tabs.Archive" />
+    <TitleBoard v-if="UI_STORE.currentTab === Tabs.Board" />
+    <TitleArchive v-if="UI_STORE.currentTab === Tabs.Archive" />
 
     <div class="flex ms-auto items-stretch gap-x-3">
       <Search />

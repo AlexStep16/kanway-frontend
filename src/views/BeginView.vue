@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { navigate } from 'vike/client/router'
 import { LogOut, Camera } from 'lucide-vue-next'
-import ColorButtons from '@/components/ColorButtons.vue'
+import ColorButtons from '@components/ColorButtons.vue'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { HSAccordion } from 'preline'
-import Avatar from '@/components/Workspace/Settings/Avatar.vue'
+import Avatar from '@components/Workspace/Settings/Avatar.vue'
 
 enum Tab {
   WORKSPACE = 0,
