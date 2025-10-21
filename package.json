@@ -29,6 +29,7 @@
     "pinia": "^3.0.3",
     "preline": "^3.2.3",
     "tailwindcss": "^4.1.13",
+    "uuid": "^13.0.0",
     "v-mask": "^2.3.0",
     "vanilla-calendar-pro": "^3.0.5",
     "vike": "^0.4.239",

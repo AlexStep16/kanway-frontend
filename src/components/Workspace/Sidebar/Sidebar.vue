@@ -15,14 +15,19 @@ import {
   PanelLeftClose,
 } from 'lucide-vue-next'
 import NumberBadge from '@components/Badges/NumberBadge.vue'
-import { useUIStore } from '@/stores/ui'
-import Dropdown from '@components/Dropdowns/CreateWorkspace/Dropdown.vue'
+import { useUIStore } from '@stores/ui'
+import CreateEditWorkspaceDropdown from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
+import CreateEditBoardDropdown from '@components/Forms/CreateEditBoard/Wrapper.vue'
 import { onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
-import { useTipsStore } from '@/stores/tips'
+import { useTipsStore } from '@stores/tips'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useBoardDataStore } from '@stores/boardData'
 
 const UI_STORE = useUIStore()
 const TIPS_STORE = useTipsStore()
+const WORKSPACE_STORE = useWorkspaceDataStore()
+const BOARD_STORE = useBoardDataStore()
 
 if (window.innerWidth < 1280) {
   UI_STORE.isSidebarOpen = false
@@ -97,12 +102,15 @@ onMounted(() => {
             aria-label="Dropdown"
           >
             <div
-              class="size-7 bg-blue-500 rounded-md flex items-center justify-center font-semibold text-white"
+              class="size-7 shrink-0 rounded-md flex items-center justify-center font-semibold text-white"
+              :style="{ backgroundColor: WORKSPACE_STORE.getActiveWorkspaceColor || '#3B82F6' }"
             >
-              W
+              {{ WORKSPACE_STORE.getFirstLetterOfActiveWorkspace }}
             </div>
             <div class="flex flex-col truncate">
-              <span class="text-sm truncate" title="Личное пространство">Личное пространство</span>
+              <span class="text-sm truncate" :title="WORKSPACE_STORE.getActiveWorkspaceName">{{
+                WORKSPACE_STORE.getActiveWorkspaceName
+              }}</span>
             </div>
             <svg
               class="shrink-0 size-3.5 ms-auto"
@@ -131,31 +139,25 @@ onMounted(() => {
 
             <ul class="p-1 space-y-1">
               <SidebarItem
-                :item="{ id: 1, name: 'Личное пространство' }"
-                :selected="true"
+                v-for="workspace in WORKSPACE_STORE.workspaces"
+                :key="workspace._id"
+                :item="workspace"
+                :selected="workspace._id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false"
                 type="workspace"
               >
                 <template v-slot:link>
                   <div
-                    class="size-5 bg-blue-500 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
+                    class="size-5 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
+                    :style="{ backgroundColor: workspace.color || '#3B82F6' }"
                   >
-                    W
-                  </div>
-                </template>
-              </SidebarItem>
-              <SidebarItem :item="{ id: 11, name: 'Работа' }" type="workspace">
-                <template v-slot:link>
-                  <div
-                    class="size-5 bg-red-500 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
-                  >
-                    S
+                    {{ WORKSPACE_STORE.getFirstLetterOfWorkspace(workspace) }}
                   </div>
                 </template>
               </SidebarItem>
 
-              <Dropdown :id="'hs-sidebar-workspace-create'">
+              <CreateEditWorkspaceDropdown mode="create" :isDropdown="true">
                 <ButtonCreate id="hs-sidebar-workspace-create" />
-              </Dropdown>
+              </CreateEditWorkspaceDropdown>
             </ul>
           </div>
           <!-- End Workspaces Dropdown -->
@@ -173,14 +175,14 @@ onMounted(() => {
       <!-- End Header -->
 
       <!-- Body -->
-      <nav
-        class="h-full overflow-y-auto py-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 flex flex-col"
-      >
+      <nav class="overflow-y-auto flex-1 py-3 flex flex-col">
         <div
-          class="hs-accordion-group grow-1 w-full flex flex-col flex-wrap justify-between"
+          class="hs-accordion-group min-h-0 grow-1 w-full flex flex-col justify-between"
           data-hs-accordion-always-open
         >
-          <ul class="shrink-0 flex flex-col gap-y-1 w-full">
+          <ul
+            class="flex flex-col gap-y-1 w-full min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+          >
             <li class="hs-accordion active" id="boards-accordion">
               <button
                 type="button"
@@ -209,18 +211,24 @@ onMounted(() => {
                 <ul
                   class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
                 >
-                  <SidebarItem :item="{ id: 2, name: 'Спорт' }" type="board" />
+                  <SidebarItem
+                    v-for="board in BOARD_STORE.getActiveWorkspaceBoards"
+                    :key="board._id"
+                    :item="board"
+                    type="board"
+                  />
 
-                  <Dropdown
+                  <CreateEditBoardDropdown
+                    mode="create"
+                    :isDropdown="true"
                     :dropdownClasses="'[--scope:window]'"
                     :dropdownMenuWidth="getBoardCreateModalWidth()"
-                    :id="'hs-sidebar-board-create'"
                   >
                     <ButtonCreate
                       id="hs-sidebar-board-create"
                       @refEvent="UI_STORE.createBoardButtonRef = $event"
                     />
-                  </Dropdown>
+                  </CreateEditBoardDropdown>
                 </ul>
               </div>
             </li>
@@ -317,7 +325,18 @@ onMounted(() => {
                       aria-labelledby="users-accordion-sub-1"
                     >
                       <ul class="pt-1 ps-2 space-y-1">
-                        <SidebarItem :item="{ id: 4, name: 'Личное' }" type="workspace" />
+                        <SidebarItem
+                          :item="{
+                            _id: '12',
+                            name: 'Личное',
+                            color: '#333',
+                            user_id: '2',
+                            order: 1,
+                            is_favorite: true,
+                            is_deleted: false,
+                          }"
+                          type="workspace"
+                        />
                       </ul>
                     </div>
                   </li>

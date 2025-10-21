@@ -13,9 +13,11 @@ import Chat from '@components/Workspace/Main/Chat/Chat.vue'
 import Tip from '@components/Tip/Tip.vue'
 import MobileSearch from '@components/Workspace/MobileSearch.vue'
 import Tabs from '@/enums/TabsEnum'
+import { useRootStore } from '@stores/root'
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskStore()
+const ROOT_STORE = useRootStore()
 
 function initEditTaskModal() {
   if (UI_STORE.editTaskModalRef) {
@@ -45,6 +47,8 @@ onMounted(() => {
   initEditTaskModal()
   initSettingsModal()
   initChatModal()
+
+  ROOT_STORE.updateWorkspaceFromRoute()
 })
 </script>
 

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import Options from '@components/Options.vue'
+import Options from '@/components/Options/Options.vue'
+import { Workspace } from '@interfaces/Workspace'
+import { Board } from '@interfaces/Board'
 
 defineProps<{
-  item: {
-    id: number
-    name: string
-  }
+  item: Workspace | Board
   type: 'board' | 'workspace' | 'chat'
   selected?: boolean
 }>()

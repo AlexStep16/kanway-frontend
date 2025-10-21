@@ -10,7 +10,11 @@ import {
 } from 'lucide-vue-next'
 import { HSDropdown } from 'preline'
 import { computed, onMounted, ref } from 'vue'
-import Body from './Dropdowns/CreateWorkspace/Body.vue'
+import EditForm from '@components/Options/EditForm.vue'
+import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
+import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
+import { Workspace } from '@interfaces/Workspace'
+import { Board } from '@interfaces/Board'
 
 const props = defineProps<{
   options: {
@@ -20,10 +24,7 @@ const props = defineProps<{
     favorite: boolean
     archive: boolean
   }
-  item: {
-    id: number
-    name: string
-  }
+  item: Workspace | Board
   group_name: string
   edit_type?: 'board' | 'workspace' | 'chat'
   hover_class?: string
@@ -49,6 +50,44 @@ const visibilityClasses = computed(() => {
   return `group-hover/${props.group_name}:opacity-100 opacity-100 pointer-fine:opacity-0`
 })
 
+const workspaceEditWrapperRef = ref<InstanceType<typeof WorkspaceEditWrapper> | null>(null)
+const boardEditWrapperRef = ref<InstanceType<typeof BoardEditWrapper> | null>(null)
+
+function resetForm() {
+  if (workspaceEditWrapperRef.value && workspaceEditWrapperRef.value.resetForm) {
+    workspaceEditWrapperRef.value.resetForm()
+  }
+  if (boardEditWrapperRef.value && boardEditWrapperRef.value.resetForm) {
+    boardEditWrapperRef.value.resetForm()
+  }
+}
+
+function closeEdit() {
+  showEdit.value = false
+
+  resetForm()
+}
+
+function closeDropdown() {
+  if (dropdownInstance.value) {
+    dropdownInstance.value.close()
+  }
+}
+
+const getWorkspaceItem = computed(() => {
+  if (props.edit_type === 'workspace') {
+    return props.item as Workspace
+  }
+  return undefined
+})
+
+const getBoardItem = computed(() => {
+  if (props.edit_type === 'board') {
+    return props.item as Board
+  }
+  return undefined
+})
+
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
 
@@ -56,6 +95,10 @@ onMounted(() => {
     dropdownInstance.value = HSDropdown.getInstance(dropdown.value) as HSDropdown | null
 
     if (dropdownInstance.value) {
+      dropdownInstance.value.on('close', () => {
+        resetForm()
+      })
+
       document.addEventListener('click', (e: any) => {
         if (
           dropdownInstance.value &&
@@ -78,12 +121,12 @@ onMounted(() => {
 
 <template>
   <div
-    :id="'hs-dropdown-' + item.id"
+    :id="'hs-dropdown-' + item._id"
     class="hs-dropdown [--auto-close:false] inline-flex"
     ref="dropdown"
   >
     <button
-      :id="'hs-dropdown-button-' + item.id"
+      :id="'hs-dropdown-button-' + item._id"
       type="button"
       class="p-1 transition-colors duration-100 rounded-full focus:opacity-100 focus:outline-hidden hs-dropdown-open:opacity-100 hs-dropdown-open:bg-blue-200 hs-dropdown-open:text-blue-500"
       :class="[hoverClass, visibilityClasses]"
@@ -96,7 +139,7 @@ onMounted(() => {
       role="menu"
       ref="dropdownMenu"
       aria-orientation="vertical"
-      :aria-labelledby="'hs-dropdown-button-' + item.id"
+      :aria-labelledby="'hs-dropdown-button-' + item._id"
     >
       <div class="flex overflow-hidden">
         <div class="p-1 space-y-0.5 shrink-0 w-full" v-show="!showEdit && !showTransfer">
@@ -144,27 +187,34 @@ onMounted(() => {
           </button>
         </div>
 
-        <div
-          class="flex flex-col shrink-0 w-full min-w-75 p-1"
-          v-show="showEdit"
-          v-if="['board', 'workspace'].includes(edit_type || '')"
+        <EditForm
+          v-if="edit_type === 'workspace'"
+          :showEdit="showEdit"
+          @closeEdit="closeEdit"
+          title="Редактирование пространства"
         >
-          <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
-            <button
-              type="button"
-              class="flex items-center absolute left-0 gap-x-1 p-1 hover:bg-gray-200 transition-colors duration-100 rounded-md"
-              @click="showEdit = false"
-            >
-              <ChevronLeft class="size-5" />
-            </button>
-
-            <span class="text-custom-sm font-bold"
-              >Редактирование {{ edit_type === 'board' ? 'доски' : 'пространства' }}</span
-            >
-          </div>
-
-          <Body :id="'hs-sidebar-' + edit_type + '-edit-' + item.id" />
-        </div>
+          <WorkspaceEditWrapper
+            @workspaceCreated="closeDropdown"
+            @workspaceEdited="closeDropdown"
+            mode="edit"
+            :item="getWorkspaceItem"
+            ref="workspaceEditWrapperRef"
+          />
+        </EditForm>
+        <EditForm
+          v-if="edit_type === 'board'"
+          :showEdit="showEdit"
+          @closeEdit="closeEdit"
+          title="Редактирование доски"
+        >
+          <BoardEditWrapper
+            @boardCreated="closeDropdown"
+            @boardEdited="closeDropdown"
+            mode="edit"
+            :item="getBoardItem"
+            ref="boardEditWrapperRef"
+          />
+        </EditForm>
 
         <div
           class="flex flex-col shrink-0 w-full p-1 min-w-60 max-w-70"

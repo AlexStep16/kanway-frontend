@@ -15,7 +15,7 @@ export function determineSelectedWorkspace(
       workspacesPayload[0]
   } else if (!workspaceInWorkspaces) {
     selectedWorkspace = workspacesPayload[0]
-
+  } else {
     if (workspaceInWorkspaces) {
       selectedWorkspace = workspaceInWorkspaces
     }

@@ -4,14 +4,16 @@ import { ref } from 'vue'
 import { useWorkspaceDataStore } from './workspaceData'
 import { Workspace } from '@interfaces/Workspace'
 import { useBoardDataStore } from '@stores/boardData'
+import { useData } from 'vike-vue/useData'
 
 export const useRootStore = defineStore('root', () => {
   const timezone = ref(dayjs.tz.guess())
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const BOARD_STORE = useBoardDataStore()
 
-  async function updateTabsFromRoute(params: any) {
+  async function updateWorkspaceFromRoute() {
     let selectedWorkspace: Workspace | null = null
+    const params = useData<{ boardId: string; workspaceId: string }>()
     const workspaceId = params.workspaceId
     const boardId = params.boardId
 
@@ -77,7 +79,7 @@ export const useRootStore = defineStore('root', () => {
     timezone,
 
     // Actions
-    updateTabsFromRoute,
+    updateWorkspaceFromRoute,
     $reset,
   }
 })
