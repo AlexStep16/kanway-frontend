@@ -15,6 +15,9 @@ import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.
 import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
 import { Workspace } from '@interfaces/Workspace'
 import { Board } from '@interfaces/Board'
+import Spinner from '@components/Loader/Spinner.vue'
+import { useBoardDataStore } from '@stores/boardData'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
 
 const props = defineProps<{
   options: {
@@ -30,6 +33,9 @@ const props = defineProps<{
   hover_class?: string
   is_always_visible?: boolean
 }>()
+
+const BOARD_STORE = useBoardDataStore()
+const WORKSPACE_STORE = useWorkspaceDataStore()
 
 const dropdown = ref<HTMLElement | null>(null)
 const dropdownMenu = ref<HTMLElement | null>(null)
@@ -87,6 +93,24 @@ const getBoardItem = computed(() => {
   }
   return undefined
 })
+
+const isItemArchiving = computed(() => {
+  if (props.edit_type === 'board') {
+    return BOARD_STORE.isBoardArchiving(props.item._id)
+  } else if (props.edit_type === 'workspace') {
+    return WORKSPACE_STORE.isWorkspaceArchiving(props.item._id)
+  }
+
+  return false
+})
+
+function archiveItem() {
+  if (props.edit_type === 'board') {
+    BOARD_STORE.archiveBoard(props.item as Board, WORKSPACE_STORE.getActiveWorkspaceId || '')
+  } else if (props.edit_type === 'workspace') {
+    WORKSPACE_STORE.archiveWorkspace(props.item as Workspace)
+  }
+}
 
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
@@ -178,12 +202,23 @@ onMounted(() => {
             В избранное
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            class="w-full flex items-center py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
             v-if="options.archive"
           >
-            <Trash class="size-4" />
+            <div class="absolute size-full flex items-center gap-x-2" v-if="isItemArchiving">
+              <Spinner class="size-4" />
 
-            В архив
+              Архивирование...
+            </div>
+            <div
+              class="flex items-center gap-x-2"
+              :class="{ 'opacity-0 pointer-events-none': isItemArchiving }"
+              @click="archiveItem"
+            >
+              <Trash class="size-4" />
+
+              В архив
+            </div>
           </button>
         </div>
 

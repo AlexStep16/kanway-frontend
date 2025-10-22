@@ -1,5 +1,11 @@
 import { Workspace } from '@/interfaces/Workspace'
-import { getWorkspacesApi, postWorkspaceApi, putWorkspaceApi } from '@api/workspaces'
+import {
+  archiveWorkspaceApi,
+  deleteWorkspaceApi,
+  getWorkspacesApi,
+  postWorkspaceApi,
+  putWorkspaceApi,
+} from '@api/workspaces'
 
 export async function fetchWorkspaces() {
   const workspaces = await getWorkspacesApi()
@@ -17,4 +23,14 @@ export async function saveWorkspace(workspace: Workspace) {
   const saveResult = await putWorkspaceApi(workspace)
 
   return saveResult
+}
+
+export async function removeWorkspace(workspaceId: string) {
+  await deleteWorkspaceApi(workspaceId)
+}
+
+export async function archiveWorkspaceService(workspaceId: string) {
+  const archiveResult = await archiveWorkspaceApi(workspaceId)
+
+  return archiveResult
 }

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Spinner from '@components/Loader/Spinner.vue'
+
 defineProps<{
   currentToolStatus: string
 }>()
@@ -12,13 +14,7 @@ defineProps<{
         v-for="status in [currentToolStatus]"
         :key="status"
       >
-        <div
-          class="animate-spin inline-block size-4 shrink-0 border-2 border-current border-t-transparent text-gray-500 rounded-full"
-          role="status"
-          aria-label="Загрузка"
-        >
-          <span class="sr-only">Загрузка...</span>
-        </div>
+        <Spinner class="size-4" />
         <span class="text-sm text-gray-700">{{ currentToolStatus }}...</span>
       </div>
     </TransitionGroup>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Spinner from '@/components/Loader/Spinner.vue'
+
 defineProps<{
   isLoading: boolean
   text?: string
@@ -18,13 +20,7 @@ defineEmits<{
       @click="$emit('submit')"
     >
       <div class="flex items-center justify-center absolute" v-if="isLoading">
-        <div
-          class="animate-spin inline-block size-4 shrink-0 border-2 border-current border-t-transparent text-white rounded-full"
-          role="status"
-          aria-label="Загрузка"
-        >
-          <span class="sr-only">Загрузка...</span>
-        </div>
+        <Spinner class="size-4" />
       </div>
       <span :class="{ 'opacity-0': isLoading }">{{ text || 'Сохранить' }}</span>
     </button>

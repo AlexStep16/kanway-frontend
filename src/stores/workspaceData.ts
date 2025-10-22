@@ -1,4 +1,10 @@
-import { createWorkspace, fetchWorkspaces, saveWorkspace } from '@services/workspace'
+import {
+  archiveWorkspaceService,
+  createWorkspace,
+  fetchWorkspaces,
+  removeWorkspace,
+  saveWorkspace,
+} from '@services/workspace'
 import { BackendError, HttpError } from '@utils/errors'
 import { Workspace } from '@interfaces/Workspace'
 import { defineStore, Pinia } from 'pinia'
@@ -18,11 +24,15 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
     const loadWorkspacesError = ref<WorkspaceErrorType>(null)
     const addWorkspaceError = ref<WorkspaceErrorType>(null)
     const editWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const deleteWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const archiveWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
 
     // Loading
     const isWorkspacesLoading = ref<boolean>(false)
     const _isAddingWorkspace = ref<boolean>(false)
     const editingWorkspaces = ref<Set<string>>(new Set())
+    const deletingWorkspaces = ref<Set<string>>(new Set())
+    const archivingWorkspaces = ref<Set<string>>(new Set())
 
     const BOARD_STORE = useBoardDataStore()
 
@@ -164,6 +174,102 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       }
     }
 
+    async function deleteWorkspace(workspace: Workspace): Promise<void | false> {
+      if (!workspace) return false
+
+      try {
+        deletingWorkspaces.value.add(workspace._id)
+
+        await removeWorkspace(workspace._id)
+
+        const workspaceIndex = workspaces.value.findIndex((w) => w._id === workspace._id)
+        if (workspaceIndex !== -1) {
+          workspaces.value.splice(workspaceIndex, 1)
+
+          if (activeWorkspace.value?._id === workspace._id) {
+            selectWorkspace(workspaces.value[0], true, true)
+          }
+        }
+
+        toast.success('Пространство успешно удалено')
+
+        return
+      } catch (e) {
+        if (e instanceof BackendError) {
+          deleteWorkspacesError.value.set(workspace._id, e)
+        } else if (e instanceof HttpError) {
+          deleteWorkspacesError.value.set(workspace._id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          deleteWorkspacesError.value.set(
+            workspace._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        toast.error(
+          deleteWorkspacesError.value.get(workspace._id)?.message ||
+            'Ошибка при удалении пространства',
+        )
+
+        return false
+      } finally {
+        deletingWorkspaces.value.delete(workspace._id)
+      }
+    }
+
+    async function archiveWorkspace(workspace: Workspace): Promise<Workspace | false> {
+      if (!workspace) return false
+
+      try {
+        archivingWorkspaces.value.add(workspace._id)
+
+        const archiveResult = await archiveWorkspaceService(workspace._id)
+
+        const newWorkspace = archiveResult.find((w) => w._id === workspace._id)
+
+        const workspaceIndex = workspaces.value.findIndex((w) => w._id === workspace._id)
+        if (workspaceIndex !== -1 && newWorkspace) {
+          Object.assign(workspaces.value[workspaceIndex], newWorkspace)
+
+          workspaces.value.splice(workspaceIndex, 1)
+
+          if (activeWorkspace.value?._id === workspace._id) {
+            selectWorkspace(workspaces.value[0], true, true)
+          }
+        }
+
+        toast.success('Пространство успешно архивировано')
+
+        return newWorkspace ?? false
+      } catch (e) {
+        if (e instanceof BackendError) {
+          archiveWorkspacesError.value.set(workspace._id, e)
+        } else if (e instanceof HttpError) {
+          archiveWorkspacesError.value.set(workspace._id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          archiveWorkspacesError.value.set(
+            workspace._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        toast.error(
+          archiveWorkspacesError.value.get(workspace._id)?.message ||
+            'Ошибка при архивировании пространства',
+        )
+
+        return false
+      } finally {
+        archivingWorkspaces.value.delete(workspace._id)
+      }
+    }
+
     function getFirstLetterOfWorkspace(workspace: Workspace): string {
       return workspace.name.charAt(0).toUpperCase()
     }
@@ -192,6 +298,14 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       return editingWorkspaces.value.has(workspaceId)
     })
 
+    const isWorkspaceDeleting = computed(() => (workspaceId: string): boolean => {
+      return deletingWorkspaces.value.has(workspaceId)
+    })
+
+    const isWorkspaceArchiving = computed(() => (workspaceId: string): boolean => {
+      return archivingWorkspaces.value.has(workspaceId)
+    })
+
     function $reset() {}
 
     return {
@@ -208,6 +322,10 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       _isAddingWorkspace,
       isAddingWorkspace,
       isWorkspaceEditing,
+      isWorkspaceDeleting,
+      isWorkspaceArchiving,
+      deleteWorkspacesError,
+      archiveWorkspacesError,
 
       // Actions
       loadWorkspaces,
@@ -215,6 +333,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       addWorkspace,
       getFirstLetterOfWorkspace,
       updateWorkspace,
+      deleteWorkspace,
+      archiveWorkspace,
 
       $reset,
     }

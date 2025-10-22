@@ -181,7 +181,7 @@ onMounted(() => {
           data-hs-accordion-always-open
         >
           <ul
-            class="flex flex-col gap-y-1 w-full min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+            class="pe-1 flex flex-col gap-y-1 w-full min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-200 [&::-webkit-scrollbar-thumb]:bg-gray-300"
           >
             <li class="hs-accordion active" id="boards-accordion">
               <button
@@ -215,6 +215,7 @@ onMounted(() => {
                     v-for="board in BOARD_STORE.getActiveWorkspaceBoards"
                     :key="board._id"
                     :item="board"
+                    :selected="board === BOARD_STORE.activeBoard"
                     type="board"
                   />
 
@@ -375,7 +376,7 @@ onMounted(() => {
             </li>
           </ul>
 
-          <ul class="mt-1 flex flex-col gap-y-1 mb-3">
+          <ul class="pe-1 mt-1 flex flex-col gap-y-1 mb-3">
             <li>
               <button
                 type="button"

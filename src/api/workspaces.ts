@@ -1,5 +1,5 @@
 import { apiCall } from '@/apiClient'
-import { AddResponse } from '@interfaces/AddResponse'
+import { CRUDResponse } from '@/interfaces/CRUDResponse'
 import { Workspace } from '@interfaces/Workspace'
 
 export async function getWorkspacesApi() {
@@ -10,7 +10,7 @@ export async function getWorkspacesApi() {
 }
 
 export async function postWorkspaceApi(workspace: Partial<Workspace>) {
-  return await apiCall<AddResponse<Workspace>>({
+  return await apiCall<CRUDResponse<Workspace>>({
     method: 'POST',
     url: `/workspaces`,
     data: workspace,
@@ -22,5 +22,19 @@ export async function putWorkspaceApi(workspace: Workspace) {
     method: 'PUT',
     url: `/workspaces/${workspace._id}`,
     data: workspace,
+  })
+}
+
+export async function deleteWorkspaceApi(workspaceId: string) {
+  return await apiCall<void>({
+    method: 'DELETE',
+    url: `/workspaces/${workspaceId}`,
+  })
+}
+
+export async function archiveWorkspaceApi(workspaceId: string) {
+  return await apiCall<Workspace[]>({
+    method: 'POST',
+    url: `/workspaces/${workspaceId}/archive`,
   })
 }

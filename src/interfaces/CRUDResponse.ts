@@ -1,4 +1,4 @@
-export interface AddResponse<T> {
+export interface CRUDResponse<T> {
   result: Array<T>
   operationLog: any
 }

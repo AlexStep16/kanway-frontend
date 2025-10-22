@@ -1,4 +1,10 @@
-import { createBoard, fetchBoards, saveBoard } from '@services/board'
+import {
+  archiveBoardService,
+  createBoard,
+  fetchBoards,
+  removeBoard,
+  saveBoard,
+} from '@services/board'
 import { BackendError, HttpError } from '@utils/errors'
 import { Board } from '@interfaces/Board'
 import { defineStore, Pinia } from 'pinia'
@@ -20,12 +26,16 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     const loadBoardsError = ref<BoardErrorType>(null)
     const addBoardError = ref<BoardErrorType>(null)
     const editBoardsError = ref<Map<string, BoardErrorType>>(new Map())
+    const deleteBoardsError = ref<Map<string, BoardErrorType>>(new Map())
+    const archiveBoardsError = ref<Map<string, BoardErrorType>>(new Map())
 
     // Loading
     const loadingStatus = ref<Map<string, boolean>>(new Map())
     const loadedWorkspaces = ref<Set<string>>(new Set())
     const _isAddingBoard = ref<boolean>(false)
     const editingBoards = ref<Set<string>>(new Set())
+    const deletingBoards = ref<Set<string>>(new Set())
+    const archivingBoards = ref<Set<string>>(new Set())
 
     async function loadBoards(workspaceId: string, forceReload: boolean = false) {
       if (loadedWorkspaces.value.has(workspaceId) && !forceReload) return
@@ -158,6 +168,98 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       }
     }
 
+    async function deleteBoard(board: Board, workspace_id: string): Promise<void | false> {
+      if (!board) return false
+
+      try {
+        deletingBoards.value.add(board._id)
+
+        await removeBoard(board._id, workspace_id)
+
+        const boardIndex = boards.value.findIndex((b) => b._id === board._id)
+        if (boardIndex !== -1) {
+          boards.value.splice(boardIndex, 1)
+
+          if (activeBoard.value?._id === board._id) {
+            selectBoard(boards.value[0], true)
+          }
+        }
+
+        toast.success('Доска успешно удалена')
+
+        return
+      } catch (e) {
+        if (e instanceof BackendError) {
+          deleteBoardsError.value.set(board._id, e)
+        } else if (e instanceof HttpError) {
+          deleteBoardsError.value.set(board._id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          deleteBoardsError.value.set(
+            board._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        toast.error(deleteBoardsError.value.get(board._id)?.message || 'Ошибка при удалении доски')
+
+        return false
+      } finally {
+        deletingBoards.value.delete(board._id)
+      }
+    }
+
+    async function archiveBoard(board: Board, workspace_id: string): Promise<Board | false> {
+      if (!board) return false
+
+      try {
+        archivingBoards.value.add(board._id)
+
+        const archiveResult = await archiveBoardService(board._id, workspace_id)
+
+        const newBoard = archiveResult.find((b) => b._id === board._id)
+
+        const boardIndex = boards.value.findIndex((b) => b._id === board._id)
+        if (boardIndex !== -1 && newBoard) {
+          Object.assign(boards.value[boardIndex], newBoard)
+
+          boards.value.splice(boardIndex, 1)
+
+          if (activeBoard.value?._id === board._id) {
+            selectBoard(boards.value[0], true)
+          }
+        }
+
+        toast.success('Доска успешно архивирована')
+
+        return newBoard ?? false
+      } catch (e) {
+        if (e instanceof BackendError) {
+          archiveBoardsError.value.set(board._id, e)
+        } else if (e instanceof HttpError) {
+          archiveBoardsError.value.set(board._id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          archiveBoardsError.value.set(
+            board._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        toast.error(
+          archiveBoardsError.value.get(board._id)?.message || 'Ошибка при архивировании доски',
+        )
+
+        return false
+      } finally {
+        archivingBoards.value.delete(board._id)
+      }
+    }
+
     const isBoardsLoading = computed(() => (workspaceId: string): boolean => {
       return loadingStatus.value.get(workspaceId) === true
     })
@@ -172,6 +274,14 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     const isBoardEditing = computed(() => (boardId: string): boolean => {
       return editingBoards.value.has(boardId)
+    })
+
+    const isBoardDeleting = computed(() => (boardId: string): boolean => {
+      return deletingBoards.value.has(boardId)
+    })
+
+    const isBoardArchiving = computed(() => (boardId: string): boolean => {
+      return archivingBoards.value.has(boardId)
     })
 
     const getActiveWorkspaceBoards = computed((): Board[] => {
@@ -198,12 +308,20 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       addBoardError,
       editBoardsError,
       getActiveWorkspaceBoards,
+      deletingBoards,
+      isBoardDeleting,
+      deleteBoardsError,
+      archivingBoards,
+      isBoardArchiving,
+      archiveBoardsError,
 
       // Actions
       loadBoards,
       selectBoard,
       addBoardToWorkspace,
       updateBoard,
+      deleteBoard,
+      archiveBoard,
 
       $reset,
     }
