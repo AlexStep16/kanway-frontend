@@ -26,7 +26,7 @@ const UI_STORE = useUIStore()
     <TitleBoard v-if="UI_STORE.currentTab === Tabs.Board" />
     <TitleArchive v-if="UI_STORE.currentTab === Tabs.Archive" />
 
-    <div class="flex ms-auto items-stretch gap-x-3">
+    <div class="flex shrink-0 ms-auto items-stretch gap-x-3">
       <Search />
       <Filter />
     </div>

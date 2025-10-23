@@ -1,9 +1,9 @@
 export interface Workspace {
   _id: string
   name: string
-  user_id: string
+  userId: string
   order: number
-  is_deleted: boolean
-  is_favorite: boolean
+  isDeleted: boolean
+  isFavorite: boolean
   color: string
 }

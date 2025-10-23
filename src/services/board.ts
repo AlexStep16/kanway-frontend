@@ -1,6 +1,7 @@
 import { Board } from '@interfaces/Board'
 import {
   archiveBoardApi,
+  cloneBoardApi,
   deleteBoardApi,
   getBoardsApi,
   postBoardApi,
@@ -19,8 +20,8 @@ export async function createBoard(board: Partial<Board>, workspace_id: string) {
   return newBoard.result
 }
 
-export async function saveBoard(board: Board, workspace_id: string) {
-  const saveResult = await putBoardApi(board, workspace_id)
+export async function saveBoard(payload: Partial<Board> & { _id: string }) {
+  const saveResult = await putBoardApi(payload)
 
   return saveResult
 }
@@ -29,8 +30,14 @@ export async function removeBoard(boardId: string, workspace_id: string) {
   await deleteBoardApi(boardId, workspace_id)
 }
 
-export async function archiveBoardService(boardId: string, workspace_id: string) {
+export async function archiveBoard(boardId: string, workspace_id: string) {
   const archiveResult = await archiveBoardApi(boardId, workspace_id)
 
   return archiveResult
+}
+
+export async function cloneBoard(boardId: string, workspace_id: string) {
+  const cloneResult = await cloneBoardApi(boardId, workspace_id)
+
+  return cloneResult.result
 }

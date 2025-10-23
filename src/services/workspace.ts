@@ -1,6 +1,7 @@
 import { Workspace } from '@/interfaces/Workspace'
 import {
   archiveWorkspaceApi,
+  cloneWorkspaceApi,
   deleteWorkspaceApi,
   getWorkspacesApi,
   postWorkspaceApi,
@@ -19,8 +20,8 @@ export async function createWorkspace(workspace: Partial<Workspace>) {
   return newWorkspace.result
 }
 
-export async function saveWorkspace(workspace: Workspace) {
-  const saveResult = await putWorkspaceApi(workspace)
+export async function saveWorkspace(payload: Partial<Workspace> & { _id: string }) {
+  const saveResult = await putWorkspaceApi(payload)
 
   return saveResult
 }
@@ -29,8 +30,14 @@ export async function removeWorkspace(workspaceId: string) {
   await deleteWorkspaceApi(workspaceId)
 }
 
-export async function archiveWorkspaceService(workspaceId: string) {
+export async function archiveWorkspace(workspaceId: string) {
   const archiveResult = await archiveWorkspaceApi(workspaceId)
 
   return archiveResult
+}
+
+export async function cloneWorkspace(workspaceId: string) {
+  const cloneResult = await cloneWorkspaceApi(workspaceId)
+
+  return cloneResult.result
 }

@@ -17,24 +17,31 @@ export async function postBoardApi(board: Partial<Board>, workspace_id: string) 
   })
 }
 
-export async function putBoardApi(board: Board, workspace_id: string) {
+export async function putBoardApi(payload: Partial<Board> & { _id: string }) {
   return await apiCall<Board[]>({
     method: 'PUT',
-    url: `/workspace/${workspace_id}/boards/${board._id}`,
-    data: board,
+    url: `/workspace/${payload.workspace_id}/boards/${payload._id}`,
+    data: payload,
   })
 }
 
-export async function deleteBoardApi(boardId: string, workspace_id: string) {
+export async function deleteBoardApi(board_id: string, workspace_id: string) {
   return await apiCall<void>({
     method: 'DELETE',
-    url: `/workspace/${workspace_id}/boards/${boardId}`,
+    url: `/workspace/${workspace_id}/boards/${board_id}`,
   })
 }
 
-export async function archiveBoardApi(boardId: string, workspace_id: string) {
+export async function archiveBoardApi(board_id: string, workspace_id: string) {
   return await apiCall<Board[]>({
     method: 'POST',
-    url: `/workspace/${workspace_id}/boards/${boardId}/archive`,
+    url: `/workspace/${workspace_id}/boards/${board_id}/archive`,
+  })
+}
+
+export async function cloneBoardApi(board_id: string, workspace_id: string) {
+  return await apiCall<CRUDResponse<Board>>({
+    method: 'PUT',
+    url: `/workspace/${workspace_id}/boards/clone/${board_id}`,
   })
 }

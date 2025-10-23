@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { defineProps, ref } from 'vue'
 import Options from '@/components/Options/Options.vue'
 import { Workspace } from '@interfaces/Workspace'
 import { Board } from '@interfaces/Board'
 
+const optionsRef = ref<InstanceType<typeof Options> | null>(null)
+
 defineProps<{
   item: Workspace | Board
   type: 'board' | 'workspace' | 'chat'
+  resetForm?: () => void
   selected?: boolean
+}>()
+
+defineEmits<{
+  (e: 'select'): void
 }>()
 </script>
 
@@ -17,9 +24,9 @@ defineProps<{
     :class="selected ? 'text-blue-500 ' : 'text-gray-600'"
   >
     <a
-      class="flex items-center w-full flex-grow py-2 pl-2.5 pr-8.5 rounded-lg text-sm focus:outline-none transition-colors duration-100"
+      class="flex items-center w-full cursor-pointer flex-grow py-2 pl-2.5 pr-8.5 rounded-lg text-sm focus:outline-none transition-colors duration-100"
       :class="selected ? 'bg-blue-100' : 'hover:bg-gray-200'"
-      href="#"
+      @click="$emit('select')"
     >
       <slot name="link"></slot>
       <span class="truncate">{{ item.name }}</span>
@@ -28,15 +35,21 @@ defineProps<{
       :options="{
         edit: type === 'chat' ? false : true,
         copy: true,
-        move: type === 'chat' ? false : true,
+        move: ['chat', 'workspace'].includes(type) ? false : true,
         favorite: true,
         archive: true,
       }"
       :item
       class="absolute right-2.5"
+      :resetForm="resetForm"
       group_name="sidebar-item"
       :hover_class="selected ? 'lg:hover:bg-blue-200' : 'lg:hover:bg-gray-200'"
       :edit_type="type"
-    />
+      ref="optionsRef"
+    >
+      <template v-for="(value, key) in $slots" #[key]="slotProps">
+        <slot :name="key" v-bind="slotProps" />
+      </template>
+    </Options>
   </li>
 </template>

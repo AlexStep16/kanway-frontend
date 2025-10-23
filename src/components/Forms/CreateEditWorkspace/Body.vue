@@ -11,6 +11,7 @@ defineProps<{
   errors: WorkspaceValidationErrors
   mode: 'create' | 'edit'
   isLoading: boolean
+  isFormChanged: boolean
   dropdownMenuWidth?: number
 }>()
 
@@ -39,6 +40,7 @@ defineEmits<{
 
     <SubmitButton
       :isLoading="isLoading"
+      :isFormChanged="isFormChanged"
       @submit="$emit('submit')"
       :text="mode === 'create' ? 'Создать' : 'Сохранить'"
     />

@@ -4,5 +4,5 @@ export interface Board {
   workspace_id: string
   order: number
   is_deleted: boolean
-  is_favorite: boolean
+  isFavorite: boolean
 }

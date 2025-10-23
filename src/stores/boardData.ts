@@ -1,5 +1,6 @@
 import {
-  archiveBoardService,
+  archiveBoard as archiveBoardService,
+  cloneBoard as cloneBoardService,
   createBoard,
   fetchBoards,
   removeBoard,
@@ -24,31 +25,38 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     // Errors
     const loadBoardsError = ref<BoardErrorType>(null)
-    const addBoardError = ref<BoardErrorType>(null)
-    const editBoardsError = ref<Map<string, BoardErrorType>>(new Map())
-    const deleteBoardsError = ref<Map<string, BoardErrorType>>(new Map())
-    const archiveBoardsError = ref<Map<string, BoardErrorType>>(new Map())
+    const _addBoardError = ref<BoardErrorType>(null)
+    const _editBoardsError = ref<Map<string, BoardErrorType>>(new Map())
+    const _deleteBoardsError = ref<Map<string, BoardErrorType>>(new Map())
+    const _archiveBoardsError = ref<Map<string, BoardErrorType>>(new Map())
+    const _cloneBoardsError = ref<Map<string, BoardErrorType>>(new Map())
 
     // Loading
-    const loadingStatus = ref<Map<string, boolean>>(new Map())
-    const loadedWorkspaces = ref<Set<string>>(new Set())
+    const _loadingStatusWorkspaces = ref<Map<string, boolean>>(new Map())
+    const _loadedWorkspaces = ref<Set<string>>(new Set())
     const _isAddingBoard = ref<boolean>(false)
-    const editingBoards = ref<Set<string>>(new Set())
-    const deletingBoards = ref<Set<string>>(new Set())
-    const archivingBoards = ref<Set<string>>(new Set())
+    const _editingBoards = ref<Set<string>>(new Set())
+    const _deletingBoards = ref<Set<string>>(new Set())
+    const _archivingBoards = ref<Set<string>>(new Set())
+    const _cloningBoards = ref<Set<string>>(new Set())
+    const _movingBoards = ref<Set<string>>(new Set())
+    const _addingToFavoritesBoards = ref<Set<string>>(new Set())
 
-    async function loadBoards(workspaceId: string, forceReload: boolean = false) {
-      if (loadedWorkspaces.value.has(workspaceId) && !forceReload) return
+    async function loadBoards(workspace_id: string, force_reload: boolean = false) {
+      if (_loadedWorkspaces.value.has(workspace_id) && !force_reload) return
+      if (_loadingStatusWorkspaces.value.get(workspace_id)) return
+      if (areBoardsLoaded(workspace_id) || areBoardsLoading(workspace_id)) return
 
-      if (loadingStatus.value.get(workspaceId)) return
-
-      loadingStatus.value.set(workspaceId, true)
+      _loadingStatusWorkspaces.value.set(workspace_id, true)
 
       loadBoardsError.value = null
 
       try {
-        const boardsPayload = await fetchBoards(workspaceId)
-        boards.value = boardsPayload
+        const boardsPayload = await fetchBoards(workspace_id)
+
+        boards.value = boards.value.filter((b) => b.workspace_id !== workspace_id) // Remove old boards of this workspace
+        boards.value.push(...boardsPayload)
+        _loadedWorkspaces.value.add(workspace_id)
 
         return true
       } catch (e) {
@@ -66,12 +74,13 @@ export const useBoardDataStore = (pinia?: Pinia) => {
         toast.error(loadBoardsError.value.message)
 
         return false
+      } finally {
+        _loadingStatusWorkspaces.value.set(workspace_id, false)
       }
     }
 
     async function selectBoard(newBoard: Board, shouldNavigate: boolean = false) {
-      //mainStore.switchTabs(Tabs.Board);
-      if (newBoard._id === activeBoard.value?._id) return
+      if (!newBoard || newBoard._id === activeBoard.value?._id) return
 
       if (WORKSPACE_STORE.activeWorkspace && shouldNavigate) {
         window.history.pushState(
@@ -91,88 +100,135 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     }*/
     }
 
-    async function addBoardToWorkspace(
-      board: Partial<Board>,
+    async function _addBoardToWorkspace(
+      payload: Partial<Board>,
       workspace_id: string | null,
     ): Promise<Board | false> {
-      if (!workspace_id || !board) return false
+      if (!workspace_id || !payload) return false
 
       try {
         _isAddingBoard.value = true
 
-        const newBoard = await createBoard({ ...board, workspace_id }, workspace_id)
+        const newBoards: Board[] = await createBoard({ ...payload, workspace_id }, workspace_id)
 
-        boards.value.push(...newBoard)
+        boards.value.push(...newBoards)
 
-        toast.success('Доска успешно создана')
-
-        return newBoard[0]
+        return newBoards[0]
       } catch (e) {
         if (e instanceof BackendError) {
-          addBoardError.value = e
+          _addBoardError.value = e
         } else if (e instanceof HttpError) {
-          addBoardError.value = e
+          _addBoardError.value = e
 
           if (e.status === 401) {
           }
         } else {
-          addBoardError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+          _addBoardError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
         }
 
-        toast.error(addBoardError.value.message)
-
-        return false
+        throw e
       } finally {
         _isAddingBoard.value = false
       }
     }
 
-    async function updateBoard(board: Board, workspace_id: string | null): Promise<Board | false> {
-      if (!workspace_id || !board) return false
+    async function addBoardToWorkspace(
+      payload: Partial<Board>,
+      workspace_id: string,
+    ): Promise<Board | false> {
+      try {
+        const result = await _addBoardToWorkspace(payload, workspace_id)
+
+        toast.success('Доска успешно создана')
+
+        return result
+      } catch {
+        toast.error(_addBoardError.value?.message ?? 'Ошибка при создании доски')
+
+        return false
+      }
+    }
+
+    function _updateBoardInStore(payload: Partial<Board>, newBoard: Board) {
+      const board = boards.value.find((b) => b._id === payload._id)
+
+      if (board && newBoard) {
+        const oldWorkspaceId = board.workspace_id
+
+        Object.assign(board, newBoard)
+
+        if (activeBoard.value?._id === newBoard._id && oldWorkspaceId !== newBoard.workspace_id) {
+          selectBoard(getActiveWorkspaceBoards.value[0], true)
+        }
+      }
+    }
+
+    function isBoardChanged(payload: Partial<Board>): boolean {
+      const board = boards.value.find((b) => b._id === payload._id)
+      if (!board) return false
+
+      return board.name !== payload.name
+    }
+
+    async function _updateBoard(payload: Partial<Board> & { _id: string }): Promise<Board> {
+      if (!payload) throw new Error('Нет данных для обновления доски')
 
       try {
-        editingBoards.value.add(board._id)
+        _editingBoards.value.add(payload._id)
 
-        const editResult = await saveBoard(board, workspace_id)
+        const editResult = await saveBoard(payload)
 
-        const newBoard = editResult.find((b) => b._id === board._id)
+        const newBoard = editResult.find((b) => b._id === payload._id)
 
-        const boardIndex = boards.value.findIndex((b) => b._id === board._id)
+        if (!newBoard) throw new Error('Сервер не вернул обновленную доску')
 
-        if (boardIndex !== -1 && newBoard) {
-          Object.assign(boards.value[boardIndex], newBoard)
-        }
+        _updateBoardInStore(payload, newBoard)
 
-        toast.success('Доска успешно обновлена')
-
-        return newBoard ?? false
+        return newBoard
       } catch (e) {
         if (e instanceof BackendError) {
-          editBoardsError.value.set(board._id, e)
+          _editBoardsError.value.set(payload._id, e)
         } else if (e instanceof HttpError) {
-          editBoardsError.value.set(board._id, e)
+          _editBoardsError.value.set(payload._id, e)
 
           if (e.status === 401) {
           }
         } else {
-          editBoardsError.value.set(board._id, new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null))
+          _editBoardsError.value.set(
+            payload._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
         }
 
-        toast.error(
-          editBoardsError.value.get(board._id)?.message || 'Ошибка при редактировании доски',
-        )
-
-        return false
+        throw e
       } finally {
-        editingBoards.value.delete(board._id)
+        _editingBoards.value.delete(payload._id)
       }
     }
 
-    async function deleteBoard(board: Board, workspace_id: string): Promise<void | false> {
-      if (!board) return false
+    async function updateBoard(payload: Partial<Board> & { _id: string }): Promise<Board | false> {
+      if (!isBoardChanged(payload)) return false
 
       try {
-        deletingBoards.value.add(board._id)
+        const result = await _updateBoard(payload)
+
+        toast.success('Доска успешно обновлена')
+
+        return result
+      } catch {
+        toast.error(
+          _editBoardsError.value.get(payload._id)?.message || 'Ошибка при редактировании доски',
+        )
+
+        return false
+      }
+    }
+
+    async function _deleteBoard(board: Board, workspace_id: string): Promise<void> {
+      if (!board) throw new Error('Нет доски для удаления')
+
+      try {
+        _deletingBoards.value.add(board._id)
 
         await removeBoard(board._id, workspace_id)
 
@@ -184,38 +240,46 @@ export const useBoardDataStore = (pinia?: Pinia) => {
             selectBoard(boards.value[0], true)
           }
         }
-
-        toast.success('Доска успешно удалена')
-
-        return
       } catch (e) {
         if (e instanceof BackendError) {
-          deleteBoardsError.value.set(board._id, e)
+          _deleteBoardsError.value.set(board._id, e)
         } else if (e instanceof HttpError) {
-          deleteBoardsError.value.set(board._id, e)
+          _deleteBoardsError.value.set(board._id, e)
 
           if (e.status === 401) {
           }
         } else {
-          deleteBoardsError.value.set(
+          _deleteBoardsError.value.set(
             board._id,
             new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
           )
         }
 
-        toast.error(deleteBoardsError.value.get(board._id)?.message || 'Ошибка при удалении доски')
-
-        return false
+        throw e
       } finally {
-        deletingBoards.value.delete(board._id)
+        _deletingBoards.value.delete(board._id)
       }
     }
 
-    async function archiveBoard(board: Board, workspace_id: string): Promise<Board | false> {
-      if (!board) return false
+    async function deleteBoard(board: Board, workspace_id: string): Promise<boolean> {
+      try {
+        await _deleteBoard(board, workspace_id)
+
+        toast.success('Доска успешно удалена')
+
+        return true
+      } catch {
+        toast.error(_deleteBoardsError.value.get(board._id)?.message || 'Ошибка при удалении доски')
+
+        return false
+      }
+    }
+
+    async function _archiveBoard(board: Board, workspace_id: string): Promise<Board> {
+      if (!board) throw new Error('Нет доски для архивирования')
 
       try {
-        archivingBoards.value.add(board._id)
+        _archivingBoards.value.add(board._id)
 
         const archiveResult = await archiveBoardService(board._id, workspace_id)
 
@@ -232,56 +296,182 @@ export const useBoardDataStore = (pinia?: Pinia) => {
           }
         }
 
-        toast.success('Доска успешно архивирована')
+        if (!newBoard) throw new Error('Сервер не вернул архивированную доску')
 
-        return newBoard ?? false
+        return newBoard
       } catch (e) {
         if (e instanceof BackendError) {
-          archiveBoardsError.value.set(board._id, e)
+          _archiveBoardsError.value.set(board._id, e)
         } else if (e instanceof HttpError) {
-          archiveBoardsError.value.set(board._id, e)
+          _archiveBoardsError.value.set(board._id, e)
 
           if (e.status === 401) {
           }
         } else {
-          archiveBoardsError.value.set(
+          _archiveBoardsError.value.set(
             board._id,
             new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
           )
         }
 
+        throw e
+      } finally {
+        _archivingBoards.value.delete(board._id)
+      }
+    }
+
+    async function archiveBoard(board: Board, workspace_id: string): Promise<Board | false> {
+      try {
+        const result = await _archiveBoard(board, workspace_id)
+
+        toast.success('Доска успешно архивирована')
+
+        return result
+      } catch {
         toast.error(
-          archiveBoardsError.value.get(board._id)?.message || 'Ошибка при архивировании доски',
+          _archiveBoardsError.value.get(board._id)?.message || 'Ошибка при архивировании доски',
+        )
+
+        return false
+      }
+    }
+
+    async function _cloneBoard(board: Board): Promise<Board> {
+      if (!board) throw new Error('Нет доски для копирования')
+
+      try {
+        _cloningBoards.value.add(board._id)
+
+        const newBoards: Board[] = await cloneBoardService(board._id, board.workspace_id)
+
+        boards.value.push(...newBoards)
+
+        return newBoards[0]
+      } catch (e) {
+        if (e instanceof BackendError) {
+          _cloneBoardsError.value.set(board._id, e)
+        } else if (e instanceof HttpError) {
+          _cloneBoardsError.value.set(board._id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          _cloneBoardsError.value.set(
+            board._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        throw e
+      } finally {
+        _cloningBoards.value.delete(board._id)
+      }
+    }
+
+    async function cloneBoard(board: Board): Promise<Board | false> {
+      try {
+        const result = await _cloneBoard(board)
+
+        toast.success('Доска успешно скопирована')
+
+        return result
+      } catch {
+        toast.error(
+          _cloneBoardsError.value.get(board._id)?.message || 'Ошибка при копировании доски',
+        )
+
+        return false
+      }
+    }
+
+    async function moveBoard(board: Board, new_workspace_id: string) {
+      const newBoard = { ...board, workspace_id: new_workspace_id }
+
+      try {
+        _movingBoards.value.add(board._id)
+
+        const result = await _updateBoard(newBoard)
+
+        toast.success('Доска успешно перемещена')
+
+        return result
+      } catch {
+        toast.error(
+          _editBoardsError.value.get(board._id)?.message || 'Ошибка при перемещении доски',
         )
 
         return false
       } finally {
-        archivingBoards.value.delete(board._id)
+        _movingBoards.value.delete(board._id)
       }
     }
 
-    const isBoardsLoading = computed(() => (workspaceId: string): boolean => {
-      return loadingStatus.value.get(workspaceId) === true
-    })
+    async function makeFavorite(board: Board) {
+      const newBoard = { ...board, isFavorite: !board.isFavorite }
 
-    const areBoardsLoaded = computed(() => (workspaceId: string) => {
-      return loadedWorkspaces.value.has(workspaceId)
-    })
+      try {
+        _addingToFavoritesBoards.value.add(board._id)
+
+        const result = await _updateBoard(newBoard)
+
+        toast.success('Доска успешно добавлена в избранное')
+
+        return result
+      } catch {
+        toast.error(
+          _editBoardsError.value.get(board._id)?.message ||
+            'Ошибка при добавлении доски в избранное',
+        )
+
+        return false
+      } finally {
+        _addingToFavoritesBoards.value.delete(board._id)
+      }
+    }
+
+    function areBoardsLoading(workspaceId: string): boolean {
+      return _loadingStatusWorkspaces.value.get(workspaceId) === true
+    }
+
+    function areBoardsLoaded(workspaceId: string): boolean {
+      return _loadedWorkspaces.value.has(workspaceId)
+    }
 
     const isAddingBoard = computed((): boolean => {
       return _isAddingBoard.value
     })
 
     const isBoardEditing = computed(() => (boardId: string): boolean => {
-      return editingBoards.value.has(boardId)
+      return _editingBoards.value.has(boardId)
     })
 
     const isBoardDeleting = computed(() => (boardId: string): boolean => {
-      return deletingBoards.value.has(boardId)
+      return _deletingBoards.value.has(boardId)
     })
 
     const isBoardArchiving = computed(() => (boardId: string): boolean => {
-      return archivingBoards.value.has(boardId)
+      return _archivingBoards.value.has(boardId)
+    })
+
+    const isBoardCloning = computed(() => (boardId: string): boolean => {
+      return _cloningBoards.value.has(boardId)
+    })
+
+    const isBoardMoving = computed(() => (boardId: string): boolean => {
+      return _movingBoards.value.has(boardId)
+    })
+
+    const isBoardAddingToFavorites = computed(() => (boardId: string): boolean => {
+      return _addingToFavoritesBoards.value.has(boardId)
+    })
+
+    const isBoardProcessing = computed(() => (boardId: string): boolean => {
+      return (
+        _deletingBoards.value.has(boardId) ||
+        _archivingBoards.value.has(boardId) ||
+        _cloningBoards.value.has(boardId) ||
+        _editingBoards.value.has(boardId)
+      )
     })
 
     const getActiveWorkspaceBoards = computed((): Board[] => {
@@ -292,6 +482,12 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       )
     })
 
+    const getActiveWorkspaceFavoriteBoards = computed((): Board[] => {
+      if (!WORKSPACE_STORE.activeWorkspace) return []
+
+      return getActiveWorkspaceBoards.value.filter((board) => board.isFavorite)
+    })
+
     function $reset() {}
 
     return {
@@ -299,21 +495,18 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       boards,
       activeBoard,
       loadBoardsError,
-      isBoardsLoading,
+      areBoardsLoading,
       areBoardsLoaded,
-      loadedWorkspaces,
-      _isAddingBoard,
       isAddingBoard,
       isBoardEditing,
-      addBoardError,
-      editBoardsError,
       getActiveWorkspaceBoards,
-      deletingBoards,
       isBoardDeleting,
-      deleteBoardsError,
-      archivingBoards,
       isBoardArchiving,
-      archiveBoardsError,
+      isBoardCloning,
+      isBoardProcessing,
+      isBoardMoving,
+      isBoardAddingToFavorites,
+      getActiveWorkspaceFavoriteBoards,
 
       // Actions
       loadBoards,
@@ -322,6 +515,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       updateBoard,
       deleteBoard,
       archiveBoard,
+      cloneBoard,
+      moveBoard,
+      makeFavorite,
 
       $reset,
     }

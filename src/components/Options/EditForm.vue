@@ -2,7 +2,6 @@
 import { ChevronLeft } from 'lucide-vue-next'
 
 defineProps<{
-  showEdit: boolean
   title: string
 }>()
 
@@ -16,7 +15,7 @@ function closeEdit() {
 </script>
 
 <template>
-  <div class="flex flex-col shrink-0 w-full min-w-75 p-1" v-show="showEdit">
+  <div class="flex flex-col shrink-0 w-full min-w-75 p-1">
     <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
       <button
         type="button"

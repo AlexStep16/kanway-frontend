@@ -17,11 +17,11 @@ export async function postWorkspaceApi(workspace: Partial<Workspace>) {
   })
 }
 
-export async function putWorkspaceApi(workspace: Workspace) {
+export async function putWorkspaceApi(payload: Partial<Workspace> & { _id: string }) {
   return await apiCall<Workspace[]>({
     method: 'PUT',
-    url: `/workspaces/${workspace._id}`,
-    data: workspace,
+    url: `/workspaces/${payload._id}`,
+    data: payload,
   })
 }
 
@@ -36,5 +36,12 @@ export async function archiveWorkspaceApi(workspaceId: string) {
   return await apiCall<Workspace[]>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/archive`,
+  })
+}
+
+export async function cloneWorkspaceApi(workspaceId: string) {
+  return await apiCall<CRUDResponse<Workspace>>({
+    method: 'PUT',
+    url: `/workspaces/clone/${workspaceId}`,
   })
 }

@@ -23,6 +23,11 @@ import { HSDropdown } from 'preline'
 import { useTipsStore } from '@stores/tips'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useBoardDataStore } from '@stores/boardData'
+import EditForm from '@components/Options/EditForm.vue'
+import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
+import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
+import BoardsSkeleton from './BoardsSkeleton.vue'
+import NumberBadgeSkeleton from '@/components/Badges/NumberBadgeSkeleton.vue'
 
 const UI_STORE = useUIStore()
 const TIPS_STORE = useTipsStore()
@@ -34,6 +39,10 @@ if (window.innerWidth < 1280) {
 }
 
 const workspaceDropdown = ref<HTMLElement | null>(null)
+const workspaceDropdownInstance = ref<HSDropdown | null>(null)
+
+const workspaceEditWrapperRef = ref<InstanceType<typeof WorkspaceEditWrapper> | null>(null)
+const boardEditWrapperRef = ref<InstanceType<typeof BoardEditWrapper> | null>(null)
 
 const getBoardCreateModalWidth = () => {
   if (UI_STORE.createBoardButtonRef) {
@@ -43,19 +52,39 @@ const getBoardCreateModalWidth = () => {
   return 0
 }
 
+function resetWorkspaceForm() {
+  if (workspaceEditWrapperRef.value && workspaceEditWrapperRef.value.resetForm) {
+    workspaceEditWrapperRef.value.resetForm()
+  }
+}
+
+function resetBoardForm() {
+  if (boardEditWrapperRef.value && boardEditWrapperRef.value.resetForm) {
+    boardEditWrapperRef.value.resetForm()
+  }
+}
+
+function selectWorkspace(workspace: any) {
+  WORKSPACE_STORE.selectWorkspace(workspace, true)
+
+  if (workspaceDropdownInstance.value) workspaceDropdownInstance.value.close()
+}
+
 onMounted(() => {
   if (workspaceDropdown.value && workspaceDropdown.value instanceof HTMLElement) {
-    const dropdownInstance = HSDropdown.getInstance(workspaceDropdown.value) as HSDropdown | null
+    workspaceDropdownInstance.value = HSDropdown.getInstance(
+      workspaceDropdown.value,
+    ) as HSDropdown | null
 
-    if (dropdownInstance) {
+    if (workspaceDropdownInstance.value) {
       document.addEventListener('click', (e: any) => {
         if (
-          dropdownInstance &&
+          workspaceDropdownInstance.value &&
           workspaceDropdown.value &&
           !workspaceDropdown.value.contains(e.target)
         ) {
-          if (dropdownInstance) {
-            dropdownInstance.close()
+          if (workspaceDropdownInstance.value) {
+            workspaceDropdownInstance.value.close()
           }
         }
       })
@@ -143,6 +172,8 @@ onMounted(() => {
                 :key="workspace._id"
                 :item="workspace"
                 :selected="workspace._id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false"
+                :resetForm="resetWorkspaceForm"
+                @select="selectWorkspace(workspace)"
                 type="workspace"
               >
                 <template v-slot:link>
@@ -152,6 +183,18 @@ onMounted(() => {
                   >
                     {{ WORKSPACE_STORE.getFirstLetterOfWorkspace(workspace) }}
                   </div>
+                </template>
+
+                <template #edit-content="{ closeDropdown, getWorkspaceItem, closeEdit }">
+                  <EditForm @closeEdit="closeEdit" title="Редактирование пространства">
+                    <WorkspaceEditWrapper
+                      @workspaceCreated="closeDropdown"
+                      @workspaceEdited="closeDropdown"
+                      mode="edit"
+                      :item="getWorkspaceItem"
+                      ref="workspaceEditWrapperRef"
+                    />
+                  </EditForm>
                 </template>
               </SidebarItem>
 
@@ -192,7 +235,10 @@ onMounted(() => {
               >
                 <SquareKanban class="size-4" />
                 Доски
-                <NumberBadge :number="3" />
+                <NumberBadgeSkeleton
+                  v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
+                />
+                <NumberBadge :number="BOARD_STORE.getActiveWorkspaceBoards.length" v-else />
 
                 <ChevronDown
                   class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
@@ -208,16 +254,34 @@ onMounted(() => {
                 role="region"
                 aria-labelledby="boards-accordion"
               >
+                <BoardsSkeleton
+                  v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
+                />
                 <ul
                   class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
+                  v-else
                 >
                   <SidebarItem
                     v-for="board in BOARD_STORE.getActiveWorkspaceBoards"
                     :key="board._id"
                     :item="board"
                     :selected="board === BOARD_STORE.activeBoard"
+                    @select="BOARD_STORE.selectBoard(board, true)"
+                    :resetForm="resetBoardForm"
                     type="board"
-                  />
+                  >
+                    <template #edit-content="{ closeDropdown, getBoardItem, closeEdit }">
+                      <EditForm @closeEdit="closeEdit" title="Редактирование доски">
+                        <BoardEditWrapper
+                          @boardCreated="closeDropdown"
+                          @boardEdited="closeDropdown"
+                          mode="edit"
+                          :item="getBoardItem"
+                          ref="boardEditWrapperRef"
+                        />
+                      </EditForm>
+                    </template>
+                  </SidebarItem>
 
                   <CreateEditBoardDropdown
                     mode="create"
@@ -264,7 +328,7 @@ onMounted(() => {
                 >
                   <SidebarItem
                     :item="{
-                      id: 3,
+                      _id: '3',
                       name: 'Удали задачу с названием Сделать домашку по математике',
                     }"
                     type="chat"
@@ -299,7 +363,6 @@ onMounted(() => {
               >
                 <ul
                   class="hs-accordion-group my-1 ps-2.5 ms-4.5 relative space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
-                  data-hs-accordion-always-open
                 >
                   <li class="hs-accordion" id="users-accordion-sub-1">
                     <button
@@ -309,13 +372,15 @@ onMounted(() => {
                       aria-controls="users-accordion-sub-1-collapse-1"
                     >
                       Пространства
-                      <NumberBadge :number="3" />
+                      <NumberBadge :number="WORKSPACE_STORE.getFavoriteWorkspaces.length" />
 
                       <ChevronDown
                         class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
+                        v-if="WORKSPACE_STORE.getFavoriteWorkspaces.length"
                       />
                       <ChevronUp
                         class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
+                        v-if="WORKSPACE_STORE.getFavoriteWorkspaces.length"
                       />
                     </button>
 
@@ -325,19 +390,41 @@ onMounted(() => {
                       role="region"
                       aria-labelledby="users-accordion-sub-1"
                     >
-                      <ul class="pt-1 ps-2 space-y-1">
+                      <ul
+                        class="pt-1 ps-2 space-y-1"
+                        v-if="WORKSPACE_STORE.getFavoriteWorkspaces.length"
+                      >
                         <SidebarItem
-                          :item="{
-                            _id: '12',
-                            name: 'Личное',
-                            color: '#333',
-                            user_id: '2',
-                            order: 1,
-                            is_favorite: true,
-                            is_deleted: false,
-                          }"
+                          v-for="workspace in WORKSPACE_STORE.getFavoriteWorkspaces"
+                          :key="workspace._id"
+                          :item="workspace"
+                          :selected="
+                            workspace._id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false
+                          "
+                          :resetForm="resetWorkspaceForm"
                           type="workspace"
-                        />
+                        >
+                          <template v-slot:link>
+                            <div
+                              class="size-5 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
+                              :style="{ backgroundColor: workspace.color || '#3B82F6' }"
+                            >
+                              {{ WORKSPACE_STORE.getFirstLetterOfWorkspace(workspace) }}
+                            </div>
+                          </template>
+
+                          <template #edit-content="{ closeDropdown, getWorkspaceItem, closeEdit }">
+                            <EditForm @closeEdit="closeEdit" title="Редактирование пространства">
+                              <WorkspaceEditWrapper
+                                @workspaceCreated="closeDropdown"
+                                @workspaceEdited="closeDropdown"
+                                mode="edit"
+                                :item="getWorkspaceItem"
+                                ref="workspaceEditWrapperRef"
+                              />
+                            </EditForm>
+                          </template>
+                        </SidebarItem>
                       </ul>
                     </div>
                   </li>
@@ -350,13 +437,21 @@ onMounted(() => {
                       aria-controls="users-accordion-sub-2-collapse-1"
                     >
                       Доски
-                      <NumberBadge :number="3" />
+                      <NumberBadgeSkeleton
+                        v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
+                      />
+                      <NumberBadge
+                        :number="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
+                        v-else
+                      />
 
                       <ChevronDown
                         class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
+                        v-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
                       />
                       <ChevronUp
                         class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
+                        v-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
                       />
                     </button>
 
@@ -366,8 +461,33 @@ onMounted(() => {
                       role="region"
                       aria-labelledby="users-accordion-sub-2"
                     >
-                      <ul class="pt-1 ps-2 space-y-1">
-                        <SidebarItem :item="{ id: 5, name: 'Спорт' }" type="board" />
+                      <BoardsSkeleton
+                        v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
+                      />
+                      <ul
+                        class="pt-1 ps-2 space-y-1"
+                        v-else-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
+                      >
+                        <SidebarItem
+                          v-for="board in BOARD_STORE.getActiveWorkspaceFavoriteBoards"
+                          :key="board._id"
+                          :item="board"
+                          :selected="board === BOARD_STORE.activeBoard"
+                          :resetForm="resetBoardForm"
+                          type="board"
+                        >
+                          <template #edit-content="{ closeDropdown, getBoardItem, closeEdit }">
+                            <EditForm @closeEdit="closeEdit" title="Редактирование доски">
+                              <BoardEditWrapper
+                                @boardCreated="closeDropdown"
+                                @boardEdited="closeDropdown"
+                                mode="edit"
+                                :item="getBoardItem"
+                                ref="boardEditWrapperRef"
+                              />
+                            </EditForm>
+                          </template>
+                        </SidebarItem>
                       </ul>
                     </div>
                   </li>

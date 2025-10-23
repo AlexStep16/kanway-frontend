@@ -22,6 +22,13 @@ const BOARD_STORE = useBoardDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 
 const name = ref('')
+const isFormChanged = computed(() => {
+  if (props.item) {
+    return name.value !== props.item.name
+  } else {
+    return name.value.trim() !== ''
+  }
+})
 
 const props = defineProps<{
   item?: Board
@@ -105,7 +112,7 @@ async function editBoard() {
     return
   }
 
-  const result = await BOARD_STORE.updateBoard(board, WORKSPACE_STORE.getActiveWorkspaceId)
+  const result = await BOARD_STORE.updateBoard(board)
 
   if (result !== false) {
     closeDropdown()
@@ -182,6 +189,7 @@ onMounted(() => {
       <Body
         :id="generateUUID()"
         :isLoading="getIsLoading"
+        :isFormChanged="isFormChanged"
         @resetErrors="resetErrors"
         @submit="handleSubmit"
         v-model:name="name"
@@ -196,6 +204,7 @@ onMounted(() => {
     v-else
     :id="generateUUID()"
     :isLoading="getIsLoading"
+    :isFormChanged="isFormChanged"
     @resetErrors="resetErrors"
     @submit="handleSubmit"
     v-model:name="name"

@@ -4,20 +4,18 @@ import {
   MoveHorizontal,
   Copy,
   Star,
+  StarOff,
   Trash,
   Pen,
   ChevronLeft,
 } from 'lucide-vue-next'
 import { HSDropdown } from 'preline'
-import { computed, onMounted, ref } from 'vue'
-import EditForm from '@components/Options/EditForm.vue'
-import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
-import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { Workspace } from '@interfaces/Workspace'
 import { Board } from '@interfaces/Board'
 import Spinner from '@components/Loader/Spinner.vue'
-import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useGetters } from '@helpers/Options/useGetters'
+import { useActions } from '@helpers/Options/useActions'
 
 const props = defineProps<{
   options: {
@@ -29,13 +27,30 @@ const props = defineProps<{
   }
   item: Workspace | Board
   group_name: string
-  edit_type?: 'board' | 'workspace' | 'chat'
+  edit_type: 'board' | 'workspace' | 'chat' | 'category'
+  resetForm?: () => void
   hover_class?: string
   is_always_visible?: boolean
 }>()
 
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+const { item, edit_type } = toRefs(props)
+
+const {
+  getWorkspaceItem,
+  getBoardItem,
+  isItemArchiving,
+  isItemMoving,
+  isItemCopying,
+  isItemAddingToFavorites,
+  isProcessing,
+  getOtherWorkspaces,
+} = useGetters(item, edit_type)
+
+const { archiveItem, moveBoard, cloneItem, makeFavorite } = useActions(
+  item,
+  edit_type,
+  closeDropdown,
+)
 
 const dropdown = ref<HTMLElement | null>(null)
 const dropdownMenu = ref<HTMLElement | null>(null)
@@ -56,59 +71,15 @@ const visibilityClasses = computed(() => {
   return `group-hover/${props.group_name}:opacity-100 opacity-100 pointer-fine:opacity-0`
 })
 
-const workspaceEditWrapperRef = ref<InstanceType<typeof WorkspaceEditWrapper> | null>(null)
-const boardEditWrapperRef = ref<InstanceType<typeof BoardEditWrapper> | null>(null)
-
-function resetForm() {
-  if (workspaceEditWrapperRef.value && workspaceEditWrapperRef.value.resetForm) {
-    workspaceEditWrapperRef.value.resetForm()
-  }
-  if (boardEditWrapperRef.value && boardEditWrapperRef.value.resetForm) {
-    boardEditWrapperRef.value.resetForm()
-  }
-}
-
 function closeEdit() {
   showEdit.value = false
 
-  resetForm()
+  props.resetForm?.()
 }
 
 function closeDropdown() {
   if (dropdownInstance.value) {
     dropdownInstance.value.close()
-  }
-}
-
-const getWorkspaceItem = computed(() => {
-  if (props.edit_type === 'workspace') {
-    return props.item as Workspace
-  }
-  return undefined
-})
-
-const getBoardItem = computed(() => {
-  if (props.edit_type === 'board') {
-    return props.item as Board
-  }
-  return undefined
-})
-
-const isItemArchiving = computed(() => {
-  if (props.edit_type === 'board') {
-    return BOARD_STORE.isBoardArchiving(props.item._id)
-  } else if (props.edit_type === 'workspace') {
-    return WORKSPACE_STORE.isWorkspaceArchiving(props.item._id)
-  }
-
-  return false
-})
-
-function archiveItem() {
-  if (props.edit_type === 'board') {
-    BOARD_STORE.archiveBoard(props.item as Board, WORKSPACE_STORE.getActiveWorkspaceId || '')
-  } else if (props.edit_type === 'workspace') {
-    WORKSPACE_STORE.archiveWorkspace(props.item as Workspace)
   }
 }
 
@@ -120,7 +91,7 @@ onMounted(() => {
 
     if (dropdownInstance.value) {
       dropdownInstance.value.on('close', () => {
-        resetForm()
+        props.resetForm?.()
       })
 
       document.addEventListener('click', (e: any) => {
@@ -134,6 +105,7 @@ onMounted(() => {
 
             setTimeout(() => {
               showEdit.value = false
+              showTransfer.value = false
             }, 200)
           }
         }
@@ -168,42 +140,76 @@ onMounted(() => {
       <div class="flex overflow-hidden">
         <div class="p-1 space-y-0.5 shrink-0 w-full" v-show="!showEdit && !showTransfer">
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
             @click="showEdit = true"
             v-if="options.edit"
+            :disabled="isProcessing"
           >
             <Pen class="size-4" />
 
             Редактировать
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
             v-if="options.copy"
+            :disabled="isProcessing"
+            @click="cloneItem"
           >
-            <Copy class="size-4" />
+            <div class="absolute size-full flex items-center gap-x-2" v-if="isItemCopying">
+              <Spinner class="size-4" />
 
-            Копировать
+              Копирование...
+            </div>
+            <div
+              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': isItemCopying }"
+            >
+              <Copy class="size-4" />
+
+              Копировать
+            </div>
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
             @click="showTransfer = true"
             v-if="options.move"
+            :disabled="isProcessing"
           >
             <MoveHorizontal class="size-4" />
 
             Переместить
           </button>
           <button
-            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
             v-if="options.favorite"
+            :disabled="isProcessing"
+            @click="makeFavorite"
           >
-            <Star class="size-4" />
+            <div
+              class="absolute size-full flex items-center gap-x-2"
+              v-if="isItemAddingToFavorites"
+            >
+              <Spinner class="size-4" />
 
-            В избранное
+              <span v-if="!item.isFavorite">Добавление...</span>
+              <span v-if="item.isFavorite">Удаление...</span>
+            </div>
+            <div
+              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': isItemAddingToFavorites }"
+            >
+              <Star class="size-4" v-if="!item.isFavorite" />
+              <StarOff class="size-4" v-if="item.isFavorite" />
+
+              <span v-if="!item.isFavorite">В избранное</span>
+              <span v-if="item.isFavorite">Удалить из избранного</span>
+            </div>
           </button>
           <button
-            class="w-full flex items-center py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+            class="w-full flex items-center py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
             v-if="options.archive"
+            :disabled="isProcessing"
+            @click="archiveItem"
           >
             <div class="absolute size-full flex items-center gap-x-2" v-if="isItemArchiving">
               <Spinner class="size-4" />
@@ -211,9 +217,8 @@ onMounted(() => {
               Архивирование...
             </div>
             <div
-              class="flex items-center gap-x-2"
-              :class="{ 'opacity-0 pointer-events-none': isItemArchiving }"
-              @click="archiveItem"
+              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': isItemArchiving }"
             >
               <Trash class="size-4" />
 
@@ -222,39 +227,20 @@ onMounted(() => {
           </button>
         </div>
 
-        <EditForm
-          v-if="edit_type === 'workspace'"
-          :showEdit="showEdit"
-          @closeEdit="closeEdit"
-          title="Редактирование пространства"
-        >
-          <WorkspaceEditWrapper
-            @workspaceCreated="closeDropdown"
-            @workspaceEdited="closeDropdown"
-            mode="edit"
-            :item="getWorkspaceItem"
-            ref="workspaceEditWrapperRef"
+        <div v-show="showEdit">
+          <slot
+            name="edit-content"
+            :closeEdit="closeEdit"
+            :closeDropdown="closeDropdown"
+            :getWorkspaceItem="getWorkspaceItem"
+            :getBoardItem="getBoardItem"
           />
-        </EditForm>
-        <EditForm
-          v-if="edit_type === 'board'"
-          :showEdit="showEdit"
-          @closeEdit="closeEdit"
-          title="Редактирование доски"
-        >
-          <BoardEditWrapper
-            @boardCreated="closeDropdown"
-            @boardEdited="closeDropdown"
-            mode="edit"
-            :item="getBoardItem"
-            ref="boardEditWrapperRef"
-          />
-        </EditForm>
+        </div>
 
         <div
           class="flex flex-col shrink-0 w-full p-1 min-w-60 max-w-70"
           v-show="showTransfer"
-          v-if="['board', 'workspace'].includes(edit_type || '')"
+          v-if="['board'].includes(edit_type || '')"
         >
           <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
             <button
@@ -270,10 +256,33 @@ onMounted(() => {
 
           <div class="p-1 space-y-0.5 shrink-0 w-full">
             <button
-              class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100"
+              class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
+              v-for="workspace in getOtherWorkspaces()"
+              :key="workspace._id"
+              :disabled="isProcessing"
+              @click="moveBoard(workspace._id)"
             >
-              Личное
+              <div class="absolute size-full flex items-center gap-x-2" v-if="isItemMoving">
+                <Spinner class="size-4" />
+
+                Перемещение...
+              </div>
+              <div
+                class="flex items-center gap-x-2 group-disabled:opacity-70"
+                :class="{ 'opacity-0!': isItemMoving }"
+              >
+                <Trash class="size-4" />
+
+                {{ workspace.name }}
+              </div>
             </button>
+
+            <div
+              class="text-gray-500 w-full text-center py-2 text-sm"
+              v-if="getOtherWorkspaces().length === 0"
+            >
+              Нет других пространств
+            </div>
           </div>
         </div>
       </div>

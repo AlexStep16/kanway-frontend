@@ -1,5 +1,6 @@
 import {
-  archiveWorkspaceService,
+  archiveWorkspace as archiveWorkspaceService,
+  cloneWorkspace as cloneWorkspaceService,
   createWorkspace,
   fetchWorkspaces,
   removeWorkspace,
@@ -15,6 +16,8 @@ import { useBoardDataStore } from '@stores/boardData'
 
 type WorkspaceErrorType = BackendError | HttpError | null
 
+/** Methods with _ prefix are private and have no side effects */
+
 export const useWorkspaceDataStore = (pinia?: Pinia) => {
   return defineStore('workspaceData', () => {
     const workspaces = ref<Array<Workspace>>([])
@@ -22,17 +25,20 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     // Errors
     const loadWorkspacesError = ref<WorkspaceErrorType>(null)
-    const addWorkspaceError = ref<WorkspaceErrorType>(null)
-    const editWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
-    const deleteWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
-    const archiveWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const _addWorkspaceError = ref<WorkspaceErrorType>(null)
+    const _editWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const _deleteWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const _archiveWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const _cloneWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
 
     // Loading
     const isWorkspacesLoading = ref<boolean>(false)
     const _isAddingWorkspace = ref<boolean>(false)
-    const editingWorkspaces = ref<Set<string>>(new Set())
-    const deletingWorkspaces = ref<Set<string>>(new Set())
-    const archivingWorkspaces = ref<Set<string>>(new Set())
+    const _editingWorkspaces = ref<Set<string>>(new Set())
+    const _deletingWorkspaces = ref<Set<string>>(new Set())
+    const _archivingWorkspaces = ref<Set<string>>(new Set())
+    const _cloningWorkspaces = ref<Set<string>>(new Set())
+    const _addingToFavoritesWorkspaces = ref<Set<string>>(new Set())
 
     const BOARD_STORE = useBoardDataStore()
 
@@ -77,16 +83,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
       localStorage.setItem('selectedWorkspace', JSON.stringify(newWorkspace))
 
-      if (
-        !BOARD_STORE.areBoardsLoaded(newWorkspace._id) &&
-        !BOARD_STORE.isBoardsLoading(newWorkspace._id)
-      ) {
-        await BOARD_STORE.loadBoards(newWorkspace._id)
-      }
+      await BOARD_STORE.loadBoards(newWorkspace._id)
 
-      const availableBoards = BOARD_STORE.boards.filter(
-        (board) => board.workspace_id === newWorkspace._id,
-      )
+      const availableBoards = BOARD_STORE.getActiveWorkspaceBoards
 
       if (availableBoards.length > 0 && shouldSelectBoard)
         await BOARD_STORE.selectBoard(availableBoards[0], shouldNavigate)
@@ -97,88 +96,114 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       }
     }
 
-    async function addWorkspace(workspace: Partial<Workspace>): Promise<Workspace | false> {
-      if (!workspace) return false
+    async function _addWorkspace(workspace: Partial<Workspace>): Promise<Workspace> {
+      if (!workspace) throw new Error('Необходимо указать пространство')
 
       try {
         _isAddingWorkspace.value = true
 
-        const newWorkspace = await createWorkspace({ ...workspace })
+        const newWorkspaces: Workspace[] = await createWorkspace({ ...workspace })
 
-        workspaces.value.push(...newWorkspace)
+        workspaces.value.push(...newWorkspaces)
 
-        toast.success('Пространство успешно создано')
-
-        return newWorkspace[0]
+        return newWorkspaces[0]
       } catch (e) {
         if (e instanceof BackendError) {
-          addWorkspaceError.value = e
+          _addWorkspaceError.value = e
         } else if (e instanceof HttpError) {
-          addWorkspaceError.value = e
+          _addWorkspaceError.value = e
 
           if (e.status === 401) {
           }
         } else {
-          addWorkspaceError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+          _addWorkspaceError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
         }
 
-        toast.error(addWorkspaceError.value.message)
-
-        return false
+        throw e
       } finally {
         _isAddingWorkspace.value = false
       }
     }
 
-    async function updateWorkspace(workspace: Workspace): Promise<Workspace | false> {
-      if (!workspace) return false
+    async function addWorkspace(workspace: Partial<Workspace>): Promise<Workspace | false> {
+      try {
+        const newWorkspace = await _addWorkspace(workspace)
+
+        toast.success('Пространство успешно создано')
+
+        return newWorkspace
+      } catch {
+        toast.error(_addWorkspaceError.value?.message ?? 'Ошибка при создании пространства')
+
+        return false
+      }
+    }
+
+    async function _updateWorkspace(
+      payload: Partial<Workspace> & { _id: string },
+    ): Promise<Workspace> {
+      if (!payload) throw new Error('Необходимо указать пространство')
 
       try {
-        editingWorkspaces.value.add(workspace._id)
+        _editingWorkspaces.value.add(payload._id)
 
-        const editResult = await saveWorkspace({ ...workspace })
+        const editResult = await saveWorkspace({ ...payload })
 
-        const newWorkspace = editResult.find((w) => w._id === workspace._id)
+        const newWorkspace = editResult.find((w) => w._id === payload._id)
 
-        const workspaceIndex = workspaces.value.findIndex((w) => w._id === workspace._id)
+        const workspaceIndex = workspaces.value.findIndex((w) => w._id === payload._id)
         if (workspaceIndex !== -1 && newWorkspace) {
           Object.assign(workspaces.value[workspaceIndex], newWorkspace)
         }
 
-        toast.success('Пространство успешно отредактировано')
+        if (!newWorkspace) throw new Error('Не удалось найти отредактированное пространство')
 
-        return newWorkspace ?? false
+        return newWorkspace
       } catch (e) {
         if (e instanceof BackendError) {
-          editWorkspacesError.value.set(workspace._id, e)
+          _editWorkspacesError.value.set(payload._id, e)
         } else if (e instanceof HttpError) {
-          editWorkspacesError.value.set(workspace._id, e)
+          _editWorkspacesError.value.set(payload._id, e)
 
           if (e.status === 401) {
           }
         } else {
-          editWorkspacesError.value.set(
-            workspace._id,
+          _editWorkspacesError.value.set(
+            payload._id,
             new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
           )
         }
 
+        throw e
+      } finally {
+        _editingWorkspaces.value.delete(payload._id)
+      }
+    }
+
+    async function updateWorkspace(
+      payload: Partial<Workspace> & { _id: string },
+    ): Promise<Workspace | false> {
+      try {
+        const updatedWorkspace = await _updateWorkspace(payload)
+
+        toast.success('Пространство успешно отредактировано')
+
+        return updatedWorkspace
+      } catch {
         toast.error(
-          editWorkspacesError.value.get(workspace._id)?.message ||
+          _editWorkspacesError.value.get(payload._id)?.message ||
             'Ошибка при редактировании пространства',
         )
 
         return false
-      } finally {
-        editingWorkspaces.value.delete(workspace._id)
       }
     }
 
-    async function deleteWorkspace(workspace: Workspace): Promise<void | false> {
-      if (!workspace) return false
+    async function _deleteWorkspace(workspace: Workspace): Promise<void> {
+      if (!workspace) throw new Error('Необходимо указать пространство')
 
       try {
-        deletingWorkspaces.value.add(workspace._id)
+        _deletingWorkspaces.value.add(workspace._id)
 
         await removeWorkspace(workspace._id)
 
@@ -190,41 +215,49 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
             selectWorkspace(workspaces.value[0], true, true)
           }
         }
-
-        toast.success('Пространство успешно удалено')
-
-        return
       } catch (e) {
         if (e instanceof BackendError) {
-          deleteWorkspacesError.value.set(workspace._id, e)
+          _deleteWorkspacesError.value.set(workspace._id, e)
         } else if (e instanceof HttpError) {
-          deleteWorkspacesError.value.set(workspace._id, e)
+          _deleteWorkspacesError.value.set(workspace._id, e)
 
           if (e.status === 401) {
           }
         } else {
-          deleteWorkspacesError.value.set(
+          _deleteWorkspacesError.value.set(
             workspace._id,
             new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
           )
         }
 
+        throw e
+      } finally {
+        _deletingWorkspaces.value.delete(workspace._id)
+      }
+    }
+
+    async function deleteWorkspace(workspace: Workspace): Promise<boolean> {
+      try {
+        await _deleteWorkspace(workspace)
+
+        toast.success('Пространство успешно удалено')
+
+        return true
+      } catch {
         toast.error(
-          deleteWorkspacesError.value.get(workspace._id)?.message ||
+          _deleteWorkspacesError.value.get(workspace._id)?.message ||
             'Ошибка при удалении пространства',
         )
 
         return false
-      } finally {
-        deletingWorkspaces.value.delete(workspace._id)
       }
     }
 
-    async function archiveWorkspace(workspace: Workspace): Promise<Workspace | false> {
-      if (!workspace) return false
+    async function _archiveWorkspace(workspace: Workspace): Promise<Workspace> {
+      if (!workspace) throw new Error('Необходимо указать пространство')
 
       try {
-        archivingWorkspaces.value.add(workspace._id)
+        _archivingWorkspaces.value.add(workspace._id)
 
         const archiveResult = await archiveWorkspaceService(workspace._id)
 
@@ -241,32 +274,116 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
           }
         }
 
-        toast.success('Пространство успешно архивировано')
+        if (!newWorkspace) throw new Error('Не удалось найти заархивированное пространство')
 
-        return newWorkspace ?? false
+        return newWorkspace
       } catch (e) {
         if (e instanceof BackendError) {
-          archiveWorkspacesError.value.set(workspace._id, e)
+          _archiveWorkspacesError.value.set(workspace._id, e)
         } else if (e instanceof HttpError) {
-          archiveWorkspacesError.value.set(workspace._id, e)
+          _archiveWorkspacesError.value.set(workspace._id, e)
 
           if (e.status === 401) {
           }
         } else {
-          archiveWorkspacesError.value.set(
+          _archiveWorkspacesError.value.set(
             workspace._id,
             new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
           )
         }
 
+        throw e
+      } finally {
+        _archivingWorkspaces.value.delete(workspace._id)
+      }
+    }
+
+    async function archiveWorkspace(workspace: Workspace): Promise<Workspace | false> {
+      try {
+        const archivedWorkspace = await _archiveWorkspace(workspace)
+
+        toast.success('Пространство успешно архивировано')
+
+        return archivedWorkspace
+      } catch {
         toast.error(
-          archiveWorkspacesError.value.get(workspace._id)?.message ||
+          _archiveWorkspacesError.value.get(workspace._id)?.message ||
             'Ошибка при архивировании пространства',
         )
 
         return false
+      }
+    }
+
+    async function _cloneWorkspace(workspace: Workspace): Promise<Workspace> {
+      if (!workspace) throw new Error('Необходимо указать пространство')
+
+      try {
+        _cloningWorkspaces.value.add(workspace._id)
+
+        const newWorkspaces: Workspace[] = await cloneWorkspaceService(workspace._id)
+
+        workspaces.value.push(...newWorkspaces)
+
+        return newWorkspaces[0]
+      } catch (e) {
+        if (e instanceof BackendError) {
+          _cloneWorkspacesError.value.set(workspace._id, e)
+        } else if (e instanceof HttpError) {
+          _cloneWorkspacesError.value.set(workspace._id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          _cloneWorkspacesError.value.set(
+            workspace._id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        throw e
       } finally {
-        archivingWorkspaces.value.delete(workspace._id)
+        _cloningWorkspaces.value.delete(workspace._id)
+      }
+    }
+
+    async function cloneWorkspace(workspace: Workspace): Promise<Workspace | false> {
+      try {
+        const newWorkspace = await _cloneWorkspace(workspace)
+
+        toast.success('Пространство успешно скопировано')
+
+        return newWorkspace
+      } catch {
+        toast.error(
+          _cloneWorkspacesError.value.get(workspace._id)?.message ||
+            'Ошибка при копировании пространства',
+        )
+
+        return false
+      }
+    }
+
+    async function makeFavorite(workspace: Workspace) {
+      const newWorkspace = { ...workspace, isFavorite: !workspace.isFavorite }
+
+      try {
+        _addingToFavoritesWorkspaces.value.add(workspace._id)
+
+        const result = await _updateWorkspace(newWorkspace)
+
+        toast.success('Пространство успешно добавлено в избранное')
+
+        return result
+      } catch {
+        toast.error(
+          _editWorkspacesError.value.get(workspace._id)?.message ||
+            'Ошибка при добавлении пространства в избранное',
+        )
+
+        return false
+      } finally {
+        _addingToFavoritesWorkspaces.value.delete(workspace._id)
       }
     }
 
@@ -275,7 +392,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
     }
 
     const getActiveWorkspaceId = computed(() => {
-      return activeWorkspace.value?._id ?? null
+      return activeWorkspace.value?._id ?? ''
     })
 
     const getFirstLetterOfActiveWorkspace = computed(() => {
@@ -295,16 +412,41 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
     })
 
     const isWorkspaceEditing = computed(() => (workspaceId: string): boolean => {
-      return editingWorkspaces.value.has(workspaceId)
+      return _editingWorkspaces.value.has(workspaceId)
     })
 
     const isWorkspaceDeleting = computed(() => (workspaceId: string): boolean => {
-      return deletingWorkspaces.value.has(workspaceId)
+      return _deletingWorkspaces.value.has(workspaceId)
     })
 
     const isWorkspaceArchiving = computed(() => (workspaceId: string): boolean => {
-      return archivingWorkspaces.value.has(workspaceId)
+      return _archivingWorkspaces.value.has(workspaceId)
     })
+
+    const isWorkspaceCloning = computed(() => (workspaceId: string): boolean => {
+      return _cloningWorkspaces.value.has(workspaceId)
+    })
+
+    const isWorkspaceAddingToFavorites = computed(() => (workspaceId: string): boolean => {
+      return _addingToFavoritesWorkspaces.value.has(workspaceId)
+    })
+
+    const isWorkspaceProcessing = computed(() => (workspaceId: string): boolean => {
+      return (
+        _deletingWorkspaces.value.has(workspaceId) ||
+        _archivingWorkspaces.value.has(workspaceId) ||
+        _cloningWorkspaces.value.has(workspaceId) ||
+        _editingWorkspaces.value.has(workspaceId)
+      )
+    })
+
+    const getFavoriteWorkspaces = computed((): Workspace[] => {
+      return workspaces.value.filter((workspace) => workspace.isFavorite && !workspace.is_deleted)
+    })
+
+    function getOtherWorkspaces(workspace_id: string): Workspace[] {
+      return workspaces.value.filter((workspace) => workspace._id !== workspace_id)
+    }
 
     function $reset() {}
 
@@ -313,19 +455,19 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       activeWorkspace,
       workspaces,
       loadWorkspacesError,
-      editWorkspacesError,
       getActiveWorkspaceId,
       getFirstLetterOfActiveWorkspace,
       getActiveWorkspaceName,
       getActiveWorkspaceColor,
       isWorkspacesLoading,
-      _isAddingWorkspace,
       isAddingWorkspace,
       isWorkspaceEditing,
       isWorkspaceDeleting,
       isWorkspaceArchiving,
-      deleteWorkspacesError,
-      archiveWorkspacesError,
+      isWorkspaceCloning,
+      isWorkspaceProcessing,
+      isWorkspaceAddingToFavorites,
+      getFavoriteWorkspaces,
 
       // Actions
       loadWorkspaces,
@@ -335,6 +477,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       updateWorkspace,
       deleteWorkspace,
       archiveWorkspace,
+      cloneWorkspace,
+      getOtherWorkspaces,
+      makeFavorite,
 
       $reset,
     }

@@ -37,6 +37,7 @@ function updateTask(task: any, data: any) {
           archive: true,
         }"
         :item="category"
+        :edit_type="'category'"
         :is_always_visible="true"
         group_name="category"
         class="text-gray-600"

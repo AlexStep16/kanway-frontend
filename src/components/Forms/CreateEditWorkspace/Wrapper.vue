@@ -134,6 +134,14 @@ const getIsLoading = computed(() => {
   }
 })
 
+const isFormChanged = computed(() => {
+  if (props.item) {
+    return name.value !== props.item.name || color.value !== props.item.color
+  } else {
+    return name.value !== '' || color.value !== AvailableColors.BLUE
+  }
+})
+
 defineExpose({
   resetForm,
 })
@@ -187,6 +195,7 @@ onMounted(() => {
       <Body
         :id="generateUUID()"
         :isLoading="getIsLoading"
+        :isFormChanged="isFormChanged"
         @resetErrors="resetErrors"
         @submit="handleSubmit"
         v-model:name="name"
@@ -202,6 +211,7 @@ onMounted(() => {
     v-else
     :id="generateUUID()"
     :isLoading="getIsLoading"
+    :isFormChanged="isFormChanged"
     @resetErrors="resetErrors"
     @submit="handleSubmit"
     v-model:name="name"
