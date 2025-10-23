@@ -1,32 +1,38 @@
-import { Board } from '@/interfaces/Board'
-import { Workspace } from '@/interfaces/Workspace'
-import { useBoardDataStore } from '@/stores/boardData'
-import { useWorkspaceDataStore } from '@/stores/workspaceData'
+import { useCategoryDataStore } from '@stores/categoryData'
+import BoardModel from '@models/BoardModel'
+import CategoryModel from '@models/CategoryModel'
+import WorkspaceModel from '@models/WorkspaceModel'
+import { useBoardDataStore } from '@stores/boardData'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { computed, Ref } from 'vue'
 
-export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
+export function useGetters(
+  item: Ref<WorkspaceModel | BoardModel | CategoryModel>,
+  type: Ref<string>,
+) {
   const BOARD_STORE = useBoardDataStore()
   const WORKSPACE_STORE = useWorkspaceDataStore()
+  const CATEGORY_STORE = useCategoryDataStore()
 
   const getWorkspaceItem = computed(() => {
     if (type.value === 'workspace') {
-      return item.value as Workspace
+      return item.value as WorkspaceModel
     }
     return undefined
   })
 
   const getBoardItem = computed(() => {
     if (type.value === 'board') {
-      return item.value as Board
+      return item.value as BoardModel
     }
     return undefined
   })
 
   const isItemArchiving = computed(() => {
     if (type.value === 'board') {
-      return BOARD_STORE.isBoardArchiving(item.value._id)
+      return BOARD_STORE.isBoardArchiving(item.value.id)
     } else if (type.value === 'workspace') {
-      return WORKSPACE_STORE.isWorkspaceArchiving(item.value._id)
+      return WORKSPACE_STORE.isWorkspaceArchiving(item.value.id)
     }
 
     return false
@@ -34,7 +40,9 @@ export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
 
   const isItemMoving = computed(() => {
     if (type.value === 'board') {
-      return BOARD_STORE.isBoardMoving(item.value._id)
+      return BOARD_STORE.isBoardMoving(item.value.id)
+    } else if (type.value === 'category') {
+      return CATEGORY_STORE.isCategoryMoving(item.value.id)
     }
 
     return false
@@ -42,9 +50,9 @@ export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
 
   const isItemCopying = computed(() => {
     if (type.value === 'board') {
-      return BOARD_STORE.isBoardCloning(item.value._id)
+      return BOARD_STORE.isBoardCloning(item.value.id)
     } else if (type.value === 'workspace') {
-      return WORKSPACE_STORE.isWorkspaceCloning(item.value._id)
+      return WORKSPACE_STORE.isWorkspaceCloning(item.value.id)
     }
 
     return false
@@ -52,9 +60,9 @@ export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
 
   const isItemAddingToFavorites = computed(() => {
     if (type.value === 'board') {
-      return BOARD_STORE.isBoardAddingToFavorites(item.value._id)
+      return BOARD_STORE.isBoardAddingToFavorites(item.value.id)
     } else if (type.value === 'workspace') {
-      return WORKSPACE_STORE.isWorkspaceAddingToFavorites(item.value._id)
+      return WORKSPACE_STORE.isWorkspaceAddingToFavorites(item.value.id)
     }
 
     return false
@@ -62,9 +70,11 @@ export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
 
   const isProcessing = computed(() => {
     if (type.value === 'board') {
-      return BOARD_STORE.isBoardProcessing(item.value._id)
+      return BOARD_STORE.isBoardProcessing(item.value.id)
     } else if (type.value === 'workspace') {
-      return WORKSPACE_STORE.isWorkspaceProcessing(item.value._id)
+      return WORKSPACE_STORE.isWorkspaceProcessing(item.value.id)
+    } else if (type.value === 'category') {
+      return CATEGORY_STORE.isCategoryProcessing(item.value.id)
     }
 
     return false
@@ -72,6 +82,10 @@ export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
 
   function getOtherWorkspaces() {
     return WORKSPACE_STORE.getOtherWorkspaces(WORKSPACE_STORE.getActiveWorkspaceId)
+  }
+
+  function getOtherBoards() {
+    return BOARD_STORE.getOtherBoards(BOARD_STORE.getActiveBoardId)
   }
 
   return {
@@ -84,5 +98,6 @@ export function useGetters(item: Ref<Workspace | Board>, type: Ref<string>) {
     isProcessing,
 
     getOtherWorkspaces,
+    getOtherBoards,
   }
 }

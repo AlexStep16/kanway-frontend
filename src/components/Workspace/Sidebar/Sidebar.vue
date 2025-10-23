@@ -168,10 +168,10 @@ onMounted(() => {
 
             <ul class="p-1 space-y-1">
               <SidebarItem
-                v-for="workspace in WORKSPACE_STORE.workspaces"
-                :key="workspace._id"
+                v-for="workspace in WORKSPACE_STORE.getWorkspaces"
+                :key="workspace.id"
                 :item="workspace"
-                :selected="workspace._id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false"
+                :selected="workspace.id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false"
                 :resetForm="resetWorkspaceForm"
                 @select="selectWorkspace(workspace)"
                 type="workspace"
@@ -263,7 +263,7 @@ onMounted(() => {
                 >
                   <SidebarItem
                     v-for="board in BOARD_STORE.getActiveWorkspaceBoards"
-                    :key="board._id"
+                    :key="board.id"
                     :item="board"
                     :selected="board === BOARD_STORE.activeBoard"
                     @select="BOARD_STORE.selectBoard(board, true)"
@@ -328,7 +328,7 @@ onMounted(() => {
                 >
                   <SidebarItem
                     :item="{
-                      _id: '3',
+                      id: '3',
                       name: 'Удали задачу с названием Сделать домашку по математике',
                     }"
                     type="chat"
@@ -396,10 +396,10 @@ onMounted(() => {
                       >
                         <SidebarItem
                           v-for="workspace in WORKSPACE_STORE.getFavoriteWorkspaces"
-                          :key="workspace._id"
+                          :key="workspace.id"
                           :item="workspace"
                           :selected="
-                            workspace._id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false
+                            workspace.id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false
                           "
                           :resetForm="resetWorkspaceForm"
                           type="workspace"
@@ -470,7 +470,7 @@ onMounted(() => {
                       >
                         <SidebarItem
                           v-for="board in BOARD_STORE.getActiveWorkspaceFavoriteBoards"
-                          :key="board._id"
+                          :key="board.id"
                           :item="board"
                           :selected="board === BOARD_STORE.activeBoard"
                           :resetForm="resetBoardForm"

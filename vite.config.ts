@@ -21,6 +21,7 @@ export default defineConfig({
       '@api': path.resolve(__dirname, './src/api'),
       '@services': path.resolve(__dirname, './src/services'),
       '@enums': path.resolve(__dirname, './src/enums'),
+      '@models': path.resolve(__dirname, './src/models'),
     },
   },
   plugins: [

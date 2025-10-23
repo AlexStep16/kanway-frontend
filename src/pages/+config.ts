@@ -1,6 +1,6 @@
 import vikeVue from 'vike-vue/config'
 import type { Config } from 'vike/types'
-import User from '../interfaces/User'
+import UserModel from '@/models/UserModel'
 import { Pinia } from 'pinia'
 
 export default {
@@ -15,7 +15,7 @@ declare global {
   namespace Vike {
     interface PageContext {
       // Type of pageContext.user
-      user?: User | null
+      user?: UserModel | null
       hasErrorFetchingUser?: boolean
       isSkipWorkspaceCheck?: boolean
       isHydration?: boolean

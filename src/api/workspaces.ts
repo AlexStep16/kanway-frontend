@@ -1,26 +1,27 @@
 import { apiCall } from '@/apiClient'
-import { CRUDResponse } from '@/interfaces/CRUDResponse'
-import { Workspace } from '@interfaces/Workspace'
+import { CRUDResponse } from '@interfaces/CRUDResponse'
+import WorkspaceRaw from '@interfaces/WorkspaceRaw'
+import BoardRaw from '@interfaces/BoardRaw'
 
 export async function getWorkspacesApi() {
-  return await apiCall<Workspace[]>({
+  return await apiCall<WorkspaceRaw[]>({
     method: 'GET',
     url: '/workspaces',
   })
 }
 
-export async function postWorkspaceApi(workspace: Partial<Workspace>) {
-  return await apiCall<CRUDResponse<Workspace>>({
+export async function postWorkspaceApi(payload: Partial<BoardRaw>) {
+  return await apiCall<CRUDResponse<WorkspaceRaw>>({
     method: 'POST',
     url: `/workspaces`,
-    data: workspace,
+    data: payload,
   })
 }
 
-export async function putWorkspaceApi(payload: Partial<Workspace> & { _id: string }) {
-  return await apiCall<Workspace[]>({
+export async function putWorkspaceApi(workspaceId: string, payload: Partial<BoardRaw>) {
+  return await apiCall<WorkspaceRaw[]>({
     method: 'PUT',
-    url: `/workspaces/${payload._id}`,
+    url: `/workspaces/${workspaceId}`,
     data: payload,
   })
 }
@@ -33,14 +34,14 @@ export async function deleteWorkspaceApi(workspaceId: string) {
 }
 
 export async function archiveWorkspaceApi(workspaceId: string) {
-  return await apiCall<Workspace[]>({
+  return await apiCall<WorkspaceRaw[]>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/archive`,
   })
 }
 
 export async function cloneWorkspaceApi(workspaceId: string) {
-  return await apiCall<CRUDResponse<Workspace>>({
+  return await apiCall<CRUDResponse<WorkspaceRaw>>({
     method: 'PUT',
     url: `/workspaces/clone/${workspaceId}`,
   })

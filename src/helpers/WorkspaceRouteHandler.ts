@@ -1,12 +1,12 @@
 import { redirect } from 'vike/abort'
-import { Board } from '@interfaces/Board'
-import { Workspace } from '@interfaces/Workspace'
+import BoardModel from '@/models/BoardModel'
+import WorkspaceModel from '@/models/WorkspaceModel'
 
 export class WorkspaceRouteHandler {
-  selectedBoard: Board | null
-  selectedWorkspace: Workspace | null
+  selectedBoard: BoardModel | null
+  selectedWorkspace: WorkspaceModel | null
 
-  constructor(selectedBoard: Board | null, selectedWorkspace: Workspace | null) {
+  constructor(selectedBoard: BoardModel | null, selectedWorkspace: WorkspaceModel | null) {
     this.selectedBoard = selectedBoard
     this.selectedWorkspace = selectedWorkspace
   }
@@ -15,23 +15,23 @@ export class WorkspaceRouteHandler {
     let workspaceRoute: string = ''
     let boardRoute: string = ''
 
-    if (workspaceId && this.selectedWorkspace && workspaceId === this.selectedWorkspace._id) {
+    if (workspaceId && this.selectedWorkspace && workspaceId === this.selectedWorkspace.id) {
       workspaceRoute = workspaceId
     } else if (this.selectedWorkspace) {
-      workspaceRoute = this.selectedWorkspace._id
+      workspaceRoute = this.selectedWorkspace.id
     }
 
-    if (boardId && this.selectedBoard && boardId === this.selectedBoard._id) {
+    if (boardId && this.selectedBoard && boardId === this.selectedBoard.id) {
       boardRoute = boardId
     } else if (!boardId && this.selectedBoard) {
-      boardRoute = this.selectedBoard._id
+      boardRoute = this.selectedBoard.id
     } else if (boardId && ['archive', 'settings'].includes(boardId)) {
       boardRoute = boardId
     }
 
     if (
-      workspaceId === this.selectedWorkspace?._id &&
-      (boardId === this.selectedBoard?._id || ['archive', 'settings'].includes(boardId))
+      workspaceId === this.selectedWorkspace?.id &&
+      (boardId === this.selectedBoard?.id || ['archive', 'settings'].includes(boardId))
     ) {
       return
     }

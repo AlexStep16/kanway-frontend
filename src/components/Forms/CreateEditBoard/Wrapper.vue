@@ -8,7 +8,7 @@ import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { toast } from 'vue-sonner'
 import { BoardValidationErrors } from '@interfaces/BoardValidationErrors'
-import type { Board } from '@interfaces/Board'
+import type BoardModel from '@/models/BoardModel'
 
 const dropdown = ref<HTMLElement | null>(null)
 const dropdownMenu = ref<HTMLElement | null>(null)
@@ -31,7 +31,7 @@ const isFormChanged = computed(() => {
 })
 
 const props = defineProps<{
-  item?: Board
+  item?: BoardModel
   mode: 'create' | 'edit'
   isDropdown?: boolean
   dropdownClasses?: string
@@ -39,8 +39,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'boardCreated', board: Board): void
-  (e: 'boardEdited', board: Board): void
+  (e: 'boardCreated', board: BoardModel): void
+  (e: 'boardEdited', board: BoardModel): void
 }>()
 
 function resetForm() {
@@ -59,7 +59,7 @@ const getIsLoading = computed(() => {
   if (props.mode === 'create') {
     return BOARD_STORE.isAddingBoard
   } else if (props.item) {
-    return BOARD_STORE.isBoardEditing(props.item._id)
+    return BOARD_STORE.isBoardEditing(props.item.id)
   } else {
     return false
   }
@@ -88,7 +88,7 @@ async function createBoard() {
 
   if (result !== false && typeof result === 'object' && result !== null) {
     closeDropdown()
-    emit('boardCreated', result as Board)
+    emit('boardCreated', result as BoardModel)
 
     resetForm()
   }

@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import {
-  EllipsisVertical,
-  MoveHorizontal,
-  Copy,
-  Star,
-  StarOff,
-  Trash,
-  Pen,
-  ChevronLeft,
-} from 'lucide-vue-next'
+import { EllipsisVertical, MoveHorizontal, Copy, Star, StarOff, Trash, Pen } from 'lucide-vue-next'
 import { HSDropdown } from 'preline'
 import { computed, onMounted, ref, toRefs } from 'vue'
-import { Workspace } from '@interfaces/Workspace'
-import { Board } from '@interfaces/Board'
+import WorkspaceModel from '@models/WorkspaceModel'
+import BoardModel from '@models/BoardModel'
+import CategoryModel from '@models/CategoryModel'
 import Spinner from '@components/Loader/Spinner.vue'
 import { useGetters } from '@helpers/Options/useGetters'
 import { useActions } from '@helpers/Options/useActions'
+import TransferForm from './TransferForm.vue'
 
 const props = defineProps<{
   options: {
@@ -25,7 +18,7 @@ const props = defineProps<{
     favorite: boolean
     archive: boolean
   }
-  item: Workspace | Board
+  item: WorkspaceModel | BoardModel | CategoryModel
   group_name: string
   edit_type: 'board' | 'workspace' | 'chat' | 'category'
   resetForm?: () => void
@@ -44,9 +37,10 @@ const {
   isItemAddingToFavorites,
   isProcessing,
   getOtherWorkspaces,
+  getOtherBoards,
 } = useGetters(item, edit_type)
 
-const { archiveItem, moveBoard, cloneItem, makeFavorite } = useActions(
+const { archiveItem, moveItem, cloneItem, makeFavorite } = useActions(
   item,
   edit_type,
   closeDropdown,
@@ -83,6 +77,25 @@ function closeDropdown() {
   }
 }
 
+const isItemFavorite = computed(() => {
+  if ('isFavorite' in props.item) {
+    return props.item.isFavorite
+  }
+  return false
+})
+
+const getOtherItems = computed(() => {
+  if (edit_type.value === 'board') {
+    return getOtherWorkspaces().filter((workspace) => workspace.id !== item.value.id)
+  }
+
+  if (edit_type.value === 'category') {
+    return getOtherBoards().filter((board) => board.id !== item.value.id)
+  }
+
+  return []
+})
+
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
 
@@ -117,12 +130,12 @@ onMounted(() => {
 
 <template>
   <div
-    :id="'hs-dropdown-' + item._id"
+    :id="'hs-dropdown-' + item.id"
     class="hs-dropdown [--auto-close:false] inline-flex"
     ref="dropdown"
   >
     <button
-      :id="'hs-dropdown-button-' + item._id"
+      :id="'hs-dropdown-button-' + item.id"
       type="button"
       class="p-1 transition-colors duration-100 rounded-full focus:opacity-100 focus:outline-hidden hs-dropdown-open:opacity-100 hs-dropdown-open:bg-blue-200 hs-dropdown-open:text-blue-500"
       :class="[hoverClass, visibilityClasses]"
@@ -135,7 +148,7 @@ onMounted(() => {
       role="menu"
       ref="dropdownMenu"
       aria-orientation="vertical"
-      :aria-labelledby="'hs-dropdown-button-' + item._id"
+      :aria-labelledby="'hs-dropdown-button-' + item.id"
     >
       <div class="flex overflow-hidden">
         <div class="p-1 space-y-0.5 shrink-0 w-full" v-show="!showEdit && !showTransfer">
@@ -191,18 +204,18 @@ onMounted(() => {
             >
               <Spinner class="size-4" />
 
-              <span v-if="!item.isFavorite">Добавление...</span>
-              <span v-if="item.isFavorite">Удаление...</span>
+              <span v-if="!isItemFavorite">Добавление...</span>
+              <span v-if="isItemFavorite">Удаление...</span>
             </div>
             <div
               class="flex items-center gap-x-2 group-disabled:opacity-70"
               :class="{ 'opacity-0!': isItemAddingToFavorites }"
             >
-              <Star class="size-4" v-if="!item.isFavorite" />
-              <StarOff class="size-4" v-if="item.isFavorite" />
+              <Star class="size-4" v-if="!isItemFavorite" />
+              <StarOff class="size-4" v-if="isItemFavorite" />
 
-              <span v-if="!item.isFavorite">В избранное</span>
-              <span v-if="item.isFavorite">Удалить из избранного</span>
+              <span v-if="!isItemFavorite">В избранное</span>
+              <span v-if="isItemFavorite">Удалить из избранного</span>
             </div>
           </button>
           <button
@@ -237,54 +250,15 @@ onMounted(() => {
           />
         </div>
 
-        <div
-          class="flex flex-col shrink-0 w-full p-1 min-w-60 max-w-70"
+        <TransferForm
           v-show="showTransfer"
-          v-if="['board'].includes(edit_type || '')"
-        >
-          <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
-            <button
-              type="button"
-              class="flex items-center absolute left-0 gap-x-1 p-1 hover:bg-gray-200 transition-colors duration-100 rounded-md"
-              @click="showTransfer = false"
-            >
-              <ChevronLeft class="size-5" />
-            </button>
-
-            <span class="text-custom-sm font-bold">Переместить в</span>
-          </div>
-
-          <div class="p-1 space-y-0.5 shrink-0 w-full">
-            <button
-              class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
-              v-for="workspace in getOtherWorkspaces()"
-              :key="workspace._id"
-              :disabled="isProcessing"
-              @click="moveBoard(workspace._id)"
-            >
-              <div class="absolute size-full flex items-center gap-x-2" v-if="isItemMoving">
-                <Spinner class="size-4" />
-
-                Перемещение...
-              </div>
-              <div
-                class="flex items-center gap-x-2 group-disabled:opacity-70"
-                :class="{ 'opacity-0!': isItemMoving }"
-              >
-                <Trash class="size-4" />
-
-                {{ workspace.name }}
-              </div>
-            </button>
-
-            <div
-              class="text-gray-500 w-full text-center py-2 text-sm"
-              v-if="getOtherWorkspaces().length === 0"
-            >
-              Нет других пространств
-            </div>
-          </div>
-        </div>
+          :otherItems="getOtherItems"
+          :isProcessing="isProcessing"
+          :isItemMoving="isItemMoving"
+          :noItemsText="'Нет других ' + (edit_type === 'board' ? 'пространств' : 'досок')"
+          @closeTransfer="closeDropdown"
+          @moveItem="moveItem"
+        />
       </div>
     </div>
   </div>

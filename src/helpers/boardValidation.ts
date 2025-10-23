@@ -1,7 +1,7 @@
 import { BoardValidationErrors } from '@interfaces/BoardValidationErrors'
-import { Board } from '@interfaces/Board'
+import BoardModel from '@/models/BoardModel'
 
-export function boardValidation(board: Partial<Board>): BoardValidationErrors {
+export function boardValidation(board: Partial<BoardModel>): BoardValidationErrors {
   const errors: BoardValidationErrors = {
     name: {
       isValid: true,

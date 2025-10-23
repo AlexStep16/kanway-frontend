@@ -1,7 +1,7 @@
-import { Workspace } from '@interfaces/Workspace'
+import WorkspaceModel from '@/models/WorkspaceModel'
 import { WorkspaceValidationErrors } from '@interfaces/WorkspaceValidationErrors'
 
-export function workspaceValidation(workspace: Partial<Workspace>): WorkspaceValidationErrors {
+export function workspaceValidation(workspace: Partial<WorkspaceModel>): WorkspaceValidationErrors {
   const errors: WorkspaceValidationErrors = {
     name: {
       isValid: true,

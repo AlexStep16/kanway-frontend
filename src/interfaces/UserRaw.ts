@@ -1,14 +1,16 @@
-export default interface User {
+export default interface UserRaw {
   _id: string
   username: string
   email: string
-  role: string
+  role: 'user' | 'admin'
   hasAvatar: boolean
   subscription: string
-  subscription_until: Date
+  subscription_until?: string
   generations_balance: number
-  avatar_color: string
   is_tips_completed: boolean
+  avatar_color: string
   payment_method_id?: string
-  ya_id?: string | null
+  ya_id?: string
+  createdAt: string
+  updatedAt: string
 }

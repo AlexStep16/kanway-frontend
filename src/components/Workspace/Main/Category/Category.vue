@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import ButtonCreate from '@components/Buttons/ButtonCreate.vue'
-import Options from '@/components/Options/Options.vue'
+import Options from '@components/Options/Options.vue'
 import Task from '../Task/Task.vue'
+import CategoryModel from '@models/CategoryModel'
 
 const props = defineProps<{
-  category: {
-    id: number
-    name: string
-    tasks: Array<any>
-  }
+  category: CategoryModel
 }>()
 
 const emit = defineEmits<{
@@ -48,7 +45,7 @@ function updateTask(task: any, data: any) {
     <div class="flex flex-col gap-y-2 mb-3">
       <ButtonCreate text="Добавить задачу" />
 
-      <Task
+      <!-- <Task
         v-for="task in category.tasks"
         :key="task.id"
         :task="task"
@@ -56,7 +53,7 @@ function updateTask(task: any, data: any) {
         :isEditable="true"
         :hasCopy="true"
         :hasDelete="true"
-      />
+      /> -->
     </div>
   </div>
 </template>

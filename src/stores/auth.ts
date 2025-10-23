@@ -1,4 +1,4 @@
-import User from '@interfaces/User'
+import UserModel from '@/models/UserModel'
 import { login } from '@/services/auth'
 import { defineStore, Pinia } from 'pinia'
 import { ref } from 'vue'
@@ -11,7 +11,7 @@ type LoginErrorType = BackendError | HttpError | null
 
 export const useAuthStore = (pinia?: Pinia) => {
   return defineStore('auth', () => {
-    const user = ref<User | null>(null)
+    const user = ref<UserModel | null>(null)
     const loginError = ref<LoginErrorType>(null)
 
     async function handleLogin(credentials: LoginCredentials): Promise<boolean> {
@@ -20,6 +20,7 @@ export const useAuthStore = (pinia?: Pinia) => {
       try {
         const userPayload = await login(credentials)
         user.value = userPayload
+
         return true
       } catch (e) {
         if (e instanceof BackendError) {

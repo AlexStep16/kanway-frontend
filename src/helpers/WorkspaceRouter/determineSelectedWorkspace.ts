@@ -1,17 +1,17 @@
 import { getParsedItemFromLocalStorage } from '@/utils/getParsedItemFromLocalStorage'
-import { Workspace } from '@interfaces/Workspace'
+import WorkspaceModel from '@/models/WorkspaceModel'
 
 export function determineSelectedWorkspace(
-  workspaceInWorkspaces: Workspace | null,
-  workspacesPayload: Workspace[],
+  workspaceInWorkspaces: WorkspaceModel | null,
+  workspacesPayload: WorkspaceModel[],
 ) {
-  const parsedWorkspace: Workspace | null =
-    getParsedItemFromLocalStorage<Workspace>('selectedWorkspace')
-  let selectedWorkspace: Workspace | null = null
+  const parsedWorkspace: WorkspaceModel | null =
+    getParsedItemFromLocalStorage<WorkspaceModel>('selectedWorkspace')
+  let selectedWorkspace: WorkspaceModel | null = null
 
   if (parsedWorkspace && !workspaceInWorkspaces) {
     selectedWorkspace =
-      workspacesPayload.find((workspace: Workspace) => workspace._id === parsedWorkspace?._id) ??
+      workspacesPayload.find((workspace: WorkspaceModel) => workspace.id === parsedWorkspace?.id) ??
       workspacesPayload[0]
   } else if (!workspaceInWorkspaces) {
     selectedWorkspace = workspacesPayload[0]

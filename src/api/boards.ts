@@ -1,47 +1,51 @@
 import { apiCall } from '@/apiClient'
-import { Board } from '@interfaces/Board'
+import BoardRaw from '@interfaces/BoardRaw'
 import { CRUDResponse } from '@/interfaces/CRUDResponse'
 
-export async function getBoardsApi(workspace_id: string) {
-  return await apiCall<Board[]>({
+export async function getBoardsApi(workspaceId: string) {
+  return await apiCall<BoardRaw[]>({
     method: 'GET',
-    url: `/workspace/${workspace_id}/boards`,
+    url: `/workspace/${workspaceId}/boards`,
   })
 }
 
-export async function postBoardApi(board: Partial<Board>, workspace_id: string) {
-  return await apiCall<CRUDResponse<Board>>({
+export async function postBoardApi(payload: Partial<BoardRaw>, workspaceId: string) {
+  return await apiCall<CRUDResponse<BoardRaw>>({
     method: 'POST',
-    url: `/workspace/${workspace_id}/boards`,
-    data: board,
-  })
-}
-
-export async function putBoardApi(payload: Partial<Board> & { _id: string }) {
-  return await apiCall<Board[]>({
-    method: 'PUT',
-    url: `/workspace/${payload.workspace_id}/boards/${payload._id}`,
+    url: `/workspace/${workspaceId}/boards`,
     data: payload,
   })
 }
 
-export async function deleteBoardApi(board_id: string, workspace_id: string) {
+export async function putBoardApi(
+  boardId: string,
+  workspaceId: string,
+  payload: Partial<BoardRaw>,
+) {
+  return await apiCall<BoardRaw[]>({
+    method: 'PUT',
+    url: `/workspace/${workspaceId}/boards/${boardId}`,
+    data: payload,
+  })
+}
+
+export async function deleteBoardApi(boardId: string, workspaceId: string) {
   return await apiCall<void>({
     method: 'DELETE',
-    url: `/workspace/${workspace_id}/boards/${board_id}`,
+    url: `/workspace/${workspaceId}/boards/${boardId}`,
   })
 }
 
-export async function archiveBoardApi(board_id: string, workspace_id: string) {
-  return await apiCall<Board[]>({
+export async function archiveBoardApi(boardId: string, workspaceId: string) {
+  return await apiCall<BoardRaw[]>({
     method: 'POST',
-    url: `/workspace/${workspace_id}/boards/${board_id}/archive`,
+    url: `/workspace/${workspaceId}/boards/${boardId}/archive`,
   })
 }
 
-export async function cloneBoardApi(board_id: string, workspace_id: string) {
-  return await apiCall<CRUDResponse<Board>>({
+export async function cloneBoardApi(boardId: string, workspaceId: string) {
+  return await apiCall<CRUDResponse<BoardRaw>>({
     method: 'PUT',
-    url: `/workspace/${workspace_id}/boards/clone/${board_id}`,
+    url: `/workspace/${workspaceId}/boards/clone/${boardId}`,
   })
 }

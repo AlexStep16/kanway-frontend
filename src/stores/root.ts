@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useWorkspaceDataStore } from './workspaceData'
-import { Workspace } from '@interfaces/Workspace'
+import WorkspaceModel from '@/models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useData } from 'vike-vue/useData'
 
@@ -12,15 +12,16 @@ export const useRootStore = defineStore('root', () => {
   const BOARD_STORE = useBoardDataStore()
 
   async function updateWorkspaceFromRoute() {
-    let selectedWorkspace: Workspace | null = null
+    let selectedWorkspace: WorkspaceModel | null = null
     const params = useData<{ boardId: string; workspaceId: string }>()
     const workspaceId = params.workspaceId
     const boardId = params.boardId
 
     if (typeof workspaceId === 'string' && workspaceId) {
       selectedWorkspace =
-        WORKSPACE_STORE.workspaces.find((workspace: Workspace) => workspace._id === workspaceId) ??
-        null
+        WORKSPACE_STORE.workspaces.find(
+          (workspace: WorkspaceModel) => workspace.id === workspaceId,
+        ) ?? null
     }
 
     if (!selectedWorkspace && WORKSPACE_STORE.workspaces.length > 0) {
@@ -28,9 +29,9 @@ export const useRootStore = defineStore('root', () => {
     }
 
     if (selectedWorkspace) {
-      await BOARD_STORE.loadBoards(selectedWorkspace._id)
+      await BOARD_STORE.loadBoards(selectedWorkspace.id)
 
-      //await CHAT_STORE.getChats(selectedWorkspace._id)
+      //await CHAT_STORE.getChats(selectedWorkspace.id)
 
       await WORKSPACE_STORE.selectWorkspace(selectedWorkspace, false, false)
     } else {
@@ -39,11 +40,11 @@ export const useRootStore = defineStore('root', () => {
 
     let selectedBoard: any = null
     const workspaceBoards = selectedWorkspace
-      ? BOARD_STORE.boards.filter((board) => board.workspace_id === selectedWorkspace._id)
+      ? BOARD_STORE.boards.filter((board) => board.workspaceId === selectedWorkspace.id)
       : []
 
     if (typeof boardId === 'string' && !['archive', 'settings'].includes(boardId)) {
-      selectedBoard = workspaceBoards.find((board: any) => board._id === boardId)
+      selectedBoard = workspaceBoards.find((board: any) => board.id === boardId)
     }
 
     if (!selectedBoard && workspaceBoards.length > 0) {

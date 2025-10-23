@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { defineProps, ref } from 'vue'
 import Options from '@/components/Options/Options.vue'
-import { Workspace } from '@interfaces/Workspace'
-import { Board } from '@interfaces/Board'
+import WorkspaceModel from '@/models/WorkspaceModel'
+import BoardModel from '@/models/BoardModel'
 
 const optionsRef = ref<InstanceType<typeof Options> | null>(null)
 
 defineProps<{
-  item: Workspace | Board
+  item: WorkspaceModel | BoardModel
   type: 'board' | 'workspace' | 'chat'
   resetForm?: () => void
   selected?: boolean

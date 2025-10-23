@@ -23,6 +23,8 @@ function updateBoardName(event: FocusEvent) {
 
   if (newName && BOARD_STORE.activeBoard) {
     BOARD_STORE.updateBoard({ ...BOARD_STORE.activeBoard, name: newName })
+
+    BOARD_STORE.activeBoard.name = newName
   }
 
   isInputVisible.value = false
@@ -33,7 +35,7 @@ const getName = computed(() => {
 })
 
 const getBoardId = computed(() => {
-  return BOARD_STORE.activeBoard?._id || ''
+  return BOARD_STORE.activeBoard?.id || ''
 })
 
 const BOARD_STORE = useBoardDataStore()

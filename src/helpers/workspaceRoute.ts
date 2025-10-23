@@ -1,9 +1,9 @@
 import { redirect } from 'vike/abort'
 import { PageContextClient } from 'vike/types'
-import { Workspace } from '@interfaces/Workspace'
+import WorkspaceModel from '@/models/WorkspaceModel'
 import { WorkspaceRouteHandler } from '@helpers/WorkspaceRouteHandler'
 import { determineSelectedWorkspace } from '@helpers/WorkspaceRouter/determineSelectedWorkspace'
-import { Board } from '@interfaces/Board'
+import BoardModel from '@/models/BoardModel'
 import { determineSelectedBoard } from '@helpers/WorkspaceRouter/determineSelectedBoard'
 import { useWorkspaceDataStore } from '@/stores/workspaceData'
 
@@ -25,15 +25,16 @@ export async function redirectToWorkspace(pageContext: PageContextClient) {
     }
 
     const workspaceInWorkspaces = params.workspaceId
-      ? (workspacesPayload.find((workspace: Workspace) => workspace._id === params.workspaceId) ??
-        null)
+      ? (workspacesPayload.find(
+          (workspace: WorkspaceModel) => workspace.id === params.workspaceId,
+        ) ?? null)
       : null
 
-    const selectedWorkspace: Workspace | null = determineSelectedWorkspace(
+    const selectedWorkspace: WorkspaceModel | null = determineSelectedWorkspace(
       workspaceInWorkspaces,
       workspacesPayload,
     )
-    const selectedBoard: Board | null = await determineSelectedBoard(
+    const selectedBoard: BoardModel | null = await determineSelectedBoard(
       pageContext,
       selectedWorkspace,
       params,

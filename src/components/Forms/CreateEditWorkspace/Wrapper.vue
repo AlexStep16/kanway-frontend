@@ -8,7 +8,7 @@ import { workspaceValidation } from '@helpers/workspaceValidation'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { toast } from 'vue-sonner'
 import { WorkspaceValidationErrors } from '@interfaces/WorkspaceValidationErrors'
-import { Workspace } from '@interfaces/Workspace'
+import WorkspaceModel from '@/models/WorkspaceModel'
 
 const dropdown = ref<HTMLElement | null>(null)
 const dropdownMenu = ref<HTMLElement | null>(null)
@@ -24,7 +24,7 @@ const name = ref('')
 const color = ref<string>(AvailableColors.BLUE)
 
 const props = defineProps<{
-  item?: Workspace
+  item?: WorkspaceModel
   isDropdown?: boolean
   dropdownClasses?: string
   mode: 'create' | 'edit'
@@ -32,8 +32,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'workspaceCreated', workspace: Workspace): void
-  (e: 'workspaceEdited', workspace: Workspace): void
+  (e: 'workspaceCreated', workspace: WorkspaceModel): void
+  (e: 'workspaceEdited', workspace: WorkspaceModel): void
 }>()
 
 async function createWorkspace() {
@@ -56,7 +56,7 @@ async function createWorkspace() {
 
   if (result !== false && typeof result === 'object' && result !== null) {
     closeDropdown()
-    emit('workspaceCreated', result as Workspace)
+    emit('workspaceCreated', result as WorkspaceModel)
 
     resetForm()
   }
@@ -128,7 +128,7 @@ const getIsLoading = computed(() => {
   if (props.mode === 'create') {
     return WORKSPACE_STORE.isAddingWorkspace
   } else if (props.item) {
-    return WORKSPACE_STORE.isWorkspaceEditing(props.item._id)
+    return WORKSPACE_STORE.isWorkspaceEditing(props.item.id)
   } else {
     return false
   }
