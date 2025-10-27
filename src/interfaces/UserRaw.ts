@@ -1,6 +1,6 @@
 export default interface UserRaw {
   _id: string
-  username: string
+  username?: string
   email: string
   role: 'user' | 'admin'
   hasAvatar: boolean

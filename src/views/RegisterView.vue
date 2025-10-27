@@ -1,5 +1,57 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+
+const AUTH_STORE = useAuthStore()
+
+const { loginError } = storeToRefs(AUTH_STORE)
+
+const email = ref('')
+const password = ref('')
+const errors = ref<{ email: string | null; password: string | null }>({
+  email: null,
+  password: null,
+})
+
+const errorMessage = computed(() => {
+  if (loginError.value) {
+    return loginError.value.message || 'Произошла ошибка при попытке входа.'
+  }
+  return ''
+})
+
+async function register() {
+  validateForm()
+
+  if (errors.value.email || errors.value.password) {
+    return
+  }
+
+  const success = await AUTH_STORE.handleRegister({ email: email.value, password: password.value })
+
+  if (success) {
+  }
+}
+
+function validateForm() {
+  errors.value.email = null
+  errors.value.password = null
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailPattern.test(email.value)) {
+    errors.value.email = 'Пожалуйста, введите корректный Email'
+  }
+
+  /*if (password.value.length < 8) {
+    errors.value.password = 'Пароль должен содержать не менее 8 символов'
+  }*/
+}
+
+function resetErrors() {
+  errors.value.email = null
+  errors.value.password = null
+}
 
 onMounted(() => {
   window.HSStaticMethods.autoInit()
@@ -70,7 +122,7 @@ onMounted(() => {
           </div>
 
           <!-- Form -->
-          <form>
+          <form @submit.prevent="register">
             <div class="grid gap-y-4">
               <!-- Form Group -->
               <div>
@@ -83,6 +135,8 @@ onMounted(() => {
                     class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                     required
                     aria-describedby="email-error"
+                    @input="resetErrors"
+                    v-model="email"
                   />
                   <div class="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
                     <svg
@@ -116,6 +170,8 @@ onMounted(() => {
                     class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                     required
                     aria-describedby="password-error"
+                    @input="resetErrors"
+                    v-model="password"
                   />
                   <div class="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
                     <svg
@@ -167,8 +223,11 @@ onMounted(() => {
                     </svg>
                   </div>
                 </div>
-                <p class="hidden text-xs text-red-600 mt-2" id="confirm-password-error">
-                  Пароли не совпадают
+                <p class="text-xs text-red-600 mt-2" id="password-error" v-if="errors.password">
+                  {{ errors.password }}
+                </p>
+                <p class="text-xs text-red-600 mt-2" id="login-error" v-if="errorMessage">
+                  {{ errorMessage }}
                 </p>
               </div>
               <!-- End Form Group -->

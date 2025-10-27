@@ -51,8 +51,6 @@ function validateForm() {
 function resetErrors() {
   errors.value.email = null
   errors.value.password = null
-
-  AUTH_STORE.loginError = null
 }
 
 onMounted(() => {

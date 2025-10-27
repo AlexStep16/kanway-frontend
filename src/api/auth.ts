@@ -10,9 +10,17 @@ export async function loginApi(credentials: LoginCredentials) {
   })
 }
 
-export async function checkAuthApi() {
+export async function registerApi(credentials: LoginCredentials) {
+  return await apiCall<UserRaw>({
+    method: 'POST',
+    url: '/auth/register',
+    data: credentials,
+  })
+}
+
+export async function meAuthApi() {
   return await apiCall<UserRaw>({
     method: 'GET',
-    url: '/auth/check',
+    url: '/auth/me',
   })
 }

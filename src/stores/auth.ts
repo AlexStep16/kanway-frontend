@@ -1,18 +1,19 @@
 import UserModel from '@/models/UserModel'
-import { login } from '@/services/auth'
+import { login, register } from '@services/auth'
 import { defineStore, Pinia } from 'pinia'
 import { ref } from 'vue'
 import LoginCredentials from '@interfaces/LoginCredentials'
 import { BackendError, HttpError } from '@/utils/errors'
-import { ErrorsMessage } from '@/enums/ErrorsMessage'
+import { ErrorsMessage } from '@enums/ErrorsMessage'
 
 // Объединяем типы ошибок для простоты хранения в state
-type LoginErrorType = BackendError | HttpError | null
+type AuthErrorType = BackendError | HttpError | null
 
 export const useAuthStore = (pinia?: Pinia) => {
   return defineStore('auth', () => {
     const user = ref<UserModel | null>(null)
-    const loginError = ref<LoginErrorType>(null)
+    const loginError = ref<AuthErrorType>(null)
+    const registerError = ref<AuthErrorType>(null)
 
     async function handleLogin(credentials: LoginCredentials): Promise<boolean> {
       loginError.value = null
@@ -38,6 +39,30 @@ export const useAuthStore = (pinia?: Pinia) => {
       }
     }
 
+    async function handleRegister(credentials: LoginCredentials): Promise<boolean> {
+      registerError.value = null
+
+      try {
+        const userPayload = await register(credentials)
+        user.value = userPayload
+
+        return true
+      } catch (e) {
+        if (e instanceof BackendError) {
+          registerError.value = e
+        } else if (e instanceof HttpError) {
+          registerError.value = e
+
+          if (e.status === 401) {
+          }
+        } else {
+          registerError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+        }
+
+        return false
+      }
+    }
+
     function $reset() {
       /* ... */
     }
@@ -46,9 +71,11 @@ export const useAuthStore = (pinia?: Pinia) => {
       // State
       user,
       loginError,
+      registerError,
 
       // Actions
       handleLogin,
+      handleRegister,
       $reset,
     }
   })(pinia)

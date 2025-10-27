@@ -1,8 +1,8 @@
-import { mande } from 'mande'
-
 import type { PageContextClient } from 'vike/types'
-import { redirect } from 'vike/abort'
+import { useAuthStore } from '@/stores/auth'
 
 export { data }
 
-const data = async (pageContext: PageContextClient) => {}
+const data = async (pageContext: PageContextClient) => {
+  useAuthStore(pageContext.pinia)
+}

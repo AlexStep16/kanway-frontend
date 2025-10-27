@@ -1,5 +1,5 @@
 import LoginCredentials from '@interfaces/LoginCredentials'
-import { loginApi } from '@api/auth'
+import { loginApi, registerApi } from '@api/auth'
 import UserRaw from '@interfaces/UserRaw'
 import UserModel from '@/models/UserModel'
 
@@ -29,6 +29,12 @@ export function transformUser(raw: UserRaw): UserModel {
 
 export async function login(credentials: LoginCredentials) {
   const user = await loginApi(credentials)
+
+  return transformUser(user)
+}
+
+export async function register(credentials: LoginCredentials) {
+  const user = await registerApi(credentials)
 
   return transformUser(user)
 }
