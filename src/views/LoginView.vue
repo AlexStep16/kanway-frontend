@@ -35,22 +35,19 @@ async function login() {
 }
 
 function validateForm() {
-  errors.value.email = null
-  errors.value.password = null
+  resetErrors()
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailPattern.test(email.value)) {
     errors.value.email = 'Пожалуйста, введите корректный Email'
   }
-
-  /*if (password.value.length < 8) {
-    errors.value.password = 'Пароль должен содержать не менее 8 символов'
-  }*/
 }
 
 function resetErrors() {
   errors.value.email = null
   errors.value.password = null
+
+  AUTH_STORE.loginError = null
 }
 
 onMounted(() => {
@@ -156,9 +153,9 @@ onMounted(() => {
                     </svg>
                   </div>
                 </div>
-                <p class="text-xs text-red-600 mt-2" id="email-error" v-if="errors.email">
-                  {{ errors.email }}
-                </p>
+                <ul class="text-xs text-red-600 mt-2" id="email-error" v-if="errors.email">
+                  <li class="list-disc list-inside">{{ errors.email }}</li>
+                </ul>
               </div>
               <!-- End Form Group -->
 
@@ -201,12 +198,18 @@ onMounted(() => {
                     </svg>
                   </div>
                 </div>
-                <p class="text-xs text-red-600 mt-2" id="password-error" v-if="errors.password">
-                  {{ errors.password }}
-                </p>
-                <p class="text-xs text-red-600 mt-2" id="login-error" v-if="errorMessage">
-                  {{ errorMessage }}
-                </p>
+                <ul class="text-xs text-red-600 mt-2" id="password-error" v-if="errors.password">
+                  <li class="list-disc list-inside">{{ errors.password }}</li>
+                </ul>
+                <ul class="text-xs text-red-600 mt-2" id="login-error" v-if="errorMessage">
+                  <li
+                    class="list-disc list-inside"
+                    v-for="error in errorMessage.split('; ')"
+                    :key="error"
+                  >
+                    {{ error }}
+                  </li>
+                </ul>
               </div>
               <!-- End Form Group -->
 

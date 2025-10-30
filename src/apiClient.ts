@@ -13,18 +13,22 @@ const axiosClient: AxiosInstance = axios.create({
 
 axiosClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  (error: AxiosError<ApiResponse<any>>) => {
+    const responseData = error.response?.data
+
+    if (responseData && responseData.error) {
+      const backendErrorPayload = responseData.error
+
+      return Promise.reject(new BackendError(backendErrorPayload))
+    }
+
     let message = ErrorsMessage.SERVER_ERROR
     let status: number | null = null
     let isNetworkError = false
 
     if (error.response) {
       status = error.response.status
-
-      if (status === 401) {
-        // Специальная обработка, если 401: здесь не показываем уведомления,
-        // но Store может на это среагировать (например, глобальный логаут)
-      }
+      // Дополнительная логика для 401, если нужно
     } else if (error.request) {
       message = ErrorsMessage.NETWORK_ERROR
       isNetworkError = true

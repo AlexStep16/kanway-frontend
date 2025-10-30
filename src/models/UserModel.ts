@@ -1,6 +1,6 @@
 interface User {
   id: string
-  username: string
+  username?: string
   email: string
   role: string
   hasAvatar: boolean
@@ -17,7 +17,7 @@ interface User {
 
 export default class UserModel {
   public id: string
-  public username: string
+  public username?: string
   public email: string
   public role: string
   public hasAvatar: boolean

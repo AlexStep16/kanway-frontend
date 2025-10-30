@@ -5,18 +5,25 @@ import { storeToRefs } from 'pinia'
 
 const AUTH_STORE = useAuthStore()
 
-const { loginError } = storeToRefs(AUTH_STORE)
+const { registerError } = storeToRefs(AUTH_STORE)
 
 const email = ref('')
 const password = ref('')
-const errors = ref<{ email: string | null; password: string | null }>({
+const confirmPassword = ref('')
+
+const errors = ref<{
+  email: string | null
+  password: string | null
+  confirmPassword: string | null
+}>({
   email: null,
   password: null,
+  confirmPassword: null,
 })
 
 const errorMessage = computed(() => {
-  if (loginError.value) {
-    return loginError.value.message || 'Произошла ошибка при попытке входа.'
+  if (registerError.value) {
+    return registerError.value.message || 'Произошла ошибка при регистрации.'
   }
   return ''
 })
@@ -24,7 +31,7 @@ const errorMessage = computed(() => {
 async function register() {
   validateForm()
 
-  if (errors.value.email || errors.value.password) {
+  if (errors.value.email || errors.value.password || errors.value.confirmPassword) {
     return
   }
 
@@ -35,22 +42,28 @@ async function register() {
 }
 
 function validateForm() {
-  errors.value.email = null
-  errors.value.password = null
+  resetErrors()
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailPattern.test(email.value)) {
     errors.value.email = 'Пожалуйста, введите корректный Email'
   }
 
-  /*if (password.value.length < 8) {
+  if (password.value.length < 8) {
     errors.value.password = 'Пароль должен содержать не менее 8 символов'
-  }*/
+  }
+
+  if (password.value !== confirmPassword.value) {
+    errors.value.confirmPassword = 'Пароли не совпадают'
+  }
 }
 
 function resetErrors() {
   errors.value.email = null
   errors.value.password = null
+  errors.value.confirmPassword = null
+
+  AUTH_STORE.registerError = null
 }
 
 onMounted(() => {
@@ -153,9 +166,9 @@ onMounted(() => {
                     </svg>
                   </div>
                 </div>
-                <p class="hidden text-xs text-red-600 mt-2" id="email-error">
-                  Пожалуйста, введите корректный email адрес
-                </p>
+                <ul class="text-xs text-red-600 mt-2" id="email-error" v-if="errors.email">
+                  <li class="list-disc list-inside">{{ errors.email }}</li>
+                </ul>
               </div>
               <!-- End Form Group -->
 
@@ -207,6 +220,7 @@ onMounted(() => {
                     class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                     required
                     aria-describedby="confirm-password-error"
+                    v-model="confirmPassword"
                   />
                   <div class="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
                     <svg
@@ -223,12 +237,27 @@ onMounted(() => {
                     </svg>
                   </div>
                 </div>
-                <p class="text-xs text-red-600 mt-2" id="password-error" v-if="errors.password">
-                  {{ errors.password }}
-                </p>
-                <p class="text-xs text-red-600 mt-2" id="login-error" v-if="errorMessage">
-                  {{ errorMessage }}
-                </p>
+                <ul
+                  class="text-xs text-red-600 mt-2"
+                  id="password-error"
+                  v-if="errors.password || errors.confirmPassword"
+                >
+                  <li class="list-disc list-inside" v-show="errors.password">
+                    {{ errors.password }}
+                  </li>
+                  <li class="list-disc list-inside" v-show="errors.confirmPassword">
+                    {{ errors.confirmPassword }}
+                  </li>
+                </ul>
+                <ul class="text-xs text-red-600 mt-2" id="login-error" v-if="errorMessage">
+                  <li
+                    class="list-disc list-inside"
+                    v-for="error in errorMessage.split('; ')"
+                    :key="error"
+                  >
+                    {{ error }}
+                  </li>
+                </ul>
               </div>
               <!-- End Form Group -->
 

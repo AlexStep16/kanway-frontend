@@ -30,40 +30,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     workspaceId: string,
     force_reload: boolean = false,
   ) {
-    if (_loadedBoards.value.has(boardId) && !force_reload) return
-    if (_loadingStatusBoards.value.get(boardId)) return
-    if (areCategoriesLoaded(boardId) || areCategoriesLoading(boardId)) return
-
-    _loadingStatusBoards.value.set(boardId, true)
-
-    loadCategoriesError.value = null
-
-    try {
-      const categoriesPayload = await fetchCategories(workspaceId, boardId)
-
-      categories.value = categories.value.filter((c) => c.boardId !== boardId) // Remove old categories of this board
-      categories.value.push(...categoriesPayload)
-      _loadedBoards.value.add(boardId)
-
-      return true
-    } catch (e) {
-      if (e instanceof BackendError) {
-        loadCategoriesError.value = e
-      } else if (e instanceof HttpError) {
-        loadCategoriesError.value = e
-
-        if (e.status === 401) {
-        }
-      } else {
-        loadCategoriesError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
-      }
-
-      toast.error(loadCategoriesError.value.message)
-
-      return false
-    } finally {
-      _loadingStatusBoards.value.set(boardId, false)
-    }
+    return
   }
 
   function _updateCategoriesInStore(newCategories: CategoryModel[]) {

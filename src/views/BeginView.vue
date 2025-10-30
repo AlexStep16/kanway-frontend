@@ -5,6 +5,7 @@ import ColorButtons from '@components/ColorButtons.vue'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { HSAccordion } from 'preline'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
+import { AvailableColors } from '@enums/AvailableColors'
 
 enum Tab {
   WORKSPACE = 0,
@@ -15,6 +16,7 @@ enum Tab {
 const colorsAccordion = ref<HTMLElement | null>(null)
 const colorsAccordionInstance = ref<HSAccordion | null>(null)
 const workspaceName = ref('')
+const workspaceColor = ref(AvailableColors.BLUE)
 const currentTab = ref(Tab.WORKSPACE)
 const progressLabelRef = ref<HTMLElement | null>(null)
 const progressBarRef = ref<HTMLElement | null>(null)
@@ -141,7 +143,7 @@ onMounted(() => {
                   >
                     <div class="flex flex-col items-start gap-y-1 w-full pt-2">
                       <p class="text-sm text-gray-500">Выберите цвет</p>
-                      <ColorButtons :size="9">
+                      <ColorButtons :color="workspaceColor" :size="9">
                         <span class="font-bold text-white">{{
                           workspaceName.substring(0, 1)
                         }}</span>
@@ -200,7 +202,7 @@ onMounted(() => {
                     <Camera class="size-8" />
                   </Avatar>
                 </div>
-                <ColorButtons :size="9" />
+                <ColorButtons :color="AvailableColors.GREEN" :size="9" />
               </div>
               <button
                 class="w-full px-4 py-2 text-sm text-white bg-blue-500 border border-transparent rounded-md hover:opacity-90 focus:outline-none disabled:opacity-40 disabled:pointer-events-none transition-opacity duration-100"

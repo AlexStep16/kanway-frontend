@@ -1,5 +1,5 @@
 import BoardModel from '@models/BoardModel'
-import BoardRaw from '@interfaces/BoardRaw'
+import IBoard from '@models/BoardModel'
 import {
   archiveBoardApi,
   cloneBoardApi,
@@ -8,17 +8,10 @@ import {
   postBoardApi,
   putBoardApi,
 } from '@api/boards'
-import { toSnakeCaseKeys } from '@utils/objectTransformers'
-import { cleanSystemFields } from '@utils/cleanSystemFields'
 
-export function transformBoard(raw: BoardRaw): BoardModel {
+export function transformBoard(raw: IBoard): BoardModel {
   return new BoardModel({
-    id: raw._id,
-    name: raw.name,
-    workspaceId: raw.workspace_id,
-    isDeleted: raw.is_deleted,
-    isFavorite: raw.is_favorite,
-    order: raw.order ?? 0,
+    ...raw,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })
@@ -31,8 +24,7 @@ export async function fetchBoards(workspaceId: string) {
 }
 
 export async function createBoard(payload: Partial<BoardModel>, workspaceId: string) {
-  const apiPayload = toSnakeCaseKeys(cleanSystemFields(payload))
-  const newBoard = await postBoardApi(apiPayload, workspaceId)
+  const newBoard = await postBoardApi(payload, workspaceId)
 
   return newBoard.result.map(transformBoard)
 }
@@ -40,8 +32,7 @@ export async function createBoard(payload: Partial<BoardModel>, workspaceId: str
 export async function saveBoard(
   payload: Partial<BoardModel> & { id: string; workspaceId: string },
 ) {
-  const apiPayload = toSnakeCaseKeys(cleanSystemFields(payload))
-  const saveResult = await putBoardApi(payload.id, payload.workspaceId, apiPayload)
+  const saveResult = await putBoardApi(payload.id, payload.workspaceId, payload)
 
   return saveResult.map(transformBoard)
 }

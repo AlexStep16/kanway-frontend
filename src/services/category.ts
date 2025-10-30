@@ -1,5 +1,5 @@
 import CategoryModel from '@models/CategoryModel'
-import CategoryRaw from '@interfaces/CategoryRaw'
+import ICategory from '@models/CategoryModel'
 import {
   getCategoriesApi,
   postCategoryApi,
@@ -8,16 +8,10 @@ import {
   archiveCategoryApi,
   cloneCategoryApi,
 } from '@api/categories'
-import { toSnakeCaseKeys } from '@utils/objectTransformers'
-import { cleanSystemFields } from '@utils/cleanSystemFields'
 
-export function transformCategory(raw: CategoryRaw): CategoryModel {
+export function transformCategory(raw: ICategory): CategoryModel {
   return new CategoryModel({
-    id: raw._id,
-    name: raw.name,
-    boardId: raw.board_id,
-    order: raw.order,
-    isDeleted: raw.is_deleted,
+    ...raw,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })
@@ -30,8 +24,7 @@ export async function fetchCategories(workspaceId: string, boardId: string) {
 }
 
 export async function createCategory(payload: Partial<CategoryModel>, workspaceId: string) {
-  const apiPayload = toSnakeCaseKeys(cleanSystemFields(payload))
-  const newCategory = await postCategoryApi(apiPayload, workspaceId)
+  const newCategory = await postCategoryApi(payload, workspaceId)
 
   return newCategory.result.map(transformCategory)
 }
@@ -40,8 +33,7 @@ export async function saveCategory(
   workspaceId: string,
   payload: Partial<CategoryModel> & { id: string },
 ) {
-  const apiPayload = toSnakeCaseKeys(cleanSystemFields(payload))
-  const saveResult = await putCategoryApi(workspaceId, payload.id, apiPayload)
+  const saveResult = await putCategoryApi(workspaceId, payload.id, payload)
 
   return saveResult.map(transformCategory)
 }

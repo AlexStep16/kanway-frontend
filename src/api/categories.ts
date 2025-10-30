@@ -1,18 +1,18 @@
 import { apiCall } from '@/apiClient'
-import CategoryRaw from '@interfaces/CategoryRaw'
+import ICategory from '@models/CategoryModel'
 import { CRUDResponse } from '@/interfaces/CRUDResponse'
 
 export async function getCategoriesApi(workspaceId: string, boardId: string) {
-  return await apiCall<CategoryRaw[]>({
+  return await apiCall<ICategory[]>({
     method: 'GET',
-    url: `/workspace/${workspaceId}/categories/${boardId}`,
+    url: `/workspaces/${workspaceId}/categories/${boardId}`,
   })
 }
 
-export async function postCategoryApi(payload: Partial<CategoryRaw>, workspaceId: string) {
-  return await apiCall<CRUDResponse<CategoryRaw>>({
+export async function postCategoryApi(payload: Partial<ICategory>, workspaceId: string) {
+  return await apiCall<CRUDResponse<ICategory>>({
     method: 'POST',
-    url: `/workspace/${workspaceId}/categories`,
+    url: `/workspaces/${workspaceId}/categories`,
     data: payload,
   })
 }
@@ -20,11 +20,11 @@ export async function postCategoryApi(payload: Partial<CategoryRaw>, workspaceId
 export async function putCategoryApi(
   workspaceId: string,
   categoryId: string,
-  payload: Partial<CategoryRaw>,
+  payload: Partial<ICategory>,
 ) {
-  return await apiCall<CategoryRaw[]>({
+  return await apiCall<ICategory[]>({
     method: 'PUT',
-    url: `/workspace/${workspaceId}/categories/${categoryId}`,
+    url: `/workspaces/${workspaceId}/categories/${categoryId}`,
     data: payload,
   })
 }
@@ -32,20 +32,20 @@ export async function putCategoryApi(
 export async function deleteCategoryApi(categoryId: string, workspaceId: string) {
   return await apiCall<void>({
     method: 'DELETE',
-    url: `/workspace/${workspaceId}/categories/${categoryId}`,
+    url: `/workspaces/${workspaceId}/categories/${categoryId}`,
   })
 }
 
 export async function archiveCategoryApi(categoryId: string, workspaceId: string) {
-  return await apiCall<CategoryRaw[]>({
+  return await apiCall<ICategory[]>({
     method: 'POST',
-    url: `/workspace/${workspaceId}/categories/${categoryId}/archive`,
+    url: `/workspaces/${workspaceId}/categories/${categoryId}/archive`,
   })
 }
 
 export async function cloneCategoryApi(categoryId: string, workspaceId: string) {
-  return await apiCall<CRUDResponse<CategoryRaw>>({
+  return await apiCall<CRUDResponse<ICategory>>({
     method: 'PUT',
-    url: `/workspace/${workspaceId}/categories/clone/${categoryId}`,
+    url: `/workspaces3/${workspaceId}/categories/clone/${categoryId}`,
   })
 }
