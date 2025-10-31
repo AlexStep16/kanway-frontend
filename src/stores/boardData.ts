@@ -118,7 +118,15 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
         const newBoards: BoardModel[] = await createBoard({ ...payload, workspaceId }, workspaceId)
 
-        boards.value.push(...newBoards)
+        for (const newBoard of newBoards) {
+          const existingBoard = boards.value.find((b) => b.id === newBoard.id)
+
+          if (!existingBoard) {
+            boards.value.push(newBoard)
+          } else {
+            Object.assign(existingBoard, newBoard)
+          }
+        }
 
         return newBoards[0]
       } catch (e) {
@@ -359,11 +367,11 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       try {
         _cloningBoards.value.add(board.id)
 
-        const newBoards: BoardModel[] = await cloneBoardService(board.id, board.workspaceId)
+        const newBoard: BoardModel = await cloneBoardService(board.id, board.workspaceId)
 
-        boards.value.push(...newBoards)
+        boards.value.push(newBoard)
 
-        return newBoards[0]
+        return newBoard
       } catch (e) {
         if (e instanceof BackendError) {
           _cloneBoardsError.value.set(board.id, e)

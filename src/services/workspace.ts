@@ -6,7 +6,7 @@ import {
   deleteWorkspaceApi,
   getWorkspacesApi,
   postWorkspaceApi,
-  putWorkspaceApi,
+  patchWorkspaceApi,
 } from '@api/workspaces'
 
 export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
@@ -26,11 +26,11 @@ export async function fetchWorkspaces() {
 export async function createWorkspace(payload: Partial<WorkspaceModel>) {
   const newWorkspace = await postWorkspaceApi(payload)
 
-  return newWorkspace.result.map(transformWorkspace)
+  return newWorkspace.map(transformWorkspace)
 }
 
 export async function saveWorkspace(payload: Partial<WorkspaceModel> & { id: string }) {
-  const saveResult = await putWorkspaceApi(payload.id, payload)
+  const saveResult = await patchWorkspaceApi(payload.id, payload)
 
   return saveResult.map(transformWorkspace)
 }
@@ -48,5 +48,5 @@ export async function archiveWorkspace(workspaceId: string) {
 export async function cloneWorkspace(workspaceId: string) {
   const cloneResult = await cloneWorkspaceApi(workspaceId)
 
-  return cloneResult.result.map(transformWorkspace)
+  return transformWorkspace(cloneResult)
 }

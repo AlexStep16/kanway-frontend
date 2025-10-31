@@ -30,7 +30,40 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     workspaceId: string,
     force_reload: boolean = false,
   ) {
-    return
+    if (_loadedBoards.value.has(boardId) && !force_reload) return
+    if (_loadingStatusBoards.value.get(boardId)) return
+    if (areCategoriesLoaded(boardId) || areCategoriesLoading(boardId)) return
+
+    _loadingStatusBoards.value.set(boardId, true)
+
+    loadCategoriesError.value = null
+
+    try {
+      const categoriesPayload = await fetchCategories(workspaceId, boardId)
+
+      categories.value = categories.value.filter((c) => c.boardId !== boardId) // Remove old categories of this board
+      categories.value.push(...categoriesPayload)
+      _loadedBoards.value.add(boardId)
+
+      return true
+    } catch (e) {
+      if (e instanceof BackendError) {
+        loadCategoriesError.value = e
+      } else if (e instanceof HttpError) {
+        loadCategoriesError.value = e
+
+        if (e.status === 401) {
+        }
+      } else {
+        loadCategoriesError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+      }
+
+      toast.error(loadCategoriesError.value.message)
+
+      return false
+    } finally {
+      _loadingStatusBoards.value.set(boardId, false)
+    }
   }
 
   function _updateCategoriesInStore(newCategories: CategoryModel[]) {
@@ -45,6 +78,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   async function _updateCategory(
     payload: Partial<CategoryModel> & { id: string },
     workspaceId: string,
+    boardId: string,
   ): Promise<CategoryModel> {
     if (!payload) throw new Error('Нет данных для обновления категории')
 
@@ -53,7 +87,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       _editingCategories.value.add(payload.id)
 
-      const editResult = await saveCategory(workspaceId, payload)
+      const editResult = await saveCategory(workspaceId, boardId, payload)
 
       const newCategory = editResult.find((c) => c.id === payload.id)
 
@@ -85,12 +119,13 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   async function updateCategory(
     payload: Partial<CategoryModel> & { id: string },
+    boardId: string,
     workspaceId: string,
   ): Promise<CategoryModel | false> {
     if (!isCategoryChanged(payload)) return false
 
     try {
-      const result = await _updateCategory(payload, workspaceId)
+      const result = await _updateCategory(payload, workspaceId, boardId)
 
       toast.success('Категория успешно обновлена')
 
@@ -107,6 +142,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   async function moveCategory(
     category: CategoryModel,
+    boardId: string,
     newBoardId: string,
     workspaceId: string,
   ): Promise<CategoryModel | false> {
@@ -115,7 +151,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       _movingCategories.value.add(category.id)
 
-      const result = await _updateCategory(newCategory, workspaceId)
+      const result = await _updateCategory(newCategory, workspaceId, boardId)
 
       toast.success('Категория успешно перемещена')
 

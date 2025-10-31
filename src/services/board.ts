@@ -6,7 +6,7 @@ import {
   deleteBoardApi,
   getBoardsApi,
   postBoardApi,
-  putBoardApi,
+  patchBoardApi,
 } from '@api/boards'
 
 export function transformBoard(raw: IBoard): BoardModel {
@@ -26,13 +26,13 @@ export async function fetchBoards(workspaceId: string) {
 export async function createBoard(payload: Partial<BoardModel>, workspaceId: string) {
   const newBoard = await postBoardApi(payload, workspaceId)
 
-  return newBoard.result.map(transformBoard)
+  return newBoard.map(transformBoard)
 }
 
 export async function saveBoard(
   payload: Partial<BoardModel> & { id: string; workspaceId: string },
 ) {
-  const saveResult = await putBoardApi(payload.id, payload.workspaceId, payload)
+  const saveResult = await patchBoardApi(payload.id, payload.workspaceId, payload)
 
   return saveResult.map(transformBoard)
 }
@@ -50,5 +50,5 @@ export async function archiveBoard(boardId: string, workspaceId: string) {
 export async function cloneBoard(boardId: string, workspaceId: string) {
   const cloneResult = await cloneBoardApi(boardId, workspaceId)
 
-  return cloneResult.result.map(transformBoard)
+  return transformBoard(cloneResult)
 }

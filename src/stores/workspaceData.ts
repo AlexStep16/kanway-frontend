@@ -106,7 +106,15 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
         const newWorkspaces: WorkspaceModel[] = await createWorkspace({ ...workspace })
 
-        workspaces.value.push(...newWorkspaces)
+        for (const newWorkspace of newWorkspaces) {
+          const existingWorkspace = workspaces.value.find((w) => w.id === newWorkspace.id)
+
+          if (!existingWorkspace) {
+            workspaces.value.push(newWorkspace)
+          } else {
+            Object.assign(existingWorkspace, newWorkspace)
+          }
+        }
 
         return newWorkspaces[0]
       } catch (e) {
@@ -340,11 +348,11 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         _cloningWorkspaces.value.add(workspace.id)
 
-        const newWorkspaces: WorkspaceModel[] = await cloneWorkspaceService(workspace.id)
+        const newWorkspace: WorkspaceModel = await cloneWorkspaceService(workspace.id)
 
-        workspaces.value.push(...newWorkspaces)
+        workspaces.value.push(newWorkspace)
 
-        return newWorkspaces[0]
+        return newWorkspace
       } catch (e) {
         if (e instanceof BackendError) {
           _cloneWorkspacesError.value.set(workspace.id, e)
