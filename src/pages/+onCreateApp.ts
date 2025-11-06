@@ -40,12 +40,12 @@ function onCreateApp(pageContext: PageContext) {
 
   dayjs.updateLocale('ru', {
     calendar: {
-      sameDay: '[Сегодня] HH:mm',
-      nextDay: '[Завтра] HH:mm',
-      nextWeek: 'dddd HH:mm',
-      lastDay: '[Вчера] HH:mm',
-      lastWeek: 'DD MMMM HH:mm',
-      sameElse: 'DD MMMM HH:mm',
+      sameDay: '[Сегодня]',
+      nextDay: '[Завтра]',
+      nextWeek: 'dddd',
+      lastDay: '[Вчера]',
+      lastWeek: 'D MMMM',
+      sameElse: 'D MMMM',
     },
   })
 

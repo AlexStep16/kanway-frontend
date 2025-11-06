@@ -8,13 +8,19 @@ import {
   archiveCategoryApi,
   cloneCategoryApi,
 } from '@api/categories'
+import { ICategoryState } from '@stores/interfaces/ICategoryState'
 
-export function transformCategory(raw: ICategory): CategoryModel {
-  return new CategoryModel({
+export function transformCategory(raw: ICategory): ICategoryState {
+  const categoryModel = new CategoryModel({
     ...raw,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })
+
+  return {
+    ...categoryModel,
+    tempId: (raw as any).tempClientId,
+  }
 }
 
 export async function fetchCategories(workspaceId: string, boardId: string) {
@@ -56,5 +62,5 @@ export async function archiveCategory(categoryId: string, workspaceId: string, b
 export async function cloneCategory(categoryId: string, workspaceId: string, boardId: string) {
   const cloneResult = await cloneCategoryApi(categoryId, boardId, workspaceId)
 
-  return transformCategory(cloneResult)
+  return cloneResult.map(transformCategory)
 }

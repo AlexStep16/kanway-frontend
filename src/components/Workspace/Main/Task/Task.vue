@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { useRootStore } from '@/stores/root'
-import { useTaskStore } from '@/stores/task'
-import { useUIStore } from '@/stores/ui'
+import { ITaskState } from '@stores/interfaces/ITaskState'
+import { useTaskDataStore } from '@stores/taskData'
+import { useUIStore } from '@stores/ui'
 import dayjs from 'dayjs'
-import { Clock, TextAlignStart, Trash, Copy, SquareKanban, Layers } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
+import { computed, nextTick, ref } from 'vue'
+import { getTimeInReadableFormat } from '@utils/date'
+import Spinner from '@/components/Loader/Spinner.vue'
+
+defineEmits<{
+  (e: 'updateTask', payload: { id: string; isCompleted: boolean }): void
+  (e: 'connectInputEditRef', el: HTMLInputElement): void
+}>()
 
 enum TimeStatus {
   EXPIRED = 0,
@@ -14,15 +21,7 @@ enum TimeStatus {
 }
 
 const props = defineProps<{
-  task: {
-    id: number
-    name: string
-    description?: string
-    color?: string
-    due_date?: string
-    is_completed: boolean
-    tags?: Array<any>
-  }
+  task: ITaskState
   hasBorder?: boolean
   isEditable?: boolean
   hasCopy?: boolean
@@ -35,11 +34,22 @@ const props = defineProps<{
 const isChecked = ref(true)
 
 const UI_STORE = useUIStore()
+const TASK_STORE = useTaskDataStore()
 
-function getTimeStatus(date: Date | string, is_completed: boolean): TimeStatus {
-  if (is_completed) return TimeStatus.COMPLETED
+function getTimeStatus(
+  dueDate: string,
+  isCompleted: boolean,
+  dueHours?: number,
+  dueMinutes?: number,
+): TimeStatus {
+  if (isCompleted) return TimeStatus.COMPLETED
 
   let validTime = new Date()
+
+  const date =
+    dueHours !== undefined && dueMinutes !== undefined
+      ? dayjs(dueDate).hour(dueHours).minute(dueMinutes).toDate()
+      : dayjs(dueDate).startOf('day').toDate()
 
   if (typeof date === 'string') validTime = dayjs(date).toDate()
   else if (date instanceof Date) validTime = date
@@ -52,34 +62,54 @@ function getTimeStatus(date: Date | string, is_completed: boolean): TimeStatus {
   return TimeStatus.PROGRESS
 }
 
-function getTimeInReadableFormat(date: Date | string) {
-  const STORE = useRootStore()
+function edit(task: ITaskState) {
+  if (!props.isEditable || task.isNew) return
 
-  let output = ''
-
-  if (date && STORE.timezone) output = dayjs.utc(date).tz(STORE.timezone).calendar()
-
-  return output
-}
-
-const getTaskIsCompleted = computed(() => {
-  return props.task.is_completed
-})
-
-function edit(task: any) {
-  if (!props.isEditable) return
-
-  const taskStore = useTaskStore()
-
-  taskStore.taskToEdit = task
+  TASK_STORE.taskToEdit = task
 
   UI_STORE.openEditTaskModal()
 }
+
+function copyTask(task: ITaskState) {
+  TASK_STORE.cloneTask(task)
+}
+
+function archiveTask(task: ITaskState) {
+  TASK_STORE.archiveTask(task)
+}
+
+function createOrSplice(task: ITaskState, target: HTMLInputElement, isEnterKey = false) {
+  if (isTaskAdding.value) return
+
+  TASK_STORE.createOrSplice(task, target)
+
+  if (isEnterKey) {
+    nextTick(() => {
+      TASK_STORE.addTaskToStore(task.categoryId) // nexttick to wait current new task is reinit itself ref
+    })
+  }
+}
+
+const getTaskIsCompleted = computed(() => {
+  return props.task.isCompleted
+})
+
+const isTaskAdding = computed(() => {
+  return TASK_STORE.isTaskAdding(props.task.id)
+})
+
+const isTaskCopying = computed(() => {
+  return TASK_STORE.isTaskCloning(props.task.id)
+})
+
+const isTaskArchiving = computed(() => {
+  return TASK_STORE.isTaskArchiving(props.task.id)
+})
 </script>
 
 <template>
   <div
-    class="flex flex-col rounded-md min-w-60 max-w-75 w-full shadow-gray-200 bg-white transition-all duration-100 overflow-hidden"
+    class="flex flex-col shrink-0 rounded-md min-w-60 max-w-75 w-full shadow-gray-200 bg-white transition-all duration-100 overflow-hidden"
     :class="{
       'border border-gray-200': hasBorder,
       'shadow-sm': !hasBorder,
@@ -89,7 +119,25 @@ function edit(task: any) {
     @click="edit(task)"
   >
     <div class="h-3 w-full" v-if="task.color" :style="{ backgroundColor: task.color }" />
-    <div class="flex flex-col gap-y-2 py-2 px-3 group/task relative">
+    <div class="flex gap-x-2 py-3 px-3 relative" v-if="task.isNew">
+      <div class="flex items-center" v-if="isTaskAdding">
+        <Spinner class="size-3.5 text-gray-600" />
+      </div>
+      <input
+        type="text"
+        class="text-gray-800 w-full text-sm border-none ring-0 p-0"
+        @blur="createOrSplice(task, $event.target as HTMLInputElement)"
+        @keydown.enter="createOrSplice(task, $event.target as HTMLInputElement, true)"
+        :disabled="isTaskAdding"
+        :ref="
+          (el: any) => {
+            $emit('connectInputEditRef', el)
+          }
+        "
+        placeholder="Название задачи"
+      />
+    </div>
+    <div class="flex flex-col gap-y-2 py-3 px-3 group/task relative" v-else>
       <!-- Info -->
       <div class="flex items-center gap-x-2" v-if="showInfo">
         <div class="flex items-center gap-x-1 text-gray-500">
@@ -120,7 +168,7 @@ function edit(task: any) {
                   class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
                   :checked="getTaskIsCompleted"
                   id="check-custom-style"
-                  @change="$emit('updateTask', { is_completed: !getTaskIsCompleted })"
+                  @change="$emit('updateTask', { id: task.id, isCompleted: !getTaskIsCompleted })"
                 />
                 <span
                   class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -145,7 +193,7 @@ function edit(task: any) {
           </div>
           <span
             class="text-sm overflow-hidden break-words"
-            :class="{ 'text-gray-300 decoration-1 line-through': task.is_completed }"
+            :class="{ 'text-gray-300 decoration-1 line-through': task.isCompleted }"
             >{{ task.name }}</span
           >
         </div>
@@ -182,7 +230,7 @@ function edit(task: any) {
         </div>
 
         <div
-          class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-1"
+          class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"
           :class="{
             'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto!':
               hasCopy || hasDelete,
@@ -190,21 +238,23 @@ function edit(task: any) {
         >
           <button
             type="button"
-            class="text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
             title="Копировать"
-            @click.stop=""
+            @click.stop="copyTask(task)"
             v-if="hasCopy"
           >
-            <Copy class="size-4" />
+            <Spinner v-if="isTaskCopying" class="size-4" />
+            <Copy v-else class="size-4" />
           </button>
           <button
             type="button"
-            class="text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-            title="Удалить"
+            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+            title="Архивировать"
             v-if="hasDelete"
-            @click.stop=""
+            @click.stop="archiveTask(task)"
           >
-            <Trash class="size-4" />
+            <Spinner v-if="isTaskArchiving" class="size-4" />
+            <Archive v-else class="size-4" />
           </button>
         </div>
       </div>
@@ -222,21 +272,23 @@ function edit(task: any) {
 
       <!-- Дата выполнения -->
       <div
-        v-if="task.due_date"
+        v-if="task.dueDate"
         class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm py-1 px-2"
         :class="{
           'bg-red-100 text-red-400':
-            getTimeStatus(task.due_date, task.is_completed) === TimeStatus.EXPIRED,
+            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.EXPIRED,
           'bg-yellow-100 text-yellow-500':
-            getTimeStatus(task.due_date, task.is_completed) === TimeStatus.EXPIRING,
+            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.EXPIRING,
           'bg-gray-100 text-gray-500':
-            getTimeStatus(task.due_date, task.is_completed) === TimeStatus.PROGRESS,
+            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.PROGRESS,
           'bg-green-100 text-green-500':
-            getTimeStatus(task.due_date, task.is_completed) === TimeStatus.COMPLETED,
+            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.COMPLETED,
         }"
       >
         <Clock class="size-4" />
-        <span v-if="task.due_date">{{ getTimeInReadableFormat(task.due_date) }}</span>
+        <span v-if="task.dueDate">{{
+          getTimeInReadableFormat(task.dueDate, task.dueHours, task.dueMinutes)
+        }}</span>
       </div>
 
       <slot />

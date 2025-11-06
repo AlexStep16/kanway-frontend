@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { EllipsisVertical, MoveHorizontal, Copy, Star, StarOff, Trash, Pen } from 'lucide-vue-next'
+import {
+  EllipsisVertical,
+  MoveHorizontal,
+  Copy,
+  Star,
+  StarOff,
+  Archive,
+  Pen,
+} from 'lucide-vue-next'
 import { HSDropdown } from 'preline'
 import { computed, onMounted, ref, toRefs } from 'vue'
 import WorkspaceModel from '@models/WorkspaceModel'
@@ -9,6 +17,7 @@ import Spinner from '@components/Loader/Spinner.vue'
 import { useGetters } from '@helpers/Options/useGetters'
 import { useActions } from '@helpers/Options/useActions'
 import TransferForm from './TransferForm.vue'
+import { Nullable } from '@/types/utils'
 
 const props = defineProps<{
   options: {
@@ -46,9 +55,9 @@ const { archiveItem, moveItem, cloneItem, makeFavorite } = useActions(
   closeDropdown,
 )
 
-const dropdown = ref<HTMLElement | null>(null)
-const dropdownMenu = ref<HTMLElement | null>(null)
-const dropdownInstance = ref<HSDropdown | null>(null)
+const dropdown = ref<Nullable<HTMLElement>>(null)
+const dropdownMenu = ref<Nullable<HTMLElement>>(null)
+const dropdownInstance = ref<Nullable<HSDropdown>>(null)
 const showEdit = ref(false)
 const showTransfer = ref(false)
 const hoverClass = computed(() => {
@@ -100,7 +109,7 @@ onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
 
   if (dropdown.value && dropdown.value instanceof HTMLElement) {
-    dropdownInstance.value = HSDropdown.getInstance(dropdown.value) as HSDropdown | null
+    dropdownInstance.value = HSDropdown.getInstance(dropdown.value) as Nullable<HSDropdown>
 
     if (dropdownInstance.value) {
       dropdownInstance.value.on('close', () => {
@@ -233,7 +242,7 @@ onMounted(() => {
               class="flex items-center gap-x-2 group-disabled:opacity-70"
               :class="{ 'opacity-0!': isItemArchiving }"
             >
-              <Trash class="size-4" />
+              <Archive class="size-4" />
 
               В архив
             </div>

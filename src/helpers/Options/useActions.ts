@@ -20,6 +20,11 @@ export function useActions(
       await BOARD_STORE.archiveBoard(item.value as BoardModel, WORKSPACE_STORE.getActiveWorkspaceId)
     } else if (edit_type.value === 'workspace') {
       await WORKSPACE_STORE.archiveWorkspace(item.value as WorkspaceModel)
+    } else if (edit_type.value === 'category') {
+      await CATEGORY_STORE.archiveCategory(
+        item.value as CategoryModel,
+        WORKSPACE_STORE.getActiveWorkspaceId,
+      )
     }
 
     closeDropdown()
@@ -30,6 +35,11 @@ export function useActions(
       await BOARD_STORE.cloneBoard(item.value as BoardModel)
     } else if (edit_type.value === 'workspace') {
       await WORKSPACE_STORE.cloneWorkspace(item.value as WorkspaceModel)
+    } else if (edit_type.value === 'category') {
+      await CATEGORY_STORE.cloneCategory(
+        item.value as CategoryModel,
+        WORKSPACE_STORE.getActiveWorkspaceId,
+      )
     }
 
     closeDropdown()

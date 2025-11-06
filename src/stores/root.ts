@@ -1,18 +1,16 @@
-import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 import { useWorkspaceDataStore } from './workspaceData'
 import WorkspaceModel from '@/models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useData } from 'vike-vue/useData'
+import { Nullable } from '@/types/utils'
 
 export const useRootStore = defineStore('root', () => {
-  const timezone = ref(dayjs.tz.guess())
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const BOARD_STORE = useBoardDataStore()
 
   async function updateWorkspaceFromRoute() {
-    let selectedWorkspace: WorkspaceModel | null = null
+    let selectedWorkspace: Nullable<WorkspaceModel> = null
     const params = useData<{ boardId: string; workspaceId: string }>()
     const workspaceId = params.workspaceId
     const boardId = params.boardId
@@ -76,9 +74,6 @@ export const useRootStore = defineStore('root', () => {
   function $reset() {}
 
   return {
-    // State
-    timezone,
-
     // Actions
     updateWorkspaceFromRoute,
     $reset,

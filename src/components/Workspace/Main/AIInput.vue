@@ -2,6 +2,7 @@
 import { Mic } from 'lucide-vue-next'
 import { HSTextareaAutoHeight } from 'preline'
 import { onMounted, ref } from 'vue'
+import { Nullable } from '@/types/utils'
 
 defineProps<{
   theme?: 'light' | 'dark'
@@ -10,7 +11,7 @@ defineProps<{
 }>()
 
 const waveScale = ref(1)
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const textareaRef = ref<Nullable<HTMLTextAreaElement>>(null)
 
 setInterval(() => {
   waveScale.value = 1 + Math.random() * 0.5

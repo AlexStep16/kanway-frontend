@@ -9,10 +9,11 @@ import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { toast } from 'vue-sonner'
 import { BoardValidationErrors } from '@interfaces/BoardValidationErrors'
 import type BoardModel from '@/models/BoardModel'
+import { Nullable } from '@/types/utils'
 
-const dropdown = ref<HTMLElement | null>(null)
-const dropdownMenu = ref<HTMLElement | null>(null)
-const dropdownInstance = ref<HSDropdown | null>(null)
+const dropdown = ref<Nullable<HTMLElement>>(null)
+const dropdownMenu = ref<Nullable<HTMLElement>>(null)
+const dropdownInstance = ref<Nullable<HSDropdown>>(null)
 
 const validationErrors = ref<BoardValidationErrors>({
   name: { isValid: true, errorMessage: '' },
@@ -149,7 +150,7 @@ onMounted(() => {
   }
 
   if (dropdown.value && dropdown.value instanceof HTMLElement) {
-    dropdownInstance.value = HSDropdown.getInstance(dropdown.value) as HSDropdown | null
+    dropdownInstance.value = HSDropdown.getInstance(dropdown.value) as Nullable<HSDropdown>
 
     if (dropdownInstance.value) {
       dropdownInstance.value.on('close', resetForm)

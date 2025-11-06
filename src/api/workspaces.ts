@@ -40,7 +40,7 @@ export async function archiveWorkspaceApi(workspaceId: string) {
 }
 
 export async function cloneWorkspaceApi(workspaceId: string) {
-  return await apiCall<IWorkspace>({
+  return await apiCall<IWorkspace[]>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/clone`,
   })

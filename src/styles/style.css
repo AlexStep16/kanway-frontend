@@ -27,3 +27,16 @@
 
 /* Defaults hover styles on all devices */
 @custom-variant hover (&:hover);
+
+.animation-grow {
+  animation: grow 0.3s ease-in-out forwards;
+}
+
+@keyframes grow {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

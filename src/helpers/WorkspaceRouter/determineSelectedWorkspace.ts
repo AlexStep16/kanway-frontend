@@ -1,13 +1,14 @@
 import { getParsedItemFromLocalStorage } from '@/utils/getParsedItemFromLocalStorage'
 import WorkspaceModel from '@/models/WorkspaceModel'
+import { Nullable } from '@/types/utils'
 
 export function determineSelectedWorkspace(
-  workspaceInWorkspaces: WorkspaceModel | null,
+  workspaceInWorkspaces: Nullable<WorkspaceModel>,
   workspacesPayload: WorkspaceModel[],
 ) {
-  const parsedWorkspace: WorkspaceModel | null =
+  const parsedWorkspace: Nullable<WorkspaceModel> =
     getParsedItemFromLocalStorage<WorkspaceModel>('selectedWorkspace')
-  let selectedWorkspace: WorkspaceModel | null = null
+  let selectedWorkspace: Nullable<WorkspaceModel> = null
 
   if (parsedWorkspace && !workspaceInWorkspaces) {
     selectedWorkspace =

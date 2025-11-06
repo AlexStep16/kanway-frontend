@@ -1,18 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useUIStore } from '@/stores/ui'
+import { Nullable } from '@/types/utils'
 
 interface Tip {
   title: string
   description: string
-  anchorElement: HTMLElement | null
+  anchorElement: Nullable<HTMLElement>
   buttonNextText: string
-  clonedAnchorElement?: HTMLElement | null
+  clonedAnchorElement?: Nullable<HTMLElement>
 }
 
 export const useTipsStore = defineStore('tips', () => {
   const tipsStack = ref<Tip[]>([])
-  const currentTip = ref<Tip | null>(null)
+  const currentTip = ref<Nullable<Tip>>(null)
 
   const UI_STORE = useUIStore()
 

@@ -2,6 +2,7 @@ import vikeVue from 'vike-vue/config'
 import type { Config } from 'vike/types'
 import UserModel from '@/models/UserModel'
 import { Pinia } from 'pinia'
+import { Nullable } from '@/types/utils'
 
 export default {
   ssr: false,
@@ -15,7 +16,7 @@ declare global {
   namespace Vike {
     interface PageContext {
       // Type of pageContext.user
-      user?: UserModel | null
+      user?: Nullable<UserModel>
       hasErrorFetchingUser?: boolean
       isSkipWorkspaceCheck?: boolean
       isHydration?: boolean

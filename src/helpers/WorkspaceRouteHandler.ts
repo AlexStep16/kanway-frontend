@@ -1,12 +1,13 @@
 import { redirect } from 'vike/abort'
 import BoardModel from '@/models/BoardModel'
 import WorkspaceModel from '@/models/WorkspaceModel'
+import { Nullable } from '@/types/utils'
 
 export class WorkspaceRouteHandler {
-  selectedBoard: BoardModel | null
-  selectedWorkspace: WorkspaceModel | null
+  selectedBoard: Nullable<BoardModel>
+  selectedWorkspace: Nullable<WorkspaceModel>
 
-  constructor(selectedBoard: BoardModel | null, selectedWorkspace: WorkspaceModel | null) {
+  constructor(selectedBoard: Nullable<BoardModel>, selectedWorkspace: Nullable<WorkspaceModel>) {
     this.selectedBoard = selectedBoard
     this.selectedWorkspace = selectedWorkspace
   }

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
+import { Nullable } from '@/types/utils'
 
 const AUTH_STORE = useAuthStore()
 
@@ -12,9 +13,9 @@ const password = ref('')
 const confirmPassword = ref('')
 
 const errors = ref<{
-  email: string | null
-  password: string | null
-  confirmPassword: string | null
+  email: Nullable<string>
+  password: Nullable<string>
+  confirmPassword: Nullable<string>
 }>({
   email: null,
   password: null,

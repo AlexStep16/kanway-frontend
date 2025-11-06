@@ -48,8 +48,8 @@ export async function archiveCategoryApi(categoryId: string, boardId: string, wo
 }
 
 export async function cloneCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
-  return await apiCall<ICategory>({
+  return await apiCall<ICategory[]>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/clone/${categoryId}`,
+    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/clone`,
   })
 }

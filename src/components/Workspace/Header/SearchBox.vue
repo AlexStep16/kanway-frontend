@@ -3,6 +3,7 @@ import { HSComboBox, ICollectionItem } from 'preline'
 import { onMounted, ref } from 'vue'
 import { useUIStore } from '@/stores/ui'
 import Tabs from '@/enums/TabsEnum'
+import { Nullable } from '@/types/utils'
 
 const props = defineProps<{
   isAlwaysVisible?: boolean
@@ -14,7 +15,7 @@ const emit = defineEmits<{
 
 const UI_STORE = useUIStore()
 
-const searchBoxRef = ref<HTMLElement | null>(null)
+const searchBoxRef = ref<Nullable<HTMLElement>>(null)
 const preventAutofill = ref(true)
 const dataHsComboBox = ref({
   groupingType: 'default',

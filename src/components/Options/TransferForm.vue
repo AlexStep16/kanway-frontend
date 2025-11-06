@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BoardModel from '@models/BoardModel'
 import WorkspaceModel from '@models/WorkspaceModel'
-import { Trash, ChevronLeft } from 'lucide-vue-next'
+import { Archive, ChevronLeft } from 'lucide-vue-next'
 import Spinner from '@components/Loader/Spinner.vue'
 
 defineProps<{
@@ -52,7 +52,7 @@ function closeTransfer() {
           class="flex items-center gap-x-2 group-disabled:opacity-70"
           :class="{ 'opacity-0!': isItemMoving }"
         >
-          <Trash class="size-4" />
+          <Archive class="size-4" />
 
           {{ item.name }}
         </div>

@@ -3,14 +3,16 @@ import BoardModel from '@/models/BoardModel'
 import WorkspaceModel from '@/models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { PageContextClient } from 'vike/types'
+import { Nullable } from '@/types/utils'
 
 export async function determineSelectedBoard(
   pageContext: PageContextClient,
-  selectedWorkspace: WorkspaceModel | null,
+  selectedWorkspace: Nullable<WorkspaceModel>,
   params: Record<string, string>,
 ) {
-  const parsedBoard: BoardModel | null = getParsedItemFromLocalStorage<BoardModel>('selectedBoard')
-  let selectedBoard: BoardModel | null = null
+  const parsedBoard: Nullable<BoardModel> =
+    getParsedItemFromLocalStorage<BoardModel>('selectedBoard')
+  let selectedBoard: Nullable<BoardModel> = null
 
   if (selectedWorkspace && typeof selectedWorkspace === 'object') {
     const BOARD_STORE = useBoardDataStore(pageContext.pinia)

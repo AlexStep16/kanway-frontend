@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import Sidebar from '@components/Workspace/Sidebar/Sidebar.vue'
-import Edit from '@components/Workspace/Main/Task/Edit.vue'
+import Edit from '@/components/Workspace/Main/Task/Edit/Edit.vue'
 import Board from '@components/Workspace/Main/Board.vue'
 import Archive from '@components/Workspace/Main/Archive/Archive.vue'
 import Start from '@components/Workspace/Main/Start.vue'
 import { useUIStore } from '@/stores/ui'
-import { useTaskStore } from '@/stores/task'
+import { useTaskDataStore } from '@/stores/taskData'
 import { HSOverlay } from 'preline/dist'
 import Settings from '@components/Workspace/Settings/Settings.vue'
 import Chat from '@components/Workspace/Main/Chat/Chat.vue'
@@ -16,7 +16,7 @@ import Tabs from '@/enums/TabsEnum'
 import { useRootStore } from '@stores/root'
 
 const UI_STORE = useUIStore()
-const TASK_STORE = useTaskStore()
+const TASK_STORE = useTaskDataStore()
 const ROOT_STORE = useRootStore()
 
 function initEditTaskModal() {

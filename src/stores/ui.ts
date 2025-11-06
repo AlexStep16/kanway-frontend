@@ -3,16 +3,17 @@ import type { HSOverlay } from 'preline'
 
 import { ref } from 'vue'
 import Tabs from '@/enums/TabsEnum'
+import { Nullable } from '@/types/utils'
 
 export const useUIStore = defineStore('ui', () => {
-  const editTaskModalRef = ref<HTMLElement | null>(null)
-  const editTaskModalHSInstance = ref<HSOverlay | null>(null)
-  const createBoardButtonRef = ref<HTMLElement | null>(null)
-  const settingsModalRef = ref<HTMLElement | null>(null)
-  const settingsModalHSInstance = ref<HSOverlay | null>(null)
-  const chatModalRef = ref<HTMLElement | null>(null)
-  const chatModalHSInstance = ref<HSOverlay | null>(null)
-  const tipRef = ref<HTMLElement | null>(null)
+  const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
+  const editTaskModalHSInstance = ref<Nullable<HSOverlay>>(null)
+  const createBoardButtonRef = ref<Nullable<HTMLElement>>(null)
+  const settingsModalRef = ref<Nullable<HTMLElement>>(null)
+  const settingsModalHSInstance = ref<Nullable<HSOverlay>>(null)
+  const chatModalRef = ref<Nullable<HTMLElement>>(null)
+  const chatModalHSInstance = ref<Nullable<HSOverlay>>(null)
+  const tipRef = ref<Nullable<HTMLElement>>(null)
 
   const currentTab = ref<Tabs>(Tabs.Board)
 

@@ -1,21 +1,7 @@
-interface User {
-  id: string
-  username?: string
-  email: string
-  role: string
-  hasAvatar: boolean
-  subscription: string
-  subscriptionUntil?: Date
-  generationsBalance: number
-  avatarColor: string
-  isTipsCompleted?: boolean
-  paymentMethodId?: string
-  yaId?: string | null
-  createdAt: Date
-  updatedAt: Date
-}
+import { Nullable } from '@/types/utils'
+import { IUser } from '@/interfaces/domain/IUser'
 
-export default class UserModel {
+export default class UserModel implements IUser {
   public id: string
   public username?: string
   public email: string
@@ -27,11 +13,11 @@ export default class UserModel {
   public avatarColor: string
   public isTipsCompleted?: boolean
   public paymentMethodId?: string
-  public yaId?: string | null
+  public yaId?: Nullable<string>
   public createdAt: Date
   public updatedAt: Date
 
-  constructor(props: User) {
+  constructor(props: IUser) {
     this.id = props.id
     this.username = props.username
     this.email = props.email
@@ -44,13 +30,7 @@ export default class UserModel {
     this.yaId = props.yaId
     this.createdAt = props.createdAt
     this.updatedAt = props.updatedAt
-
-    if (props.subscriptionUntil) {
-      this.subscriptionUntil = props.subscriptionUntil
-    }
-
-    if (props.isTipsCompleted) {
-      this.isTipsCompleted = props.isTipsCompleted
-    }
+    this.subscriptionUntil = props.subscriptionUntil
+    this.isTipsCompleted = props.isTipsCompleted
   }
 }

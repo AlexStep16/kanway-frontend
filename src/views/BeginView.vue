@@ -6,6 +6,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { HSAccordion } from 'preline'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { AvailableColors } from '@enums/AvailableColors'
+import { Nullable } from '@/types/utils'
 
 enum Tab {
   WORKSPACE = 0,
@@ -13,13 +14,13 @@ enum Tab {
   AVATAR = 2,
 }
 
-const colorsAccordion = ref<HTMLElement | null>(null)
-const colorsAccordionInstance = ref<HSAccordion | null>(null)
+const colorsAccordion = ref<Nullable<HTMLElement>>(null)
+const colorsAccordionInstance = ref<Nullable<HSAccordion>>(null)
 const workspaceName = ref('')
 const workspaceColor = ref(AvailableColors.BLUE)
 const currentTab = ref(Tab.WORKSPACE)
-const progressLabelRef = ref<HTMLElement | null>(null)
-const progressBarRef = ref<HTMLElement | null>(null)
+const progressLabelRef = ref<Nullable<HTMLElement>>(null)
+const progressBarRef = ref<Nullable<HTMLElement>>(null)
 
 function workspaceNameInputHandler() {
   if (colorsAccordionInstance.value) {

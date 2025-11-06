@@ -3,8 +3,9 @@ import { defineProps, ref } from 'vue'
 import Options from '@/components/Options/Options.vue'
 import WorkspaceModel from '@/models/WorkspaceModel'
 import BoardModel from '@/models/BoardModel'
+import { Nullable } from '@/types/utils'
 
-const optionsRef = ref<InstanceType<typeof Options> | null>(null)
+const optionsRef = ref<Nullable<InstanceType<typeof Options>>>(null)
 
 defineProps<{
   item: WorkspaceModel | BoardModel

@@ -7,7 +7,7 @@ import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vu
 
 import Tabs from '@/enums/TabsEnum'
 import { computed, onMounted, ref } from 'vue'
-import { Trash } from 'lucide-vue-next'
+import { Archive } from 'lucide-vue-next'
 
 const numCols = ref(3)
 
@@ -79,7 +79,7 @@ onMounted(() => {
 
   <div class="size-full py-3 flex items-center justify-center gap-5 overflow-y-auto" v-if="false">
     <div class="flex flex-col items-center gap-y-2">
-      <div class="text-gray-500"><Trash class="size-10" /></div>
+      <div class="text-gray-500"><Archive class="size-10" /></div>
       <div class="text-lg text-gray-500 font-medium">Архив пуст</div>
       <div class="text-sm text-gray-400 max-w-xs text-center">
         Здесь будут храниться все архивированные задачи, категории, доски и пространства.

@@ -1,3 +1,5 @@
+import { Nullable } from '@/types/utils'
+
 export interface BackendErrorPayload {
   code: number
   description: string
@@ -19,10 +21,10 @@ export class BackendError extends Error {
 }
 
 export class HttpError extends Error {
-  public status: number | null
+  public status: Nullable<number>
   public isNetworkError: boolean = false
 
-  constructor(message: string, status: number | null = null, isNetworkError: boolean = false) {
+  constructor(message: string, status: Nullable<number> = null, isNetworkError: boolean = false) {
     super(message)
     this.name = 'HttpError'
     this.status = status

@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse, AxiosRequestConfig } from 'axios'
-import type ApiResponse from '@/interfaces/ApiResponse' // Предполагаем, что этот интерфейс содержит {success, result, error}
-import { HttpError, BackendError } from '@utils/errors' // Импортируем наши новые ошибки
+import type ApiResponse from '@/interfaces/ApiResponse'
+import { HttpError, BackendError } from '@utils/errors'
 import { ErrorsMessage } from './enums/ErrorsMessage'
+import { Nullable } from '@/types/utils'
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_BASE_URL,
@@ -23,7 +24,7 @@ axiosClient.interceptors.response.use(
     }
 
     let message = ErrorsMessage.SERVER_ERROR
-    let status: number | null = null
+    let status: Nullable<number> = null
     let isNetworkError = false
 
     if (error.response) {

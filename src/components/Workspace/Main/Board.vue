@@ -3,14 +3,29 @@ import Header from '@components/Workspace/Header/Header.vue'
 import Category from '@components/Workspace/Main/Category/Category.vue'
 import AIInput from '@components/Workspace/Main/AIInput.vue'
 import { useCategoryDataStore } from '@stores/categoryData'
+import { useBoardDataStore } from '@stores/boardData'
 
 import { Plus } from 'lucide-vue-next'
+import { nextTick, ref } from 'vue'
 
 const CATEGORY_STORE = useCategoryDataStore()
+const BOARD_STORE = useBoardDataStore()
+
+const newCategoryInputElement = ref<HTMLInputElement | null>(null)
 
 function updateTask(task: any, category: any) {
   const taskToUpdate = category.tasks.find((t: any) => t.id === task.id)
   if (taskToUpdate) Object.assign(taskToUpdate, task)
+}
+
+function connectInputEditRef(el: HTMLInputElement) {
+  newCategoryInputElement.value = el
+
+  nextTick(() => {
+    if (newCategoryInputElement.value) {
+      newCategoryInputElement.value.focus()
+    }
+  })
 }
 </script>
 
@@ -26,6 +41,7 @@ function updateTask(task: any, category: any) {
       :key="category.id"
       :category="category"
       @update-task="updateTask"
+      @connectInputEditRef="connectInputEditRef"
     />
 
     <div class="h-full flex items-center">
@@ -33,6 +49,7 @@ function updateTask(task: any, category: any) {
         type="button"
         class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
         title="Добавить категорию"
+        @click="CATEGORY_STORE.addCategoryToStore(BOARD_STORE.getActiveBoardId)"
       >
         <Plus class="size-6" />
       </button>

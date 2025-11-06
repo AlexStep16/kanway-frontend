@@ -43,7 +43,7 @@ export async function archiveBoardApi(boardId: string, workspaceId: string) {
 }
 
 export async function cloneBoardApi(boardId: string, workspaceId: string) {
-  return await apiCall<IBoard>({
+  return await apiCall<IBoard[]>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/boards/${boardId}/clone`,
   })

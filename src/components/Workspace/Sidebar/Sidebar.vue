@@ -6,7 +6,7 @@ import {
   Star,
   Settings,
   SquareKanban,
-  Trash,
+  Archive,
   LogOut,
   MessageCircleQuestionMark,
   Gem,
@@ -28,6 +28,7 @@ import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.
 import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
 import BoardsSkeleton from './BoardsSkeleton.vue'
 import NumberBadgeSkeleton from '@/components/Badges/NumberBadgeSkeleton.vue'
+import { Nullable } from '@/types/utils'
 
 const UI_STORE = useUIStore()
 const TIPS_STORE = useTipsStore()
@@ -38,11 +39,11 @@ if (window.innerWidth < 1280) {
   UI_STORE.isSidebarOpen = false
 }
 
-const workspaceDropdown = ref<HTMLElement | null>(null)
-const workspaceDropdownInstance = ref<HSDropdown | null>(null)
+const workspaceDropdown = ref<Nullable<HTMLElement>>(null)
+const workspaceDropdownInstance = ref<Nullable<HSDropdown>>(null)
 
-const workspaceEditWrapperRef = ref<InstanceType<typeof WorkspaceEditWrapper> | null>(null)
-const boardEditWrapperRef = ref<InstanceType<typeof BoardEditWrapper> | null>(null)
+const workspaceEditWrapperRef = ref<Nullable<InstanceType<typeof WorkspaceEditWrapper>>>(null)
+const boardEditWrapperRef = ref<Nullable<InstanceType<typeof BoardEditWrapper>>>(null)
 
 const getBoardCreateModalWidth = () => {
   if (UI_STORE.createBoardButtonRef) {
@@ -74,7 +75,7 @@ onMounted(() => {
   if (workspaceDropdown.value && workspaceDropdown.value instanceof HTMLElement) {
     workspaceDropdownInstance.value = HSDropdown.getInstance(
       workspaceDropdown.value,
-    ) as HSDropdown | null
+    ) as Nullable<HSDropdown>
 
     if (workspaceDropdownInstance.value) {
       document.addEventListener('click', (e: any) => {
@@ -512,7 +513,7 @@ onMounted(() => {
                 type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
               >
-                <Trash class="size-4" />
+                <Archive class="size-4" />
 
                 Архив
               </button>

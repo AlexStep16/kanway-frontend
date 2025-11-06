@@ -6,6 +6,7 @@ import { determineSelectedWorkspace } from '@helpers/WorkspaceRouter/determineSe
 import BoardModel from '@/models/BoardModel'
 import { determineSelectedBoard } from '@helpers/WorkspaceRouter/determineSelectedBoard'
 import { useWorkspaceDataStore } from '@/stores/workspaceData'
+import { Nullable } from '@/types/utils'
 
 export async function redirectToWorkspace(pageContext: PageContextClient) {
   try {
@@ -30,11 +31,11 @@ export async function redirectToWorkspace(pageContext: PageContextClient) {
         ) ?? null)
       : null
 
-    const selectedWorkspace: WorkspaceModel | null = determineSelectedWorkspace(
+    const selectedWorkspace: Nullable<WorkspaceModel> = determineSelectedWorkspace(
       workspaceInWorkspaces,
       workspacesPayload,
     )
-    const selectedBoard: BoardModel | null = await determineSelectedBoard(
+    const selectedBoard: Nullable<BoardModel> = await determineSelectedBoard(
       pageContext,
       selectedWorkspace,
       params,

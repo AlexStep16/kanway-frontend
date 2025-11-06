@@ -3,28 +3,27 @@ import { SquarePen, SquareKanban } from 'lucide-vue-next'
 import { useBoardDataStore } from '@/stores/boardData'
 import { computed, nextTick, ref } from 'vue'
 import Spinner from '@/components/Loader/Spinner.vue'
+import { Nullable } from '@/types/utils'
 
 const isInputVisible = ref(false)
-const inputRef = ref<HTMLInputElement | null>(null)
+const inputRef = ref<Nullable<HTMLInputElement>>(null)
 
-function toggleInputVisibility() {
-  isInputVisible.value = !isInputVisible.value
+function showInput() {
+  isInputVisible.value = true
 
   nextTick(() => {
-    if (isInputVisible.value && inputRef.value) {
+    if (inputRef.value) {
       inputRef.value.focus()
     }
   })
 }
 
-function updateBoardName(event: FocusEvent) {
+function updateBoardName(event: Event) {
   const target = event.target as HTMLInputElement
   const newName = target.value.trim()
 
   if (newName && BOARD_STORE.activeBoard) {
     BOARD_STORE.updateBoard({ ...BOARD_STORE.activeBoard, name: newName })
-
-    BOARD_STORE.activeBoard.name = newName
   }
 
   isInputVisible.value = false
@@ -45,7 +44,7 @@ const BOARD_STORE = useBoardDataStore()
   <div class="flex gap-x-1 items-center min-w-0 text-gray-800 focus:outline-hidden">
     <div class="shrink-0">
       <div
-        v-if="BOARD_STORE.isBoardEditing(getBoardId)"
+        v-if="BOARD_STORE.isBoardProcessing(getBoardId)"
         class="size-5 flex items-center justify-center"
       >
         <Spinner class="size-4 text-gray-500" />
@@ -55,8 +54,8 @@ const BOARD_STORE = useBoardDataStore()
 
     <button
       type="button"
-      class="flex gap-x-2 h-9 items-center text-lg font-semibold rounded-sm text-gray-800 px-1 hover:bg-gray-100 transition-colors duration-100 group"
-      @click="toggleInputVisibility"
+      class="flex gap-x-2 h-9 items-center text-lg font-semibold rounded-sm text-gray-800 px-2 hover:bg-gray-100 transition-colors duration-100 group"
+      @click="showInput"
       v-show="!isInputVisible"
     >
       {{ getName }}
@@ -68,9 +67,9 @@ const BOARD_STORE = useBoardDataStore()
     <input
       type="text"
       class="text-lg h-9 rounded-sm font-semibold px-2 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-2 focus:bg-gray-100 hover:bg-gray-100 transition-colors duration-100"
-      :class="{ hidden: !isInputVisible }"
       :value="getName"
-      @blur="updateBoardName"
+      @change="updateBoardName"
+      @blur="isInputVisible = false"
       v-autowidth
       ref="inputRef"
       v-show="isInputVisible"

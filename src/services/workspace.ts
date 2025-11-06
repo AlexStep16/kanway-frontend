@@ -48,5 +48,5 @@ export async function archiveWorkspace(workspaceId: string) {
 export async function cloneWorkspace(workspaceId: string) {
   const cloneResult = await cloneWorkspaceApi(workspaceId)
 
-  return transformWorkspace(cloneResult)
+  return cloneResult.map(transformWorkspace)
 }

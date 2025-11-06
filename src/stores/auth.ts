@@ -5,13 +5,14 @@ import { ref } from 'vue'
 import LoginCredentials from '@interfaces/LoginCredentials'
 import { BackendError, HttpError } from '@/utils/errors'
 import { ErrorsMessage } from '@enums/ErrorsMessage'
+import { Nullable } from '@/types/utils'
 
 // Объединяем типы ошибок для простоты хранения в state
-type AuthErrorType = BackendError | HttpError | null
+type AuthErrorType = Nullable<BackendError | HttpError>
 
 export const useAuthStore = (pinia?: Pinia) => {
   return defineStore('auth', () => {
-    const user = ref<UserModel | null>(null)
+    const user = ref<Nullable<UserModel>>(null)
     const loginError = ref<AuthErrorType>(null)
     const registerError = ref<AuthErrorType>(null)
 

@@ -14,16 +14,19 @@ import { ErrorsMessage } from '@enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useCategoryDataStore } from '@stores/categoryData'
+import { useTaskDataStore } from '@stores/taskData'
+import { Nullable } from '@/types/utils'
 
-type BoardErrorType = BackendError | HttpError | null
+type BoardErrorType = Nullable<BackendError | HttpError>
 
 export const useBoardDataStore = (pinia?: Pinia) => {
   return defineStore('boardData', () => {
     const boards = ref<Array<BoardModel>>([])
-    const activeBoard = ref<BoardModel | null>(null)
+    const activeBoard = ref<Nullable<BoardModel>>(null)
 
     const WORKSPACE_STORE = useWorkspaceDataStore()
     const CATEGORY_STORE = useCategoryDataStore()
+    const TASK_STORE = useTaskDataStore()
 
     // Errors
     const loadBoardsError = ref<BoardErrorType>(null)
@@ -57,7 +60,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
         const boardsPayload = await fetchBoards(workspaceId)
 
         boards.value = boards.value.filter((b) => b.workspaceId !== workspaceId) // Remove old boards of this workspace
+
         boards.value.push(...boardsPayload)
+
         _loadedWorkspaces.value.add(workspaceId)
 
         return true
@@ -102,14 +107,16 @@ export const useBoardDataStore = (pinia?: Pinia) => {
         !CATEGORY_STORE.areCategoriesLoading(newBoard.id)
       ) {
         await CATEGORY_STORE.loadCategories(newBoard.id, newBoard.workspaceId)
+        await TASK_STORE.loadTasks(newBoard.id, newBoard.workspaceId)
       }
     }
 
     async function _addBoardToWorkspace(
       payload: Partial<BoardModel>,
-      workspaceId: string | null,
+      workspaceId: Nullable<string>,
     ): Promise<BoardModel | false> {
       if (!workspaceId || !payload) return false
+      if (_isAddingBoard.value) throw new Error('Доска уже добавляется')
 
       _addBoardError.value = null
 
@@ -176,6 +183,8 @@ export const useBoardDataStore = (pinia?: Pinia) => {
           if (activeBoard.value?.id === newBoard.id && oldWorkspaceId !== newBoard.workspaceId) {
             selectBoard(getActiveWorkspaceBoards.value[0], true)
           }
+        } else {
+          boards.value.push(newBoard)
         }
       }
     }
@@ -184,6 +193,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       payload: Partial<BoardModel> & { id: string; workspaceId: string },
     ): Promise<BoardModel> {
       if (!payload) throw new Error('Нет данных для обновления доски')
+      if (isBoardProcessing(payload.id)) throw new Error('Доска уже обрабатывается')
 
       _editBoardsError.value.delete(payload.id)
 
@@ -228,8 +238,6 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       try {
         const result = await _updateBoard(payload)
 
-        toast.success('Доска успешно обновлена')
-
         return result
       } catch {
         toast.error(
@@ -242,6 +250,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     async function _deleteBoard(board: BoardModel, workspaceId: string): Promise<void> {
       if (!board) throw new Error('Нет доски для удаления')
+      if (isBoardProcessing(board.id)) throw new Error('Доска уже обрабатывается')
 
       _deleteBoardsError.value.delete(board.id)
 
@@ -295,6 +304,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     async function _archiveBoard(board: BoardModel, workspaceId: string): Promise<BoardModel> {
       if (!board) throw new Error('Нет доски для архивирования')
+      if (isBoardProcessing(board.id)) throw new Error('Доска уже обрабатывается')
 
       _archiveBoardsError.value.delete(board.id)
 
@@ -361,17 +371,20 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     async function _cloneBoard(board: BoardModel): Promise<BoardModel> {
       if (!board) throw new Error('Нет доски для копирования')
+      if (isBoardProcessing(board.id)) throw new Error('Доска уже обрабатывается')
 
       _cloneBoardsError.value.delete(board.id)
 
       try {
         _cloningBoards.value.add(board.id)
 
-        const newBoard: BoardModel = await cloneBoardService(board.id, board.workspaceId)
+        const newBoards = await cloneBoardService(board.id, board.workspaceId)
 
-        boards.value.push(newBoard)
+        if (!newBoards[0]) throw new Error('Сервер не вернул новую доску')
 
-        return newBoard
+        _updateBoardsInStore(newBoards)
+
+        return newBoards[0]
       } catch (e) {
         if (e instanceof BackendError) {
           _cloneBoardsError.value.set(board.id, e)
@@ -461,7 +474,11 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       const board = boards.value.find((b) => b.id === payload.id)
       if (!board) return false
 
-      return board.name !== payload.name || board.workspaceId !== payload.workspaceId
+      if (payload.name !== undefined && board.name !== payload.name) return true
+      if (payload.workspaceId !== undefined && board.workspaceId !== payload.workspaceId)
+        return true
+
+      return false
     }
 
     const isAddingBoard = computed((): boolean => {
@@ -521,6 +538,12 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       return getActiveWorkspaceBoards.value.filter((board) => board.isFavorite)
     })
 
+    function getBoardById(boardId: string): Nullable<BoardModel> {
+      const board = boards.value.find((b) => b.id === boardId)
+
+      return board || null
+    }
+
     function getOtherBoards(boardId: string): BoardModel[] {
       return boards.value
         .filter((board) => board.id !== boardId)
@@ -561,6 +584,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       cloneBoard,
       moveBoard,
       makeFavorite,
+      getBoardById,
 
       $reset,
     }

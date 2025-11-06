@@ -50,5 +50,5 @@ export async function archiveBoard(boardId: string, workspaceId: string) {
 export async function cloneBoard(boardId: string, workspaceId: string) {
   const cloneResult = await cloneBoardApi(boardId, workspaceId)
 
-  return transformBoard(cloneResult)
+  return cloneResult.map(transformBoard)
 }

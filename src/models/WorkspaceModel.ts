@@ -1,34 +1,27 @@
-interface Workspace {
-  id: string
-  name: string
-  userId: string
-  order: number
-  isDeleted: boolean
-  isFavorite: boolean
-  color: string
-  createdAt: Date
-  updatedAt: Date
-}
+import { AvailableColors } from '@/enums/AvailableColors'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 
-export default class WorkspaceModel {
+export default class WorkspaceModel implements IWorkspace {
   public id: string
   public name: string
   public userId: string
-  public order: number
-  public isDeleted: boolean
   public isFavorite: boolean
-  public color: string
+  public order: number
+  public color: typeof AvailableColors
+  public isDeleted: boolean
+  public deletedTime?: Date
   public createdAt: Date
   public updatedAt: Date
 
-  constructor(props: Workspace) {
+  constructor(props: IWorkspace) {
     this.id = props.id
     this.name = props.name
     this.userId = props.userId
-    this.order = props.order
-    this.isDeleted = props.isDeleted
     this.isFavorite = props.isFavorite
+    this.order = props.order
     this.color = props.color
+    this.isDeleted = props.isDeleted
+    this.deletedTime = props.deletedTime
     this.createdAt = props.createdAt
     this.updatedAt = props.updatedAt
   }
