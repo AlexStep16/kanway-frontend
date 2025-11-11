@@ -6,6 +6,8 @@ import VueTheMask from 'vue-the-mask'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import isoWeek from 'dayjs/plugin/isoWeek'
+import isBetween from 'dayjs/plugin/isBetween'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -33,6 +35,8 @@ function onCreateApp(pageContext: PageContext) {
   dayjs.locale('ru')
   dayjs.extend(customParseFormat)
   dayjs.extend(utc)
+  dayjs.extend(isoWeek)
+  dayjs.extend(isBetween)
   dayjs.extend(timezone)
   dayjs.extend(relativeTime)
   dayjs.extend(calendar)

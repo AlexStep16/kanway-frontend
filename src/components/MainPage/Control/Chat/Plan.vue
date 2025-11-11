@@ -42,7 +42,6 @@ onMounted(() => {
               :task="task"
               :hasBorder="true"
               :hasCheckbox="true"
-              :isEditable="true"
               :showInfo="true"
               taskClasses="self-start"
             ></Task>

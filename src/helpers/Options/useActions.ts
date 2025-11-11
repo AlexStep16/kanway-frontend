@@ -50,7 +50,7 @@ export function useActions(
       await BOARD_STORE.moveBoard(item.value as BoardModel, newItemId)
     } else if (edit_type.value === 'category') {
       await CATEGORY_STORE.moveCategory(
-        item.value as CategoryModel,
+        item.value.id,
         newItemId,
         WORKSPACE_STORE.getActiveWorkspaceId,
       )

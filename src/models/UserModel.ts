@@ -1,5 +1,5 @@
 import { Nullable } from '@/types/utils'
-import { IUser } from '@/interfaces/domain/IUser'
+import { IUser } from '@interfaces/domain/IUser'
 
 export default class UserModel implements IUser {
   public id: string

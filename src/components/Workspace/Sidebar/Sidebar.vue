@@ -512,6 +512,7 @@ onMounted(() => {
               <button
                 type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
+                @click="UI_STORE.selectArchive"
               >
                 <Archive class="size-4" />
 

@@ -4,12 +4,44 @@ import Category from '@components/Workspace/Main/Category/Category.vue'
 import AIInput from '@components/Workspace/Main/AIInput.vue'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useBoardDataStore } from '@stores/boardData'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
+import draggable from 'vuedraggable'
 
 import { Plus } from 'lucide-vue-next'
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { ICategoryState } from '@stores/interfaces/ICategoryState'
+import _ from 'lodash'
 
 const CATEGORY_STORE = useCategoryDataStore()
 const BOARD_STORE = useBoardDataStore()
+const WORKSPACE_STORE = useWorkspaceDataStore()
+
+const boardCategories = computed(() => CATEGORY_STORE.getActiveBoardCategories)
+
+const localCategoryList = ref()
+
+watch(
+  boardCategories,
+  (newList) => {
+    localCategoryList.value = _.cloneDeep(newList)
+  },
+  { deep: true, immediate: true },
+)
+
+function sortCategories() {
+  localCategoryList.value.forEach((category: ICategoryState, index: number) => {
+    category.order = index + 1
+  })
+
+  CATEGORY_STORE.updateCategories(
+    localCategoryList.value,
+    WORKSPACE_STORE.getActiveWorkspaceId,
+    BOARD_STORE.getActiveBoardId,
+    true,
+    false,
+    false,
+  )
+}
 
 const newCategoryInputElement = ref<HTMLInputElement | null>(null)
 
@@ -35,14 +67,32 @@ function connectInputEditRef(el: HTMLInputElement) {
   <div
     class="size-full py-1.5 flex gap-3 overflow-y-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
   >
-    <!-- Categories -->
-    <Category
-      v-for="category in CATEGORY_STORE.getActiveBoardCategories"
-      :key="category.id"
-      :category="category"
-      @update-task="updateTask"
-      @connectInputEditRef="connectInputEditRef"
-    />
+    <draggable
+      @change="sortCategories"
+      :list="localCategoryList"
+      :delay="300"
+      class="flex gap-x-3"
+      itemKey="id"
+      :delayOnTouchOnly="true"
+      group="categories"
+      :animation="150"
+      ghostClass="ghost-class"
+      chosenClass="chosen-class"
+      dragClass="drag-class"
+      filter=".undraggable"
+      :forceFallback="true"
+      :fallbackTolerance="2"
+      :prevent-on-filter="false"
+    >
+      <template #item="{ element }">
+        <Category
+          :key="element.id"
+          :category="element"
+          @update-task="updateTask"
+          @connectInputEditRef="connectInputEditRef"
+        />
+      </template>
+    </draggable>
 
     <div class="h-full flex items-center">
       <button
@@ -58,3 +108,16 @@ function connectInputEditRef(el: HTMLInputElement) {
 
   <AIInput />
 </template>
+
+<style scoped>
+.ghost-class {
+  opacity: 0;
+}
+
+.drag-class {
+  transform: scale(1.04);
+  opacity: 1 !important;
+  cursor: grabbing;
+  z-index: 9999;
+}
+</style>

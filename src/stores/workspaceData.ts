@@ -14,6 +14,8 @@ import { ErrorsMessage } from '@enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
 import { useBoardDataStore } from '@stores/boardData'
 import { Nullable } from '@/types/utils'
+import _ from 'lodash'
+import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 
 type WorkspaceErrorType = Nullable<BackendError | HttpError>
 
@@ -97,8 +99,10 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       }
     }
 
-    async function _addWorkspace(workspace: Partial<WorkspaceModel>): Promise<WorkspaceModel> {
-      if (!workspace) throw new Error('Необходимо указать пространство')
+    async function _addWorkspace(
+      workspace: Partial<WorkspaceModel>,
+    ): Promise<WorkspaceModel | false> {
+      if (!workspace) return false
       if (isAddingWorkspace.value) throw new Error('Пространство уже добавляется')
 
       _addWorkspaceError.value = null
@@ -108,15 +112,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
         const newWorkspaces: WorkspaceModel[] = await createWorkspace({ ...workspace })
 
-        for (const newWorkspace of newWorkspaces) {
-          const existingWorkspace = workspaces.value.find((w) => w.id === newWorkspace.id)
-
-          if (!existingWorkspace) {
-            workspaces.value.push(newWorkspace)
-          } else {
-            Object.assign(existingWorkspace, newWorkspace)
-          }
-        }
+        if (!newWorkspaces[0]) return false
 
         return newWorkspaces[0]
       } catch (e) {
@@ -143,6 +139,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         const newWorkspace = await _addWorkspace(workspace)
 
+        if (newWorkspace) _updateWorkspacesInStore([newWorkspace])
+
         toast.success('Пространство успешно создано')
 
         return newWorkspace
@@ -153,14 +151,14 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       }
     }
 
-    function _updateWorkspacesInStore(newWorkspaces: WorkspaceModel[]) {
+    function _updateWorkspacesInStore(newWorkspaces: ISingleUpdate<WorkspaceModel>[]) {
       for (const newWorkspace of newWorkspaces) {
         const workspace = workspaces.value.find((w) => w.id === newWorkspace.id)
 
         if (workspace) {
           Object.assign(workspace, newWorkspace)
         } else {
-          workspaces.value.push(newWorkspace)
+          workspaces.value.push(newWorkspace as WorkspaceModel)
         }
       }
     }
@@ -169,7 +167,6 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       payload: Partial<WorkspaceModel> & { id: string },
     ): Promise<WorkspaceModel> {
       if (!payload) throw new Error('Необходимо указать пространство')
-      if (isWorkspaceProcessing(payload.id)) throw new Error('Пространство уже обрабатывается')
 
       _editWorkspacesError.value.delete(payload.id)
 
@@ -181,8 +178,6 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         const newWorkspace = editResult.find((w) => w.id === payload.id)
 
         if (!newWorkspace) throw new Error('Не удалось найти отредактированное пространство')
-
-        _updateWorkspacesInStore(editResult)
 
         return newWorkspace
       } catch (e) {
@@ -207,15 +202,27 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
     }
 
     async function updateWorkspace(
-      payload: Partial<WorkspaceModel> & { id: string },
+      payload: ISingleUpdate<Partial<WorkspaceModel>>,
+      isOptimisticUpdate: boolean = false,
     ): Promise<WorkspaceModel | false> {
       if (!isWorkspaceChanged(payload)) return false
+      const savedWorkspace = _.cloneDeep(workspaces.value.find((w) => w.id === payload.id))
 
       try {
+        if (isOptimisticUpdate && savedWorkspace) {
+          _updateWorkspacesInStore([payload])
+        }
+
         const updatedWorkspace = await _updateWorkspace(payload)
+
+        if (!isOptimisticUpdate) _updateWorkspacesInStore([updatedWorkspace])
 
         return updatedWorkspace
       } catch {
+        if (isOptimisticUpdate && savedWorkspace) {
+          _updateWorkspacesInStore([savedWorkspace])
+        }
+
         toast.error(
           _editWorkspacesError.value.get(payload.id)?.message ||
             'Ошибка при редактировании пространства',
@@ -227,7 +234,6 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     async function _deleteWorkspace(workspace: WorkspaceModel): Promise<void> {
       if (!workspace) throw new Error('Необходимо указать пространство')
-      if (isWorkspaceProcessing(workspace.id)) throw new Error('Пространство уже обрабатывается')
 
       _deleteWorkspacesError.value.delete(workspace.id)
 
@@ -282,9 +288,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       }
     }
 
-    async function _archiveWorkspace(workspace: WorkspaceModel): Promise<WorkspaceModel> {
+    async function _archiveWorkspace(workspace: WorkspaceModel): Promise<WorkspaceModel[]> {
       if (!workspace) throw new Error('Необходимо указать пространство')
-      if (isWorkspaceProcessing(workspace.id)) throw new Error('Пространство уже обрабатывается')
 
       _archiveWorkspacesError.value.delete(workspace.id)
 
@@ -292,23 +297,11 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         _archivingWorkspaces.value.add(workspace.id)
 
         const archiveResult = await archiveWorkspaceService(workspace.id)
+        const archivedWorkspace = archiveResult.find((w) => w.id === workspace.id)
 
-        const newWorkspace = archiveResult.find((w) => w.id === workspace.id)
+        if (!archivedWorkspace) throw new Error('Сервер не вернул архивированное пространство')
 
-        const workspaceIndex = workspaces.value.findIndex((w) => w.id === workspace.id)
-        if (workspaceIndex !== -1 && newWorkspace) {
-          Object.assign(workspaces.value[workspaceIndex], newWorkspace)
-
-          workspaces.value.splice(workspaceIndex, 1)
-
-          if (activeWorkspace.value?.id === workspace.id) {
-            selectWorkspace(workspaces.value[0], true, true)
-          }
-        }
-
-        if (!newWorkspace) throw new Error('Не удалось найти заархивированное пространство')
-
-        return newWorkspace
+        return archiveResult
       } catch (e) {
         if (e instanceof BackendError) {
           _archiveWorkspacesError.value.set(workspace.id, e)
@@ -332,9 +325,13 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     async function archiveWorkspace(workspace: WorkspaceModel): Promise<WorkspaceModel | false> {
       try {
-        const archivedWorkspace = await _archiveWorkspace(workspace)
+        const archiveResult = await _archiveWorkspace(workspace)
+
+        _updateWorkspacesInStore(archiveResult)
 
         toast.success('Пространство успешно архивировано')
+
+        const archivedWorkspace = archiveResult.find((w) => w.id === workspace.id) as WorkspaceModel
 
         return archivedWorkspace
       } catch {
@@ -349,7 +346,6 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     async function _cloneWorkspace(workspace: WorkspaceModel): Promise<WorkspaceModel> {
       if (!workspace) throw new Error('Необходимо указать пространство')
-      if (isWorkspaceProcessing(workspace.id)) throw new Error('Пространство уже обрабатывается')
 
       _cloneWorkspacesError.value.delete(workspace.id)
 
@@ -359,8 +355,6 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         const newWorkspaces = await cloneWorkspaceService(workspace.id)
 
         if (!newWorkspaces[0]) throw new Error('Сервер не вернул новое пространство')
-
-        _updateWorkspacesInStore(newWorkspaces)
 
         return newWorkspaces[0]
       } catch (e) {
@@ -388,6 +382,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         const newWorkspace = await _cloneWorkspace(workspace)
 
+        _updateWorkspacesInStore([newWorkspace])
+
         toast.success('Пространство успешно скопировано')
 
         return newWorkspace
@@ -409,6 +405,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
         const result = await _updateWorkspace(newWorkspace)
 
+        _updateWorkspacesInStore([result])
+
         toast.success('Пространство успешно добавлено в избранное')
 
         return result
@@ -429,6 +427,10 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       if (!workspace) return false
 
       if (payload.name !== undefined && workspace.name !== payload.name) return true
+      if (payload.color !== undefined && workspace.color !== payload.color) return true
+      if (payload.order !== undefined && workspace.order !== payload.order) return true
+      if (payload.isFavorite !== undefined && workspace.isFavorite !== payload.isFavorite)
+        return true
 
       return false
     }
@@ -487,9 +489,11 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
     }
 
     const getWorkspaces = computed((): WorkspaceModel[] => {
-      return workspaces.value.sort((a, b) => {
-        return a.order - b.order
-      })
+      return workspaces.value
+        .filter((workspace) => !workspace.isDeleted)
+        .sort((a, b) => {
+          return a.order - b.order
+        })
     })
 
     const getFavoriteWorkspaces = computed((): WorkspaceModel[] => {
@@ -502,7 +506,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     function getOtherWorkspaces(workspaceId: string): WorkspaceModel[] {
       return workspaces.value
-        .filter((workspace) => workspace.id !== workspaceId)
+        .filter((workspace) => workspace.id !== workspaceId && !workspace.isDeleted)
         .sort((a, b) => {
           return a.order - b.order
         })

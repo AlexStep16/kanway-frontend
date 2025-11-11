@@ -1,5 +1,5 @@
 import BoardModel from '@models/BoardModel'
-import IBoard from '@models/BoardModel'
+import { IBoard } from '@interfaces/domain/IBoard'
 import {
   archiveBoardApi,
   cloneBoardApi,
@@ -8,6 +8,8 @@ import {
   postBoardApi,
   patchBoardApi,
 } from '@api/boards'
+import { useCategoryDataStore } from '@stores/categoryData'
+import { useTaskDataStore } from '@stores/taskData'
 
 export function transformBoard(raw: IBoard): BoardModel {
   return new BoardModel({
@@ -50,5 +52,8 @@ export async function archiveBoard(boardId: string, workspaceId: string) {
 export async function cloneBoard(boardId: string, workspaceId: string) {
   const cloneResult = await cloneBoardApi(boardId, workspaceId)
 
-  return cloneResult.map(transformBoard)
+  useCategoryDataStore().integrateCategories(cloneResult.categories)
+  useTaskDataStore().integrateTasks(cloneResult.tasks)
+
+  return cloneResult.boards.map(transformBoard)
 }

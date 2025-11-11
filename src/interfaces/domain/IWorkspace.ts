@@ -6,7 +6,7 @@ export interface IWorkspace {
   userId: string
   isFavorite: boolean
   order: number
-  color: typeof AvailableColors
+  color: AvailableColors
   isDeleted: boolean
   deletedTime?: Date
   createdAt: Date

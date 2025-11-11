@@ -1,4 +1,4 @@
-import { ICategory } from '@/interfaces/domain/ICategory'
+import { ICategory } from '@interfaces/domain/ICategory'
 
 export default class CategoryModel implements ICategory {
   public id: string

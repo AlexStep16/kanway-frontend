@@ -4,6 +4,7 @@ import type { HSOverlay } from 'preline'
 import { ref } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
+import { useBoardDataStore } from '@stores/boardData'
 
 export const useUIStore = defineStore('ui', () => {
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
@@ -16,6 +17,8 @@ export const useUIStore = defineStore('ui', () => {
   const tipRef = ref<Nullable<HTMLElement>>(null)
 
   const currentTab = ref<Tabs>(Tabs.Board)
+
+  const BOARD_STORE = useBoardDataStore()
 
   const isSidebarOpen = ref(true)
 
@@ -63,6 +66,15 @@ export const useUIStore = defineStore('ui', () => {
     isSidebarOpen.value = false
   }
 
+  function selectArchive() {
+    currentTab.value = Tabs.Archive
+    BOARD_STORE.resetBoardSelection()
+  }
+
+  function selectBoard() {
+    currentTab.value = Tabs.Board
+  }
+
   function $reset() {
     editTaskModalRef.value = null
     editTaskModalHSInstance.value = null
@@ -98,6 +110,8 @@ export const useUIStore = defineStore('ui', () => {
     closeChatModal,
     openSidebar,
     closeSidebar,
+    selectArchive,
+    selectBoard,
     $reset,
   }
 })

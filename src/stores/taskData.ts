@@ -1,14 +1,16 @@
 import {
   fetchTasks,
   saveTask,
+  saveTasks,
   archiveTask as archiveTaskService,
   cloneTask as cloneTaskService,
   removeTask,
   createTask,
+  transformTask,
 } from '@services/task'
 import { BackendError, HttpError } from '@utils/errors'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ErrorsMessage } from '@enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
 import { ITaskState } from '@stores/interfaces/ITaskState'
@@ -16,8 +18,12 @@ import { TaskModel } from '@models/TaskModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { Nullable } from '@/types/utils'
-import dayjs from 'dayjs'
 import { v4 } from 'uuid'
+import { ITask } from '@/interfaces/domain/ITask'
+import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
+import _ from 'lodash'
+import { ITaskFilters } from '@/interfaces/domain/ITaskFilters'
+import dayjs from 'dayjs'
 
 type TaskErrorType = Nullable<BackendError | HttpError>
 
@@ -28,11 +34,21 @@ export const useTaskDataStore = defineStore('taskData', () => {
   // State
   const tasks = ref<Array<ITaskState>>([])
   const taskToEdit = ref<Nullable<ITaskState>>(null)
+  const taskFilters = ref<ITaskFilters>({
+    isCompleted: false,
+    isInProgress: false,
+    isExpired: false,
+    isDueToday: false,
+    isDueTomorrow: false,
+    isDueThisWeek: false,
+    tags: [],
+  })
 
   // Errors
   const loadTasksError = ref<TaskErrorType>(null)
   const _addTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _editTasksError = ref<Map<string, TaskErrorType>>(new Map())
+  const _editManyTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _archiveTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _cloneTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _deleteTasksError = ref<Map<string, TaskErrorType>>(new Map())
@@ -42,15 +58,16 @@ export const useTaskDataStore = defineStore('taskData', () => {
   const _loadedBoards = ref<Set<string>>(new Set())
   const _addingTasks = ref<Set<string>>(new Set())
   const _editingTasks = ref<Set<string>>(new Set())
+  const _editingManyTasks = ref<Set<string>>(new Set())
   const _movingTasks = ref<Set<string>>(new Set())
   const _deletingTasks = ref<Set<string>>(new Set())
   const _archivingTasks = ref<Set<string>>(new Set())
   const _cloningTasks = ref<Set<string>>(new Set())
 
   async function loadTasks(boardId: string, workspaceId: string, force_reload: boolean = false) {
-    if (_loadedBoards.value.has(boardId) && !force_reload) return
+    if (areTasksLoaded(boardId) && !force_reload) return
+    if (areTasksLoading(boardId)) return
     if (_loadingStatusBoards.value.get(boardId)) return
-    if (areTasksLoaded(boardId) || areTasksLoading(boardId)) return
 
     _loadingStatusBoards.value.set(boardId, true)
 
@@ -87,6 +104,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   function addTaskToStore(categoryId: string) {
+    if (tasks.value.some((t) => t.categoryId === categoryId && t.isNew)) return null
+
     const newTask = new TaskModel({
       id: 'new-' + v4(),
       name: '',
@@ -103,10 +122,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
       updatedAt: new Date(),
     })
 
-    tasks.value.push({ ...newTask, isNew: true })
+    const newTaskState: ITaskState = reactive({ ...newTask, isNew: true })
+
+    tasks.value.push(newTaskState)
+
+    return newTaskState
   }
 
-  function _updateOrAddTasksInStore(newTasks: ITaskState[]) {
+  function _updateOrAddTasksInStore(newTasks: ISingleUpdate<ITaskState>[]) {
     for (const newTask of newTasks) {
       const existingTask = tasks.value.find((t) => t.id === newTask.id)
 
@@ -118,7 +141,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
             Object.assign(existingTask, newTask, { isNew: false })
           }
         } else {
-          tasks.value.push(newTask)
+          const addedTask = addTaskToStore(newTask!.categoryId || '')
+
+          if (addedTask) Object.assign(addedTask, newTask, { isNew: false })
         }
       } else {
         Object.assign(existingTask, newTask)
@@ -127,12 +152,11 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function _addTask(
-    payload: ITaskState,
+    payload: TaskModel,
     categoryId: Nullable<string>,
     boardId: string,
   ): Promise<ITaskState | false> {
     if (!categoryId || !payload) return false
-    if (isTaskProcessing(payload.id)) throw new Error('Задача уже обрабатывается')
 
     _addTasksError.value.delete(payload.id)
 
@@ -144,8 +168,6 @@ export const useTaskDataStore = defineStore('taskData', () => {
         boardId,
         WORKSPACE_STORE.getActiveWorkspaceId,
       )
-
-      _updateOrAddTasksInStore(newTasks)
 
       return newTasks[0]
     } catch (e) {
@@ -166,9 +188,19 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
+  function cleanStateFields(payload: ITaskState | ISingleUpdate<ITaskState>) {
+    delete payload.isNew
+    delete payload.tempId
+  }
+
   async function addTask(payload: ITaskState, boardId: string): Promise<ITaskState | false> {
     try {
-      const result = await _addTask(payload, payload.categoryId, boardId)
+      const clonedPayload: ITaskState = { ...payload }
+      cleanStateFields(clonedPayload)
+
+      const result = await _addTask(clonedPayload, payload.categoryId, boardId)
+
+      if (result) _updateOrAddTasksInStore([result])
 
       toast.success('Задача успешно создана')
 
@@ -196,13 +228,57 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
+  async function _updateTasks(
+    payload: ISingleUpdate<TaskModel>[],
+    workspaceId: string,
+    boardId: string,
+  ): Promise<ITaskState[]> {
+    if (payload.length === 0) throw new Error('Нет данных для обновления задачи')
+
+    try {
+      for (const p of payload) {
+        _editManyTasksError.value.delete(p.id)
+        _editingManyTasks.value.add(p.id)
+      }
+
+      const editManyResult = await saveTasks(workspaceId, boardId, payload)
+      const newTasks = editManyResult.filter((t) => payload.some((p) => p.id === t.id))
+
+      if (newTasks.length === 0) throw new Error('Сервер не вернул обновленные задачи')
+
+      return newTasks
+    } catch (e) {
+      if (e instanceof BackendError) {
+        for (const p of payload) {
+          _editManyTasksError.value.set(p.id, e)
+        }
+      } else if (e instanceof HttpError) {
+        for (const p of payload) {
+          _editManyTasksError.value.set(p.id, e)
+        }
+
+        if (e.status === 401) {
+        }
+      } else {
+        for (const p of payload) {
+          _editManyTasksError.value.set(p.id, new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null))
+        }
+      }
+
+      throw e
+    } finally {
+      for (const p of payload) {
+        _editingManyTasks.value.delete(p.id)
+      }
+    }
+  }
+
   async function _updateTask(
-    payload: Partial<ITaskState> & { id: string },
+    payload: ISingleUpdate<TaskModel>,
     workspaceId: string,
     boardId: string,
   ): Promise<ITaskState> {
     if (!payload) throw new Error('Нет данных для обновления задачи')
-    if (isTaskProcessing(payload.id)) throw new Error('Задача уже обрабатывается')
 
     _editTasksError.value.delete(payload.id)
 
@@ -214,8 +290,6 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const newTask = editResult.find((c) => c.id === payload.id)
 
       if (!newTask) throw new Error('Сервер не вернул обновленную задачу')
-
-      _updateOrAddTasksInStore(editResult)
 
       return newTask
     } catch (e) {
@@ -236,19 +310,35 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
+  async function rollbackTasks(boardId: string) {
+    await loadTasks(boardId, WORKSPACE_STORE.getActiveWorkspaceId, true)
+  }
+
   async function updateTask(
-    payload: Partial<ITaskState> & { id: string; timezone?: string },
+    payload: ISingleUpdate<ITaskState>,
     boardId: string,
+    isOptimisticUpdate: boolean = false,
   ): Promise<ITaskState | false> {
     if (!isTaskChanged(payload)) return false
+    const savedTask = _.cloneDeep(tasks.value.find((t) => t.id === payload.id))
 
     try {
-      payload.timezone = dayjs.tz.guess()
+      if (isOptimisticUpdate && savedTask) {
+        _updateOrAddTasksInStore([payload])
+      }
 
-      const result = await _updateTask(payload, WORKSPACE_STORE.getActiveWorkspaceId, boardId)
+      const clonedPayload: ISingleUpdate<ITaskState> = { ...payload }
+      cleanStateFields(clonedPayload)
+      const result = await _updateTask(clonedPayload, WORKSPACE_STORE.getActiveWorkspaceId, boardId)
+
+      if (!isOptimisticUpdate) _updateOrAddTasksInStore([result])
 
       return result
     } catch {
+      if (isOptimisticUpdate && savedTask) {
+        _updateOrAddTasksInStore([savedTask])
+      }
+
       toast.error(
         _editTasksError.value.get(payload.id)?.message || 'Ошибка при редактировании задачи',
       )
@@ -257,9 +347,52 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
+  async function updateTasks(
+    payload: ISingleUpdate<ITaskState>[],
+    boardId: string,
+    isOptimisticUpdate: boolean = false,
+    isReorderNeeded: boolean = true,
+    isMoveNeeded: boolean = true,
+  ): Promise<ITaskState[] | false> {
+    if (payload.length === 0) return false
+
+    try {
+      if (isOptimisticUpdate) {
+        _updateOrAddTasksInStore(payload)
+      }
+
+      const clonedPayload = payload.map((p) => {
+        const clonedP = { ...p, isReorderNeeded, isMoveNeeded }
+        cleanStateFields(clonedP)
+        return clonedP
+      })
+
+      const result = await _updateTasks(
+        clonedPayload,
+        WORKSPACE_STORE.getActiveWorkspaceId,
+        boardId,
+      )
+
+      if (!isOptimisticUpdate) {
+        _updateOrAddTasksInStore(result)
+      }
+
+      return result
+    } catch {
+      if (isOptimisticUpdate) {
+        rollbackTasks(boardId)
+      }
+
+      toast.error(
+        _editManyTasksError.value.get(payload[0].id)?.message || 'Ошибка при редактировании задачи',
+      )
+
+      return false
+    }
+  }
+
   async function _deleteTask(task: ITaskState): Promise<void> {
     if (!task) throw new Error('Нет задачи для удаления')
-    if (isTaskProcessing(task.id)) throw new Error('Задача уже обрабатывается')
 
     _deleteTasksError.value.delete(task.id)
 
@@ -292,7 +425,10 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   async function deleteTask(task: ITaskState): Promise<boolean> {
     try {
-      await _deleteTask(task)
+      const clonedTask: ITaskState = { ...task }
+      cleanStateFields(clonedTask)
+
+      await _deleteTask(clonedTask)
 
       toast.success('Задача успешно удалена')
 
@@ -304,22 +440,20 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
-  async function _archiveTask(task: ITaskState, workspaceId: string): Promise<ITaskState> {
+  async function _archiveTask(task: TaskModel, workspaceId: string): Promise<ITaskState[]> {
     if (!task) throw new Error('Нет задачи для архивирования')
-    if (isTaskProcessing(task.id)) throw new Error('Задача уже обрабатывается')
 
     _archiveTasksError.value.delete(task.id)
 
     try {
       _archivingTasks.value.add(task.id)
 
-      const newTasks = await archiveTaskService(task.id, workspaceId, task.boardId)
+      const archiveResult = await archiveTaskService(task.id, workspaceId, task.boardId)
+      const archivedTask = archiveResult.find((t) => t.id === task.id)
 
-      if (!newTasks[0]) throw new Error('Сервер не вернул архивированную задачу')
+      if (!archivedTask) throw new Error('Сервер не вернул архивированную задачу')
 
-      _updateOrAddTasksInStore(newTasks)
-
-      return newTasks[0]
+      return archiveResult
     } catch (e) {
       if (e instanceof BackendError) {
         _archiveTasksError.value.set(task.id, e)
@@ -340,11 +474,17 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   async function archiveTask(task: ITaskState): Promise<ITaskState | false> {
     try {
-      const result = await _archiveTask(task, WORKSPACE_STORE.getActiveWorkspaceId)
+      const clonedTask: ITaskState = { ...task }
+      cleanStateFields(clonedTask)
+
+      const archiveResult = await _archiveTask(clonedTask, WORKSPACE_STORE.getActiveWorkspaceId)
+      const archivedTask = archiveResult.find((t) => t.id === task.id) as ITaskState
+
+      _updateOrAddTasksInStore(archiveResult)
 
       toast.success('Задача успешно архивирована')
 
-      return result
+      return archivedTask
     } catch {
       toast.error(
         _archiveTasksError.value.get(task.id)?.message || 'Ошибка при архивировании задачи',
@@ -354,9 +494,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
-  async function _cloneTask(task: ITaskState, workspaceId: string): Promise<ITaskState> {
+  async function _cloneTask(task: TaskModel, workspaceId: string): Promise<ITaskState> {
     if (!task) throw new Error('Нет задачи для копирования')
-    if (isTaskProcessing(task.id)) throw new Error('Задача уже обрабатывается')
 
     _cloneTasksError.value.delete(task.id)
 
@@ -366,8 +505,6 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const newTasks = await cloneTaskService(task.id, workspaceId, task.boardId)
 
       if (!newTasks[0]) throw new Error('Сервер не вернул новую задачу')
-
-      _updateOrAddTasksInStore(newTasks)
 
       return newTasks[0]
     } catch (e) {
@@ -390,7 +527,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   async function cloneTask(task: ITaskState): Promise<ITaskState | false> {
     try {
-      const result = await _cloneTask(task, WORKSPACE_STORE.getActiveWorkspaceId)
+      const clonedTask: ITaskState = { ...task }
+      cleanStateFields(clonedTask)
+
+      const result = await _cloneTask(clonedTask, WORKSPACE_STORE.getActiveWorkspaceId)
+
+      _updateOrAddTasksInStore([result])
 
       toast.success('Задача успешно скопирована')
 
@@ -415,11 +557,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
 
     const newTask: ITaskState = { ...task, categoryId: newCategoryId }
+    cleanStateFields(newTask)
 
     try {
       _movingTasks.value.add(task.id)
 
       const result = await _updateTask(newTask, workspaceId, task.boardId)
+
+      _updateOrAddTasksInStore([result])
 
       toast.success('Задача успешно перемещена')
 
@@ -437,10 +582,25 @@ export const useTaskDataStore = defineStore('taskData', () => {
     taskToEdit.value = null
   }
 
+  function integrateTasks(rawTasks: ITask[]) {
+    if (!rawTasks || rawTasks.length === 0) return
+    const newModels = rawTasks.map((raw) => transformTask(raw))
+
+    tasks.value.push(...newModels)
+  }
+
   function getTasksByCategoryId(categoryId: string): ITaskState[] {
-    return tasks.value
-      .filter((task) => task.categoryId === categoryId && !task.isDeleted)
-      .sort((a, b) => a.order - b.order)
+    return tasks.value.filter((task) => task.categoryId === categoryId && !task.isDeleted)
+  }
+
+  function getVisibleTasksByCategoryId(categoryId: string, sort = true): ITaskState[] {
+    const filtered = getVisibleTasks.value.filter(
+      (task) => task.categoryId === categoryId && !task.isDeleted,
+    )
+
+    if (sort) return filtered.sort((a, b) => a.order - b.order)
+
+    return filtered
   }
 
   function isTaskChanged(payload: Partial<ITaskState>): boolean {
@@ -455,6 +615,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     if (payload.dueHours !== undefined && task.dueHours !== payload.dueHours) return true
     if (payload.dueMinutes !== undefined && task.dueMinutes !== payload.dueMinutes) return true
     if (payload.isCompleted !== undefined && task.isCompleted !== payload.isCompleted) return true
+    if (payload.order !== undefined && task.order !== payload.order) return true
 
     if (payload.tags !== undefined) {
       const currentTags = task.tags || []
@@ -471,6 +632,102 @@ export const useTaskDataStore = defineStore('taskData', () => {
     return false
   }
 
+  const getFilteredTasks = computed(() => {
+    let result = getActiveBoardTasks.value.filter((t) => !t.isNew)
+
+    if (taskFilters.value.isCompleted === true) {
+      result = result.filter((t) => t.isCompleted)
+    }
+
+    if (taskFilters.value.isInProgress === true) {
+      result = result.filter((t) => !t.isCompleted)
+    }
+
+    if (taskFilters.value.isExpired === true) {
+      result = result.filter((t) => {
+        const hasDueDate = t.dueDate !== null && t.dueDate !== undefined && t.dueDate !== ''
+        if (!hasDueDate) return false
+
+        const hasDueHours = t.dueHours !== null && t.dueHours !== undefined
+        const hasDueMinutes = t.dueMinutes !== null && t.dueMinutes !== undefined
+
+        if (hasDueHours && hasDueMinutes) {
+          const fullDueDateTime = new Date(
+            `${t.dueDate}T${String(t.dueHours).padStart(2, '0')}:${String(t.dueMinutes).padStart(2, '0')}:00`,
+          )
+
+          return fullDueDateTime < new Date()
+        } else {
+          const dueDateOnly = dayjs(t.dueDate).startOf('day').toDate()
+
+          return dueDateOnly < new Date()
+        }
+      })
+    }
+
+    if (taskFilters.value.isDueToday === true) {
+      result = result.filter((t) => {
+        const hasDueDate = t.dueDate !== null && t.dueDate !== undefined && t.dueDate !== ''
+        if (!hasDueDate) return false
+
+        const today = dayjs().startOf('day')
+        const taskDueDate = dayjs(t.dueDate).startOf('day')
+
+        return taskDueDate.isSame(today, 'day')
+      })
+    }
+
+    if (taskFilters.value.isDueTomorrow === true) {
+      result = result.filter((t) => {
+        const hasDueDate = t.dueDate !== null && t.dueDate !== undefined && t.dueDate !== ''
+        if (!hasDueDate) return false
+
+        const tomorrow = dayjs().add(1, 'day').startOf('day')
+        const taskDueDate = dayjs(t.dueDate).startOf('day')
+
+        return taskDueDate.isSame(tomorrow, 'day')
+      })
+    }
+
+    if (taskFilters.value.isDueThisWeek === true) {
+      result = result.filter((t) => {
+        const hasDueDate = t.dueDate && t.dueDate.length > 0
+        if (!hasDueDate) return false
+
+        const startOfThisWeek = dayjs().startOf('isoWeek')
+
+        const endOfThisWeek = dayjs().endOf('isoWeek')
+        const taskDueDate = dayjs(t.dueDate).startOf('day')
+
+        return dayjs(taskDueDate).isBetween(startOfThisWeek, endOfThisWeek, 'day', '[]')
+      })
+    }
+
+    if (taskFilters.value.tags && taskFilters.value.tags.length > 0) {
+      result = result.filter((t) => {
+        return t.tags.some((tag) => taskFilters.value.tags.includes(tag))
+      })
+    }
+
+    const newTask = getActiveBoardTasks.value.find((t) => t.isNew)
+    if (newTask) result.push(newTask)
+
+    return result
+  })
+
+  function clearFilters() {
+    for (const key in taskFilters.value) {
+      const filterKey = key as keyof ITaskFilters
+      const filterValue = taskFilters.value[filterKey]
+
+      if (Array.isArray(filterValue)) {
+        ;(taskFilters.value as any)[filterKey] = []
+      } else if (typeof filterValue === 'boolean') {
+        ;(taskFilters.value as any)[filterKey] = false
+      }
+    }
+  }
+
   function areTasksLoading(boardId: string): boolean {
     return _loadingStatusBoards.value.get(boardId) === true
   }
@@ -479,14 +736,37 @@ export const useTaskDataStore = defineStore('taskData', () => {
     return _loadedBoards.value.has(boardId)
   }
 
+  const getVisibleTasks = computed((): ITaskState[] => {
+    return getFilteredTasks.value
+  })
+
+  const getTasksTags = computed((): string[] => {
+    return getActiveBoardTasks.value.reduce((acc: string[], task: ITaskState) => {
+      if (task.tags && task.tags.length > 0) {
+        task.tags.forEach((tag) => {
+          if (!acc.includes(tag)) {
+            acc.push(tag)
+          }
+        })
+      }
+      return acc
+    }, [])
+  })
+
   const getActiveBoardTasks = computed((): ITaskState[] => {
     if (!BOARD_STORE.activeBoard) return []
 
     return tasks.value
-      .filter((task) => task.boardId === BOARD_STORE.getActiveBoardId)
+      .filter((task) => task.boardId === BOARD_STORE.getActiveBoardId && !task.isDeleted)
       .sort((a, b) => {
         return a.order - b.order
       })
+  })
+
+  const getActiveBoardTasksByName = computed(() => (name: string): ITaskState[] => {
+    return getActiveBoardTasks.value.filter(
+      (task) => task.name.toLowerCase().startsWith(name.toLowerCase()) && !task.isNew,
+    )
   })
 
   function isTaskProcessing(taskId: string): boolean {
@@ -515,18 +795,38 @@ export const useTaskDataStore = defineStore('taskData', () => {
     return _cloningTasks.value.has(taskId)
   })
 
+  const isFilterActive = computed((): boolean => {
+    for (const key in taskFilters.value) {
+      const filterKey = key as keyof ITaskFilters
+      const filterValue = taskFilters.value[filterKey]
+      if (Array.isArray(filterValue) && filterValue.length > 0) {
+        return true
+      }
+      if (typeof filterValue === 'boolean' && filterValue === true) {
+        return true
+      }
+    }
+
+    return false
+  })
+
   function $reset() {}
 
   return {
     // State
     tasks,
     taskToEdit,
+    taskFilters,
     getActiveBoardTasks,
     isTaskMoving,
     isTaskProcessing,
     isTaskArchiving,
     isTaskCloning,
     isTaskAdding,
+    getVisibleTasks,
+    getTasksTags,
+    isFilterActive,
+    getActiveBoardTasksByName,
 
     // Errors
     loadTasksError,
@@ -536,14 +836,18 @@ export const useTaskDataStore = defineStore('taskData', () => {
     areTasksLoading,
     areTasksLoaded,
     updateTask,
+    updateTasks,
     moveTask,
     deleteTask,
     archiveTask,
     cloneTask,
+    getVisibleTasksByCategoryId,
     getTasksByCategoryId,
     clearTaskToEdit,
     addTaskToStore,
     createOrSplice,
+    integrateTasks,
+    clearFilters,
 
     $reset,
   }

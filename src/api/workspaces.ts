@@ -1,6 +1,7 @@
 import { apiCall } from '@/apiClient'
-import IWorkspace from '@models/WorkspaceModel'
-import IBoard from '@models/BoardModel'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
+import { IBoard } from '@interfaces/domain/IBoard'
+import { IClonedWorkspaceResult } from '@interfaces/domain/IClonedWorkspaceResult'
 
 export async function getWorkspacesApi() {
   return await apiCall<IWorkspace[]>({
@@ -40,7 +41,7 @@ export async function archiveWorkspaceApi(workspaceId: string) {
 }
 
 export async function cloneWorkspaceApi(workspaceId: string) {
-  return await apiCall<IWorkspace[]>({
+  return await apiCall<IClonedWorkspaceResult>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/clone`,
   })

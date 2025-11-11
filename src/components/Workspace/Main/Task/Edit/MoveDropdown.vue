@@ -163,21 +163,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="hs-dropdown [--auto-close:inside] relative inline-flex" ref="moveRef">
+  <div class="hs-dropdown [--auto-close:inside] relative inline-flex min-w-0" ref="moveRef">
     <button
       id="hs-dropdown-move"
       type="button"
-      class="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-gray-100 hover:bg-gray-200 transition-colors duration-100 text-gray-500 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
+      class="min-w-0 py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-gray-100 hover:bg-gray-200 transition-colors duration-100 text-gray-500 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
       aria-haspopup="menu"
       aria-expanded="false"
       aria-label="Dropdown"
     >
-      <div class="flex items-center gap-x-2">
-        <Layers class="size-4" />
-        <span>{{ getCurrentCategory?.name || 'Без категории' }}</span>
+      <div class="flex items-center gap-x-2 min-w-0">
+        <Layers class="size-4 shrink-0" />
+        <span class="truncate min-w-0">{{ getCurrentCategory?.name || 'Без категории' }}</span>
       </div>
       <svg
-        class="hs-dropdown-open:rotate-180 size-4"
+        class="hs-dropdown-open:rotate-180 size-4 transition-transform duration-200 shrink-0"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"

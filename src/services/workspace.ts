@@ -1,5 +1,5 @@
 import WorkspaceModel from '@/models/WorkspaceModel'
-import IWorkspace from '@models/WorkspaceModel'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import {
   archiveWorkspaceApi,
   cloneWorkspaceApi,
@@ -8,6 +8,9 @@ import {
   postWorkspaceApi,
   patchWorkspaceApi,
 } from '@api/workspaces'
+import { useBoardDataStore } from '@stores/boardData'
+import { useCategoryDataStore } from '@stores/categoryData'
+import { useTaskDataStore } from '@stores/taskData'
 
 export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
   return new WorkspaceModel({
@@ -48,5 +51,9 @@ export async function archiveWorkspace(workspaceId: string) {
 export async function cloneWorkspace(workspaceId: string) {
   const cloneResult = await cloneWorkspaceApi(workspaceId)
 
-  return cloneResult.map(transformWorkspace)
+  useBoardDataStore().integrateBoards(cloneResult.boards)
+  useCategoryDataStore().integrateCategories(cloneResult.categories)
+  useTaskDataStore().integrateTasks(cloneResult.tasks)
+
+  return cloneResult.workspaces.map(transformWorkspace)
 }

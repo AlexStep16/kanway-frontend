@@ -1,5 +1,8 @@
 import { apiCall } from '@/apiClient'
-import ICategory from '@models/CategoryModel'
+import { IClonedCategoryResult } from '@interfaces/domain/IClonedCategoryResult'
+import { ICategory } from '@interfaces/domain/ICategory'
+import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
+import dayjs from 'dayjs'
 
 export async function getCategoriesApi(workspaceId: string, boardId: string) {
   return await apiCall<ICategory[]>({
@@ -33,6 +36,24 @@ export async function patchCategoryApi(
   })
 }
 
+export async function bulkUpdateCategoriesApi(
+  workspaceId: string,
+  boardId: string,
+  payload: ISingleUpdate<ICategory>[],
+) {
+  const timezone = dayjs.tz.guess()
+  const data = payload.map((item) => ({
+    ...item,
+    timezone,
+  }))
+
+  return await apiCall<ICategory[]>({
+    method: 'PATCH',
+    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/bulk`,
+    data,
+  })
+}
+
 export async function deleteCategoryApi(categoryId: string, workspaceId: string, boardId: string) {
   return await apiCall<void>({
     method: 'DELETE',
@@ -48,7 +69,7 @@ export async function archiveCategoryApi(categoryId: string, boardId: string, wo
 }
 
 export async function cloneCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
-  return await apiCall<ICategory[]>({
+  return await apiCall<IClonedCategoryResult>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/clone`,
   })

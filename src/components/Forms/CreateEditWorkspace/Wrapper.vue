@@ -22,7 +22,7 @@ const validationErrors = ref<WorkspaceValidationErrors>({
 const WORKSPACE_STORE = useWorkspaceDataStore()
 
 const name = ref('')
-const color = ref<string>(AvailableColors.BLUE)
+const color = ref<AvailableColors>(AvailableColors.BLUE)
 
 const props = defineProps<{
   item?: WorkspaceModel

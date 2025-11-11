@@ -1,6 +1,15 @@
 <script setup lang="ts">
+import { useTaskDataStore } from '@/stores/taskData'
 import { ListFilter } from 'lucide-vue-next'
-import { onMounted } from 'vue'
+import { computed, onMounted, toRef } from 'vue'
+
+const TASK_STORE = useTaskDataStore()
+
+const filters = toRef(TASK_STORE.taskFilters)
+
+const isFilterActive = computed(() => {
+  return TASK_STORE.isFilterActive
+})
 
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
@@ -13,6 +22,9 @@ onMounted(() => {
       id="hs-dropdown-filter"
       type="button"
       class="hs-dropdown-toggle text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-1 focus:bg-blue-100 sm:focus:bg-white sm:hover:bg-white sm:hover:text-blue-500 sm:hover:border-blue-500 focus:border-blue-500 focus:text-blue-500 sm:text-gray-700 inline-flex items-center font-medium justify-center sm:gap-x-2 sm:px-3 rounded-md sm:border sm:border-gray-200 transition-colors duration-100"
+      :class="{
+        'bg-white! text-blue-500! border-blue-500!': isFilterActive,
+      }"
     >
       <ListFilter class="size-5 sm:size-4" />
       <span class="hidden sm:inline">Фильтр</span>
@@ -23,12 +35,12 @@ onMounted(() => {
       role="menu"
       aria-orientation="vertical"
     >
-      <div class="p-1 flex flex-col">
+      <div class="max-w-70 p-1 flex flex-col">
         <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Статус</div>
-        <ul class="max-w-sm flex flex-col">
+        <ul class="flex flex-col">
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -36,6 +48,7 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-1"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.isCompleted"
                 />
               </div>
               <span class="ms-2 block w-full text-sm text-gray-600"> Выполнено </span>
@@ -43,7 +56,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -51,6 +64,7 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-2"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.isInProgress"
                 />
               </div>
               <span class="ms-2 block w-full text-sm text-gray-600"> Выполняется </span>
@@ -59,10 +73,10 @@ onMounted(() => {
         </ul>
 
         <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Срок</div>
-        <ul class="max-w-sm flex flex-col">
+        <ul class="flex flex-col">
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -70,6 +84,7 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-3"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.isExpired"
                 />
               </div>
               <span class="ms-2 block w-full text-sm text-gray-600"> Просрочено </span>
@@ -77,7 +92,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -85,6 +100,7 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-4"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.isDueToday"
                 />
               </div>
               <span class="ms-2 block w-full text-sm text-gray-600"> Истекает сегодня </span>
@@ -92,7 +108,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -100,6 +116,7 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-5"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.isDueTomorrow"
                 />
               </div>
               <span class="ms-2 block w-full text-sm text-gray-600"> Истекает завтра </span>
@@ -107,7 +124,7 @@ onMounted(() => {
           </li>
           <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -115,6 +132,7 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-6"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.isDueThisWeek"
                 />
               </div>
               <span class="ms-2 block w-full text-sm text-gray-600">
@@ -125,10 +143,14 @@ onMounted(() => {
         </ul>
 
         <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Теги</div>
-        <ul class="max-w-sm flex flex-col">
-          <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
+        <ul class="flex gap-x-1 px-1 flex-wrap">
+          <li
+            class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800"
+            v-for="tag in TASK_STORE.getTasksTags"
+            :key="tag"
+          >
             <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
+              class="relative flex cursor-pointer items-center w-full py-1 px-1.5 hover:bg-gray-100 rounded-md transition-colors duration-100 select-none"
             >
               <div class="flex items-center h-5">
                 <input
@@ -136,27 +158,21 @@ onMounted(() => {
                   name="hs-list-group-item-checkbox-1"
                   type="checkbox"
                   class="border-gray-200 rounded-sm disabled:opacity-50"
+                  v-model="filters.tags"
+                  :value="tag"
                 />
               </div>
-              <span class="ms-2 block w-full text-sm text-gray-600"> #срочно </span>
-            </label>
-          </li>
-          <li class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800">
-            <label
-              class="relative flex cursor-pointer items-start w-full py-2 px-2.5 hover:bg-gray-100 rounded-md transition-colors duration-100"
-            >
-              <div class="flex items-center h-5">
-                <input
-                  id="hs-list-group-item-checkbox-2"
-                  name="hs-list-group-item-checkbox-2"
-                  type="checkbox"
-                  class="border-gray-200 rounded-sm disabled:opacity-50"
-                />
-              </div>
-              <span class="ms-2 block w-full text-sm text-gray-600"> #дела </span>
+              <span class="truncate ms-2 block w-full text-xs text-gray-600"> #{{ tag }} </span>
             </label>
           </li>
         </ul>
+
+        <button
+          class="my-2 text-custom-sm text-gray-400 hover:text-gray-600 transition-colors duration-100 focus:outline-hidden text-left px-2.5"
+          @click="TASK_STORE.clearFilters"
+        >
+          Сбросить всё
+        </button>
       </div>
     </div>
   </div>

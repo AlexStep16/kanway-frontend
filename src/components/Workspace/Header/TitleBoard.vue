@@ -23,7 +23,7 @@ function updateBoardName(event: Event) {
   const newName = target.value.trim()
 
   if (newName && BOARD_STORE.activeBoard) {
-    BOARD_STORE.updateBoard({ ...BOARD_STORE.activeBoard, name: newName })
+    BOARD_STORE.updateBoard({ ...BOARD_STORE.activeBoard, name: newName }, true)
   }
 
   isInputVisible.value = false

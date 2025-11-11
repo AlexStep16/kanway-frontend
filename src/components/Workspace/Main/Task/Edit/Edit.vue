@@ -2,19 +2,22 @@
 import { useTaskDataStore } from '@/stores/taskData'
 import { useUIStore } from '@/stores/ui'
 import { HSStaticMethods } from 'preline'
-import { ref, watch, nextTick } from 'vue'
-import { X } from 'lucide-vue-next'
+import { ref, watch, nextTick, computed } from 'vue'
+import { X, Copy, Archive } from 'lucide-vue-next'
 import MoveDropdown from '@components/Workspace/Main/Task/Edit/MoveDropdown.vue'
 import Date from '@components/Workspace/Main/Task/Edit/Date.vue'
 import Tags from '@components/Workspace/Main/Task/Edit/Tags.vue'
 import Color from '@components/Workspace/Main/Task/Edit/Color.vue'
-import _ from 'lodash'
+import Spinner from '@components/Loader/Spinner.vue'
 import { toast } from 'vue-sonner'
 import { TaskModel } from '@models/TaskModel'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { TASK_COLORS } from '@/constants/TASK_COLORS'
 import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
 import { Nullable } from '@/types/utils'
+import { ITaskState } from '@stores/interfaces/ITaskState'
+
+import _ from 'lodash'
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
@@ -197,6 +200,30 @@ function descriptionInput() {
   }, 500)
 }
 
+async function copyTask(task: ITaskState) {
+  await TASK_STORE.cloneTask(task)
+
+  UI_STORE.closeEditTaskModal()
+}
+
+async function archiveTask(task: ITaskState) {
+  await TASK_STORE.archiveTask(task)
+
+  UI_STORE.closeEditTaskModal()
+}
+
+const isTaskCopying = computed(() => {
+  if (!editableTask.value) return false
+
+  return TASK_STORE.isTaskCloning(editableTask.value.id)
+})
+
+const isTaskArchiving = computed(() => {
+  if (!editableTask.value) return false
+
+  return TASK_STORE.isTaskArchiving(editableTask.value.id)
+})
+
 watch(
   () => editableTask.value?.isCompleted,
   (val) => {
@@ -257,7 +284,7 @@ watch(
       >
         <!-- Header -->
         <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-gray-200">
-          <div class="flex items-center gap-x-1">
+          <div class="flex items-center gap-x-1 min-w-0">
             <button
               type="button"
               class="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-gray-100 transition-colors duration-100 text-gray-500 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
@@ -303,13 +330,37 @@ watch(
 
             <MoveDropdown :task="editableTask" @moveTask="handleMoveTask" />
           </div>
-          <button
-            class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
-            type="button"
-            @click="UI_STORE.closeEditTaskModal()"
-          >
-            <X class="size-5" />
-          </button>
+
+          <div class="flex gap-x-3 min-w-0">
+            <div class="flex items-center transition-all duration-100">
+              <button
+                type="button"
+                class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+                title="Копировать"
+                @click.stop="copyTask(editableTask)"
+              >
+                <Spinner v-if="isTaskCopying" class="size-4" />
+                <Copy v-else class="size-4" />
+              </button>
+              <button
+                type="button"
+                class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+                title="Архивировать"
+                @click.stop="archiveTask(editableTask)"
+              >
+                <Spinner v-if="isTaskArchiving" class="size-4" />
+                <Archive v-else class="size-4" />
+              </button>
+            </div>
+
+            <button
+              class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full shrink-0"
+              type="button"
+              @click="UI_STORE.closeEditTaskModal()"
+            >
+              <X class="size-5" />
+            </button>
+          </div>
         </div>
         <!-- Header End -->
 

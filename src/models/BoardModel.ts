@@ -1,4 +1,4 @@
-import { IBoard } from '@/interfaces/domain/IBoard'
+import { IBoard } from '@interfaces/domain/IBoard'
 
 export default class BoardModel implements IBoard {
   public id: string

@@ -1,6 +1,6 @@
 import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
 import { OptionalNullable } from '@/types/utils'
-import { ITask } from '@/interfaces/domain/ITask'
+import { ITask } from '@interfaces/domain/ITask'
 
 export class TaskModel implements ITask {
   public id: string

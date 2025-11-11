@@ -7,9 +7,11 @@ import {
   deleteTaskApi,
   archiveTaskApi,
   cloneTaskApi,
+  bulkUpdateTasksApi,
 } from '@api/tasks'
 import dayjs from 'dayjs'
 import { ITaskState } from '@stores/interfaces/ITaskState'
+import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 
 export function transformTask(raw: ITask): ITaskState {
   if (raw.dueDate && raw.dueHours != null && raw.dueMinutes != null) {
@@ -53,10 +55,20 @@ export async function createTask(
 export async function saveTask(
   workspaceId: string,
   boardId: string,
-  payload: Partial<TaskModel> & { id: string },
+  payload: ISingleUpdate<TaskModel>,
 ) {
   const saveResult = await patchTaskApi(workspaceId, boardId, payload.id, payload)
 
+  return saveResult.map(transformTask)
+}
+
+export async function saveTasks(
+  workspaceId: string,
+  boardId: string,
+  payload: ISingleUpdate<TaskModel>[],
+) {
+  bulkUpdateTasksApi(workspaceId, boardId, payload)
+  const saveResult = await bulkUpdateTasksApi(workspaceId, boardId, payload)
   return saveResult.map(transformTask)
 }
 

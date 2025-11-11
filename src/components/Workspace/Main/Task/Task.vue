@@ -4,11 +4,11 @@ import { useTaskDataStore } from '@stores/taskData'
 import { useUIStore } from '@stores/ui'
 import dayjs from 'dayjs'
 import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { getTimeInReadableFormat } from '@utils/date'
 import Spinner from '@/components/Loader/Spinner.vue'
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'updateTask', payload: { id: string; isCompleted: boolean }): void
   (e: 'connectInputEditRef', el: HTMLInputElement): void
 }>()
@@ -23,7 +23,6 @@ enum TimeStatus {
 const props = defineProps<{
   task: ITaskState
   hasBorder?: boolean
-  isEditable?: boolean
   hasCopy?: boolean
   hasDelete?: boolean
   hasCheckbox?: boolean
@@ -32,9 +31,24 @@ const props = defineProps<{
 }>()
 
 const isChecked = ref(true)
+const dragStartTime = ref<number>(0)
+const dragEndTime = ref<number>(0)
+const inputAddRef = ref<HTMLInputElement | null>(null)
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
+
+watch(inputAddRef, (newVal) => {
+  if (newVal) emit('connectInputEditRef', newVal)
+})
+
+function toggleTaskCompletion() {
+  TASK_STORE.updateTask(
+    { id: props.task.id, isCompleted: !props.task.isCompleted },
+    props.task.boardId,
+    true,
+  )
+}
 
 function getTimeStatus(
   dueDate: string,
@@ -63,7 +77,13 @@ function getTimeStatus(
 }
 
 function edit(task: ITaskState) {
-  if (!props.isEditable || task.isNew) return
+  if (task.isNew) return
+
+  dragEndTime.value = Date.now()
+
+  if (dragEndTime.value - dragStartTime.value > 700) {
+    return
+  }
 
   TASK_STORE.taskToEdit = task
 
@@ -78,7 +98,7 @@ function archiveTask(task: ITaskState) {
   TASK_STORE.archiveTask(task)
 }
 
-function createOrSplice(task: ITaskState, target: HTMLInputElement, isEnterKey = false) {
+async function createOrSplice(task: ITaskState, target: HTMLInputElement, isEnterKey = false) {
   if (isTaskAdding.value) return
 
   TASK_STORE.createOrSplice(task, target)
@@ -90,9 +110,9 @@ function createOrSplice(task: ITaskState, target: HTMLInputElement, isEnterKey =
   }
 }
 
-const getTaskIsCompleted = computed(() => {
-  return props.task.isCompleted
-})
+function startDragging() {
+  dragStartTime.value = Date.now()
+}
 
 const isTaskAdding = computed(() => {
   return TASK_STORE.isTaskAdding(props.task.id)
@@ -109,13 +129,13 @@ const isTaskArchiving = computed(() => {
 
 <template>
   <div
-    class="flex flex-col shrink-0 rounded-md min-w-60 max-w-75 w-full shadow-gray-200 bg-white transition-all duration-100 overflow-hidden"
+    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
     :class="{
       'border border-gray-200': hasBorder,
       'shadow-sm': !hasBorder,
-      'cursor-pointer hover:shadow-md hover:shadow-gray-300': isEditable,
       [taskClasses || '']: !!taskClasses,
     }"
+    @mousedown="startDragging"
     @click="edit(task)"
   >
     <div class="h-3 w-full" v-if="task.color" :style="{ backgroundColor: task.color }" />
@@ -129,11 +149,7 @@ const isTaskArchiving = computed(() => {
         @blur="createOrSplice(task, $event.target as HTMLInputElement)"
         @keydown.enter="createOrSplice(task, $event.target as HTMLInputElement, true)"
         :disabled="isTaskAdding"
-        :ref="
-          (el: any) => {
-            $emit('connectInputEditRef', el)
-          }
-        "
+        ref="inputAddRef"
         placeholder="Название задачи"
       />
     </div>
@@ -151,12 +167,11 @@ const isTaskArchiving = computed(() => {
       <div class="flex items-start justify-between gap-x-2">
         <div
           class="flex items-center gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform -translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
-          :class="{ 'translate-x-0!': getTaskIsCompleted }"
+          :class="{ 'translate-x-0!': task.isCompleted }"
         >
           <div
             class="inline-flex items-center opacity-0 pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
-            :class="{ 'opacity-100! pointer-events-auto!': getTaskIsCompleted }"
-            v-if="props.isEditable"
+            :class="{ 'opacity-100! pointer-events-auto!': task.isCompleted }"
           >
             <div class="size-5 flex items-center justify-center">
               <label
@@ -166,9 +181,9 @@ const isTaskArchiving = computed(() => {
                 <input
                   type="checkbox"
                   class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
-                  :checked="getTaskIsCompleted"
+                  :checked="task.isCompleted"
                   id="check-custom-style"
-                  @change="$emit('updateTask', { id: task.id, isCompleted: !getTaskIsCompleted })"
+                  @change="toggleTaskCompletion"
                 />
                 <span
                   class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -193,9 +208,12 @@ const isTaskArchiving = computed(() => {
           </div>
           <span
             class="text-sm overflow-hidden break-words"
-            :class="{ 'text-gray-300 decoration-1 line-through': task.isCompleted }"
-            >{{ task.name }}</span
+            :class="{
+              'text-gray-300 decoration-1 line-through': task.isCompleted,
+            }"
           >
+            {{ task.name }}
+          </span>
         </div>
 
         <div

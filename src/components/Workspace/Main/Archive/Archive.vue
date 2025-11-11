@@ -8,51 +8,11 @@ import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vu
 import Tabs from '@/enums/TabsEnum'
 import { computed, onMounted, ref } from 'vue'
 import { Archive } from 'lucide-vue-next'
+import { useTaskDataStore } from '@/stores/taskData'
+
+const TASK_STORE = useTaskDataStore()
 
 const numCols = ref(3)
-
-const tasks = ref([
-  { id: 1, name: 'Задача 1', is_completed: false, tags: ['важно'] },
-  { id: 2, name: 'Задача 2', color: '#FFEEAA', is_completed: false },
-  {
-    id: 3,
-    name: 'Задача 3',
-    color: '#EEAABB',
-    due_date: '2025-09-15T14:14:00',
-    is_completed: false,
-    tags: ['отчеты', 'встречи'],
-  },
-  {
-    id: 4,
-    name: 'Задача 4',
-    due_date: '2025-09-16T14:14:00',
-    is_completed: false,
-  },
-  {
-    id: 5,
-    name: 'Задача 3',
-    color: '#EEAABB',
-    due_date: '2025-09-15T14:14:00',
-    is_completed: false,
-    tags: ['отчеты', 'встречи'],
-  },
-  { id: 6, name: 'Задача 1', is_completed: false, tags: ['важно'] },
-  { id: 7, name: 'Задача 2', color: '#FFEEAA', is_completed: false },
-  {
-    id: 8,
-    name: 'Задача 4',
-    due_date: '2025-09-16T14:14:00',
-    is_completed: false,
-  },
-])
-
-const taskColumns = computed(() => {
-  const result: any = Array.from({ length: numCols.value }, () => [])
-  tasks.value.forEach((task, index) => {
-    result[index % numCols.value].push(task)
-  })
-  return result
-})
 
 function updateTaskColumns() {
   const windowWidth = window.innerWidth
@@ -65,6 +25,18 @@ function updateTaskColumns() {
     numCols.value = 3
   }
 }
+
+const tasks = computed(() => {
+  return TASK_STORE.tasks
+})
+
+const taskColumns = computed(() => {
+  const result: any = Array.from({ length: numCols.value }, () => [])
+  tasks.value.forEach((task, index) => {
+    result[index % numCols.value].push(task)
+  })
+  return result
+})
 
 onMounted(() => {
   updateTaskColumns()

@@ -1,5 +1,5 @@
 import { AvailableColors } from '@/enums/AvailableColors'
-import { IWorkspace } from '@/interfaces/domain/IWorkspace'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 export default class WorkspaceModel implements IWorkspace {
   public id: string
@@ -7,7 +7,7 @@ export default class WorkspaceModel implements IWorkspace {
   public userId: string
   public isFavorite: boolean
   public order: number
-  public color: typeof AvailableColors
+  public color: AvailableColors
   public isDeleted: boolean
   public deletedTime?: Date
   public createdAt: Date

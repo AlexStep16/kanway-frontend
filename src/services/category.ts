@@ -1,5 +1,5 @@
 import CategoryModel from '@models/CategoryModel'
-import ICategory from '@models/CategoryModel'
+import { ICategory } from '@interfaces/domain/ICategory'
 import {
   getCategoriesApi,
   postCategoryApi,
@@ -7,8 +7,11 @@ import {
   deleteCategoryApi,
   archiveCategoryApi,
   cloneCategoryApi,
+  bulkUpdateCategoriesApi,
 } from '@api/categories'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
+import { useTaskDataStore } from '@stores/taskData'
+import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 
 export function transformCategory(raw: ICategory): ICategoryState {
   const categoryModel = new CategoryModel({
@@ -49,6 +52,16 @@ export async function saveCategory(
   return saveResult.map(transformCategory)
 }
 
+export async function saveCategories(
+  workspaceId: string,
+  boardId: string,
+  payload: ISingleUpdate<CategoryModel>[],
+) {
+  const saveResult = await bulkUpdateCategoriesApi(workspaceId, boardId, payload)
+
+  return saveResult.map(transformCategory)
+}
+
 export async function removeCategory(categoryId: string, workspaceId: string, boardId: string) {
   await deleteCategoryApi(categoryId, workspaceId, boardId)
 }
@@ -62,5 +75,7 @@ export async function archiveCategory(categoryId: string, workspaceId: string, b
 export async function cloneCategory(categoryId: string, workspaceId: string, boardId: string) {
   const cloneResult = await cloneCategoryApi(categoryId, boardId, workspaceId)
 
-  return cloneResult.map(transformCategory)
+  useTaskDataStore().integrateTasks(cloneResult.tasks)
+
+  return cloneResult.categories.map(transformCategory)
 }
