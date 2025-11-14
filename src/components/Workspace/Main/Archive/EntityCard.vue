@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vue'
 import { SquareKanban } from 'lucide-vue-next'
 
 defineProps<{
   name: string
-  hideButtons?: boolean
   showInfo?: boolean
 }>()
 </script>
@@ -21,6 +19,6 @@ defineProps<{
     </div>
     <span class="text-gray-800 text-sm overflow-hidden shrink-1 break-words">{{ name }}</span>
 
-    <RecoverButtons v-if="!hideButtons" />
+    <slot />
   </div>
 </template>

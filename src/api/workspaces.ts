@@ -10,6 +10,13 @@ export async function getWorkspacesApi() {
   })
 }
 
+export async function getArchivedWorkspacesApi() {
+  return await apiCall<IWorkspace[]>({
+    method: 'GET',
+    url: `/archive/workspaces`,
+  })
+}
+
 export async function postWorkspaceApi(payload: Partial<IBoard>) {
   return await apiCall<IWorkspace[]>({
     method: 'POST',
@@ -37,6 +44,13 @@ export async function archiveWorkspaceApi(workspaceId: string) {
   return await apiCall<IWorkspace[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/archive`,
+  })
+}
+
+export async function recoverWorkspaceApi(workspaceId: string) {
+  return await apiCall<IWorkspace[]>({
+    method: 'PATCH',
+    url: `/workspaces/${workspaceId}/recover`,
   })
 }
 

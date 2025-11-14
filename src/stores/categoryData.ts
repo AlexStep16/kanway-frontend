@@ -2,11 +2,13 @@ import {
   fetchCategories,
   saveCategory,
   archiveCategory as archiveCategoryService,
+  recoverCategory as recoverCategoryService,
   cloneCategory as cloneCategoryService,
   createCategory,
   removeCategory,
   transformCategory,
   saveCategories,
+  fetchArchivedCategories,
 } from '@services/category'
 import { BackendError, HttpError } from '@utils/errors'
 import { defineStore } from 'pinia'
@@ -22,6 +24,9 @@ import { v4 } from 'uuid'
 import { ICategory } from '@/interfaces/domain/ICategory'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import _ from 'lodash'
+import { requestQueueService } from '@/utils/RequestQueueService'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 type CategoryErrorType = Nullable<BackendError | HttpError>
 
@@ -29,27 +34,35 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   const BOARD_STORE = useBoardDataStore()
   const WORKSPACE_STORE = useWorkspaceDataStore()
 
+  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+  const activeBoard = computed(() => BOARD_STORE.getActiveBoard as IBoard)
+
   // State
   const categories = ref<Array<ICategoryState>>([])
 
   // Errors
   const loadCategoriesError = ref<CategoryErrorType>(null)
+  const loadArchivedCategoriesError = ref<CategoryErrorType>(null)
   const _addCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
   const _editManyCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
   const _editCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
   const _deleteCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
   const _archiveCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
+  const _recoverCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
   const _cloneCategoriesError = ref<Map<string, CategoryErrorType>>(new Map())
 
   // Loading
   const _loadingStatusBoards = ref<Map<string, boolean>>(new Map())
+  const _loadingStatusArchived = ref<boolean>(false)
   const _loadedBoards = ref<Set<string>>(new Set())
+  const _isArchivedCategoriesLoaded = ref<boolean>(false)
   const _addingCategories = ref<Set<string>>(new Set())
   const _editingManyCategories = ref<Set<string>>(new Set())
   const _editingCategories = ref<Set<string>>(new Set())
   const _movingCategories = ref<Set<string>>(new Set())
   const _deletingCategories = ref<Set<string>>(new Set())
   const _archivingCategories = ref<Set<string>>(new Set())
+  const _recoveringCategories = ref<Set<string>>(new Set())
   const _cloningCategories = ref<Set<string>>(new Set())
 
   async function loadCategories(
@@ -68,7 +81,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       const categoriesPayload = await fetchCategories(workspaceId, boardId)
 
-      categories.value = categories.value.filter((c) => c.boardId !== boardId) // Remove old categories of this board
+      categories.value = categories.value.filter((c) => c.boardId !== boardId || c.isDeleted) // Remove old categories of this board
       categories.value.push(...categoriesPayload)
       _loadedBoards.value.add(boardId)
 
@@ -93,9 +106,46 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     }
   }
 
+  async function loadArchivedCategories(force_reload: boolean = false) {
+    if (_isArchivedCategoriesLoaded.value && !force_reload) return
+    if (_loadingStatusArchived.value) return
+
+    loadArchivedCategoriesError.value = null
+    _loadingStatusArchived.value = true
+
+    try {
+      const categoriesPayload = await fetchArchivedCategories()
+
+      categories.value = categories.value.filter((c) => !c.isDeleted) // Remove old archived categories
+
+      categories.value.push(...categoriesPayload)
+
+      _isArchivedCategoriesLoaded.value = true
+
+      return true
+    } catch (e) {
+      if (e instanceof BackendError) {
+        loadArchivedCategoriesError.value = e
+      } else if (e instanceof HttpError) {
+        loadArchivedCategoriesError.value = e
+
+        if (e.status === 401) {
+        }
+      } else {
+        loadArchivedCategoriesError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+      }
+
+      toast.error(loadArchivedCategoriesError.value.message)
+
+      return false
+    } finally {
+      _loadingStatusArchived.value = false
+    }
+  }
+
   async function _addCategory(
     payload: CategoryModel,
-    boardId: Nullable<string>,
+    boardId: string,
   ): Promise<ICategoryState | false> {
     if (!boardId || !payload) return false
 
@@ -103,11 +153,14 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
     try {
       _addingCategories.value.add(payload.id)
+      const board = BOARD_STORE.getBoardById(boardId)
 
-      const newCategories: ICategoryState[] = await createCategory(
-        { ...payload, boardId },
+      if (!board) return false
+
+      const newCategories = await createCategory(
+        { ...payload, boardName: board.name, workspaceName: activeWorkspace.value.name },
         boardId,
-        WORKSPACE_STORE.getActiveWorkspaceId,
+        activeWorkspace.value.id,
       )
 
       return newCategories[0]
@@ -136,6 +189,8 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     payload: ICategoryState,
     boardId: string,
   ): Promise<ICategoryState | false> {
+    if (!boardId) return false
+
     try {
       const clonedPayload: ICategoryState = { ...payload }
       cleanStateFields(clonedPayload)
@@ -158,13 +213,18 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   function addCategoryToStore(boardId: string) {
     if (categories.value.some((c) => c.boardId === boardId && c.isNew)) return null
+    const board = BOARD_STORE.getBoardById(boardId)
+
+    if (!board) return null
 
     const newCategory = new CategoryModel({
       id: 'new-' + v4(),
       name: '',
-      workspaceId: WORKSPACE_STORE.getActiveWorkspaceId,
+      workspaceId: activeWorkspace.value.id,
+      workspaceName: activeWorkspace.value.name,
       order: getCategoriesByBoardId(boardId).length + 1,
-      boardId: BOARD_STORE.getActiveBoardId,
+      boardId: board.id,
+      boardName: board.name,
       userId: '',
       isDeleted: false,
       isDeletedExternal: false,
@@ -185,7 +245,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     category.name = categoryName
 
     if (category.isNew && category.name.trim() !== '') {
-      addCategory(category, BOARD_STORE.getActiveBoardId)
+      addCategory(category, activeBoard.value.id)
     } else {
       const index = categories.value.findIndex((c) => c.id === category.id)
 
@@ -229,7 +289,12 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
         _editingManyCategories.value.add(p.id)
       }
 
-      const editManyResult = await saveCategories(workspaceId, boardId, payload)
+      const coreAction = () => saveCategories(workspaceId, boardId, payload)
+
+      const editManyResult = await requestQueueService.enqueueBulk(
+        payload.map((p) => p.id),
+        coreAction,
+      )
       const newCategories = editManyResult.filter((c) => payload.some((p) => p.id === c.id))
 
       if (newCategories.length === 0) throw new Error('Сервер не вернул обновленные категории')
@@ -276,7 +341,9 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       _editingCategories.value.add(payload.id)
 
-      const editResult = await saveCategory(workspaceId, boardId, payload)
+      const coreAction = () => saveCategory(workspaceId, boardId, payload)
+
+      const editResult = await requestQueueService.enqueue(payload.id, coreAction)
 
       const newCategory = editResult.find((c) => c.id === payload.id)
 
@@ -323,7 +390,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
       const result = await _updateCategory(clonedPayload, workspaceId, boardId)
 
-      if (!isOptimisticUpdate) _updateOrAddCategoriesInStore([result])
+      _updateOrAddCategoriesInStore([result])
 
       return result
     } catch {
@@ -345,19 +412,19 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     delete payload.tempId
   }
 
-  async function rollbackCategories(boardId: string) {
-    await loadCategories(boardId, WORKSPACE_STORE.getActiveWorkspaceId, true)
-  }
-
   async function updateCategories(
     payload: ISingleUpdate<ICategoryState>[],
-    workspaceId: string,
-    boardId: string,
     isOptimisticUpdate: boolean = false,
-    isReorderNeeded: boolean = true,
-    isMoveNeeded: boolean = true,
   ): Promise<ICategoryState[] | false> {
     if (payload.length === 0) return false
+    const savedCategories: ICategoryState[] = []
+
+    for (const p of payload) {
+      const existingCategory = categories.value.find((c) => c.id === p.id)
+      if (existingCategory) {
+        savedCategories.push(_.cloneDeep(existingCategory))
+      }
+    }
 
     try {
       if (isOptimisticUpdate) {
@@ -365,25 +432,23 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
       }
 
       const clonedPayload = payload.map((p) => {
-        const clonedP = { ...p, isReorderNeeded, isMoveNeeded }
+        const clonedP = { ...p }
         cleanStateFields(clonedP)
         return clonedP
       })
 
       const result = await _updateCategories(
         clonedPayload,
-        WORKSPACE_STORE.getActiveWorkspaceId,
-        boardId,
+        activeWorkspace.value.id,
+        activeBoard.value.id,
       )
 
-      if (!isOptimisticUpdate) {
-        _updateOrAddCategoriesInStore(result)
-      }
+      _updateOrAddCategoriesInStore(result)
 
       return result
     } catch {
       if (isOptimisticUpdate) {
-        rollbackCategories(workspaceId)
+        _updateOrAddCategoriesInStore(savedCategories)
       }
 
       toast.error(
@@ -403,7 +468,10 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       _deletingCategories.value.add(category.id)
 
-      await removeCategory(category.id, WORKSPACE_STORE.getActiveWorkspaceId, category.boardId)
+      const coreAction = () =>
+        removeCategory(category.id, activeWorkspace.value.id, activeBoard.value.id)
+
+      await requestQueueService.enqueue(category.id, coreAction)
 
       const categoryIndex = categories.value.findIndex((c) => c.id === category.id)
       if (categoryIndex !== -1) {
@@ -460,7 +528,9 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       _archivingCategories.value.add(category.id)
 
-      const archiveResult = await archiveCategoryService(category.id, workspaceId, category.boardId)
+      const coreAction = () => archiveCategoryService(category.id, workspaceId, category.boardId)
+
+      const archiveResult = await requestQueueService.enqueue(category.id, coreAction)
       const archivedCategory = archiveResult.find((c) => c.id === category.id) as ICategoryState
 
       if (!archivedCategory) throw new Error('Сервер не вернул архивированную категорию')
@@ -513,6 +583,71 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     }
   }
 
+  async function _recoverCategory(
+    category: CategoryModel,
+    workspaceId: string,
+  ): Promise<ICategoryState[]> {
+    if (!category) throw new Error('Нет категории для восстановления')
+
+    _recoverCategoriesError.value.delete(category.id)
+
+    try {
+      _updateOrAddCategoriesInStore([category]) // Optimistic update
+
+      _recoveringCategories.value.add(category.id)
+
+      const coreAction = () => recoverCategoryService(category.id, workspaceId, category.boardId)
+
+      const recoverResult = await requestQueueService.enqueue(category.id, coreAction)
+      const recoveredCategory = recoverResult.find((c) => c.id === category.id)
+
+      if (!recoveredCategory) throw new Error('Сервер не вернул восстановленную категорию')
+
+      return recoverResult
+    } catch (e) {
+      if (e instanceof BackendError) {
+        _recoverCategoriesError.value.set(category.id, e)
+      } else if (e instanceof HttpError) {
+        _recoverCategoriesError.value.set(category.id, e)
+
+        if (e.status === 401) {
+        }
+      } else {
+        _recoverCategoriesError.value.set(
+          category.id,
+          new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+        )
+      }
+
+      throw e
+    } finally {
+      _recoveringCategories.value.delete(category.id)
+    }
+  }
+
+  async function recoverCategory(category: CategoryModel): Promise<ICategoryState | false> {
+    try {
+      const clonedCategory: ICategoryState = { ...category }
+      cleanStateFields(clonedCategory)
+
+      const recoverResult = await _recoverCategory(clonedCategory, activeWorkspace.value.id)
+      const recoveredCategory = recoverResult.find((c) => c.id === category.id) as ICategoryState
+
+      _updateOrAddCategoriesInStore(recoverResult)
+
+      toast.success('Категория успешно восстановлена')
+
+      return recoveredCategory
+    } catch {
+      toast.error(
+        _recoverCategoriesError.value.get(category.id)?.message ||
+          'Ошибка при восстановлении категории',
+      )
+
+      return false
+    }
+  }
+
   async function _cloneCategory(
     category: CategoryModel,
     workspaceId: string,
@@ -524,7 +659,9 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     try {
       _cloningCategories.value.add(category.id)
 
-      const newCategories = await cloneCategoryService(category.id, workspaceId, category.boardId)
+      const coreAction = () => cloneCategoryService(category.id, workspaceId, category.boardId)
+
+      const newCategories = await requestQueueService.enqueue(category.id, coreAction)
 
       if (!newCategories[0]) throw new Error('Сервер не вернул новую категорию')
 
@@ -580,13 +717,15 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     workspaceId: string,
   ): Promise<ICategoryState | false> {
     const category = categories.value.find((c) => c.id === categoryId)
+    const newBoard = BOARD_STORE.getBoardById(newBoardId)
 
-    if (!category) {
-      toast.error('Категория не найдена')
-      return false
+    if (!newBoard || !category) return false
+
+    const newCategory: ICategoryState = {
+      ...category,
+      boardId: newBoardId,
+      boardName: newBoard.name,
     }
-
-    const newCategory: ICategoryState = { ...category, boardId: newBoardId }
     cleanStateFields(newCategory)
 
     try {
@@ -645,12 +784,10 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   }
 
   const getActiveBoardCategories = computed((): ICategoryState[] => {
-    if (!BOARD_STORE.activeBoard) return []
+    if (!activeBoard.value) return []
 
     return categories.value
-      .filter(
-        (category) => category.boardId === BOARD_STORE.getActiveBoardId && !category.isDeleted,
-      )
+      .filter((category) => category.boardId === activeBoard.value.id && !category.isDeleted)
       .sort((a, b) => {
         return a.order - b.order
       })
@@ -660,6 +797,16 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     return getActiveBoardCategories.value.filter(
       (category) => category.name.toLowerCase().startsWith(name.toLowerCase()) && !category.isNew,
     )
+  })
+
+  const getArchivedCategories = computed((): ICategoryState[] => {
+    return categories.value
+      .filter((category) => category.isDeleted)
+      .sort((a, b) => {
+        if (!a.deletedTime || !b.deletedTime) return a.updatedAt.getTime() - b.updatedAt.getTime()
+
+        return b.deletedTime.getTime() - a.deletedTime.getTime()
+      })
   })
 
   function isCategoryProcessing(categoryId: string): boolean {
@@ -700,6 +847,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     isCategoryCloning,
     isCategoryAdding,
     getActiveBoardCategoriesByName,
+    getArchivedCategories,
 
     // Errors
     loadCategoriesError,
@@ -714,6 +862,8 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     moveCategory,
     deleteCategory,
     archiveCategory,
+    recoverCategory,
+    loadArchivedCategories,
     cloneCategory,
     getCategoryById,
     getCategoriesByBoardId,

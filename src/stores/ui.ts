@@ -5,6 +5,8 @@ import { ref } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
 import { useBoardDataStore } from '@stores/boardData'
+import { useTaskDataStore } from '@stores/taskData'
+import { useCategoryDataStore } from '@stores/categoryData'
 
 export const useUIStore = defineStore('ui', () => {
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
@@ -15,10 +17,13 @@ export const useUIStore = defineStore('ui', () => {
   const chatModalRef = ref<Nullable<HTMLElement>>(null)
   const chatModalHSInstance = ref<Nullable<HSOverlay>>(null)
   const tipRef = ref<Nullable<HTMLElement>>(null)
+  const sidebarRef = ref<Nullable<HTMLElement>>(null)
 
   const currentTab = ref<Tabs>(Tabs.Board)
 
   const BOARD_STORE = useBoardDataStore()
+  const TASK_STORE = useTaskDataStore()
+  const CATEGORY_STORE = useCategoryDataStore()
 
   const isSidebarOpen = ref(true)
 
@@ -67,7 +72,11 @@ export const useUIStore = defineStore('ui', () => {
   }
 
   function selectArchive() {
+    TASK_STORE.loadArchivedTasks()
+    CATEGORY_STORE.loadArchivedCategories()
+
     currentTab.value = Tabs.Archive
+
     BOARD_STORE.resetBoardSelection()
   }
 
@@ -100,6 +109,7 @@ export const useUIStore = defineStore('ui', () => {
     isSidebarOpen,
     tipRef,
     currentTab,
+    sidebarRef,
 
     // Actions
     openEditTaskModal,

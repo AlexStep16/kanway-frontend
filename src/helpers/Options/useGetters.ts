@@ -80,14 +80,6 @@ export function useGetters(
     return false
   })
 
-  function getOtherWorkspaces() {
-    return WORKSPACE_STORE.getOtherWorkspaces(WORKSPACE_STORE.getActiveWorkspaceId)
-  }
-
-  function getOtherBoards() {
-    return BOARD_STORE.getOtherBoards(BOARD_STORE.getActiveBoardId)
-  }
-
   return {
     getWorkspaceItem,
     getBoardItem,
@@ -96,8 +88,5 @@ export function useGetters(
     isItemCopying,
     isItemAddingToFavorites,
     isProcessing,
-
-    getOtherWorkspaces,
-    getOtherBoards,
   }
 }

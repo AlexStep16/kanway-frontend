@@ -2,7 +2,6 @@
 import BoardModel from '@models/BoardModel'
 import WorkspaceModel from '@models/WorkspaceModel'
 import { Archive, ChevronLeft } from 'lucide-vue-next'
-import Spinner from '@components/Loader/Spinner.vue'
 
 defineProps<{
   otherItems: Array<WorkspaceModel | BoardModel>
@@ -43,11 +42,6 @@ function closeTransfer() {
         :disabled="isProcessing"
         @click="$emit('moveItem', item.id)"
       >
-        <div class="absolute size-full flex items-center gap-x-2" v-if="isItemMoving">
-          <Spinner class="size-4" />
-
-          Перемещение...
-        </div>
         <div
           class="flex items-center gap-x-2 group-disabled:opacity-70"
           :class="{ 'opacity-0!': isItemMoving }"

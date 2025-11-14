@@ -10,6 +10,7 @@ defineProps<{
 defineEmits<{
   (e: 'update:name', name: string): void
   (e: 'resetErrors'): void
+  (e: 'submit'): void
 }>()
 </script>
 
@@ -30,6 +31,7 @@ defineEmits<{
       :value="name"
       @focus="$emit('resetErrors')"
       @input="$emit('update:name', ($event.target as HTMLInputElement).value)"
+      @keydown.enter="$emit('submit')"
     />
   </div>
 </template>

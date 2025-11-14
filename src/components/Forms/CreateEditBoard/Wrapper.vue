@@ -10,6 +10,7 @@ import { toast } from 'vue-sonner'
 import { BoardValidationErrors } from '@interfaces/BoardValidationErrors'
 import type BoardModel from '@/models/BoardModel'
 import { Nullable } from '@/types/utils'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 
 const dropdown = ref<Nullable<HTMLElement>>(null)
 const dropdownMenu = ref<Nullable<HTMLElement>>(null)
@@ -21,6 +22,8 @@ const validationErrors = ref<BoardValidationErrors>({
 
 const BOARD_STORE = useBoardDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
+
+const activeWorkspace = ref<IWorkspace>(WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
 const name = ref('')
 const isFormChanged = computed(() => {
@@ -85,7 +88,7 @@ async function createBoard() {
     return
   }
 
-  const result = await BOARD_STORE.addBoardToWorkspace(board, WORKSPACE_STORE.getActiveWorkspaceId)
+  const result = await BOARD_STORE.addBoardToWorkspace(board, activeWorkspace.value.id)
 
   if (result !== false && typeof result === 'object' && result !== null) {
     closeDropdown()

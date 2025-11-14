@@ -16,10 +16,13 @@ import { toast } from 'vue-sonner'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useTaskDataStore } from '@stores/taskData'
+import { useUIStore } from '@stores/ui'
 import { Nullable } from '@/types/utils'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import _ from 'lodash'
+import { requestQueueService } from '@/utils/RequestQueueService'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 
 type BoardErrorType = Nullable<BackendError | HttpError>
 
@@ -31,6 +34,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     const WORKSPACE_STORE = useWorkspaceDataStore()
     const CATEGORY_STORE = useCategoryDataStore()
     const TASK_STORE = useTaskDataStore()
+    const UI_STORE = useUIStore()
+
+    const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
     // Errors
     const loadBoardsError = ref<BoardErrorType>(null)
@@ -93,11 +99,11 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     async function selectBoard(newBoard: BoardModel, shouldNavigate: boolean = false) {
       if (!newBoard || newBoard.id === activeBoard.value?.id) return
 
-      if (WORKSPACE_STORE.activeWorkspace && shouldNavigate) {
+      if (activeWorkspace.value && shouldNavigate) {
         window.history.pushState(
           { triggeredBy: 'user' },
           '',
-          `/workspace/${WORKSPACE_STORE.activeWorkspace.id}/${newBoard.id}`,
+          `/workspace/${activeWorkspace.value.id}/${newBoard.id}`,
         )
       }
 
@@ -106,13 +112,10 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
       setTimeout(() => (document.title = 'Kanbar | ' + newBoard.name), 0)
 
-      if (
-        !CATEGORY_STORE.areCategoriesLoaded(newBoard.id) &&
-        !CATEGORY_STORE.areCategoriesLoading(newBoard.id)
-      ) {
-        await CATEGORY_STORE.loadCategories(newBoard.id, newBoard.workspaceId)
-        await TASK_STORE.loadTasks(newBoard.id, newBoard.workspaceId)
-      }
+      UI_STORE.selectBoard() // Change current UI view to board view
+
+      await CATEGORY_STORE.loadCategories(newBoard.id, newBoard.workspaceId)
+      await TASK_STORE.loadTasks(newBoard.id, newBoard.workspaceId)
     }
 
     function resetBoardSelection() {
@@ -126,13 +129,19 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     ): Promise<BoardModel | false> {
       if (!workspaceId || !payload) return false
       if (_isAddingBoard.value) throw new Error('Доска уже добавляется')
+      const workspace = WORKSPACE_STORE.getWorkspaceById(workspaceId)
+
+      if (!workspace) return false
 
       _addBoardError.value = null
 
       try {
         _isAddingBoard.value = true
 
-        const newBoards: BoardModel[] = await createBoard({ ...payload, workspaceId }, workspaceId)
+        const newBoards: BoardModel[] = await createBoard(
+          { ...payload, workspaceId, workspaceName: workspace.name },
+          workspaceId,
+        )
 
         return newBoards[0]
       } catch (e) {
@@ -200,7 +209,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       try {
         _editingBoards.value.add(payload.id)
 
-        const editResult = await saveBoard(payload)
+        const coreAction = () => saveBoard(payload)
+
+        const editResult = await requestQueueService.enqueue(payload.id, coreAction)
 
         const newBoard = editResult.find((b) => b.id === payload.id)
 
@@ -242,7 +253,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
         const result = await _updateBoard(payload)
 
-        if (!isOptimisticUpdate) _updateBoardsInStore([result])
+        _updateBoardsInStore([result])
 
         return result
       } catch {
@@ -266,7 +277,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       try {
         _deletingBoards.value.add(board.id)
 
-        await removeBoard(board.id, workspaceId)
+        const coreAction = () => removeBoard(board.id, workspaceId)
+
+        await requestQueueService.enqueue(board.id, coreAction)
 
         const boardIndex = boards.value.findIndex((b) => b.id === board.id)
         if (boardIndex !== -1) {
@@ -319,7 +332,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       try {
         _archivingBoards.value.add(board.id)
 
-        const archiveResult = await archiveBoardService(board.id, workspaceId)
+        const coreAction = () => archiveBoardService(board.id, workspaceId)
+
+        const archiveResult = await requestQueueService.enqueue(board.id, coreAction)
         const archivedBoard = archiveResult.find((b) => b.id === board.id)
 
         if (!archivedBoard) throw new Error('Сервер не вернул архивированную доску')
@@ -379,7 +394,9 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       try {
         _cloningBoards.value.add(board.id)
 
-        const newBoards = await cloneBoardService(board.id, board.workspaceId)
+        const coreAction = () => cloneBoardService(board.id, board.workspaceId)
+
+        const newBoards = await requestQueueService.enqueue(board.id, coreAction)
 
         if (!newBoards[0]) throw new Error('Сервер не вернул новую доску')
 
@@ -421,7 +438,15 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     }
 
     async function moveBoard(board: BoardModel, newWorkspaceId: string) {
-      const newBoard: BoardModel = { ...board, workspaceId: newWorkspaceId }
+      const workspace = WORKSPACE_STORE.getWorkspaceById(newWorkspaceId)
+
+      if (!workspace) return false
+
+      const newBoard: BoardModel = {
+        ...board,
+        workspaceId: newWorkspaceId,
+        workspaceName: workspace.name,
+      }
 
       try {
         _movingBoards.value.add(board.id)
@@ -451,16 +476,23 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     async function makeFavorite(board: BoardModel) {
       const newBoard = { ...board, isFavorite: !board.isFavorite }
+      const savedBoard = _.cloneDeep(boards.value.find((c) => c.id === board.id))
+
+      if (savedBoard) _updateBoardsInStore([savedBoard])
 
       try {
         _addingToFavoritesBoards.value.add(board.id)
 
         const result = await _updateBoard(newBoard)
 
+        _updateBoardsInStore([result])
+
         toast.success('Доска успешно добавлена в избранное')
 
         return result
       } catch {
+        if (savedBoard) _updateBoardsInStore([savedBoard])
+
         toast.error(
           _editBoardsError.value.get(board.id)?.message ||
             'Ошибка при добавлении доски в избранное',
@@ -531,23 +563,21 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     }
 
     const getActiveWorkspaceBoards = computed((): BoardModel[] => {
-      if (!WORKSPACE_STORE.activeWorkspace) return []
+      if (!activeWorkspace.value) return []
 
       return boards.value
-        .filter(
-          (board) => board.workspaceId === WORKSPACE_STORE.getActiveWorkspaceId && !board.isDeleted,
-        )
+        .filter((board) => board.workspaceId === activeWorkspace.value.id && !board.isDeleted)
         .sort((a, b) => {
           return a.order - b.order
         })
     })
 
-    const getActiveBoardId = computed(() => {
-      return activeBoard.value?.id ?? ''
+    const getActiveBoard = computed((): BoardModel | null => {
+      return activeBoard.value
     })
 
     const getActiveWorkspaceFavoriteBoards = computed((): BoardModel[] => {
-      if (!WORKSPACE_STORE.activeWorkspace) return []
+      if (!activeWorkspace.value) return []
 
       return getActiveWorkspaceBoards.value.filter(
         (board) => board.isFavorite && board.isDeleted === false,
@@ -587,7 +617,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       isBoardMoving,
       isBoardAddingToFavorites,
       getActiveWorkspaceFavoriteBoards,
-      getActiveBoardId,
+      getActiveBoard,
       getOtherBoards,
 
       // Actions

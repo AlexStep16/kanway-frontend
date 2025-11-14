@@ -4,7 +4,6 @@ import Category from '@components/Workspace/Main/Category/Category.vue'
 import AIInput from '@components/Workspace/Main/AIInput.vue'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
 import draggable from 'vuedraggable'
 
 import { Plus } from 'lucide-vue-next'
@@ -14,7 +13,6 @@ import _ from 'lodash'
 
 const CATEGORY_STORE = useCategoryDataStore()
 const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
 
 const boardCategories = computed(() => CATEGORY_STORE.getActiveBoardCategories)
 
@@ -33,14 +31,7 @@ function sortCategories() {
     category.order = index + 1
   })
 
-  CATEGORY_STORE.updateCategories(
-    localCategoryList.value,
-    WORKSPACE_STORE.getActiveWorkspaceId,
-    BOARD_STORE.getActiveBoardId,
-    true,
-    false,
-    false,
-  )
+  CATEGORY_STORE.updateCategories(localCategoryList.value, true)
 }
 
 const newCategoryInputElement = ref<HTMLInputElement | null>(null)
@@ -99,7 +90,7 @@ function connectInputEditRef(el: HTMLInputElement) {
         type="button"
         class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
         title="Добавить категорию"
-        @click="CATEGORY_STORE.addCategoryToStore(BOARD_STORE.getActiveBoardId)"
+        @click="CATEGORY_STORE.addCategoryToStore(BOARD_STORE.activeBoard?.id || '')"
       >
         <Plus class="size-6" />
       </button>

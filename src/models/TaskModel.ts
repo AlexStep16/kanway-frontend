@@ -6,8 +6,11 @@ export class TaskModel implements ITask {
   public id: string
   public name: string
   public workspaceId: string
+  public workspaceName: string
   public boardId: string
+  public boardName: string
   public categoryId: string
+  public categoryName: string
   public isDeleted: boolean
   public isDeletedExternal: boolean
   public order: number
@@ -28,8 +31,11 @@ export class TaskModel implements ITask {
     this.id = props.id
     this.name = props.name
     this.workspaceId = props.workspaceId
+    this.workspaceName = props.workspaceName
     this.boardId = props.boardId
+    this.boardName = props.boardName
     this.categoryId = props.categoryId
+    this.categoryName = props.categoryName
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal
     this.order = props.order

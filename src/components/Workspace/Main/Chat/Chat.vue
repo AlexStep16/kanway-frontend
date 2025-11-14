@@ -213,7 +213,6 @@ onMounted(() => {
                   v-for="category in columnCategories"
                   :key="category.id"
                   :name="category.name"
-                  :hideButtons="true"
                   :showInfo="true"
                 ></EntityCard>
               </div>

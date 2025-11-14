@@ -5,8 +5,11 @@ export interface ITask {
   id: string
   name: string
   workspaceId: string
+  workspaceName: string
   boardId: string
+  boardName: string
   categoryId: string
+  categoryName: string
   isDeleted: boolean
   isDeletedExternal: boolean
   order: number

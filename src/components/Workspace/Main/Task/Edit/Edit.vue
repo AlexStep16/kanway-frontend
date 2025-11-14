@@ -16,12 +16,15 @@ import { TASK_COLORS } from '@/constants/TASK_COLORS'
 import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
 import { Nullable } from '@/types/utils'
 import { ITaskState } from '@stores/interfaces/ITaskState'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 import _ from 'lodash'
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
+
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
 const textareaNameAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
 const textareaDescriptionAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
@@ -153,7 +156,7 @@ function handleClearColor() {
 }
 
 function handleMoveTask(payload: { taskId: string; newCategoryId: string }) {
-  TASK_STORE.moveTask(payload.taskId, payload.newCategoryId, WORKSPACE_STORE.getActiveWorkspaceId)
+  TASK_STORE.moveTask(payload.taskId, payload.newCategoryId, activeWorkspace.value.id)
 }
 
 function updateTask(payload: Partial<TaskModel>) {

@@ -18,6 +18,8 @@ import { useGetters } from '@helpers/Options/useGetters'
 import { useActions } from '@helpers/Options/useActions'
 import TransferForm from './TransferForm.vue'
 import { Nullable } from '@/types/utils'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useBoardDataStore } from '@stores/boardData'
 
 const props = defineProps<{
   options: {
@@ -35,6 +37,9 @@ const props = defineProps<{
   is_always_visible?: boolean
 }>()
 
+const WORKSPACE_STORE = useWorkspaceDataStore()
+const BOARD_STORE = useBoardDataStore()
+
 const { item, edit_type } = toRefs(props)
 
 const {
@@ -45,8 +50,6 @@ const {
   isItemCopying,
   isItemAddingToFavorites,
   isProcessing,
-  getOtherWorkspaces,
-  getOtherBoards,
 } = useGetters(item, edit_type)
 
 const { archiveItem, moveItem, cloneItem, makeFavorite } = useActions(
@@ -95,11 +98,11 @@ const isItemFavorite = computed(() => {
 
 const getOtherItems = computed(() => {
   if (edit_type.value === 'board') {
-    return getOtherWorkspaces().filter((workspace) => workspace.id !== item.value.id)
+    return WORKSPACE_STORE.getOtherWorkspaces((item.value as BoardModel).workspaceId)
   }
 
   if (edit_type.value === 'category') {
-    return getOtherBoards().filter((board) => board.id !== item.value.id)
+    return BOARD_STORE.getOtherBoards((item.value as CategoryModel).boardId)
   }
 
   return []
@@ -197,9 +200,19 @@ onMounted(() => {
             v-if="options.move"
             :disabled="isProcessing"
           >
-            <MoveHorizontal class="size-4" />
+            <div class="absolute size-full flex items-center gap-x-2" v-if="isItemMoving">
+              <Spinner class="size-4" />
 
-            Переместить
+              Перемещение...
+            </div>
+            <div
+              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': isItemMoving }"
+            >
+              <MoveHorizontal class="size-4" />
+
+              Переместить
+            </div>
           </button>
           <button
             class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
@@ -265,8 +278,13 @@ onMounted(() => {
           :isProcessing="isProcessing"
           :isItemMoving="isItemMoving"
           :noItemsText="'Нет других ' + (edit_type === 'board' ? 'пространств' : 'досок')"
-          @closeTransfer="closeDropdown"
-          @moveItem="moveItem"
+          @closeTransfer="showTransfer = false"
+          @moveItem="
+            (event) => {
+              showTransfer = false
+              moveItem(event)
+            }
+          "
         />
       </div>
     </div>

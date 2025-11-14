@@ -4,6 +4,7 @@ export default class BoardModel implements IBoard {
   public id: string
   public name: string
   public workspaceId: string
+  public workspaceName: string
   public userId: string
   public isFavorite: boolean
   public order: number
@@ -17,6 +18,7 @@ export default class BoardModel implements IBoard {
     this.id = props.id
     this.name = props.name
     this.workspaceId = props.workspaceId
+    this.workspaceName = props.workspaceName
     this.userId = props.userId
     this.isFavorite = props.isFavorite
     this.order = props.order

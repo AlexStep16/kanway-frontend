@@ -4,7 +4,8 @@ import CategoryModel from '@models/CategoryModel'
 import WorkspaceModel from '@models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { Ref } from 'vue'
+import { computed, Ref } from 'vue'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 export function useActions(
   item: Ref<WorkspaceModel | BoardModel | CategoryModel>,
@@ -15,16 +16,15 @@ export function useActions(
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const CATEGORY_STORE = useCategoryDataStore()
 
+  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+
   async function archiveItem() {
     if (edit_type.value === 'board') {
-      await BOARD_STORE.archiveBoard(item.value as BoardModel, WORKSPACE_STORE.getActiveWorkspaceId)
+      await BOARD_STORE.archiveBoard(item.value as BoardModel, activeWorkspace.value.id)
     } else if (edit_type.value === 'workspace') {
       await WORKSPACE_STORE.archiveWorkspace(item.value as WorkspaceModel)
     } else if (edit_type.value === 'category') {
-      await CATEGORY_STORE.archiveCategory(
-        item.value as CategoryModel,
-        WORKSPACE_STORE.getActiveWorkspaceId,
-      )
+      await CATEGORY_STORE.archiveCategory(item.value as CategoryModel, activeWorkspace.value.id)
     }
 
     closeDropdown()
@@ -36,10 +36,7 @@ export function useActions(
     } else if (edit_type.value === 'workspace') {
       await WORKSPACE_STORE.cloneWorkspace(item.value as WorkspaceModel)
     } else if (edit_type.value === 'category') {
-      await CATEGORY_STORE.cloneCategory(
-        item.value as CategoryModel,
-        WORKSPACE_STORE.getActiveWorkspaceId,
-      )
+      await CATEGORY_STORE.cloneCategory(item.value as CategoryModel, activeWorkspace.value.id)
     }
 
     closeDropdown()
@@ -49,11 +46,7 @@ export function useActions(
     if (edit_type.value === 'board') {
       await BOARD_STORE.moveBoard(item.value as BoardModel, newItemId)
     } else if (edit_type.value === 'category') {
-      await CATEGORY_STORE.moveCategory(
-        item.value.id,
-        newItemId,
-        WORKSPACE_STORE.getActiveWorkspaceId,
-      )
+      await CATEGORY_STORE.moveCategory(item.value.id, newItemId, activeWorkspace.value.id)
     }
 
     closeDropdown()

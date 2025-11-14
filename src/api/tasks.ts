@@ -10,6 +10,13 @@ export async function getTasksApi(workspaceId: string, boardId: string) {
   })
 }
 
+export async function getArchivedTasksApi() {
+  return await apiCall<ITask[]>({
+    method: 'GET',
+    url: `/archive/tasks`,
+  })
+}
+
 export async function postTaskApi(payload: Partial<ITask>, workspaceId: string, boardId: string) {
   return await apiCall<ITask[]>({
     method: 'POST',
@@ -63,6 +70,13 @@ export async function archiveTaskApi(workspaceId: string, boardId: string, taskI
   return await apiCall<ITask[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}/archive`,
+  })
+}
+
+export async function recoverTaskApi(workspaceId: string, boardId: string, taskId: string) {
+  return await apiCall<ITask[]>({
+    method: 'PATCH',
+    url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}/recover`,
   })
 }
 

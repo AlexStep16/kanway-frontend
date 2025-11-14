@@ -18,7 +18,7 @@ import NumberBadge from '@components/Badges/NumberBadge.vue'
 import { useUIStore } from '@stores/ui'
 import CreateEditWorkspaceDropdown from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
 import CreateEditBoardDropdown from '@components/Forms/CreateEditBoard/Wrapper.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
 import { useTipsStore } from '@stores/tips'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
@@ -26,14 +26,17 @@ import { useBoardDataStore } from '@stores/boardData'
 import EditForm from '@components/Options/EditForm.vue'
 import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
 import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
-import BoardsSkeleton from './BoardsSkeleton.vue'
-import NumberBadgeSkeleton from '@/components/Badges/NumberBadgeSkeleton.vue'
+import BoardsSkeleton from '@components/Workspace/Sidebar/BoardsSkeleton.vue'
+import NumberBadgeSkeleton from '@components/Badges/NumberBadgeSkeleton.vue'
 import { Nullable } from '@/types/utils'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 const UI_STORE = useUIStore()
 const TIPS_STORE = useTipsStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const BOARD_STORE = useBoardDataStore()
+
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
 if (window.innerWidth < 1280) {
   UI_STORE.isSidebarOpen = false
@@ -111,6 +114,11 @@ onMounted(() => {
       '-translate-x-full': !UI_STORE.isSidebarOpen,
       'translate-x-0': UI_STORE.isSidebarOpen,
     }"
+    :ref="
+      (el: any) => {
+        UI_STORE.sidebarRef = el as HTMLElement
+      }
+    "
     role="dialog"
     tabindex="-1"
     aria-label="Sidebar"
@@ -133,13 +141,13 @@ onMounted(() => {
           >
             <div
               class="size-7 shrink-0 rounded-md flex items-center justify-center font-semibold text-white"
-              :style="{ backgroundColor: WORKSPACE_STORE.getActiveWorkspaceColor || '#3B82F6' }"
+              :style="{ backgroundColor: activeWorkspace.color || '#3B82F6' }"
             >
               {{ WORKSPACE_STORE.getFirstLetterOfActiveWorkspace }}
             </div>
             <div class="flex flex-col truncate">
-              <span class="text-sm truncate" :title="WORKSPACE_STORE.getActiveWorkspaceName">{{
-                WORKSPACE_STORE.getActiveWorkspaceName
+              <span class="text-sm truncate" :title="activeWorkspace.name">{{
+                activeWorkspace.name
               }}</span>
             </div>
             <svg
@@ -172,7 +180,7 @@ onMounted(() => {
                 v-for="workspace in WORKSPACE_STORE.getWorkspaces"
                 :key="workspace.id"
                 :item="workspace"
-                :selected="workspace.id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false"
+                :selected="workspace.id === activeWorkspace.id ? true : false"
                 :resetForm="resetWorkspaceForm"
                 @select="selectWorkspace(workspace)"
                 type="workspace"
@@ -236,9 +244,7 @@ onMounted(() => {
               >
                 <SquareKanban class="size-4" />
                 Доски
-                <NumberBadgeSkeleton
-                  v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
-                />
+                <NumberBadgeSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)" />
                 <NumberBadge :number="BOARD_STORE.getActiveWorkspaceBoards.length" v-else />
 
                 <ChevronDown
@@ -255,9 +261,7 @@ onMounted(() => {
                 role="region"
                 aria-labelledby="boards-accordion"
               >
-                <BoardsSkeleton
-                  v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
-                />
+                <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)" />
                 <ul
                   class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
                   v-else
@@ -399,9 +403,7 @@ onMounted(() => {
                           v-for="workspace in WORKSPACE_STORE.getFavoriteWorkspaces"
                           :key="workspace.id"
                           :item="workspace"
-                          :selected="
-                            workspace.id === WORKSPACE_STORE.getActiveWorkspaceId ? true : false
-                          "
+                          :selected="workspace.id === activeWorkspace.id ? true : false"
                           :resetForm="resetWorkspaceForm"
                           type="workspace"
                         >
@@ -439,7 +441,7 @@ onMounted(() => {
                     >
                       Доски
                       <NumberBadgeSkeleton
-                        v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
+                        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)"
                       />
                       <NumberBadge
                         :number="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
@@ -462,9 +464,7 @@ onMounted(() => {
                       role="region"
                       aria-labelledby="users-accordion-sub-2"
                     >
-                      <BoardsSkeleton
-                        v-if="BOARD_STORE.areBoardsLoading(WORKSPACE_STORE.getActiveWorkspaceId)"
-                      />
+                      <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)" />
                       <ul
                         class="pt-1 ps-2 space-y-1"
                         v-else-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"

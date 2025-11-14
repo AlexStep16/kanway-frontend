@@ -6,28 +6,46 @@ import NumberBadge from '@components/Badges/NumberBadge.vue'
 import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vue'
 
 import Tabs from '@/enums/TabsEnum'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { Archive } from 'lucide-vue-next'
-import { useTaskDataStore } from '@/stores/taskData'
+
+import { useTaskDataStore } from '@stores/taskData'
+import { useCategoryDataStore } from '@stores/categoryData'
+import { useBoardDataStore } from '@stores/boardData'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useUIStore } from '@stores/ui'
 
 const TASK_STORE = useTaskDataStore()
+const CATEGORY_STORE = useCategoryDataStore()
+const BOARD_STORE = useBoardDataStore()
+const WORKSPACE_STORE = useWorkspaceDataStore()
+const UI_STORE = useUIStore()
 
 const numCols = ref(3)
+const archiveRef = ref<HTMLElement | null>(null)
 
-function updateTaskColumns() {
-  const windowWidth = window.innerWidth
+function updateColumns() {
+  if (!archiveRef.value) return
 
-  if (windowWidth < 824) {
+  const width = archiveRef.value.clientWidth
+
+  if (width < 492) {
     numCols.value = 1
-  } else if (windowWidth < 1090) {
+  } else if (width < 745) {
     numCols.value = 2
-  } else {
+  } else if (width < 993) {
     numCols.value = 3
+  } else {
+    numCols.value = 4
   }
 }
 
 const tasks = computed(() => {
-  return TASK_STORE.tasks
+  return TASK_STORE.getArchivedTasks
+})
+
+const categories = computed(() => {
+  return CATEGORY_STORE.getArchivedCategories
 })
 
 const taskColumns = computed(() => {
@@ -38,18 +56,35 @@ const taskColumns = computed(() => {
   return result
 })
 
-onMounted(() => {
-  updateTaskColumns()
+const categoryColumns = computed(() => {
+  const result: any = Array.from({ length: numCols.value }, () => [])
+  categories.value.forEach((category, index) => {
+    result[index % numCols.value].push(category)
+  })
+  return result
+})
 
+const isArchiveEmpty = computed(() => {
+  return tasks.value.length === 0
+})
+
+watch(archiveRef, () => {
+  updateColumns()
+})
+
+onMounted(() => {
   window.addEventListener('resize', () => {
-    updateTaskColumns()
+    updateColumns()
   })
 })
 </script>
 <template>
   <Header :tab="Tabs.Archive" />
 
-  <div class="size-full py-3 flex items-center justify-center gap-5 overflow-y-auto" v-if="false">
+  <div
+    class="size-full py-3 flex items-center justify-center gap-5 overflow-y-auto"
+    v-if="isArchiveEmpty"
+  >
     <div class="flex flex-col items-center gap-y-2">
       <div class="text-gray-500"><Archive class="size-10" /></div>
       <div class="text-lg text-gray-500 font-medium">Архив пуст</div>
@@ -60,18 +95,20 @@ onMounted(() => {
   </div>
 
   <div
-    class="size-full py-3 flex flex-col gap-5 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+    class="size-full py-2 my-1 px-0.5 flex flex-col gap-5 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+    ref="archiveRef"
+    v-else
   >
     <div class="w-full">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Задачи</span>
-        <NumberBadge :number="12" />
+        <NumberBadge :number="tasks.length" />
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </div>
       <div class="flex gap-2">
         <div
           v-for="(columnTasks, colIndex) in taskColumns"
-          :key="colIndex"
+          :key="colIndex + '_tasks'"
           class="flex flex-col gap-2 mt-2"
         >
           <Task
@@ -79,9 +116,13 @@ onMounted(() => {
             :key="task.id"
             :task="task"
             :hasBorder="true"
+            :showInfo="true"
             taskClasses="self-start"
           >
-            <RecoverButtons />
+            <RecoverButtons
+              @recover="TASK_STORE.recoverTask(task)"
+              @delete="TASK_STORE.deleteTask(task)"
+            />
           </Task>
         </div>
       </div>
@@ -90,11 +131,22 @@ onMounted(() => {
     <div class="w-full">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Категории</span>
-        <NumberBadge :number="55" />
+        <NumberBadge :number="categories.length" />
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </div>
       <div class="flex gap-2 mt-2">
-        <EntityCard name="Личное" />
+        <div
+          v-for="(columnCategories, colIndex) in categoryColumns"
+          :key="colIndex + '_categories'"
+          class="flex flex-col gap-2 mt-2"
+        >
+          <EntityCard v-for="category in columnCategories" :key="category.id" :name="category.name">
+            <RecoverButtons
+              @recover="CATEGORY_STORE.recoverCategory(category)"
+              @delete="CATEGORY_STORE.deleteCategory(category)"
+            />
+          </EntityCard>
+        </div>
       </div>
     </div>
 

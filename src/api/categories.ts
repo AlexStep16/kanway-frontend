@@ -11,6 +11,13 @@ export async function getCategoriesApi(workspaceId: string, boardId: string) {
   })
 }
 
+export async function getArchivedCategoriesApi() {
+  return await apiCall<ICategory[]>({
+    method: 'GET',
+    url: `/archive/categories`,
+  })
+}
+
 export async function postCategoryApi(
   payload: Partial<ICategory>,
   workspaceId: string,
@@ -65,6 +72,13 @@ export async function archiveCategoryApi(categoryId: string, boardId: string, wo
   return await apiCall<ICategory[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/archive`,
+  })
+}
+
+export async function recoverCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
+  return await apiCall<ICategory[]>({
+    method: 'PATCH',
+    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/recover`,
   })
 }
 

@@ -8,6 +8,8 @@ import {
   archiveTaskApi,
   cloneTaskApi,
   bulkUpdateTasksApi,
+  getArchivedTasksApi,
+  recoverTaskApi,
 } from '@api/tasks'
 import dayjs from 'dayjs'
 import { ITaskState } from '@stores/interfaces/ITaskState'
@@ -42,6 +44,12 @@ export async function fetchTasks(workspaceId: string, boardId: string) {
   return tasks.map(transformTask)
 }
 
+export async function fetchArchivedTasks() {
+  const tasks = await getArchivedTasksApi()
+
+  return tasks.map(transformTask)
+}
+
 export async function createTask(
   payload: Partial<TaskModel>,
   boardId: string,
@@ -67,19 +75,25 @@ export async function saveTasks(
   boardId: string,
   payload: ISingleUpdate<TaskModel>[],
 ) {
-  bulkUpdateTasksApi(workspaceId, boardId, payload)
   const saveResult = await bulkUpdateTasksApi(workspaceId, boardId, payload)
+
   return saveResult.map(transformTask)
 }
 
 export async function removeTask(taskId: string, workspaceId: string, boardId: string) {
-  await deleteTaskApi(taskId, workspaceId, boardId)
+  await deleteTaskApi(workspaceId, boardId, taskId)
 }
 
 export async function archiveTask(taskId: string, workspaceId: string, boardId: string) {
   const archiveResult = await archiveTaskApi(workspaceId, boardId, taskId)
 
   return archiveResult.map(transformTask)
+}
+
+export async function recoverTask(taskId: string, workspaceId: string, boardId: string) {
+  const recoverResult = await recoverTaskApi(workspaceId, boardId, taskId)
+
+  return recoverResult.map(transformTask)
 }
 
 export async function cloneTask(taskId: string, workspaceId: string, boardId: string) {

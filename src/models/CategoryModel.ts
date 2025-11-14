@@ -4,7 +4,9 @@ export default class CategoryModel implements ICategory {
   public id: string
   public name: string
   public workspaceId: string
+  public workspaceName: string
   public boardId: string
+  public boardName: string
   public order: number
   public isDeleted: boolean
   public isDeletedExternal: boolean
@@ -17,7 +19,9 @@ export default class CategoryModel implements ICategory {
     this.id = props.id
     this.name = props.name
     this.workspaceId = props.workspaceId
+    this.workspaceName = props.workspaceName
     this.boardId = props.boardId
+    this.boardName = props.boardName
     this.order = props.order
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal

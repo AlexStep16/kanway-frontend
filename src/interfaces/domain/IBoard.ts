@@ -2,6 +2,7 @@ export interface IBoard {
   id: string
   name: string
   workspaceId: string
+  workspaceName: string
   userId: string
   isFavorite: boolean
   order: number

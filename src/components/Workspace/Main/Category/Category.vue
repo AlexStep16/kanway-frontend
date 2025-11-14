@@ -13,6 +13,7 @@ import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import draggable from 'vuedraggable'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import _ from 'lodash'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 const props = defineProps<{
   category: ICategoryState
@@ -25,6 +26,8 @@ const emit = defineEmits<{
 const CATEGORY_STORE = useCategoryDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const TASK_STORE = useTaskDataStore()
+
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
 const isInputVisible = ref(false)
 const inputEditRef = ref<Nullable<HTMLInputElement>>(null)
@@ -44,7 +47,6 @@ watch(
 )
 
 watch(inputAddRef, (newVal) => {
-  console.log(newVal)
   if (newVal) emit('connectInputEditRef', newVal)
 })
 
@@ -58,10 +60,21 @@ function sortTasks() {
 
     task.order = index + 1
     task.categoryId = props.category.id
+    task.categoryName = props.category.name
   })
 
-  if (isSortNeeded)
-    TASK_STORE.updateTasks(localTaskList.value, props.category.boardId, true, false, false)
+  if (isSortNeeded) {
+    const reducedTasks = localTaskList.value.map((task: ITaskState) => {
+      return {
+        id: task.id,
+        order: task.order,
+        categoryId: task.categoryId,
+        categoryName: task.categoryName,
+      }
+    })
+
+    TASK_STORE.updateTasks(reducedTasks, props.category.boardId, true)
+  }
 }
 
 function showInput() {
@@ -84,7 +97,7 @@ function updateCategoryName(event: Event) {
     CATEGORY_STORE.updateCategory(
       { ...props.category, name: newName },
       props.category.boardId,
-      WORKSPACE_STORE.getActiveWorkspaceId,
+      activeWorkspace.value.id,
       true,
     )
   }

@@ -7,6 +7,8 @@ import {
   getBoardsApi,
   postBoardApi,
   patchBoardApi,
+  getArchivedBoardsApi,
+  recoverBoardApi,
 } from '@api/boards'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useTaskDataStore } from '@stores/taskData'
@@ -21,6 +23,12 @@ export function transformBoard(raw: IBoard): BoardModel {
 
 export async function fetchBoards(workspaceId: string) {
   const boards = await getBoardsApi(workspaceId)
+
+  return boards.map(transformBoard)
+}
+
+export async function fetchArchivedBoards() {
+  const boards = await getArchivedBoardsApi()
 
   return boards.map(transformBoard)
 }
@@ -47,6 +55,12 @@ export async function archiveBoard(boardId: string, workspaceId: string) {
   const archiveResult = await archiveBoardApi(boardId, workspaceId)
 
   return archiveResult.map(transformBoard)
+}
+
+export async function recoverBoard(boardId: string, workspaceId: string) {
+  const recoverResult = await recoverBoardApi(boardId, workspaceId)
+
+  return recoverResult.map(transformBoard)
 }
 
 export async function cloneBoard(boardId: string, workspaceId: string) {

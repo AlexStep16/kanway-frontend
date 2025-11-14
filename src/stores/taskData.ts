@@ -3,10 +3,12 @@ import {
   saveTask,
   saveTasks,
   archiveTask as archiveTaskService,
+  recoverTask as recoverTaskService,
   cloneTask as cloneTaskService,
   removeTask,
   createTask,
   transformTask,
+  fetchArchivedTasks,
 } from '@services/task'
 import { BackendError, HttpError } from '@utils/errors'
 import { defineStore } from 'pinia'
@@ -24,12 +26,21 @@ import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import _ from 'lodash'
 import { ITaskFilters } from '@/interfaces/domain/ITaskFilters'
 import dayjs from 'dayjs'
+import { requestQueueService } from '@/utils/RequestQueueService'
+import { ICategoryState } from '@stores/interfaces/ICategoryState'
+import { useCategoryDataStore } from '@stores/categoryData'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 type TaskErrorType = Nullable<BackendError | HttpError>
 
 export const useTaskDataStore = defineStore('taskData', () => {
   const BOARD_STORE = useBoardDataStore()
   const WORKSPACE_STORE = useWorkspaceDataStore()
+  const CATEGORY_STORE = useCategoryDataStore()
+
+  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+  const activeBoard = computed(() => BOARD_STORE.getActiveBoard as IBoard)
 
   // State
   const tasks = ref<Array<ITaskState>>([])
@@ -46,15 +57,19 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   // Errors
   const loadTasksError = ref<TaskErrorType>(null)
+  const loadArchivedTasksError = ref<TaskErrorType>(null)
   const _addTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _editTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _editManyTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _archiveTasksError = ref<Map<string, TaskErrorType>>(new Map())
+  const _recoverTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _cloneTasksError = ref<Map<string, TaskErrorType>>(new Map())
   const _deleteTasksError = ref<Map<string, TaskErrorType>>(new Map())
 
   // Loading
   const _loadingStatusBoards = ref<Map<string, boolean>>(new Map())
+  const _loadingStatusArchived = ref<boolean>(false)
+  const _isArchivedTasksLoaded = ref<boolean>(false)
   const _loadedBoards = ref<Set<string>>(new Set())
   const _addingTasks = ref<Set<string>>(new Set())
   const _editingTasks = ref<Set<string>>(new Set())
@@ -62,6 +77,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
   const _movingTasks = ref<Set<string>>(new Set())
   const _deletingTasks = ref<Set<string>>(new Set())
   const _archivingTasks = ref<Set<string>>(new Set())
+  const _recoveringTasks = ref<Set<string>>(new Set())
   const _cloningTasks = ref<Set<string>>(new Set())
 
   async function loadTasks(boardId: string, workspaceId: string, force_reload: boolean = false) {
@@ -76,7 +92,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     try {
       const tasksPayload = await fetchTasks(workspaceId, boardId)
 
-      tasks.value = tasks.value.filter((t) => t.boardId !== boardId) // Remove old tasks of this board
+      tasks.value = tasks.value.filter((t) => t.boardId !== boardId || t.isDeleted) // Remove old tasks of this board
 
       tasks.value.push(...tasksPayload)
 
@@ -103,15 +119,57 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
+  async function loadArchivedTasks(force_reload: boolean = false) {
+    if (_isArchivedTasksLoaded.value && !force_reload) return
+    if (_loadingStatusArchived.value) return
+
+    loadArchivedTasksError.value = null
+    _loadingStatusArchived.value = true
+
+    try {
+      const tasksPayload = await fetchArchivedTasks()
+
+      tasks.value = tasks.value.filter((t) => !t.isDeleted) // Remove old archived tasks
+
+      tasks.value.push(...tasksPayload)
+
+      _isArchivedTasksLoaded.value = true
+
+      return true
+    } catch (e) {
+      if (e instanceof BackendError) {
+        loadArchivedTasksError.value = e
+      } else if (e instanceof HttpError) {
+        loadArchivedTasksError.value = e
+
+        if (e.status === 401) {
+        }
+      } else {
+        loadArchivedTasksError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+      }
+
+      toast.error(loadArchivedTasksError.value.message)
+
+      return false
+    } finally {
+      _loadingStatusArchived.value = false
+    }
+  }
+
   function addTaskToStore(categoryId: string) {
+    if (!categoryId) return null
     if (tasks.value.some((t) => t.categoryId === categoryId && t.isNew)) return null
+    const category = CATEGORY_STORE.getCategoryById(categoryId) as ICategoryState
 
     const newTask = new TaskModel({
       id: 'new-' + v4(),
       name: '',
-      workspaceId: WORKSPACE_STORE.getActiveWorkspaceId,
-      boardId: BOARD_STORE.getActiveBoardId,
-      categoryId: categoryId,
+      workspaceId: activeWorkspace.value.id,
+      workspaceName: activeWorkspace.value.name,
+      boardId: activeBoard.value.id,
+      boardName: activeBoard.value.name,
+      categoryId: category.id,
+      categoryName: category.name,
       isDeleted: false,
       isDeletedExternal: false,
       order: getTasksByCategoryId(categoryId).length + 1,
@@ -140,8 +198,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
           if (existingTask) {
             Object.assign(existingTask, newTask, { isNew: false })
           }
-        } else {
-          const addedTask = addTaskToStore(newTask!.categoryId || '')
+        } else if (newTask.categoryId) {
+          const addedTask = addTaskToStore(newTask.categoryId)
 
           if (addedTask) Object.assign(addedTask, newTask, { isNew: false })
         }
@@ -154,19 +212,30 @@ export const useTaskDataStore = defineStore('taskData', () => {
   async function _addTask(
     payload: TaskModel,
     categoryId: Nullable<string>,
-    boardId: string,
+    boardId: string | null,
   ): Promise<ITaskState | false> {
-    if (!categoryId || !payload) return false
+    if (!categoryId || !boardId || !payload) return false
 
     _addTasksError.value.delete(payload.id)
 
     try {
       _addingTasks.value.add(payload.id)
 
+      const board = BOARD_STORE.getBoardById(boardId)
+      const category = CATEGORY_STORE.getCategoryById(categoryId)
+
+      if (!board || !category) return false
+
       const newTasks: ITaskState[] = await createTask(
-        { ...payload, categoryId },
+        {
+          ...payload,
+          categoryId,
+          categoryName: category.name,
+          boardName: board.name,
+          workspaceName: activeWorkspace.value.name,
+        },
         boardId,
-        WORKSPACE_STORE.getActiveWorkspaceId,
+        activeWorkspace.value.id,
       )
 
       return newTasks[0]
@@ -193,7 +262,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     delete payload.tempId
   }
 
-  async function addTask(payload: ITaskState, boardId: string): Promise<ITaskState | false> {
+  async function addTask(payload: ITaskState, boardId: string | null): Promise<ITaskState | false> {
     try {
       const clonedPayload: ITaskState = { ...payload }
       cleanStateFields(clonedPayload)
@@ -218,7 +287,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     task.name = taskName
 
     if (task.isNew && task.name.trim() !== '') {
-      addTask(task, BOARD_STORE.getActiveBoardId)
+      addTask(task, BOARD_STORE.getActiveBoard?.id ?? null)
     } else {
       const index = tasks.value.findIndex((t) => t.id === task.id)
 
@@ -241,7 +310,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
         _editingManyTasks.value.add(p.id)
       }
 
-      const editManyResult = await saveTasks(workspaceId, boardId, payload)
+      const coreAction = () => saveTasks(workspaceId, boardId, payload)
+
+      const editManyResult = await requestQueueService.enqueueBulk(
+        payload.map((p) => p.id),
+        coreAction,
+      )
       const newTasks = editManyResult.filter((t) => payload.some((p) => p.id === t.id))
 
       if (newTasks.length === 0) throw new Error('Сервер не вернул обновленные задачи')
@@ -285,7 +359,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
     try {
       _editingTasks.value.add(payload.id)
 
-      const editResult = await saveTask(workspaceId, boardId, payload)
+      const coreAction = () => saveTask(workspaceId, boardId, payload)
+
+      const editResult = await requestQueueService.enqueue(payload.id, coreAction)
 
       const newTask = editResult.find((c) => c.id === payload.id)
 
@@ -310,10 +386,6 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
-  async function rollbackTasks(boardId: string) {
-    await loadTasks(boardId, WORKSPACE_STORE.getActiveWorkspaceId, true)
-  }
-
   async function updateTask(
     payload: ISingleUpdate<ITaskState>,
     boardId: string,
@@ -321,6 +393,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
   ): Promise<ITaskState | false> {
     if (!isTaskChanged(payload)) return false
     const savedTask = _.cloneDeep(tasks.value.find((t) => t.id === payload.id))
+    const board = BOARD_STORE.getBoardById(boardId)
+
+    if (!board) return false
 
     try {
       if (isOptimisticUpdate && savedTask) {
@@ -329,9 +404,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
       const clonedPayload: ISingleUpdate<ITaskState> = { ...payload }
       cleanStateFields(clonedPayload)
-      const result = await _updateTask(clonedPayload, WORKSPACE_STORE.getActiveWorkspaceId, boardId)
+      const result = await _updateTask(clonedPayload, activeWorkspace.value.id, board.id)
 
-      if (!isOptimisticUpdate) _updateOrAddTasksInStore([result])
+      _updateOrAddTasksInStore([result])
 
       return result
     } catch {
@@ -351,10 +426,19 @@ export const useTaskDataStore = defineStore('taskData', () => {
     payload: ISingleUpdate<ITaskState>[],
     boardId: string,
     isOptimisticUpdate: boolean = false,
-    isReorderNeeded: boolean = true,
-    isMoveNeeded: boolean = true,
   ): Promise<ITaskState[] | false> {
     if (payload.length === 0) return false
+    const savedTasks: ITaskState[] = []
+    const board = BOARD_STORE.getBoardById(boardId)
+
+    if (!board) return false
+
+    for (const p of payload) {
+      const existingTask = tasks.value.find((t) => t.id === p.id)
+      if (existingTask) {
+        savedTasks.push(_.cloneDeep(existingTask))
+      }
+    }
 
     try {
       if (isOptimisticUpdate) {
@@ -362,25 +446,23 @@ export const useTaskDataStore = defineStore('taskData', () => {
       }
 
       const clonedPayload = payload.map((p) => {
-        const clonedP = { ...p, isReorderNeeded, isMoveNeeded }
+        const clonedP = { ...p }
         cleanStateFields(clonedP)
         return clonedP
       })
 
       const result = await _updateTasks(
         clonedPayload,
-        WORKSPACE_STORE.getActiveWorkspaceId,
-        boardId,
+        activeWorkspace.value.id,
+        activeBoard.value.id,
       )
 
-      if (!isOptimisticUpdate) {
-        _updateOrAddTasksInStore(result)
-      }
+      _updateOrAddTasksInStore(result)
 
       return result
     } catch {
       if (isOptimisticUpdate) {
-        rollbackTasks(boardId)
+        _updateOrAddTasksInStore(savedTasks)
       }
 
       toast.error(
@@ -399,7 +481,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
     try {
       _deletingTasks.value.add(task.id)
 
-      await removeTask(task.id, WORKSPACE_STORE.getActiveWorkspaceId, task.boardId)
+      const coreAction = () => removeTask(task.id, activeWorkspace.value.id, task.boardId)
+
+      await requestQueueService.enqueue(task.id, coreAction)
 
       const taskIndex = tasks.value.findIndex((t) => t.id === task.id)
       if (taskIndex !== -1) {
@@ -448,7 +532,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
     try {
       _archivingTasks.value.add(task.id)
 
-      const archiveResult = await archiveTaskService(task.id, workspaceId, task.boardId)
+      const coreAction = () => archiveTaskService(task.id, workspaceId, task.boardId)
+
+      const archiveResult = await requestQueueService.enqueue(task.id, coreAction)
       const archivedTask = archiveResult.find((t) => t.id === task.id)
 
       if (!archivedTask) throw new Error('Сервер не вернул архивированную задачу')
@@ -477,7 +563,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const clonedTask: ITaskState = { ...task }
       cleanStateFields(clonedTask)
 
-      const archiveResult = await _archiveTask(clonedTask, WORKSPACE_STORE.getActiveWorkspaceId)
+      const archiveResult = await _archiveTask(clonedTask, activeWorkspace.value.id)
       const archivedTask = archiveResult.find((t) => t.id === task.id) as ITaskState
 
       _updateOrAddTasksInStore(archiveResult)
@@ -494,6 +580,64 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
+  async function _recoverTask(task: TaskModel, workspaceId: string): Promise<ITaskState[]> {
+    if (!task) throw new Error('Нет задачи для восстановления')
+
+    _recoverTasksError.value.delete(task.id)
+
+    try {
+      _updateOrAddTasksInStore([task]) // Optimistic update
+
+      _recoveringTasks.value.add(task.id)
+
+      const coreAction = () => recoverTaskService(task.id, workspaceId, task.boardId)
+
+      const recoverResult = await requestQueueService.enqueue(task.id, coreAction)
+      const recoveredTask = recoverResult.find((t) => t.id === task.id)
+
+      if (!recoveredTask) throw new Error('Сервер не вернул восстановленную задачу')
+
+      return recoverResult
+    } catch (e) {
+      if (e instanceof BackendError) {
+        _recoverTasksError.value.set(task.id, e)
+      } else if (e instanceof HttpError) {
+        _recoverTasksError.value.set(task.id, e)
+
+        if (e.status === 401) {
+        }
+      } else {
+        _recoverTasksError.value.set(task.id, new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null))
+      }
+
+      throw e
+    } finally {
+      _recoveringTasks.value.delete(task.id)
+    }
+  }
+
+  async function recoverTask(task: ITaskState): Promise<ITaskState | false> {
+    try {
+      const clonedTask: ITaskState = { ...task }
+      cleanStateFields(clonedTask)
+
+      const recoverResult = await _recoverTask(clonedTask, activeWorkspace.value.id)
+      const recoveredTask = recoverResult.find((t) => t.id === task.id) as ITaskState
+
+      _updateOrAddTasksInStore(recoverResult)
+
+      toast.success('Задача успешно восстановлена')
+
+      return recoveredTask
+    } catch {
+      toast.error(
+        _recoverTasksError.value.get(task.id)?.message || 'Ошибка при восстановлении задачи',
+      )
+
+      return false
+    }
+  }
+
   async function _cloneTask(task: TaskModel, workspaceId: string): Promise<ITaskState> {
     if (!task) throw new Error('Нет задачи для копирования')
 
@@ -502,7 +646,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
     try {
       _cloningTasks.value.add(task.id)
 
-      const newTasks = await cloneTaskService(task.id, workspaceId, task.boardId)
+      const coreAction = () => cloneTaskService(task.id, workspaceId, task.boardId)
+
+      const newTasks = await requestQueueService.enqueue(task.id, coreAction)
 
       if (!newTasks[0]) throw new Error('Сервер не вернул новую задачу')
 
@@ -530,7 +676,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const clonedTask: ITaskState = { ...task }
       cleanStateFields(clonedTask)
 
-      const result = await _cloneTask(clonedTask, WORKSPACE_STORE.getActiveWorkspaceId)
+      const result = await _cloneTask(clonedTask, activeWorkspace.value.id)
 
       _updateOrAddTasksInStore([result])
 
@@ -550,13 +696,15 @@ export const useTaskDataStore = defineStore('taskData', () => {
     workspaceId: string,
   ): Promise<ITaskState | false> {
     const task = tasks.value.find((t) => t.id === taskId)
+    const newCategory = CATEGORY_STORE.getCategoryById(newCategoryId)
 
-    if (!task) {
-      toast.error('Задача не найдена')
-      return false
+    if (!newCategory || !task) return false
+
+    const newTask: ITaskState = {
+      ...task,
+      categoryId: newCategoryId,
+      categoryName: newCategory.name,
     }
-
-    const newTask: ITaskState = { ...task, categoryId: newCategoryId }
     cleanStateFields(newTask)
 
     try {
@@ -740,6 +888,16 @@ export const useTaskDataStore = defineStore('taskData', () => {
     return getFilteredTasks.value
   })
 
+  const getArchivedTasks = computed((): ITaskState[] => {
+    return tasks.value
+      .filter((task) => task.isDeleted)
+      .sort((a, b) => {
+        if (!a.deletedTime || !b.deletedTime) return a.updatedAt.getTime() - b.updatedAt.getTime()
+
+        return b.deletedTime.getTime() - a.deletedTime.getTime()
+      })
+  })
+
   const getTasksTags = computed((): string[] => {
     return getActiveBoardTasks.value.reduce((acc: string[], task: ITaskState) => {
       if (task.tags && task.tags.length > 0) {
@@ -754,10 +912,10 @@ export const useTaskDataStore = defineStore('taskData', () => {
   })
 
   const getActiveBoardTasks = computed((): ITaskState[] => {
-    if (!BOARD_STORE.activeBoard) return []
+    if (!activeBoard.value) return []
 
     return tasks.value
-      .filter((task) => task.boardId === BOARD_STORE.getActiveBoardId && !task.isDeleted)
+      .filter((task) => task.boardId === activeBoard.value.id && !task.isDeleted)
       .sort((a, b) => {
         return a.order - b.order
       })
@@ -827,12 +985,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
     getTasksTags,
     isFilterActive,
     getActiveBoardTasksByName,
+    getArchivedTasks,
 
     // Errors
     loadTasksError,
 
     // Actions
     loadTasks,
+    loadArchivedTasks,
     areTasksLoading,
     areTasksLoaded,
     updateTask,
@@ -840,6 +1000,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     moveTask,
     deleteTask,
     archiveTask,
+    recoverTask,
     cloneTask,
     getVisibleTasksByCategoryId,
     getTasksByCategoryId,

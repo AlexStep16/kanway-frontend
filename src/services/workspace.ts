@@ -7,6 +7,8 @@ import {
   getWorkspacesApi,
   postWorkspaceApi,
   patchWorkspaceApi,
+  getArchivedWorkspacesApi,
+  recoverWorkspaceApi,
 } from '@api/workspaces'
 import { useBoardDataStore } from '@stores/boardData'
 import { useCategoryDataStore } from '@stores/categoryData'
@@ -22,6 +24,12 @@ export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
 
 export async function fetchWorkspaces() {
   const workspaces = await getWorkspacesApi()
+
+  return workspaces.map(transformWorkspace)
+}
+
+export async function fetchArchivedWorkspaces() {
+  const workspaces = await getArchivedWorkspacesApi()
 
   return workspaces.map(transformWorkspace)
 }
@@ -46,6 +54,12 @@ export async function archiveWorkspace(workspaceId: string) {
   const archiveResult = await archiveWorkspaceApi(workspaceId)
 
   return archiveResult.map(transformWorkspace)
+}
+
+export async function recoverWorkspace(workspaceId: string) {
+  const recoverResult = await recoverWorkspaceApi(workspaceId)
+
+  return recoverResult.map(transformWorkspace)
 }
 
 export async function cloneWorkspace(workspaceId: string) {

@@ -7,6 +7,8 @@ import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'luci
 import { computed, nextTick, ref, watch } from 'vue'
 import { getTimeInReadableFormat } from '@utils/date'
 import Spinner from '@/components/Loader/Spinner.vue'
+import { useCategoryDataStore } from '@/stores/categoryData'
+import { useBoardDataStore } from '@/stores/boardData'
 
 const emit = defineEmits<{
   (e: 'updateTask', payload: { id: string; isCompleted: boolean }): void
@@ -37,6 +39,8 @@ const inputAddRef = ref<HTMLInputElement | null>(null)
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
+const CATEGORY_STORE = useCategoryDataStore()
+const BOARD_STORE = useBoardDataStore()
 
 watch(inputAddRef, (newVal) => {
   if (newVal) emit('connectInputEditRef', newVal)
@@ -114,6 +118,16 @@ function startDragging() {
   dragStartTime.value = Date.now()
 }
 
+function getCategoryName(categoryId: string): string {
+  const category = CATEGORY_STORE.getCategoryById(categoryId)
+  return category ? category.name : 'Без категории'
+}
+
+function getBoardName(boardId: string): string {
+  const board = BOARD_STORE.getBoardById(boardId)
+  return board ? board.name : 'Без доски'
+}
+
 const isTaskAdding = computed(() => {
   return TASK_STORE.isTaskAdding(props.task.id)
 })
@@ -134,6 +148,7 @@ const isTaskArchiving = computed(() => {
       'border border-gray-200': hasBorder,
       'shadow-sm': !hasBorder,
       [taskClasses || '']: !!taskClasses,
+      undraggable: task.isNew,
     }"
     @mousedown="startDragging"
     @click="edit(task)"
@@ -157,20 +172,24 @@ const isTaskArchiving = computed(() => {
       <!-- Info -->
       <div class="flex items-center gap-x-2" v-if="showInfo">
         <div class="flex items-center gap-x-1 text-gray-500">
-          <Layers class="size-3" /><span class="text-xs">Отчёты</span>
+          <Layers class="size-3" /><span class="text-xs">{{
+            getCategoryName(task.categoryId)
+          }}</span>
         </div>
         <div class="flex items-center gap-x-1 text-gray-500">
-          <SquareKanban class="size-3" /><span class="text-xs">Личная</span>
+          <SquareKanban class="size-3" /><span class="text-xs">{{
+            getBoardName(task.boardId)
+          }}</span>
         </div>
       </div>
 
       <div class="flex items-start justify-between gap-x-2">
         <div
-          class="flex items-center gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform -translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
+          class="flex items-center gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform pointer-fine:-translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
           :class="{ 'translate-x-0!': task.isCompleted }"
         >
           <div
-            class="inline-flex items-center opacity-0 pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
+            class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
             :class="{ 'opacity-100! pointer-events-auto!': task.isCompleted }"
           >
             <div class="size-5 flex items-center justify-center">

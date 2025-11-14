@@ -34,6 +34,7 @@ defineEmits<{
       :errors="errors"
       @resetErrors="$emit('resetErrors')"
       @update:name="$emit('update:name', $event)"
+      @submit="$emit('submit')"
     />
 
     <Color :color="color" @update:color="$emit('update:color', $event)" />

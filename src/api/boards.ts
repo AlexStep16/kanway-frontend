@@ -9,6 +9,13 @@ export async function getBoardsApi(workspaceId: string) {
   })
 }
 
+export async function getArchivedBoardsApi() {
+  return await apiCall<IBoard[]>({
+    method: 'GET',
+    url: `/archive/boards`,
+  })
+}
+
 export async function postBoardApi(payload: Partial<IBoard>, workspaceId: string) {
   return await apiCall<IBoard[]>({
     method: 'POST',
@@ -40,6 +47,13 @@ export async function archiveBoardApi(boardId: string, workspaceId: string) {
   return await apiCall<IBoard[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/archive`,
+  })
+}
+
+export async function recoverBoardApi(boardId: string, workspaceId: string) {
+  return await apiCall<IBoard[]>({
+    method: 'PATCH',
+    url: `/workspaces/${workspaceId}/boards/${boardId}/recover`,
   })
 }
 

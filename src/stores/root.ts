@@ -11,6 +11,7 @@ export const useRootStore = defineStore('root', () => {
 
   async function updateWorkspaceFromRoute() {
     let selectedWorkspace: Nullable<WorkspaceModel> = null
+
     const params = useData<{ boardId: string; workspaceId: string }>()
     const workspaceId = params.workspaceId
     const boardId = params.boardId

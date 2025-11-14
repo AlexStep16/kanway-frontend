@@ -31,6 +31,7 @@ defineEmits<{
       :errors="errors"
       @resetErrors="$emit('resetErrors')"
       @update:name="$emit('update:name', $event)"
+      @submit="$emit('submit')"
     />
 
     <SubmitButton

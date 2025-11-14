@@ -8,6 +8,8 @@ import {
   archiveCategoryApi,
   cloneCategoryApi,
   bulkUpdateCategoriesApi,
+  getArchivedCategoriesApi,
+  recoverCategoryApi,
 } from '@api/categories'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import { useTaskDataStore } from '@stores/taskData'
@@ -28,6 +30,12 @@ export function transformCategory(raw: ICategory): ICategoryState {
 
 export async function fetchCategories(workspaceId: string, boardId: string) {
   const categories = await getCategoriesApi(workspaceId, boardId)
+
+  return categories.map(transformCategory)
+}
+
+export async function fetchArchivedCategories() {
+  const categories = await getArchivedCategoriesApi()
 
   return categories.map(transformCategory)
 }
@@ -70,6 +78,12 @@ export async function archiveCategory(categoryId: string, workspaceId: string, b
   const archiveResult = await archiveCategoryApi(categoryId, boardId, workspaceId)
 
   return archiveResult.map(transformCategory)
+}
+
+export async function recoverCategory(categoryId: string, workspaceId: string, boardId: string) {
+  const recoverResult = await recoverCategoryApi(categoryId, boardId, workspaceId)
+
+  return recoverResult.map(transformCategory)
 }
 
 export async function cloneCategory(categoryId: string, workspaceId: string, boardId: string) {

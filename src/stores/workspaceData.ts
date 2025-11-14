@@ -16,6 +16,7 @@ import { useBoardDataStore } from '@stores/boardData'
 import { Nullable } from '@/types/utils'
 import _ from 'lodash'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
+import { requestQueueService } from '@/utils/RequestQueueService'
 
 type WorkspaceErrorType = Nullable<BackendError | HttpError>
 
@@ -173,7 +174,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         _editingWorkspaces.value.add(payload.id)
 
-        const editResult = await saveWorkspace({ ...payload })
+        const coreAction = () => saveWorkspace({ ...payload })
+
+        const editResult = await requestQueueService.enqueue(payload.id, coreAction)
 
         const newWorkspace = editResult.find((w) => w.id === payload.id)
 
@@ -215,7 +218,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
         const updatedWorkspace = await _updateWorkspace(payload)
 
-        if (!isOptimisticUpdate) _updateWorkspacesInStore([updatedWorkspace])
+        _updateWorkspacesInStore([updatedWorkspace])
 
         return updatedWorkspace
       } catch {
@@ -240,7 +243,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         _deletingWorkspaces.value.add(workspace.id)
 
-        await removeWorkspace(workspace.id)
+        const coreAction = () => removeWorkspace(workspace.id)
+
+        await requestQueueService.enqueue(workspace.id, coreAction)
 
         const workspaceIndex = workspaces.value.findIndex((w) => w.id === workspace.id)
         if (workspaceIndex !== -1) {
@@ -296,7 +301,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         _archivingWorkspaces.value.add(workspace.id)
 
-        const archiveResult = await archiveWorkspaceService(workspace.id)
+        const coreAction = () => archiveWorkspaceService(workspace.id)
+
+        const archiveResult = await requestQueueService.enqueue(workspace.id, coreAction)
         const archivedWorkspace = archiveResult.find((w) => w.id === workspace.id)
 
         if (!archivedWorkspace) throw new Error('Сервер не вернул архивированное пространство')
@@ -352,7 +359,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         _cloningWorkspaces.value.add(workspace.id)
 
-        const newWorkspaces = await cloneWorkspaceService(workspace.id)
+        const coreAction = () => cloneWorkspaceService(workspace.id)
+
+        const newWorkspaces = await requestQueueService.enqueue(workspace.id, coreAction)
 
         if (!newWorkspaces[0]) throw new Error('Сервер не вернул новое пространство')
 
@@ -399,6 +408,9 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     async function makeFavorite(workspace: WorkspaceModel) {
       const newWorkspace = { ...workspace, isFavorite: !workspace.isFavorite }
+      const savedWorkspace = _.cloneDeep(workspaces.value.find((w) => w.id === workspace.id))
+
+      if (savedWorkspace) _updateWorkspacesInStore([savedWorkspace])
 
       try {
         _addingToFavoritesWorkspaces.value.add(workspace.id)
@@ -411,6 +423,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
         return result
       } catch {
+        if (savedWorkspace) _updateWorkspacesInStore([savedWorkspace])
+
         toast.error(
           _editWorkspacesError.value.get(workspace.id)?.message ||
             'Ошибка при добавлении пространства в избранное',
@@ -439,20 +453,8 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       return workspace.name.charAt(0).toUpperCase()
     }
 
-    const getActiveWorkspaceId = computed(() => {
-      return activeWorkspace.value?.id ?? ''
-    })
-
     const getFirstLetterOfActiveWorkspace = computed(() => {
       return activeWorkspace.value ? activeWorkspace.value.name.charAt(0).toUpperCase() : ''
-    })
-
-    const getActiveWorkspaceName = computed(() => {
-      return activeWorkspace.value ? activeWorkspace.value.name : ''
-    })
-
-    const getActiveWorkspaceColor = computed(() => {
-      return activeWorkspace.value ? activeWorkspace.value.color : ''
     })
 
     const isAddingWorkspace = computed(() => {
@@ -496,6 +498,16 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         })
     })
 
+    function getWorkspaceById(id: string): Nullable<WorkspaceModel> {
+      const board = workspaces.value.find((w) => w.id === id && !w.isDeleted)
+
+      return board || null
+    }
+
+    const getActiveWorkspace = computed((): WorkspaceModel | null => {
+      return activeWorkspace.value
+    })
+
     const getFavoriteWorkspaces = computed((): WorkspaceModel[] => {
       return workspaces.value
         .filter((workspace) => workspace.isFavorite && !workspace.isDeleted)
@@ -519,10 +531,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       activeWorkspace,
       workspaces,
       loadWorkspacesError,
-      getActiveWorkspaceId,
       getFirstLetterOfActiveWorkspace,
-      getActiveWorkspaceName,
-      getActiveWorkspaceColor,
       isWorkspacesLoading,
       isAddingWorkspace,
       isWorkspaceEditing,
@@ -533,6 +542,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       isWorkspaceAddingToFavorites,
       getFavoriteWorkspaces,
       getWorkspaces,
+      getActiveWorkspace,
 
       // Actions
       loadWorkspaces,
@@ -545,6 +555,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       cloneWorkspace,
       getOtherWorkspaces,
       makeFavorite,
+      getWorkspaceById,
 
       $reset,
     }

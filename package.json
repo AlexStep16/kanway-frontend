@@ -26,6 +26,7 @@
     "jquery": "^3.7.1",
     "lodash": "^4.17.21",
     "lucide-vue-next": "^0.544.0",
+    "p-queue": "^9.0.0",
     "pinia": "^3.0.3",
     "preline": "^3.2.3",
     "tailwindcss": "^4.1.13",
