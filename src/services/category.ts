@@ -18,6 +18,7 @@ import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 export function transformCategory(raw: ICategory): ICategoryState {
   const categoryModel = new CategoryModel({
     ...raw,
+    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })

@@ -1,15 +1,17 @@
 import {
   archiveWorkspace as archiveWorkspaceService,
+  recoverWorkspace as recoverWorkspaceService,
   cloneWorkspace as cloneWorkspaceService,
   createWorkspace,
   fetchWorkspaces,
+  fetchArchivedWorkspaces,
   removeWorkspace,
   saveWorkspace,
 } from '@services/workspace'
 import { BackendError, HttpError } from '@utils/errors'
 import WorkspaceModel from '@models/WorkspaceModel'
 import { defineStore, Pinia } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ErrorsMessage } from '@enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
 import { useBoardDataStore } from '@stores/boardData'
@@ -17,6 +19,7 @@ import { Nullable } from '@/types/utils'
 import _ from 'lodash'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 
 type WorkspaceErrorType = Nullable<BackendError | HttpError>
 
@@ -26,21 +29,34 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
   return defineStore('workspaceData', () => {
     const workspaces = ref<Array<WorkspaceModel>>([])
     const activeWorkspace = ref<Nullable<WorkspaceModel>>(null)
+    watch(
+      activeWorkspace,
+      (newWorkspace) => {
+        if (newWorkspace && newWorkspace.isDeleted && workspaces.value.length > 0)
+          selectWorkspace(workspaces.value[0], true)
+      },
+      { deep: true },
+    )
 
     // Errors
     const loadWorkspacesError = ref<WorkspaceErrorType>(null)
+    const loadArchivedWorkspacesError = ref<WorkspaceErrorType>(null)
     const _addWorkspaceError = ref<WorkspaceErrorType>(null)
     const _editWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
     const _deleteWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
     const _archiveWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
+    const _recoverWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
     const _cloneWorkspacesError = ref<Map<string, WorkspaceErrorType>>(new Map())
 
     // Loading
     const isWorkspacesLoading = ref<boolean>(false)
+    const _loadingStatusArchived = ref<boolean>(false)
+    const _isArchivedWorkspacesLoaded = ref<boolean>(false)
     const _isAddingWorkspace = ref<boolean>(false)
     const _editingWorkspaces = ref<Set<string>>(new Set())
     const _deletingWorkspaces = ref<Set<string>>(new Set())
     const _archivingWorkspaces = ref<Set<string>>(new Set())
+    const _recoveringWorkspaces = ref<Set<string>>(new Set())
     const _cloningWorkspaces = ref<Set<string>>(new Set())
     const _addingToFavoritesWorkspaces = ref<Set<string>>(new Set())
 
@@ -72,6 +88,43 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         return false
       } finally {
         isWorkspacesLoading.value = false
+      }
+    }
+
+    async function loadArchivedWorkspaces(force_reload: boolean = false) {
+      if (_isArchivedWorkspacesLoaded.value && !force_reload) return
+      if (_loadingStatusArchived.value) return
+
+      loadArchivedWorkspacesError.value = null
+      _loadingStatusArchived.value = true
+
+      try {
+        const workspacesPayload = await fetchArchivedWorkspaces()
+
+        workspaces.value = workspaces.value.filter((w) => !w.isDeleted) // Remove old archived workspaces
+
+        workspaces.value.push(...workspacesPayload)
+
+        _isArchivedWorkspacesLoaded.value = true
+
+        return true
+      } catch (e) {
+        if (e instanceof BackendError) {
+          loadArchivedWorkspacesError.value = e
+        } else if (e instanceof HttpError) {
+          loadArchivedWorkspacesError.value = e
+
+          if (e.status === 401) {
+          }
+        } else {
+          loadArchivedWorkspacesError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+        }
+
+        toast.error(loadArchivedWorkspacesError.value.message)
+
+        return false
+      } finally {
+        _loadingStatusArchived.value = false
       }
     }
 
@@ -140,7 +193,10 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       try {
         const newWorkspace = await _addWorkspace(workspace)
 
-        if (newWorkspace) _updateWorkspacesInStore([newWorkspace])
+        if (newWorkspace) {
+          _updateWorkspacesInStore([newWorkspace])
+          selectWorkspace(newWorkspace, true)
+        }
 
         toast.success('Пространство успешно создано')
 
@@ -246,15 +302,6 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         const coreAction = () => removeWorkspace(workspace.id)
 
         await requestQueueService.enqueue(workspace.id, coreAction)
-
-        const workspaceIndex = workspaces.value.findIndex((w) => w.id === workspace.id)
-        if (workspaceIndex !== -1) {
-          workspaces.value.splice(workspaceIndex, 1)
-
-          if (activeWorkspace.value?.id === workspace.id) {
-            selectWorkspace(workspaces.value[0], true, true)
-          }
-        }
       } catch (e) {
         if (e instanceof BackendError) {
           _deleteWorkspacesError.value.set(workspace.id, e)
@@ -345,6 +392,68 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         toast.error(
           _archiveWorkspacesError.value.get(workspace.id)?.message ||
             'Ошибка при архивировании пространства',
+        )
+
+        return false
+      }
+    }
+
+    async function _recoverWorkspace(workspace: WorkspaceModel): Promise<WorkspaceModel[]> {
+      if (!workspace) throw new Error('Нет пространства для восстановления')
+
+      _recoverWorkspacesError.value.delete(workspace.id)
+
+      try {
+        _updateWorkspacesInStore([workspace]) // Optimistic update
+
+        _recoveringWorkspaces.value.add(workspace.id)
+
+        const coreAction = () => recoverWorkspaceService(workspace.id)
+
+        const recoverResult = await requestQueueService.enqueue(workspace.id, coreAction)
+
+        const recoveredWorkspace = recoverResult.find((w) => w.id === workspace.id)
+
+        if (!recoveredWorkspace) throw new Error('Сервер не вернул восстановленное пространство')
+
+        return recoverResult
+      } catch (e) {
+        if (e instanceof BackendError) {
+          _recoverWorkspacesError.value.set(workspace.id, e)
+        } else if (e instanceof HttpError) {
+          _recoverWorkspacesError.value.set(workspace.id, e)
+
+          if (e.status === 401) {
+          }
+        } else {
+          _recoverWorkspacesError.value.set(
+            workspace.id,
+            new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null),
+          )
+        }
+
+        throw e
+      } finally {
+        _recoveringWorkspaces.value.delete(workspace.id)
+      }
+    }
+
+    async function recoverWorkspace(workspace: WorkspaceModel): Promise<WorkspaceModel | false> {
+      try {
+        const recoverResult = await _recoverWorkspace(workspace)
+        const recoveredWorkspace = recoverResult.find(
+          (w) => w.id === workspace.id,
+        ) as WorkspaceModel
+
+        _updateWorkspacesInStore(recoverResult)
+
+        toast.success('Пространство успешно восстановлено')
+
+        return recoveredWorkspace
+      } catch {
+        toast.error(
+          _recoverWorkspacesError.value.get(workspace.id)?.message ||
+            'Ошибка при восстановлении пространства',
         )
 
         return false
@@ -516,6 +625,16 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         })
     })
 
+    const getArchivedWorkspaces = computed((): IWorkspace[] => {
+      return workspaces.value
+        .filter((workspace) => workspace.isDeleted)
+        .sort((a, b) => {
+          if (!a.deletedTime || !b.deletedTime) return a.updatedAt.getTime() - b.updatedAt.getTime()
+
+          return b.deletedTime.getTime() - a.deletedTime.getTime()
+        })
+    })
+
     function getOtherWorkspaces(workspaceId: string): WorkspaceModel[] {
       return workspaces.value
         .filter((workspace) => workspace.id !== workspaceId && !workspace.isDeleted)
@@ -543,15 +662,18 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       getFavoriteWorkspaces,
       getWorkspaces,
       getActiveWorkspace,
+      getArchivedWorkspaces,
 
       // Actions
       loadWorkspaces,
+      loadArchivedWorkspaces,
       selectWorkspace,
       addWorkspace,
       getFirstLetterOfWorkspace,
       updateWorkspace,
       deleteWorkspace,
       archiveWorkspace,
+      recoverWorkspace,
       cloneWorkspace,
       getOtherWorkspaces,
       makeFavorite,

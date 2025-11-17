@@ -7,6 +7,7 @@ import { Nullable } from '@/types/utils'
 import { useBoardDataStore } from '@stores/boardData'
 import { useTaskDataStore } from '@stores/taskData'
 import { useCategoryDataStore } from '@stores/categoryData'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
 
 export const useUIStore = defineStore('ui', () => {
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
@@ -21,6 +22,7 @@ export const useUIStore = defineStore('ui', () => {
 
   const currentTab = ref<Tabs>(Tabs.Board)
 
+  const WORKSPACE_STORE = useWorkspaceDataStore()
   const BOARD_STORE = useBoardDataStore()
   const TASK_STORE = useTaskDataStore()
   const CATEGORY_STORE = useCategoryDataStore()
@@ -74,6 +76,8 @@ export const useUIStore = defineStore('ui', () => {
   function selectArchive() {
     TASK_STORE.loadArchivedTasks()
     CATEGORY_STORE.loadArchivedCategories()
+    BOARD_STORE.loadArchivedBoards()
+    WORKSPACE_STORE.loadArchivedWorkspaces()
 
     currentTab.value = Tabs.Archive
 

@@ -13,13 +13,11 @@ import { useTaskDataStore } from '@stores/taskData'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { useUIStore } from '@stores/ui'
 
 const TASK_STORE = useTaskDataStore()
 const CATEGORY_STORE = useCategoryDataStore()
 const BOARD_STORE = useBoardDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
-const UI_STORE = useUIStore()
 
 const numCols = ref(3)
 const archiveRef = ref<HTMLElement | null>(null)
@@ -48,6 +46,14 @@ const categories = computed(() => {
   return CATEGORY_STORE.getArchivedCategories
 })
 
+const boards = computed(() => {
+  return BOARD_STORE.getArchivedBoards
+})
+
+const workspaces = computed(() => {
+  return WORKSPACE_STORE.getArchivedWorkspaces
+})
+
 const taskColumns = computed(() => {
   const result: any = Array.from({ length: numCols.value }, () => [])
   tasks.value.forEach((task, index) => {
@@ -64,8 +70,29 @@ const categoryColumns = computed(() => {
   return result
 })
 
+const boardColumns = computed(() => {
+  const result: any = Array.from({ length: numCols.value }, () => [])
+  boards.value.forEach((board, index) => {
+    result[index % numCols.value].push(board)
+  })
+  return result
+})
+
+const workspaceColumns = computed(() => {
+  const result: any = Array.from({ length: numCols.value }, () => [])
+  workspaces.value.forEach((workspace, index) => {
+    result[index % numCols.value].push(workspace)
+  })
+  return result
+})
+
 const isArchiveEmpty = computed(() => {
-  return tasks.value.length === 0
+  return (
+    tasks.value.length === 0 &&
+    categories.value.length === 0 &&
+    boards.value.length === 0 &&
+    workspaces.value.length === 0
+  )
 })
 
 watch(archiveRef, () => {
@@ -99,7 +126,7 @@ onMounted(() => {
     ref="archiveRef"
     v-else
   >
-    <div class="w-full">
+    <div class="w-full" v-if="tasks.length > 0">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Задачи</span>
         <NumberBadge :number="tasks.length" />
@@ -128,7 +155,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="w-full">
+    <div class="w-full" v-if="categories.length > 0">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Категории</span>
         <NumberBadge :number="categories.length" />
@@ -140,7 +167,13 @@ onMounted(() => {
           :key="colIndex + '_categories'"
           class="flex flex-col gap-2 mt-2"
         >
-          <EntityCard v-for="category in columnCategories" :key="category.id" :name="category.name">
+          <EntityCard
+            v-for="category in columnCategories"
+            :key="category.id"
+            :name="category.name"
+            :parentName="category.boardName"
+            :showInfo="true"
+          >
             <RecoverButtons
               @recover="CATEGORY_STORE.recoverCategory(category)"
               @delete="CATEGORY_STORE.deleteCategory(category)"
@@ -150,25 +183,57 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="w-full">
+    <div class="w-full" v-if="boards.length > 0">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Доски</span>
-        <NumberBadge :number="24" />
+        <NumberBadge :number="boards.length" />
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </div>
       <div class="flex gap-2 mt-2">
-        <EntityCard name="Личное" />
+        <div
+          v-for="(columnBoards, colIndex) in boardColumns"
+          :key="colIndex + '_boards'"
+          class="flex flex-col gap-2 mt-2"
+        >
+          <EntityCard
+            v-for="board in columnBoards"
+            :key="board.id"
+            :name="board.name"
+            :parentName="board.workspaceName"
+            :showInfo="true"
+          >
+            <RecoverButtons
+              @recover="BOARD_STORE.recoverBoard(board)"
+              @delete="BOARD_STORE.deleteBoard(board)"
+            />
+          </EntityCard>
+        </div>
       </div>
     </div>
 
-    <div class="w-full">
+    <div class="w-full" v-if="workspaces.length > 0">
       <div class="flex items-center text-sm text-gray-500 gap-x-2">
         <span>Пространства</span>
-        <NumberBadge :number="1" />
+        <NumberBadge :number="workspaces.length" />
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </div>
       <div class="flex gap-2 mt-2">
-        <EntityCard name="Личное" />
+        <div
+          v-for="(columnWorkspaces, colIndex) in workspaceColumns"
+          :key="colIndex + '_workspaces'"
+          class="flex flex-col gap-2 mt-2"
+        >
+          <EntityCard
+            v-for="workspace in columnWorkspaces"
+            :key="workspace.id"
+            :name="workspace.name"
+          >
+            <RecoverButtons
+              @recover="WORKSPACE_STORE.recoverWorkspace(workspace)"
+              @delete="WORKSPACE_STORE.deleteWorkspace(workspace)"
+            />
+          </EntityCard>
+        </div>
       </div>
     </div>
   </div>

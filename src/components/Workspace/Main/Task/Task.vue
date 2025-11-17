@@ -7,8 +7,6 @@ import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'luci
 import { computed, nextTick, ref, watch } from 'vue'
 import { getTimeInReadableFormat } from '@utils/date'
 import Spinner from '@/components/Loader/Spinner.vue'
-import { useCategoryDataStore } from '@/stores/categoryData'
-import { useBoardDataStore } from '@/stores/boardData'
 
 const emit = defineEmits<{
   (e: 'updateTask', payload: { id: string; isCompleted: boolean }): void
@@ -39,8 +37,6 @@ const inputAddRef = ref<HTMLInputElement | null>(null)
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
-const CATEGORY_STORE = useCategoryDataStore()
-const BOARD_STORE = useBoardDataStore()
 
 watch(inputAddRef, (newVal) => {
   if (newVal) emit('connectInputEditRef', newVal)
@@ -118,16 +114,6 @@ function startDragging() {
   dragStartTime.value = Date.now()
 }
 
-function getCategoryName(categoryId: string): string {
-  const category = CATEGORY_STORE.getCategoryById(categoryId)
-  return category ? category.name : 'Без категории'
-}
-
-function getBoardName(boardId: string): string {
-  const board = BOARD_STORE.getBoardById(boardId)
-  return board ? board.name : 'Без доски'
-}
-
 const isTaskAdding = computed(() => {
   return TASK_STORE.isTaskAdding(props.task.id)
 })
@@ -173,12 +159,12 @@ const isTaskArchiving = computed(() => {
       <div class="flex items-center gap-x-2" v-if="showInfo">
         <div class="flex items-center gap-x-1 text-gray-500">
           <Layers class="size-3" /><span class="text-xs">{{
-            getCategoryName(task.categoryId)
+            task.categoryName ?? 'Без категории'
           }}</span>
         </div>
         <div class="flex items-center gap-x-1 text-gray-500">
           <SquareKanban class="size-3" /><span class="text-xs">{{
-            getBoardName(task.boardId)
+            task.boardName ?? 'Без доски'
           }}</span>
         </div>
       </div>

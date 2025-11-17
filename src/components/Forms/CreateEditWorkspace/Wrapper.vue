@@ -167,9 +167,7 @@ onMounted(() => {
           dropdownMenu.value &&
           !dropdownMenu.value.contains(e.target)
         ) {
-          if (dropdownInstance.value) {
-            dropdownInstance.value.close()
-          }
+          closeDropdown()
         }
       })
     }

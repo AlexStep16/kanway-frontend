@@ -17,6 +17,7 @@ import { useTaskDataStore } from '@stores/taskData'
 export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
   return new WorkspaceModel({
     ...raw,
+    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })

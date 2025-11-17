@@ -3,6 +3,7 @@ import { SquareKanban } from 'lucide-vue-next'
 
 defineProps<{
   name: string
+  parentName?: string
   showInfo?: boolean
 }>()
 </script>
@@ -14,7 +15,7 @@ defineProps<{
     <!-- Info -->
     <div class="flex items-center gap-x-2" v-if="showInfo">
       <div class="flex items-center gap-x-1 text-gray-500">
-        <SquareKanban class="size-3" /><span class="text-xs">Личная</span>
+        <SquareKanban class="size-3" /><span class="text-xs">{{ parentName }}</span>
       </div>
     </div>
     <span class="text-gray-800 text-sm overflow-hidden shrink-1 break-words">{{ name }}</span>

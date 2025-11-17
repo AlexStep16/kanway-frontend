@@ -74,6 +74,12 @@ function selectWorkspace(workspace: any) {
   if (workspaceDropdownInstance.value) workspaceDropdownInstance.value.close()
 }
 
+function closeWorkspacesDropdown() {
+  if (workspaceDropdownInstance.value) {
+    workspaceDropdownInstance.value.close()
+  }
+}
+
 onMounted(() => {
   if (workspaceDropdown.value && workspaceDropdown.value instanceof HTMLElement) {
     workspaceDropdownInstance.value = HSDropdown.getInstance(
@@ -87,9 +93,7 @@ onMounted(() => {
           workspaceDropdown.value &&
           !workspaceDropdown.value.contains(e.target)
         ) {
-          if (workspaceDropdownInstance.value) {
-            workspaceDropdownInstance.value.close()
-          }
+          closeWorkspacesDropdown()
         }
       })
     }
@@ -207,7 +211,11 @@ onMounted(() => {
                 </template>
               </SidebarItem>
 
-              <CreateEditWorkspaceDropdown mode="create" :isDropdown="true">
+              <CreateEditWorkspaceDropdown
+                @workspaceCreated="closeWorkspacesDropdown"
+                mode="create"
+                :isDropdown="true"
+              >
                 <ButtonCreate id="hs-sidebar-workspace-create" />
               </CreateEditWorkspaceDropdown>
             </ul>

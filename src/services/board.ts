@@ -16,6 +16,7 @@ import { useTaskDataStore } from '@stores/taskData'
 export function transformBoard(raw: IBoard): BoardModel {
   return new BoardModel({
     ...raw,
+    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })

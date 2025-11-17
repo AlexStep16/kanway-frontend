@@ -801,7 +801,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   const getArchivedCategories = computed((): ICategoryState[] => {
     return categories.value
-      .filter((category) => category.isDeleted)
+      .filter((category) => category.isDeleted && !category.isDeletedExternal)
       .sort((a, b) => {
         if (!a.deletedTime || !b.deletedTime) return a.updatedAt.getTime() - b.updatedAt.getTime()
 

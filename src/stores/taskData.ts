@@ -890,7 +890,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   const getArchivedTasks = computed((): ITaskState[] => {
     return tasks.value
-      .filter((task) => task.isDeleted)
+      .filter((task) => task.isDeleted && !task.isDeletedExternal)
       .sort((a, b) => {
         if (!a.deletedTime || !b.deletedTime) return a.updatedAt.getTime() - b.updatedAt.getTime()
 
