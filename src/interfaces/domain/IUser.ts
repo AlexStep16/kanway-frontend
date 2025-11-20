@@ -5,8 +5,9 @@ export interface IUser {
   username?: string
   email: string
   role: string
-  hasAvatar: boolean
-  subscription: string
+  avatarUrl?: string
+  timezone: string
+  subscriptionId: string
   subscriptionUntil?: Date
   generationsBalance: number
   avatarColor: string

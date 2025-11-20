@@ -1,6 +1,7 @@
 import { apiCall } from '@/apiClient'
 import IUser from '@models/UserModel'
 import LoginCredentials from '@interfaces/LoginCredentials'
+import RegisterCredentials from '@interfaces/RegisterCredentials'
 
 export async function loginApi(credentials: LoginCredentials) {
   return await apiCall<IUser>({
@@ -10,7 +11,7 @@ export async function loginApi(credentials: LoginCredentials) {
   })
 }
 
-export async function registerApi(credentials: LoginCredentials) {
+export async function registerApi(credentials: RegisterCredentials) {
   return await apiCall<IUser>({
     method: 'POST',
     url: '/auth/register',
@@ -18,9 +19,43 @@ export async function registerApi(credentials: LoginCredentials) {
   })
 }
 
-export async function meAuthApi() {
+export async function meApi() {
   return await apiCall<IUser>({
     method: 'GET',
-    url: '/auth/me',
+    url: '/me',
+  })
+}
+
+export async function updateAvatarApi(formData: FormData) {
+  return await apiCall<string>({
+    method: 'PATCH',
+    url: '/me/avatar',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+}
+
+export async function patchUserApi(payload: Partial<IUser>) {
+  return apiCall<IUser>({
+    method: 'PATCH',
+    url: '/me',
+    data: payload,
+  })
+}
+
+export async function patchUserPasswordApi(payload: { oldPassword: string; newPassword: string }) {
+  return apiCall<IUser>({
+    method: 'PATCH',
+    url: '/me',
+    data: payload,
+  })
+}
+
+export async function deleteUserApi() {
+  return apiCall<null>({
+    method: 'DELETE',
+    url: '/me',
   })
 }

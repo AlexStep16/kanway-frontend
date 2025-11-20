@@ -1,7 +1,6 @@
 import { apiCall } from '@/apiClient'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { ITask } from '@interfaces/domain/ITask'
-import dayjs from 'dayjs'
 
 export async function getTasksApi(workspaceId: string, boardId: string) {
   return await apiCall<ITask[]>({
@@ -34,10 +33,7 @@ export async function patchTaskApi(
   return await apiCall<ITask[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}`,
-    data: {
-      ...payload,
-      timezone: dayjs.tz.guess(),
-    },
+    data: payload,
   })
 }
 
@@ -46,16 +42,10 @@ export async function bulkUpdateTasksApi(
   boardId: string,
   payload: ISingleUpdate<ITask>[],
 ) {
-  const timezone = dayjs.tz.guess()
-  const data = payload.map((item) => ({
-    ...item,
-    timezone,
-  }))
-
   return await apiCall<ITask[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/bulk`,
-    data,
+    data: payload,
   })
 }
 

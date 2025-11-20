@@ -143,7 +143,7 @@ onMounted(() => {
         </ul>
 
         <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Теги</div>
-        <ul class="flex gap-x-1 px-1 flex-wrap">
+        <ul class="flex gap-x-1 px-1 flex-wrap" v-if="filters.tags.length > 0">
           <li
             class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800"
             v-for="tag in TASK_STORE.getTasksTags"
@@ -166,9 +166,10 @@ onMounted(() => {
             </label>
           </li>
         </ul>
+        <div v-else class="text-gray-300 text-xs px-2.5 text-center">Пусто</div>
 
         <button
-          class="my-2 text-custom-sm text-gray-400 hover:text-gray-600 transition-colors duration-100 focus:outline-hidden text-left px-2.5"
+          class="inline-flex self-start mb-2 mt-3 text-custom-sm text-gray-400 hover:text-gray-600 transition-colors duration-100 focus:outline-hidden text-left px-2.5"
           @click="TASK_STORE.clearFilters"
         >
           Сбросить всё

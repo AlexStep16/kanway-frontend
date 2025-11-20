@@ -20,7 +20,6 @@ import CreateEditWorkspaceDropdown from '@components/Forms/CreateEditWorkspace/W
 import CreateEditBoardDropdown from '@components/Forms/CreateEditBoard/Wrapper.vue'
 import { computed, onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
-import { useTipsStore } from '@stores/tips'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useBoardDataStore } from '@stores/boardData'
 import EditForm from '@components/Options/EditForm.vue'
@@ -30,9 +29,9 @@ import BoardsSkeleton from '@components/Workspace/Sidebar/BoardsSkeleton.vue'
 import NumberBadgeSkeleton from '@components/Badges/NumberBadgeSkeleton.vue'
 import { Nullable } from '@/types/utils'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
+import AvatarImage from '@components/AvatarImage.vue'
 
 const UI_STORE = useUIStore()
-const TIPS_STORE = useTipsStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const BOARD_STORE = useBoardDataStore()
 
@@ -330,7 +329,7 @@ onMounted(() => {
                 />
               </button>
 
-              <div
+              <!-- <div
                 id="boards-accordion-sub-1-collapse-1"
                 class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300"
                 role="region"
@@ -347,7 +346,7 @@ onMounted(() => {
                     type="chat"
                   />
                 </ul>
-              </div>
+              </div> -->
             </li>
 
             <li class="hs-accordion" id="users-accordion">
@@ -564,11 +563,9 @@ onMounted(() => {
             aria-expanded="false"
             aria-label="Dropdown"
           >
-            <img
-              class="shrink-0 size-9 rounded-full"
-              src="https://images.unsplash.com/photo-1734122415415-88cb1d7d5dc0?q=80&w=320&h=320&auto=format&fit=facearea&facepad=3&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Avatar"
-            />
+            <div class="shrink-0 size-9 rounded-full">
+              <AvatarImage mockImageClasses="text-3xl sm:text-4xl" />
+            </div>
             <div class="flex flex-col truncate">
               <span class="text-sm truncate">Александр Иванов</span>
               <span class="text-xs truncate text-gray-500">alexander.work2020@gmail.com</span>

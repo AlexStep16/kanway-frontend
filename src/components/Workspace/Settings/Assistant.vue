@@ -1,13 +1,132 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, ref, toRef, watch } from 'vue'
+import { useSettingDataStore } from '@stores/settingData'
+import { AiConfirmationTypeEnum } from '@/enums/AiConfirmationTypeEnum'
+import { HSSelect, HSStaticMethods, ICollectionItem } from 'preline'
+import Spinner from '@/components/Loader/Spinner.vue'
+
+const SETTING_STORE = useSettingDataStore()
+const setting = toRef(SETTING_STORE, 'setting')
+const settingModel = ref({ ...setting.value })
+const validationErrors = ref({
+  aiName: '',
+  aiConfirmationType: '',
+  aiDefaultCategory: '',
+  aiDefaultBoard: '',
+})
+
+const selectTypeRef = ref<HTMLElement | null>(null)
+
+watch(
+  setting,
+  (newSetting) => {
+    Object.assign(settingModel.value, newSetting)
+
+    if (selectTypeRef.value) {
+      const { element } = HSSelect.getInstance(
+        selectTypeRef.value,
+        true,
+      ) as ICollectionItem<HSSelect>
+
+      element.setValue(settingModel.value?.aiConfirmationType?.toString() || '')
+    }
+  },
+  { deep: true },
+)
+
+function validateSetting(): boolean {
+  if (!settingModel.value) {
+    return false
+  }
+
+  let isValid = true
+
+  if (settingModel.value.aiName && settingModel.value.aiName.length > 50) {
+    validationErrors.value.aiName = 'Имя не должно превышать 50 символов'
+
+    isValid = false
+  } else if (!settingModel.value.aiName) {
+    validationErrors.value.aiName = 'Имя не может быть пустым'
+
+    isValid = false
+  } else {
+    validationErrors.value.aiName = ''
+  }
+
+  if (settingModel.value.aiDefaultCategory && settingModel.value.aiDefaultCategory.length > 100) {
+    validationErrors.value.aiDefaultCategory = 'Имя категории не должно превышать 100 символов'
+
+    isValid = false
+  } else {
+    validationErrors.value.aiDefaultCategory = ''
+  }
+
+  if (settingModel.value.aiDefaultBoard && settingModel.value.aiDefaultBoard.length > 100) {
+    validationErrors.value.aiDefaultBoard = 'Имя доски не должно превышать 100 символов'
+
+    isValid = false
+  } else {
+    validationErrors.value.aiDefaultBoard = ''
+  }
+
+  return isValid
+}
+
+async function handleSaveSetting() {
+  if (isSettingUpdating.value || !validateSetting()) {
+    return
+  }
+
+  await SETTING_STORE.updateSetting({
+    aiName: settingModel.value.aiName,
+    aiConfirmationType: settingModel.value.aiConfirmationType,
+    aiDefaultCategory: settingModel.value.aiDefaultCategory,
+    aiDefaultBoard: settingModel.value.aiDefaultBoard,
+  })
+}
+
+function resetValidationAiName() {
+  validationErrors.value.aiName = ''
+}
+
+function resetValidationAiDefaultCategory() {
+  validationErrors.value.aiDefaultCategory = ''
+}
+
+function resetValidationAiDefaultBoard() {
+  validationErrors.value.aiDefaultBoard = ''
+}
+
+const hasSomethingChanged = computed(() => {
+  if (!setting.value || !settingModel.value) {
+    return false
+  }
+
+  return (
+    settingModel.value.aiName !== setting.value.aiName ||
+    settingModel.value.aiConfirmationType !== setting.value.aiConfirmationType ||
+    settingModel.value.aiDefaultCategory !== setting.value.aiDefaultCategory ||
+    settingModel.value.aiDefaultBoard !== setting.value.aiDefaultBoard
+  )
+})
+
+const isSettingUpdating = computed(() => {
+  return SETTING_STORE.isSettingUpdating
+})
+
+const isButtonDisabled = computed(() => {
+  return isSettingUpdating.value || !hasSomethingChanged.value
+})
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
+
+  SETTING_STORE.loadSetting()
 })
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-2">
+  <div class="flex flex-col gap-y-2" v-if="setting">
     <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
       Персонализация ассистента
     </h3>
@@ -20,9 +139,16 @@ onMounted(() => {
           name="name"
           type="text"
           class="w-full max-w-80 border-none bg-gray-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          :class="{ 'ring-1 ring-red-500 focus:ring-red-500': validationErrors.aiName }"
+          maxlength="50"
+          @input="resetValidationAiName"
           placeholder="Введите имя"
-          value="Kanbar"
+          v-model="settingModel.aiName"
         />
+
+        <div v-if="validationErrors.aiName" class="text-red-500 text-xs">
+          {{ validationErrors.aiName }}
+        </div>
       </div>
     </div>
   </div>
@@ -48,10 +174,14 @@ onMounted(() => {
           "dropdownScope": "window"
         }'
           class="hidden"
+          v-model="settingModel.aiConfirmationType"
+          ref="selectTypeRef"
         >
-          <option value="0" selected>Всегда подтверждать действия</option>
-          <option value="1">Спрашивать только для деструктивных действий (удаление, отмена)</option>
-          <option value="2">Никогда не спрашивать</option>
+          <option :value="AiConfirmationTypeEnum.ALWAYS">Всегда подтверждать действия</option>
+          <option :value="AiConfirmationTypeEnum.ONLY_FOR_SENSITIVE">
+            Спрашивать только для деструктивных действий (удаление, отмена)
+          </option>
+          <option :value="AiConfirmationTypeEnum.NEVER">Никогда не спрашивать</option>
         </select>
       </div>
     </div>
@@ -73,8 +203,16 @@ onMounted(() => {
           name="name"
           type="text"
           class="w-full max-w-80 border-none bg-gray-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          :class="{ 'ring-1 ring-red-500 focus:ring-red-500': validationErrors.aiDefaultCategory }"
           placeholder="Введите имя категории"
+          maxlength="100"
+          @input="resetValidationAiDefaultCategory"
+          v-model="settingModel.aiDefaultCategory"
         />
+
+        <div v-if="validationErrors.aiDefaultCategory" class="text-red-500 text-xs">
+          {{ validationErrors.aiDefaultCategory }}
+        </div>
       </div>
 
       <div class="flex flex-col gap-y-1">
@@ -86,8 +224,16 @@ onMounted(() => {
           name="name"
           type="text"
           class="w-full max-w-80 border-none bg-gray-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          :class="{ 'ring-1 ring-red-500 focus:ring-red-500': validationErrors.aiDefaultBoard }"
           placeholder="Введите имя доски"
+          maxlength="100"
+          @input="resetValidationAiDefaultBoard"
+          v-model="settingModel.aiDefaultBoard"
         />
+
+        <div v-if="validationErrors.aiDefaultBoard" class="text-red-500 text-xs">
+          {{ validationErrors.aiDefaultBoard }}
+        </div>
       </div>
     </div>
   </div>
@@ -95,9 +241,12 @@ onMounted(() => {
   <div class="flex items-center justify-end w-full pt-2 gap-x-2 border-t border-gray-200">
     <button
       type="button"
-      class="py-2 px-3 bg-blue-500 hover:opacity-90 transition-opacity text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
+      class="flex items-center justify-center gap-x-2 py-2 px-3 bg-blue-500 hover:opacity-90 transition-opacity text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:cursor-default disabled:hover:bg-blue-500"
+      :disabled="isButtonDisabled && !isSettingUpdating"
+      @click="handleSaveSetting"
     >
-      Сохранить
+      <Spinner v-if="isSettingUpdating" class="size-3" />
+      <span>Сохранить</span>
     </button>
   </div>
 </template>

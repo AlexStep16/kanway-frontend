@@ -42,7 +42,7 @@ onMounted(() => {
         >
           <h5 id="hs-task-edit-label" class="sm:text-lg font-semibold text-gray-900">Настройки</h5>
           <button
-            class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full"
+            class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"
             type="button"
             @click="UI_STORE.closeSettingsModal()"
           >

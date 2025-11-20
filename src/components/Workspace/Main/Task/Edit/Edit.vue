@@ -357,7 +357,7 @@ watch(
             </div>
 
             <button
-              class="transition-colors duration-100 text-gray-500 hover:bg-gray-200 p-1 rounded-full shrink-0"
+              class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full shrink-0"
               type="button"
               @click="UI_STORE.closeEditTaskModal()"
             >

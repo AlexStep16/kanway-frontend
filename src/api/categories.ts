@@ -2,7 +2,6 @@ import { apiCall } from '@/apiClient'
 import { IClonedCategoryResult } from '@interfaces/domain/IClonedCategoryResult'
 import { ICategory } from '@interfaces/domain/ICategory'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
-import dayjs from 'dayjs'
 
 export async function getCategoriesApi(workspaceId: string, boardId: string) {
   return await apiCall<ICategory[]>({
@@ -48,16 +47,10 @@ export async function bulkUpdateCategoriesApi(
   boardId: string,
   payload: ISingleUpdate<ICategory>[],
 ) {
-  const timezone = dayjs.tz.guess()
-  const data = payload.map((item) => ({
-    ...item,
-    timezone,
-  }))
-
   return await apiCall<ICategory[]>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/categories/bulk`,
-    data,
+    data: payload,
   })
 }
 

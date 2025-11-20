@@ -14,12 +14,16 @@ import {
 import dayjs from 'dayjs'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
+import { useAuthStore } from '@stores/auth'
 
 export function transformTask(raw: ITask): ITaskState {
+  const AUTH_STORE = useAuthStore()
+
+  const timezone = AUTH_STORE.user?.timezone || dayjs.tz.guess()
+
   if (raw.dueDate && raw.dueHours != null && raw.dueMinutes != null) {
     const collectedDateTime = `${raw.dueDate}T${raw.dueHours}:${raw.dueMinutes}`
-    const utcDueDate = dayjs.utc(collectedDateTime).tz(dayjs.tz.guess())
-
+    const utcDueDate = dayjs.utc(collectedDateTime).tz(timezone)
     raw.dueDate = utcDueDate.format('YYYY-MM-DD')
     raw.dueHours = utcDueDate.hour()
     raw.dueMinutes = utcDueDate.minute()
