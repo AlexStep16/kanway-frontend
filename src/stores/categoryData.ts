@@ -462,6 +462,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   async function _deleteCategory(category: CategoryModel): Promise<void> {
     if (!category) throw new Error('Нет категории для удаления')
+    if (_deletingCategories.value.has(category.id)) return
 
     _deleteCategoriesError.value.delete(category.id)
 

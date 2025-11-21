@@ -9,6 +9,13 @@ export async function getBoardsApi(workspaceId: string) {
   })
 }
 
+export async function getBoardsCountApi(workspaceId: string) {
+  return await apiCall<number>({
+    method: 'GET',
+    url: `/workspaces/${workspaceId}/boards/count`,
+  })
+}
+
 export async function getArchivedBoardsApi() {
   return await apiCall<IBoard[]>({
     method: 'GET',

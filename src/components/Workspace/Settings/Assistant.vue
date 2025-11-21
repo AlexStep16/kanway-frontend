@@ -118,10 +118,10 @@ const isButtonDisabled = computed(() => {
   return isSettingUpdating.value || !hasSomethingChanged.value
 })
 
+SETTING_STORE.loadSetting()
+
 onMounted(() => {
   HSStaticMethods.autoInit()
-
-  SETTING_STORE.loadSetting()
 })
 </script>
 

@@ -475,6 +475,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   async function _deleteTask(task: ITaskState): Promise<void> {
     if (!task) throw new Error('Нет задачи для удаления')
+    if (_deletingTasks.value.has(task.id)) return
 
     _deleteTasksError.value.delete(task.id)
 

@@ -1,4 +1,5 @@
 import { Nullable } from '@/types/utils'
+import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
 
 export interface IUser {
   id: string
@@ -7,9 +8,10 @@ export interface IUser {
   role: string
   avatarUrl?: string
   timezone: string
-  subscriptionId: string
+  subscriptionId: SubscriptionPlanEnum
   subscriptionUntil?: Date
-  generationsBalance: number
+  isSubscriptionActive?: boolean
+  generationsCount: number
   avatarColor: string
   isTipsCompleted?: boolean
   paymentMethodId?: string

@@ -9,6 +9,7 @@ import {
   patchBoardApi,
   getArchivedBoardsApi,
   recoverBoardApi,
+  getBoardsCountApi,
 } from '@api/boards'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useTaskDataStore } from '@stores/taskData'
@@ -26,6 +27,12 @@ export async function fetchBoards(workspaceId: string) {
   const boards = await getBoardsApi(workspaceId)
 
   return boards.map(transformBoard)
+}
+
+export async function fetchBoardsCount(workspaceId: string) {
+  const count = await getBoardsCountApi(workspaceId)
+
+  return count
 }
 
 export async function fetchArchivedBoards() {

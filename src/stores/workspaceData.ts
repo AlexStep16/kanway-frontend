@@ -293,6 +293,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
 
     async function _deleteWorkspace(workspace: WorkspaceModel): Promise<void> {
       if (!workspace) throw new Error('Необходимо указать пространство')
+      if (_deletingWorkspaces.value.has(workspace.id)) return
 
       _deleteWorkspacesError.value.delete(workspace.id)
 

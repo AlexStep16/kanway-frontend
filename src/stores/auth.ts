@@ -1,5 +1,11 @@
 import UserModel from '@models/UserModel'
-import { login, register, updateAvatar as updateAvatarService, deleteUser } from '@services/auth'
+import {
+  login,
+  register,
+  updateAvatar as updateAvatarService,
+  deleteUser,
+  getMe,
+} from '@services/auth'
 import { defineStore, Pinia } from 'pinia'
 import { computed, ref } from 'vue'
 import LoginCredentials from '@interfaces/LoginCredentials'
@@ -36,7 +42,20 @@ export const useAuthStore = (pinia?: Pinia) => {
     const _isUserTimezoneUpdating = ref(false)
     const _isUserNameUpdating = ref(false)
     const _isPasswordUpdating = ref(false)
+    const _isUserPaymentMethodUpdating = ref(false)
     const _isUserDeleting = ref(false)
+
+    async function forceLoadMe() {
+      if (!user.value) return
+
+      try {
+        const userPayload = await getMe()
+
+        Object.assign(user.value, userPayload)
+      } catch (e) {
+        throw e
+      }
+    }
 
     async function handleLogin(credentials: LoginCredentials): Promise<boolean> {
       loginError.value = null
@@ -239,6 +258,39 @@ export const useAuthStore = (pinia?: Pinia) => {
       }
     }
 
+    async function updateUserPaymentMethod(paymentMethodId: string): Promise<UserModel | false> {
+      if (!user.value) return false
+      if (isUserPaymentMethodUpdating.value) {
+        toast.error('Пожалуйста, дождитесь завершения текущего процесса обновления.')
+        return false
+      }
+      const oldPaymentMethodId = user.value.paymentMethodId
+
+      if (paymentMethodId === oldPaymentMethodId) return false
+
+      try {
+        Object.assign(user.value, { paymentMethodId })
+
+        _isUserPaymentMethodUpdating.value = true
+
+        const updatedUser = await _update({ paymentMethodId, id: user.value.id })
+
+        if (updatedUser) {
+          return updatedUser
+        }
+
+        return false
+      } catch {
+        if (user.value && oldPaymentMethodId) {
+          Object.assign(user.value, { paymentMethodId: oldPaymentMethodId })
+        }
+
+        return false
+      } finally {
+        _isUserPaymentMethodUpdating.value = false
+      }
+    }
+
     async function _delete() {
       await deleteUser()
     }
@@ -281,6 +333,7 @@ export const useAuthStore = (pinia?: Pinia) => {
     const isUserUpdating = computed(() => _isUserUpdating.value)
     const isUserNameUpdating = computed(() => _isUserNameUpdating.value)
     const isPasswordUpdating = computed(() => _isPasswordUpdating.value)
+    const isUserPaymentMethodUpdating = computed(() => _isUserPaymentMethodUpdating.value)
     const isUserDeleting = computed(() => _isUserDeleting.value)
 
     function resetPasswordUpdateError() {
@@ -302,8 +355,10 @@ export const useAuthStore = (pinia?: Pinia) => {
       isPasswordUpdating,
       isUserDeleting,
       passwordUpdateError,
+      isUserPaymentMethodUpdating,
 
       // Actions
+      forceLoadMe,
       handleLogin,
       handleRegister,
       updateAvatar,
@@ -313,6 +368,7 @@ export const useAuthStore = (pinia?: Pinia) => {
       updateUserPassword,
       resetPasswordUpdateError,
       deleteAccount,
+      updateUserPaymentMethod,
 
       $reset,
     }

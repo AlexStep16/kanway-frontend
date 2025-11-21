@@ -14,13 +14,10 @@ import RegisterCredentials from '@interfaces/RegisterCredentials'
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({
     ...raw,
+    subscriptionUntil: raw.subscriptionUntil ? new Date(raw.subscriptionUntil) : undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })
-
-  if (raw.subscriptionUntil) {
-    user.subscriptionUntil = new Date(raw.subscriptionUntil)
-  }
 
   return user
 }

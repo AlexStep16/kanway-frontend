@@ -8,6 +8,7 @@ import {
   removeBoard,
   saveBoard,
   transformBoard,
+  fetchBoardsCount,
 } from '@services/board'
 import { BackendError, HttpError } from '@utils/errors'
 import BoardModel from '@/models/BoardModel'
@@ -31,6 +32,7 @@ type BoardErrorType = Nullable<BackendError | HttpError>
 export const useBoardDataStore = (pinia?: Pinia) => {
   return defineStore('boardData', () => {
     const boards = ref<Array<BoardModel>>([])
+    const boardsCount = ref<number>(0)
     const activeBoard = ref<Nullable<BoardModel>>(null)
     watch(
       activeBoard,
@@ -50,6 +52,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     // Errors
     const loadBoardsError = ref<BoardErrorType>(null)
+    const loadBoardsCountError = ref<BoardErrorType>(null)
     const loadArchivedBoardsError = ref<BoardErrorType>(null)
     const _addBoardError = ref<BoardErrorType>(null)
     const _editBoardsError = ref<Map<string, BoardErrorType>>(new Map())
@@ -61,6 +64,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     // Loading
     const _loadingStatusWorkspaces = ref<Map<string, boolean>>(new Map())
     const _loadingStatusArchived = ref<boolean>(false)
+    const _isLoadingBoardsCount = ref<boolean>(false)
     const _isArchivedBoardsLoaded = ref<boolean>(false)
     const _loadedWorkspaces = ref<Set<string>>(new Set())
     const _isAddingBoard = ref<boolean>(false)
@@ -108,6 +112,37 @@ export const useBoardDataStore = (pinia?: Pinia) => {
         return false
       } finally {
         _loadingStatusWorkspaces.value.set(workspaceId, false)
+      }
+    }
+
+    async function loadBoardsCount() {
+      if (!WORKSPACE_STORE.getActiveWorkspace) return false
+
+      try {
+        _isLoadingBoardsCount.value = true
+
+        const count = await fetchBoardsCount(WORKSPACE_STORE.getActiveWorkspace.id)
+
+        boardsCount.value = count
+
+        return count
+      } catch (e) {
+        if (e instanceof BackendError) {
+          loadBoardsCountError.value = e
+        } else if (e instanceof HttpError) {
+          loadBoardsCountError.value = e
+
+          if (e.status === 401) {
+          }
+        } else {
+          loadBoardsCountError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+        }
+
+        toast.error(loadBoardsCountError.value.message)
+
+        return false
+      } finally {
+        _isLoadingBoardsCount.value = false
       }
     }
 
@@ -326,6 +361,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
     async function _deleteBoard(board: BoardModel): Promise<void> {
       if (!board) throw new Error('Нет доски для удаления')
+      if (_deletingBoards.value.has(board.id)) return
 
       _deleteBoardsError.value.delete(board.id)
 
@@ -650,6 +686,10 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       return _cloningBoards.value.has(boardId)
     })
 
+    const isLoadingBoardsCount = computed((): boolean => {
+      return _isLoadingBoardsCount.value
+    })
+
     const isBoardMoving = computed(() => (boardId: string): boolean => {
       return _movingBoards.value.has(boardId)
     })
@@ -718,6 +758,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     return {
       // State
       boards,
+      boardsCount,
       activeBoard,
       loadBoardsError,
       areBoardsLoading,
@@ -731,6 +772,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       isBoardProcessing,
       isBoardMoving,
       isBoardAddingToFavorites,
+      isLoadingBoardsCount,
       getActiveWorkspaceFavoriteBoards,
       getActiveBoard,
       getOtherBoards,
@@ -738,6 +780,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
       // Actions
       loadBoards,
+      loadBoardsCount,
       loadArchivedBoards,
       selectBoard,
       addBoardToWorkspace,
