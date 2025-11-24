@@ -1,5 +1,6 @@
 import { Nullable } from '@/types/utils'
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
+import { AvailableColors } from '@/enums/AvailableColors'
 
 export interface IUser {
   id: string
@@ -12,7 +13,7 @@ export interface IUser {
   subscriptionUntil?: Date
   isSubscriptionActive?: boolean
   generationsCount: number
-  avatarColor: string
+  avatarColor: AvailableColors
   isTipsCompleted?: boolean
   paymentMethodId?: string
   yaId?: Nullable<string>

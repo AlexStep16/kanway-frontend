@@ -18,7 +18,7 @@ import NumberBadge from '@components/Badges/NumberBadge.vue'
 import { useUIStore } from '@stores/ui'
 import CreateEditWorkspaceDropdown from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
 import CreateEditBoardDropdown from '@components/Forms/CreateEditBoard/Wrapper.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, toRef } from 'vue'
 import { HSDropdown } from 'preline'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useBoardDataStore } from '@stores/boardData'
@@ -29,11 +29,15 @@ import BoardsSkeleton from '@components/Workspace/Sidebar/BoardsSkeleton.vue'
 import NumberBadgeSkeleton from '@components/Badges/NumberBadgeSkeleton.vue'
 import { Nullable } from '@/types/utils'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import AvatarImage from '@components/AvatarImage.vue'
+import AvatarImage from '@/components/Workspace/AvatarImage.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const UI_STORE = useUIStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const BOARD_STORE = useBoardDataStore()
+const AUTH_STORE = useAuthStore()
+
+const user = toRef(AUTH_STORE, 'user')
 
 const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
@@ -190,7 +194,7 @@ onMounted(() => {
               >
                 <template v-slot:link>
                   <div
-                    class="size-5 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
+                    class="shrink-0 size-5 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
                     :style="{ backgroundColor: workspace.color || '#3B82F6' }"
                   >
                     {{ WORKSPACE_STORE.getFirstLetterOfWorkspace(workspace) }}
@@ -564,11 +568,11 @@ onMounted(() => {
             aria-label="Dropdown"
           >
             <div class="shrink-0 size-9 rounded-full">
-              <AvatarImage mockImageClasses="text-3xl sm:text-4xl" />
+              <AvatarImage imageClasses="text-lg sm:text-xl" />
             </div>
             <div class="flex flex-col truncate">
-              <span class="text-sm truncate">Александр Иванов</span>
-              <span class="text-xs truncate text-gray-500">alexander.work2020@gmail.com</span>
+              <span class="text-sm truncate">{{ user?.username }}</span>
+              <span class="text-xs truncate text-gray-500">{{ user?.email }}</span>
             </div>
             <svg
               class="shrink-0 size-3.5 ms-auto"

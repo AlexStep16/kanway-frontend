@@ -2,6 +2,7 @@ import { apiCall } from '@/apiClient'
 import { IClonedCategoryResult } from '@interfaces/domain/IClonedCategoryResult'
 import { ICategory } from '@interfaces/domain/ICategory'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
+import { IArchiveCategoryResult } from '@/interfaces/IArchiveCategoryResult'
 
 export async function getCategoriesApi(workspaceId: string, boardId: string) {
   return await apiCall<ICategory[]>({
@@ -62,7 +63,7 @@ export async function deleteCategoryApi(categoryId: string, workspaceId: string,
 }
 
 export async function archiveCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
-  return await apiCall<ICategory[]>({
+  return await apiCall<IArchiveCategoryResult>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/archive`,
   })

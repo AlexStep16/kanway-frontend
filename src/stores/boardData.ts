@@ -371,6 +371,11 @@ export const useBoardDataStore = (pinia?: Pinia) => {
         const coreAction = () => removeBoard(board.id, board.workspaceId)
 
         await requestQueueService.enqueue(board.id, coreAction)
+
+        const boardIndex = boards.value.findIndex((b) => b.id === board.id)
+        if (boardIndex !== -1) {
+          boards.value.splice(boardIndex, 1)
+        }
       } catch (e) {
         if (e instanceof BackendError) {
           _deleteBoardsError.value.set(board.id, e)
@@ -612,7 +617,15 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       if (!rawBoards || rawBoards.length === 0) return
       const newModels = rawBoards.map((raw) => transformBoard(raw))
 
-      boards.value.push(...newModels)
+      for (const newModel of newModels) {
+        const existingIndex = boards.value.findIndex((b) => b.id === newModel.id)
+
+        if (existingIndex !== -1) {
+          Object.assign(boards.value[existingIndex], newModel)
+        } else {
+          boards.value.push(newModel)
+        }
+      }
     }
 
     async function makeFavorite(board: BoardModel) {
@@ -717,6 +730,14 @@ export const useBoardDataStore = (pinia?: Pinia) => {
         })
     })
 
+    const getBoardsByWorkspaceId = computed(() => (workspaceId: string): BoardModel[] => {
+      return boards.value
+        .filter((board) => board.workspaceId === workspaceId && !board.isDeleted)
+        .sort((a, b) => {
+          return a.order - b.order
+        })
+    })
+
     const getActiveBoard = computed((): BoardModel | null => {
       return activeBoard.value
     })
@@ -737,6 +758,12 @@ export const useBoardDataStore = (pinia?: Pinia) => {
 
           return b.deletedTime.getTime() - a.deletedTime.getTime()
         })
+    })
+
+    const getArchivedBoardsByName = computed(() => (name: string): IBoard[] => {
+      return getArchivedBoards.value.filter((board) =>
+        board.name.toLowerCase().startsWith(name.toLowerCase()),
+      )
     })
 
     function getBoardById(boardId: string): Nullable<BoardModel> {
@@ -777,6 +804,8 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       getActiveBoard,
       getOtherBoards,
       getArchivedBoards,
+      getArchivedBoardsByName,
+      getBoardsByWorkspaceId,
 
       // Actions
       loadBoards,

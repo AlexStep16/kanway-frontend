@@ -12,15 +12,15 @@ const AUTH_STORE = useAuthStore()
 
 const user = toRef(AUTH_STORE, 'user')
 const isUserTimezoneUpdating = toRef(AUTH_STORE, 'isUserTimezoneUpdating')
-const isUserNameUpdating = toRef(AUTH_STORE, 'isUserNameUpdating')
+const isUsernameUpdating = toRef(AUTH_STORE, 'isUsernameUpdating')
 
-const userName = ref(user.value?.username ?? '')
-const userNameHasErrors = ref(false)
+const username = ref(user.value?.username ?? '')
+const usernameHasErrors = ref(false)
 
 const selectTimezoneRef = ref<HTMLElement | null>(null)
 
 const haveChanges = computed(() => {
-  return userName.value !== (user.value?.username ?? '')
+  return username.value !== (user.value?.username ?? '')
 })
 
 const getAllTimezoneOptions = computed(() => {
@@ -39,7 +39,7 @@ const getAllTimezoneOptions = computed(() => {
   return labels
 })
 
-function validateUserName(name: string): boolean {
+function validateUsername(name: string): boolean {
   let isValid = true
 
   if (name.trim().length < 1) {
@@ -57,14 +57,14 @@ function validateUserName(name: string): boolean {
   return isValid
 }
 
-async function handleSaveUserName() {
-  const isUserNameValid = validateUserName(userName.value)
+async function handleSaveUsername() {
+  const isUsernameValid = validateUsername(username.value)
 
-  if (!isUserNameValid) userNameHasErrors.value = true
-  else userNameHasErrors.value = false
+  if (!isUsernameValid) usernameHasErrors.value = true
+  else usernameHasErrors.value = false
 
-  if (userName.value && haveChanges.value && isUserNameValid) {
-    const result = await AUTH_STORE.updateUserName(userName.value)
+  if (username.value && haveChanges.value && isUsernameValid) {
+    const result = await AUTH_STORE.updateUsername(username.value)
 
     if (result) {
       toast.success('Имя успешно обновлено')
@@ -111,7 +111,7 @@ onMounted(() => {
     <div class="flex flex-col items-start gap-y-3 max-w-80">
       <div class="flex flex-col gap-y-1 w-full">
         <label class="text-custom-sm font-medium text-gray-500">Аватар</label>
-        <Avatar class="size-13 sm:size-15">
+        <Avatar class="size-13 sm:size-15" imageClasses="text-2xl sm:text-3xl">
           <Camera class="size-5" />
         </Avatar>
       </div>
@@ -124,19 +124,19 @@ onMounted(() => {
           autocomplete="off"
           type="text"
           class="w-80 border-none bg-gray-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-          @input="userNameHasErrors = false"
-          :class="{ 'ring-1 ring-red-500 focus:ring-red-500': userNameHasErrors }"
+          @input="usernameHasErrors = false"
+          :class="{ 'ring-1 ring-red-500 focus:ring-red-500': usernameHasErrors }"
           placeholder="Введите имя"
-          v-model="userName"
+          v-model="username"
         />
 
         <button
           type="button"
           class="flex items-center justify-center gap-x-2 py-2 px-3 bg-blue-500 hover:opacity-90 transition-[opacity,colors] text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-default"
           :disabled="!haveChanges"
-          @click="handleSaveUserName"
+          @click="handleSaveUsername"
         >
-          <Spinner v-if="isUserNameUpdating" class="size-3" />
+          <Spinner v-if="isUsernameUpdating" class="size-3" />
           <span>Сохранить</span>
         </button>
       </div>

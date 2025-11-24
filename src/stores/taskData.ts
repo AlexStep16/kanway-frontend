@@ -735,7 +735,15 @@ export const useTaskDataStore = defineStore('taskData', () => {
     if (!rawTasks || rawTasks.length === 0) return
     const newModels = rawTasks.map((raw) => transformTask(raw))
 
-    tasks.value.push(...newModels)
+    for (const newModel of newModels) {
+      const existingIndex = tasks.value.findIndex((t) => t.id === newModel.id)
+
+      if (existingIndex !== -1) {
+        Object.assign(tasks.value[existingIndex], newModel)
+      } else {
+        tasks.value.push(newModel)
+      }
+    }
   }
 
   function getTasksByCategoryId(categoryId: string): ITaskState[] {
@@ -928,6 +936,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
     )
   })
 
+  const getArchivedTasksByName = computed(() => (name: string): ITaskState[] => {
+    return getArchivedTasks.value.filter((task) =>
+      task.name.toLowerCase().startsWith(name.toLowerCase()),
+    )
+  })
+
   function isTaskProcessing(taskId: string): boolean {
     return (
       _addingTasks.value.has(taskId) ||
@@ -987,6 +1001,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     isFilterActive,
     getActiveBoardTasksByName,
     getArchivedTasks,
+    getArchivedTasksByName,
 
     // Errors
     loadTasksError,

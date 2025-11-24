@@ -2,12 +2,12 @@
 import { AvailableColors } from '@enums/AvailableColors'
 
 defineProps<{
-  color: string
+  color: AvailableColors
   size?: number
 }>()
 
 defineEmits<{
-  (e: 'selectColor', color: string): void
+  (e: 'selectColor', color: AvailableColors): void
 }>()
 </script>
 

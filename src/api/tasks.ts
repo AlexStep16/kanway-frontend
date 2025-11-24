@@ -1,5 +1,6 @@
 import { apiCall } from '@/apiClient'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
+import { IArchiveTaskResult } from '@/interfaces/IArchiveTaskResult'
 import { ITask } from '@interfaces/domain/ITask'
 
 export async function getTasksApi(workspaceId: string, boardId: string) {
@@ -57,7 +58,7 @@ export async function deleteTaskApi(workspaceId: string, boardId: string, taskId
 }
 
 export async function archiveTaskApi(workspaceId: string, boardId: string, taskId: string) {
-  return await apiCall<ITask[]>({
+  return await apiCall<IArchiveTaskResult>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}/archive`,
   })

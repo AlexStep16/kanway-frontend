@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 import { navigate } from 'vike/client/router'
 import { LogOut, Camera } from 'lucide-vue-next'
-import ColorButtons from '@components/ColorButtons.vue'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import ColorButtons from '@/components/Buttons/ColorButtons.vue'
+import { computed, nextTick, onMounted, ref, toRef, watch } from 'vue'
 import { HSAccordion } from 'preline'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { AvailableColors } from '@enums/AvailableColors'
 import { Nullable } from '@/types/utils'
+import { useWorkspaceDataStore } from '@/stores/workspaceData'
+import SubmitButton from '@/components/Forms/BasicCreateEditForm/SubmitButton.vue'
+import { useAuthStore } from '@/stores/auth'
 
 enum Tab {
   WORKSPACE = 0,
@@ -14,10 +17,26 @@ enum Tab {
   AVATAR = 2,
 }
 
+const WORKSPACE_STORE = useWorkspaceDataStore()
+const AUTH_STORE = useAuthStore()
+
+const user = toRef(AUTH_STORE, 'user')
+const isAddingWorkspace = toRef(WORKSPACE_STORE, 'isAddingWorkspace')
+const isUsernameUpdating = toRef(AUTH_STORE, 'isUsernameUpdating')
+const isUserAvatarColorUpdating = toRef(AUTH_STORE, 'isUserAvatarColorUpdating')
+
+const validationErrors = ref({
+  workspaceName: '',
+  username: '',
+})
+
 const colorsAccordion = ref<Nullable<HTMLElement>>(null)
 const colorsAccordionInstance = ref<Nullable<HSAccordion>>(null)
 const workspaceName = ref('')
 const workspaceColor = ref(AvailableColors.BLUE)
+const username = ref('')
+const avatarColor = ref(user.value ? user.value.avatarColor : AvailableColors.BLUE)
+const oldAvatarColor = ref(avatarColor.value)
 const currentTab = ref(Tab.WORKSPACE)
 const progressLabelRef = ref<Nullable<HTMLElement>>(null)
 const progressBarRef = ref<Nullable<HTMLElement>>(null)
@@ -26,6 +45,46 @@ function workspaceNameInputHandler() {
   if (colorsAccordionInstance.value) {
     colorsAccordionInstance.value.show()
   }
+}
+
+function validateWorkspaceName(name: string): boolean {
+  let isValid = true
+
+  if (name.trim().length < 1) {
+    validationErrors.value.workspaceName = 'Название должно содержать не менее 1 символов'
+
+    isValid = false
+  } else if (name.length > 100) {
+    validationErrors.value.workspaceName = 'Название не должно превышать 100 символов'
+
+    isValid = false
+  } else {
+    validationErrors.value.workspaceName = ''
+  }
+
+  return isValid
+}
+
+function validateUsername(name: string): boolean {
+  let isValid = true
+
+  if (name.trim().length < 1) {
+    validationErrors.value.username = 'Имя должно содержать не менее 1 символов'
+
+    isValid = false
+  } else if (name.length > 50) {
+    validationErrors.value.username = 'Имя не должно превышать 50 символов'
+
+    isValid = false
+  } else {
+    validationErrors.value.username = ''
+  }
+
+  return isValid
+}
+
+function resetValidationUsername() {
+  validationErrors.value.username = ''
 }
 
 const getCurrentProgress = computed((): number => {
@@ -65,7 +124,39 @@ function updateProgressLabel() {
   })
 }
 
+async function createWorkspace() {
+  if (!validateWorkspaceName(workspaceName.value)) {
+    return
+  }
+
+  const newWorkspace = await WORKSPACE_STORE.addWorkspace({
+    name: workspaceName.value,
+    color: workspaceColor.value,
+  })
+
+  if (newWorkspace) currentTab.value = Tab.USER
+}
+
+async function updateUsername() {
+  if (!validateUsername(username.value)) {
+    return
+  }
+
+  const isUpdated = await AUTH_STORE.updateUsername(username.value)
+
+  if (isUpdated) currentTab.value = Tab.AVATAR
+}
+
+async function updateAvatarColor() {
+  if (avatarColor.value === oldAvatarColor.value) return
+
+  await AUTH_STORE.updateAvatarColor(avatarColor.value)
+
+  // Optionally, you can navigate to another page or show a success message here
+}
+
 watch(getCurrentProgress, () => updateProgressLabel(), { immediate: true })
+watch(avatarColor, (newColor: AvailableColors) => AUTH_STORE.updateAvatarColorInStore(newColor))
 
 onMounted(() => {
   window.HSStaticMethods.autoInit()
@@ -106,28 +197,39 @@ onMounted(() => {
     </header>
 
     <main class="flex items-center justify-center grow-1">
-      <div class="flex flex-col gap-y-6 max-h-100 h-full p-4 justify-between w-full max-w-90">
+      <div class="flex flex-col gap-y-6 max-h-100 h-full p-4 justify-between w-full max-w-100">
         <TransitionGroup
-          class="flex items-center justify-center h-full"
+          class="flex items-center justify-center h-full relative"
           tag="div"
           name="slide-left"
         >
           <div class="flex items-center justify-center w-full" :key="currentTab">
             <div
-              class="rounded-lg flex flex-col gap-y-2 sm:gap-y-4 items-center w-full"
+              class="rounded-lg flex flex-col gap-y-4 sm:gap-y-6 items-center w-full"
               v-if="currentTab === Tab.WORKSPACE"
             >
-              <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Давайте начнем!</h1>
-              <div class="flex flex-col items-start w-full">
+              <div class="text-center space-y-2 sm:space-y-3 items-center w-full">
+                <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Давайте начнем!</h1>
+                <p class="text-sm text-center text-gray-500">
+                  Введите название вашего первого пространства
+                </p>
+              </div>
+              <div class="flex flex-col gap-y-2 items-start w-full">
                 <div class="flex flex-col items-start gap-y-1 w-full">
-                  <p class="text-sm text-gray-500">Введите название вашего первого пространства</p>
                   <input
                     type="text"
                     class="text-sm flex-1 w-full py-2 px-4 border bg-gray-50 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    :class="{
+                      'ring-1 ring-red-500 focus:ring-red-500': validationErrors.workspaceName,
+                    }"
+                    maxlength="100"
                     placeholder="Например, Команда маркетинга"
                     @input="workspaceNameInputHandler"
                     v-model="workspaceName"
                   />
+                  <div v-if="validationErrors.workspaceName" class="text-red-500 text-xs">
+                    {{ validationErrors.workspaceName }}
+                  </div>
                 </div>
 
                 <div class="hs-accordion" id="hs-unstyled-heading-one" ref="colorsAccordion">
@@ -142,9 +244,13 @@ onMounted(() => {
                     role="region"
                     aria-labelledby="hs-basic-heading-two"
                   >
-                    <div class="flex flex-col items-start gap-y-1 w-full pt-2">
+                    <div class="flex flex-col items-start gap-y-1 w-full pb-1 px-1">
                       <p class="text-sm text-gray-500">Выберите цвет</p>
-                      <ColorButtons :color="workspaceColor" :size="9">
+                      <ColorButtons
+                        :color="workspaceColor"
+                        :size="9"
+                        @selectColor="(color: AvailableColors) => (workspaceColor = color)"
+                      >
                         <span class="font-bold text-white">{{
                           workspaceName.substring(0, 1)
                         }}</span>
@@ -154,63 +260,83 @@ onMounted(() => {
                 </div>
               </div>
 
-              <button
-                class="w-full px-4 py-2 text-sm text-white bg-blue-500 border border-transparent rounded-md hover:opacity-90 focus:outline-none disabled:opacity-40 disabled:pointer-events-none transition-opacity duration-100"
-                @click="currentTab = Tab.USER"
-              >
-                Продолжить
-              </button>
+              <SubmitButton
+                :isLoading="isAddingWorkspace"
+                :isFormChanged="workspaceName.length > 0"
+                :customClass="'text-sm'"
+                text="Создать"
+                @submit="createWorkspace"
+              ></SubmitButton>
             </div>
 
             <div
               class="rounded-lg flex flex-col gap-y-2 sm:gap-y-4 items-center w-full"
               v-if="currentTab === Tab.USER"
             >
-              <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Представьтесь</h1>
+              <div class="text-center space-y-2 sm:space-y-3 items-center w-full">
+                <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Представьтесь</h1>
+                <p class="text-sm text-center text-gray-500">Как к вам обращаться?</p>
+              </div>
               <div class="flex flex-col gap-y-2 items-start w-full">
                 <div class="flex flex-col items-start gap-y-1 w-full">
-                  <p class="text-sm text-gray-500">Введите ваше имя</p>
                   <input
                     type="text"
                     class="text-sm flex-1 w-full py-2 px-4 border bg-gray-50 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    :class="{
+                      'ring-1 ring-red-500 focus:ring-red-500': validationErrors.workspaceName,
+                    }"
+                    @input="resetValidationUsername"
+                    maxlength="50"
+                    placeholder="Например, Иван Петров"
+                    v-model="username"
                   />
-                </div>
-                <div class="flex flex-col items-start gap-y-1 w-full">
-                  <p class="text-sm text-gray-500">Введите вашу фамилию</p>
-                  <input
-                    type="text"
-                    class="text-sm flex-1 w-full py-2 px-4 border bg-gray-50 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Необязательно"
-                  />
+
+                  <div v-if="validationErrors.username" class="text-red-500 text-xs">
+                    {{ validationErrors.username }}
+                  </div>
                 </div>
               </div>
-              <button
-                class="w-full px-4 py-2 text-sm text-white bg-blue-500 border border-transparent rounded-md hover:opacity-90 focus:outline-none disabled:opacity-40 disabled:pointer-events-none transition-opacity duration-100"
-                @click="currentTab = Tab.AVATAR"
-              >
-                Продолжить
-              </button>
+
+              <SubmitButton
+                :isLoading="isUsernameUpdating"
+                :isFormChanged="username.length > 0"
+                :customClass="'text-sm'"
+                text="Сохранить"
+                @submit="updateUsername"
+              ></SubmitButton>
             </div>
 
             <div
               class="rounded-lg flex flex-col gap-y-2 sm:gap-y-4 items-center w-full"
               v-if="currentTab === Tab.AVATAR"
             >
-              <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Выберите аватар</h1>
+              <div class="text-center space-y-2 sm:space-y-3 items-center w-full">
+                <h1 class="text-2xl sm:text-3xl text-gray-800 font-bold">Выберите аватар</h1>
+                <p class="text-sm text-center text-gray-500">
+                  Вы можете загрузить изображение<br />
+                  или выбрать цвет фона
+                </p>
+              </div>
               <div class="flex flex-col items-center gap-y-3 w-full">
                 <div class="w-full flex justify-center">
-                  <Avatar class="size-17">
+                  <Avatar class="size-17" imageClasses="text-3xl sm:text-4xl">
                     <Camera class="size-8" />
                   </Avatar>
                 </div>
-                <ColorButtons :color="AvailableColors.GREEN" :size="9" />
+                <ColorButtons
+                  :color="avatarColor"
+                  @selectColor="(color: AvailableColors) => (avatarColor = color)"
+                  :size="9"
+                />
               </div>
-              <button
-                class="w-full px-4 py-2 text-sm text-white bg-blue-500 border border-transparent rounded-md hover:opacity-90 focus:outline-none disabled:opacity-40 disabled:pointer-events-none transition-opacity duration-100"
-                @click="currentTab = Tab.AVATAR"
-              >
-                Сохранить
-              </button>
+
+              <SubmitButton
+                :isLoading="isUserAvatarColorUpdating"
+                :isFormChanged="true"
+                :customClass="'text-sm'"
+                text="Сохранить"
+                @submit="updateAvatarColor"
+              ></SubmitButton>
             </div>
           </div>
         </TransitionGroup>

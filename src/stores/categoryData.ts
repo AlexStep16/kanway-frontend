@@ -39,6 +39,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   // State
   const categories = ref<Array<ICategoryState>>([])
+  const categoryToEdit = ref<Nullable<ICategoryState>>(null)
 
   // Errors
   const loadCategoriesError = ref<CategoryErrorType>(null)
@@ -470,7 +471,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
       _deletingCategories.value.add(category.id)
 
       const coreAction = () =>
-        removeCategory(category.id, activeWorkspace.value.id, activeBoard.value.id)
+        removeCategory(category.id, activeWorkspace.value.id, category.boardId)
 
       await requestQueueService.enqueue(category.id, coreAction)
 
@@ -754,7 +755,19 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     if (!rawCategories || rawCategories.length === 0) return
     const newModels = rawCategories.map((raw) => transformCategory(raw))
 
-    categories.value.push(...newModels)
+    for (const newModel of newModels) {
+      const existingIndex = categories.value.findIndex((c) => c.id === newModel.id)
+
+      if (existingIndex !== -1) {
+        Object.assign(categories.value[existingIndex], newModel)
+      } else {
+        categories.value.push(newModel)
+      }
+    }
+  }
+
+  function clearCategoryToEdit() {
+    categoryToEdit.value = null
   }
 
   function getCategoryById(categoryId: string): Nullable<ICategoryState> {
@@ -800,6 +813,12 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     )
   })
 
+  const getArchivedCategoriesByName = computed(() => (name: string): ICategoryState[] => {
+    return getArchivedCategories.value.filter((category) =>
+      category.name.toLowerCase().startsWith(name.toLowerCase()),
+    )
+  })
+
   const getArchivedCategories = computed((): ICategoryState[] => {
     return categories.value
       .filter((category) => category.isDeleted && !category.isDeletedExternal)
@@ -841,6 +860,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   return {
     // State
     categories,
+    categoryToEdit,
     getActiveBoardCategories,
     isCategoryMoving,
     isCategoryProcessing,
@@ -849,6 +869,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     isCategoryAdding,
     getActiveBoardCategoriesByName,
     getArchivedCategories,
+    getArchivedCategoriesByName,
 
     // Errors
     loadCategoriesError,
@@ -870,6 +891,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     getCategoriesByBoardId,
     createOrSplice,
     integrateCategories,
+    clearCategoryToEdit,
 
     $reset,
   }

@@ -171,7 +171,7 @@ const isTaskArchiving = computed(() => {
 
       <div class="flex items-start justify-between gap-x-2">
         <div
-          class="flex items-center gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform pointer-fine:-translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
+          class="flex items-center pr-14 pointer-fine:pr-0 gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform pointer-fine:-translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
           :class="{ 'translate-x-0!': task.isCompleted }"
         >
           <div

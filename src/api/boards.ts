@@ -1,6 +1,7 @@
 import { apiCall } from '@/apiClient'
 import { IClonedBoardResult } from '@interfaces/domain/IClonedBoardResult'
 import { IBoard } from '@interfaces/domain/IBoard'
+import { IArchiveBoardResult } from '@/interfaces/IArchiveBoardResult'
 
 export async function getBoardsApi(workspaceId: string) {
   return await apiCall<IBoard[]>({
@@ -51,7 +52,7 @@ export async function deleteBoardApi(boardId: string, workspaceId: string) {
 }
 
 export async function archiveBoardApi(boardId: string, workspaceId: string) {
-  return await apiCall<IBoard[]>({
+  return await apiCall<IArchiveBoardResult>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/archive`,
   })

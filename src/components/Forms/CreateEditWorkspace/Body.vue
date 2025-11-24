@@ -39,11 +39,13 @@ defineEmits<{
 
     <Color :color="color" @update:color="$emit('update:color', $event)" />
 
-    <SubmitButton
-      :isLoading="isLoading"
-      :isFormChanged="isFormChanged"
-      @submit="$emit('submit')"
-      :text="mode === 'create' ? 'Создать' : 'Сохранить'"
-    />
+    <div class="flex justify-end gap-x-2 pt-2 border-t border-gray-200 relative">
+      <SubmitButton
+        :isLoading="isLoading"
+        :isFormChanged="isFormChanged"
+        @submit="$emit('submit')"
+        :text="mode === 'create' ? 'Создать' : 'Сохранить'"
+      />
+    </div>
   </div>
 </template>

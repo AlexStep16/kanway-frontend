@@ -2,6 +2,7 @@ import { apiCall } from '@/apiClient'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { IBoard } from '@interfaces/domain/IBoard'
 import { IClonedWorkspaceResult } from '@interfaces/domain/IClonedWorkspaceResult'
+import { IArchiveWorkspaceResult } from '@/interfaces/IArchiveWorkspaceResult'
 
 export async function getWorkspacesApi() {
   return await apiCall<IWorkspace[]>({
@@ -41,7 +42,7 @@ export async function deleteWorkspaceApi(workspaceId: string) {
 }
 
 export async function archiveWorkspaceApi(workspaceId: string) {
-  return await apiCall<IWorkspace[]>({
+  return await apiCall<IArchiveWorkspaceResult>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/archive`,
   })

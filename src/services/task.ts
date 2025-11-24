@@ -91,7 +91,7 @@ export async function removeTask(taskId: string, workspaceId: string, boardId: s
 export async function archiveTask(taskId: string, workspaceId: string, boardId: string) {
   const archiveResult = await archiveTaskApi(workspaceId, boardId, taskId)
 
-  return archiveResult.map(transformTask)
+  return archiveResult.tasks.map(transformTask)
 }
 
 export async function recoverTask(taskId: string, workspaceId: string, boardId: string) {

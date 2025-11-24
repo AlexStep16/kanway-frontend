@@ -12,6 +12,16 @@ import { useWorkspaceDataStore } from '@stores/workspaceData'
 export const useUIStore = defineStore('ui', () => {
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
   const editTaskModalHSInstance = ref<Nullable<HSOverlay>>(null)
+
+  const editCategoryModalRef = ref<Nullable<HTMLElement>>(null)
+  const editCategoryModalHSInstance = ref<Nullable<HSOverlay>>(null)
+
+  const editBoardModalRef = ref<Nullable<HTMLElement>>(null)
+  const editBoardModalHSInstance = ref<Nullable<HSOverlay>>(null)
+
+  const editWorkspaceModalRef = ref<Nullable<HTMLElement>>(null)
+  const editWorkspaceModalHSInstance = ref<Nullable<HSOverlay>>(null)
+
   const createBoardButtonRef = ref<Nullable<HTMLElement>>(null)
   const settingsModalRef = ref<Nullable<HTMLElement>>(null)
   const settingsModalHSInstance = ref<Nullable<HSOverlay>>(null)
@@ -38,6 +48,30 @@ export const useUIStore = defineStore('ui', () => {
   function closeEditTaskModal() {
     if (editTaskModalHSInstance.value) {
       editTaskModalHSInstance.value.close()
+    }
+  }
+
+  function openEditCategoryModal() {
+    if (editCategoryModalHSInstance.value) {
+      editCategoryModalHSInstance.value.open()
+    }
+  }
+
+  function closeEditCategoryModal() {
+    if (editCategoryModalHSInstance.value) {
+      editCategoryModalHSInstance.value.close()
+    }
+  }
+
+  function openEditBoardModal() {
+    if (editBoardModalHSInstance.value) {
+      editBoardModalHSInstance.value.open()
+    }
+  }
+
+  function closeEditBoardModal() {
+    if (editBoardModalHSInstance.value) {
+      editBoardModalHSInstance.value.close()
     }
   }
 
@@ -89,22 +123,19 @@ export const useUIStore = defineStore('ui', () => {
   }
 
   function $reset() {
-    editTaskModalRef.value = null
-    editTaskModalHSInstance.value = null
-    createBoardButtonRef.value = null
-    settingsModalRef.value = null
-    settingsModalHSInstance.value = null
-    chatModalRef.value = null
-    chatModalHSInstance.value = null
-    isSidebarOpen.value = true
-    tipRef.value = null
-    currentTab.value = Tabs.Board
+    //...
   }
 
   return {
     // State
     editTaskModalRef,
     editTaskModalHSInstance,
+    editCategoryModalRef,
+    editCategoryModalHSInstance,
+    editBoardModalRef,
+    editBoardModalHSInstance,
+    editWorkspaceModalRef,
+    editWorkspaceModalHSInstance,
     createBoardButtonRef,
     settingsModalRef,
     settingsModalHSInstance,
@@ -118,6 +149,10 @@ export const useUIStore = defineStore('ui', () => {
     // Actions
     openEditTaskModal,
     closeEditTaskModal,
+    openEditCategoryModal,
+    closeEditCategoryModal,
+    openEditBoardModal,
+    closeEditBoardModal,
     openSettingsModal,
     closeSettingsModal,
     openChatModal,

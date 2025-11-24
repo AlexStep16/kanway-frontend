@@ -78,7 +78,9 @@ export async function removeCategory(categoryId: string, workspaceId: string, bo
 export async function archiveCategory(categoryId: string, workspaceId: string, boardId: string) {
   const archiveResult = await archiveCategoryApi(categoryId, boardId, workspaceId)
 
-  return archiveResult.map(transformCategory)
+  useTaskDataStore().integrateTasks(archiveResult.tasks)
+
+  return archiveResult.categories.map(transformCategory)
 }
 
 export async function recoverCategory(categoryId: string, workspaceId: string, boardId: string) {

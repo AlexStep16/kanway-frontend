@@ -62,7 +62,10 @@ export async function removeBoard(boardId: string, workspaceId: string) {
 export async function archiveBoard(boardId: string, workspaceId: string) {
   const archiveResult = await archiveBoardApi(boardId, workspaceId)
 
-  return archiveResult.map(transformBoard)
+  useCategoryDataStore().integrateCategories(archiveResult.categories)
+  useTaskDataStore().integrateTasks(archiveResult.tasks)
+
+  return archiveResult.boards.map(transformBoard)
 }
 
 export async function recoverBoard(boardId: string, workspaceId: string) {

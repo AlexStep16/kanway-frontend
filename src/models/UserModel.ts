@@ -1,6 +1,7 @@
 import { Nullable } from '@/types/utils'
 import { IUser } from '@interfaces/domain/IUser'
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
+import { AvailableColors } from '@/enums/AvailableColors'
 
 export default class UserModel implements IUser {
   public id: string
@@ -13,7 +14,7 @@ export default class UserModel implements IUser {
   public subscriptionUntil?: Date
   public isSubscriptionActive?: boolean
   public generationsCount: number
-  public avatarColor: string
+  public avatarColor: AvailableColors
   public isTipsCompleted?: boolean
   public paymentMethodId?: string
   public yaId?: Nullable<string>

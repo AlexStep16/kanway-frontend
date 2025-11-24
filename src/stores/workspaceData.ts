@@ -303,6 +303,11 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         const coreAction = () => removeWorkspace(workspace.id)
 
         await requestQueueService.enqueue(workspace.id, coreAction)
+
+        const workspaceIndex = workspaces.value.findIndex((w) => w.id === workspace.id)
+        if (workspaceIndex !== -1) {
+          workspaces.value.splice(workspaceIndex, 1)
+        }
       } catch (e) {
         if (e instanceof BackendError) {
           _deleteWorkspacesError.value.set(workspace.id, e)
@@ -636,6 +641,12 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
         })
     })
 
+    const getArchivedWorkspacesByName = computed(() => (name: string): IWorkspace[] => {
+      return getArchivedWorkspaces.value.filter((workspace) =>
+        workspace.name.toLowerCase().startsWith(name.toLowerCase()),
+      )
+    })
+
     function getOtherWorkspaces(workspaceId: string): WorkspaceModel[] {
       return workspaces.value
         .filter((workspace) => workspace.id !== workspaceId && !workspace.isDeleted)
@@ -664,6 +675,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       getWorkspaces,
       getActiveWorkspace,
       getArchivedWorkspaces,
+      getArchivedWorkspacesByName,
 
       // Actions
       loadWorkspaces,

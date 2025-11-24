@@ -6,8 +6,17 @@ import Filter from '@components/Workspace/Header/Filter.vue'
 import Tabs from '@/enums/TabsEnum'
 import { PanelLeftOpen } from 'lucide-vue-next'
 import { useUIStore } from '@/stores/ui'
+import { computed } from 'vue'
 
 const UI_STORE = useUIStore()
+
+const isArchiveTab = computed(() => {
+  return UI_STORE.currentTab === Tabs.Archive
+})
+
+const isBoardTab = computed(() => {
+  return UI_STORE.currentTab === Tabs.Board
+})
 </script>
 
 <template>
@@ -23,12 +32,12 @@ const UI_STORE = useUIStore()
     >
       <PanelLeftOpen class="size-4" />
     </button>
-    <TitleBoard v-if="UI_STORE.currentTab === Tabs.Board" />
-    <TitleArchive v-if="UI_STORE.currentTab === Tabs.Archive" />
+    <TitleBoard v-if="isBoardTab" />
+    <TitleArchive v-if="isArchiveTab" />
 
     <div class="flex shrink-0 ms-auto items-stretch gap-x-3">
       <Search />
-      <Filter />
+      <Filter v-if="!isArchiveTab" />
     </div>
   </div>
   <!-- End Header -->

@@ -54,7 +54,11 @@ export async function removeWorkspace(workspaceId: string) {
 export async function archiveWorkspace(workspaceId: string) {
   const archiveResult = await archiveWorkspaceApi(workspaceId)
 
-  return archiveResult.map(transformWorkspace)
+  useBoardDataStore().integrateBoards(archiveResult.boards)
+  useCategoryDataStore().integrateCategories(archiveResult.categories)
+  useTaskDataStore().integrateTasks(archiveResult.tasks)
+
+  return archiveResult.workspaces.map(transformWorkspace)
 }
 
 export async function recoverWorkspace(workspaceId: string) {

@@ -17,6 +17,7 @@ import { patchUserApi, patchUserPasswordApi } from '@/api/auth'
 import dayjs from 'dayjs'
 import { requestQueueService } from '@utils/RequestQueueService'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
+import { AvailableColors } from '@/enums/AvailableColors'
 
 // Объединяем типы ошибок для простоты хранения в state
 type AuthErrorType = Nullable<BackendError | HttpError>
@@ -40,7 +41,8 @@ export const useAuthStore = (pinia?: Pinia) => {
     const _isUserUpdating = ref(false)
     const _isUserAvatarUpdating = ref(false)
     const _isUserTimezoneUpdating = ref(false)
-    const _isUserNameUpdating = ref(false)
+    const _isUsernameUpdating = ref(false)
+    const _isAvatarColorUpdating = ref(false)
     const _isPasswordUpdating = ref(false)
     const _isUserPaymentMethodUpdating = ref(false)
     const _isUserDeleting = ref(false)
@@ -168,15 +170,15 @@ export const useAuthStore = (pinia?: Pinia) => {
       }
     }
 
-    async function updateUserName(username: string): Promise<UserModel | false> {
+    async function updateUsername(username: string): Promise<UserModel | false> {
       if (!user.value) return false
-      if (isUserNameUpdating.value) {
+      if (isUsernameUpdating.value) {
         toast.error('Пожалуйста, дождитесь завершения текущего процесса обновления.')
         return false
       }
 
       try {
-        _isUserNameUpdating.value = true
+        _isUsernameUpdating.value = true
 
         const updatedUser = await _update({ username, id: user.value.id })
 
@@ -186,7 +188,35 @@ export const useAuthStore = (pinia?: Pinia) => {
 
         return false
       } finally {
-        _isUserNameUpdating.value = false
+        _isUsernameUpdating.value = false
+      }
+    }
+
+    async function updateAvatarColor(color: AvailableColors): Promise<UserModel | false> {
+      if (!user.value) return false
+      if (_isAvatarColorUpdating.value) {
+        toast.error('Пожалуйста, дождитесь завершения текущего процесса обновления.')
+        return false
+      }
+
+      try {
+        _isAvatarColorUpdating.value = true
+
+        const updatedUser = await _update({ avatarColor: color, id: user.value.id })
+
+        if (updatedUser) {
+          return updatedUser
+        }
+
+        return false
+      } finally {
+        _isAvatarColorUpdating.value = false
+      }
+    }
+
+    function updateAvatarColorInStore(color: AvailableColors) {
+      if (user.value) {
+        user.value.avatarColor = color
       }
     }
 
@@ -331,10 +361,11 @@ export const useAuthStore = (pinia?: Pinia) => {
 
     const isUserTimezoneUpdating = computed(() => _isUserTimezoneUpdating.value)
     const isUserUpdating = computed(() => _isUserUpdating.value)
-    const isUserNameUpdating = computed(() => _isUserNameUpdating.value)
+    const isUsernameUpdating = computed(() => _isUsernameUpdating.value)
     const isPasswordUpdating = computed(() => _isPasswordUpdating.value)
     const isUserPaymentMethodUpdating = computed(() => _isUserPaymentMethodUpdating.value)
     const isUserDeleting = computed(() => _isUserDeleting.value)
+    const isUserAvatarColorUpdating = computed(() => _isAvatarColorUpdating.value)
 
     function resetPasswordUpdateError() {
       passwordUpdateError.value = null
@@ -351,11 +382,12 @@ export const useAuthStore = (pinia?: Pinia) => {
       registerError,
       isUserTimezoneUpdating,
       isUserUpdating,
-      isUserNameUpdating,
+      isUsernameUpdating,
       isPasswordUpdating,
       isUserDeleting,
       passwordUpdateError,
       isUserPaymentMethodUpdating,
+      isUserAvatarColorUpdating,
 
       // Actions
       forceLoadMe,
@@ -363,12 +395,14 @@ export const useAuthStore = (pinia?: Pinia) => {
       handleRegister,
       updateAvatar,
       setUser,
-      updateUserName,
+      updateUsername,
       updateUserTimezone,
       updateUserPassword,
       resetPasswordUpdateError,
       deleteAccount,
       updateUserPaymentMethod,
+      updateAvatarColor,
+      updateAvatarColorInStore,
 
       $reset,
     }

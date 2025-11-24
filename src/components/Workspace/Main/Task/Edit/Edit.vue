@@ -3,12 +3,11 @@ import { useTaskDataStore } from '@/stores/taskData'
 import { useUIStore } from '@/stores/ui'
 import { HSStaticMethods } from 'preline'
 import { ref, watch, nextTick, computed } from 'vue'
-import { X, Copy, Archive } from 'lucide-vue-next'
-import MoveDropdown from '@components/Workspace/Main/Task/Edit/MoveDropdown.vue'
+import MoveDropdown from '@components/Workspace/Main/MoveDropdown/MoveDropdown.vue'
+import MoveDropdownButton from '@components/Workspace/Main/MoveDropdown/MoveDropdownButton.vue'
 import Date from '@components/Workspace/Main/Task/Edit/Date.vue'
 import Tags from '@components/Workspace/Main/Task/Edit/Tags.vue'
 import Color from '@components/Workspace/Main/Task/Edit/Color.vue'
-import Spinner from '@components/Loader/Spinner.vue'
 import { toast } from 'vue-sonner'
 import { TaskModel } from '@models/TaskModel'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
@@ -19,6 +18,7 @@ import { ITaskState } from '@stores/interfaces/ITaskState'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 import _ from 'lodash'
+import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
 
 const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
@@ -331,39 +331,24 @@ watch(
               {{ editableTask.isCompleted ? 'Выполнено' : 'Выполняется' }}
             </button>
 
-            <MoveDropdown :task="editableTask" @moveTask="handleMoveTask" />
+            <MoveDropdown
+              :entity="editableTask"
+              :type="0"
+              @moveTask="handleMoveTask"
+              v-if="!editableTask.isDeleted"
+            />
+
+            <MoveDropdownButton :title="editableTask.categoryName" :disabled="true" v-else />
           </div>
 
-          <div class="flex gap-x-3 min-w-0">
-            <div class="flex items-center transition-all duration-100">
-              <button
-                type="button"
-                class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-                title="Копировать"
-                @click.stop="copyTask(editableTask)"
-              >
-                <Spinner v-if="isTaskCopying" class="size-4" />
-                <Copy v-else class="size-4" />
-              </button>
-              <button
-                type="button"
-                class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-                title="Архивировать"
-                @click.stop="archiveTask(editableTask)"
-              >
-                <Spinner v-if="isTaskArchiving" class="size-4" />
-                <Archive v-else class="size-4" />
-              </button>
-            </div>
-
-            <button
-              class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full shrink-0"
-              type="button"
-              @click="UI_STORE.closeEditTaskModal()"
-            >
-              <X class="size-5" />
-            </button>
-          </div>
+          <ActionAndCloseButtons
+            :editableEntity="editableTask"
+            :isEntityCopying="isTaskCopying"
+            :isEntityArchiving="isTaskArchiving"
+            @copy="copyTask"
+            @archive="archiveTask"
+            @close="UI_STORE.closeEditTaskModal()"
+          />
         </div>
         <!-- Header End -->
 
