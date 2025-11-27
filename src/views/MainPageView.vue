@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue'
+import { onMounted, ref, shallowRef } from 'vue'
 
 import AOS from 'aos'
 import Header from '@components/MainPage/Header.vue'
@@ -41,26 +41,6 @@ const tasks = ref([
     tags: ['работа'],
   },
 ])
-
-const numCols = ref(3)
-
-const taskColumns = computed(() => {
-  const result: any = Array.from({ length: numCols.value }, () => [])
-  tasks.value.forEach((task, index) => {
-    result[index % numCols.value].push(task)
-  })
-  return result
-})
-
-function updateTaskColumns() {
-  const windowWidth = window.innerWidth
-
-  if (windowWidth <= 640) {
-    numCols.value = 1
-  } else {
-    numCols.value = 2
-  }
-}
 
 function updateCircle() {
   const circle = document.getElementById('blue-circle')
@@ -123,9 +103,6 @@ onMounted(() => {
   updateCircle()
   updateClip()
 
-  updateTaskColumns()
-  window.addEventListener('resize', updateTaskColumns)
-
   window.addEventListener('scroll', updateClip)
   window.addEventListener('scroll', updateCircle)
   window.addEventListener('resize', updateClip)
@@ -148,7 +125,7 @@ onMounted(() => {
     <Problem />
     <CommandCenter />
 
-    <Control v-model:activeTab="activeTab" :taskColumns="taskColumns" />
+    <Control v-model:activeTab="activeTab" :tasks />
 
     <Prices />
 

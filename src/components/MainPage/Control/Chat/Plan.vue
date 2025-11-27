@@ -4,11 +4,14 @@ import UserBubble from '@components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import Confirmation from '@components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
 import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
 import Task from '@components/Workspace/Main/Task/Task.vue'
-import { onMounted } from 'vue'
+import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
-  taskColumns: Array<Array<any>>
+  tasks: Array<Array<any>>
 }>()
+
+const containerRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   if (window.HSStaticMethods) {
@@ -22,6 +25,7 @@ onMounted(() => {
     <!-- Body -->
     <div
       class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+      ref="containerRef"
     >
       <UserBubble
         text="Поменяй цвет всех задач с #работа на синий и перенеси их в категорию 'Срочное'."
@@ -30,14 +34,10 @@ onMounted(() => {
       <AIBubble date="18 ноября в 15:00">
         <Confirmation text="Следующим задачам будут присвоены значения:" />
 
-        <div class="flex gap-2 mt-3">
-          <div
-            v-for="(columnTasks, colIndex) in taskColumns"
-            :key="colIndex"
-            class="flex flex-col gap-2"
-          >
+        <ColumnsView :items="tasks" :containerRef="containerRef" class="mt-3">
+          <template v-slot:default="slotProps">
             <Task
-              v-for="task in columnTasks"
+              v-for="task in slotProps.data"
               :key="task.id"
               :task="task"
               :hasBorder="true"
@@ -45,8 +45,8 @@ onMounted(() => {
               :showInfo="true"
               taskClasses="self-start"
             ></Task>
-          </div>
-        </div>
+          </template>
+        </ColumnsView>
 
         <div class="flex gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200">
           <button

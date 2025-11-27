@@ -6,7 +6,14 @@ import Confirmation from '@components/MainPage/Control/Chat/Confirmation.vue'
 import Cancellation from '@components/MainPage/Control/Chat/Cancellation.vue'
 
 defineProps<{
-  taskColumns: Array<Array<any>>
+  tasks: Array<{
+    id: number
+    name: string
+    is_completed: boolean
+    due_date?: string
+    color?: string
+    tags?: string[]
+  }>
   activeTab: typeof Plan | typeof Confirmation | typeof Cancellation
 }>()
 
@@ -93,7 +100,7 @@ onMounted(() => {
       >
         <div class="rounded-xl md:rounded-2xl bg-white p-2 sm:p-4">
           <Transition name="fade" mode="out-in">
-            <component :is="activeTab" :taskColumns="taskColumns" />
+            <component :is="activeTab" :tasks />
           </Transition>
         </div>
       </div>
