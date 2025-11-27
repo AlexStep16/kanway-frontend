@@ -9,7 +9,7 @@ import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 import Status from '@components/Workspace/Main/Chat/Bubbles/Status.vue'
 import { computed, onMounted, ref } from 'vue'
 import Task from '@components/Workspace/Main/Task/Task.vue'
-import EntityCard from '@components/Workspace/Main/Archive/EntityCard.vue'
+import EntityCard from '@/components/Workspace/Main/EntityCard.vue'
 
 const UI_STORE = useUIStore()
 const numCols = ref(2)

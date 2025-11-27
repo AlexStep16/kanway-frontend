@@ -7,6 +7,7 @@ import { Nullable } from '@/types/utils'
 
 const isInputVisible = ref(false)
 const inputRef = ref<Nullable<HTMLInputElement>>(null)
+const BOARD_STORE = useBoardDataStore()
 
 function showInput() {
   isInputVisible.value = true
@@ -23,7 +24,11 @@ function updateBoardName(event: Event) {
   const newName = target.value.trim()
 
   if (newName && BOARD_STORE.activeBoard) {
-    BOARD_STORE.updateBoard({ ...BOARD_STORE.activeBoard, name: newName }, true)
+    BOARD_STORE.updateBoard(
+      { ...BOARD_STORE.activeBoard, name: newName },
+      BOARD_STORE.activeBoard.workspaceId,
+      true,
+    )
   }
 
   isInputVisible.value = false
@@ -36,8 +41,6 @@ const getName = computed(() => {
 const getBoardId = computed(() => {
   return BOARD_STORE.activeBoard?.id || ''
 })
-
-const BOARD_STORE = useBoardDataStore()
 </script>
 
 <template>

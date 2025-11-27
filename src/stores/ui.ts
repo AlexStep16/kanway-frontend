@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { HSOverlay } from 'preline'
 
-import { ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
 import { useBoardDataStore } from '@stores/boardData'
@@ -32,6 +32,9 @@ export const useUIStore = defineStore('ui', () => {
 
   const currentTab = ref<Tabs>(Tabs.Board)
 
+  const modalStack = ref<string[]>([])
+  const modalInstances = ref(new Map<string, HSOverlay>())
+
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const BOARD_STORE = useBoardDataStore()
   const TASK_STORE = useTaskDataStore()
@@ -39,39 +42,169 @@ export const useUIStore = defineStore('ui', () => {
 
   const isSidebarOpen = ref(true)
 
+  function watchForBackdropClicks(
+    newVal: Nullable<HTMLElement>,
+    id: string,
+    closeCallback: () => void,
+  ) {
+    if (newVal)
+      document.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement
+
+        if (target.id === `hs-${id}-backdrop`) {
+          closeCallback()
+        }
+      })
+  }
+
+  watch(
+    editTaskModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'task-edit', closeEditTaskModal)
+    },
+    { once: true },
+  )
+
+  watch(
+    editCategoryModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'category-edit', closeEditCategoryModal)
+    },
+    { once: true },
+  )
+
+  watch(
+    editBoardModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'board-edit', closeEditBoardModal)
+    },
+    { once: true },
+  )
+
+  watch(
+    editWorkspaceModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'workspace-edit', closeEditWorkspaceModal)
+    },
+    { once: true },
+  )
+
+  function addToModalStack(id: string) {
+    modalStack.value.push(id)
+
+    closeAllModals()
+  }
+
+  function removeFromModalStack(id: string) {
+    const index = modalStack.value.indexOf(id)
+
+    if (index > -1) {
+      modalStack.value.splice(index, 1)
+    }
+
+    openTopModal()
+  }
+
+  function openTopModal() {
+    const topModalId = modalStack.value[modalStack.value.length - 1]
+    modalInstances.value.get(topModalId)?.open()
+  }
+
+  const isModalOnTop = computed(() => (id: string) => {
+    return modalStack.value.length > 0 && modalStack.value[modalStack.value.length - 1] === id
+  })
+
+  function closeAllModals() {
+    editTaskModalHSInstance.value?.close()
+    editCategoryModalHSInstance.value?.close()
+    editBoardModalHSInstance.value?.close()
+    editWorkspaceModalHSInstance.value?.close()
+    settingsModalHSInstance.value?.close()
+    chatModalHSInstance.value?.close()
+  }
+
   function openEditTaskModal() {
     if (editTaskModalHSInstance.value) {
-      editTaskModalHSInstance.value.open()
+      addToModalStack('editTaskModal')
+      modalInstances.value.set('editTaskModal', editTaskModalHSInstance.value)
+
+      nextTick(() => {
+        if (editTaskModalHSInstance.value) editTaskModalHSInstance.value.open()
+      })
     }
   }
 
   function closeEditTaskModal() {
     if (editTaskModalHSInstance.value) {
       editTaskModalHSInstance.value.close()
+
+      TASK_STORE.clearTaskToEdit()
+
+      removeFromModalStack('editTaskModal')
     }
   }
 
   function openEditCategoryModal() {
     if (editCategoryModalHSInstance.value) {
-      editCategoryModalHSInstance.value.open()
+      addToModalStack('editCategoryModal')
+      modalInstances.value.set('editCategoryModal', editCategoryModalHSInstance.value)
+
+      nextTick(() => {
+        if (editCategoryModalHSInstance.value) editCategoryModalHSInstance.value.open()
+      })
     }
   }
 
   function closeEditCategoryModal() {
     if (editCategoryModalHSInstance.value) {
       editCategoryModalHSInstance.value.close()
+
+      CATEGORY_STORE.clearCategoryToEdit()
+
+      removeFromModalStack('editCategoryModal')
     }
   }
 
   function openEditBoardModal() {
     if (editBoardModalHSInstance.value) {
-      editBoardModalHSInstance.value.open()
+      addToModalStack('editBoardModal')
+      modalInstances.value.set('editBoardModal', editBoardModalHSInstance.value)
+
+      nextTick(() => {
+        if (editBoardModalHSInstance.value) editBoardModalHSInstance.value.open()
+      })
     }
   }
 
   function closeEditBoardModal() {
     if (editBoardModalHSInstance.value) {
       editBoardModalHSInstance.value.close()
+
+      BOARD_STORE.clearBoardToEdit()
+
+      removeFromModalStack('editBoardModal')
+    }
+  }
+
+  function openEditWorkspaceModal() {
+    if (editWorkspaceModalHSInstance.value) {
+      addToModalStack('editWorkspaceModal')
+
+      modalInstances.value.set('editWorkspaceModal', editWorkspaceModalHSInstance.value)
+
+      nextTick(() => {
+        if (editWorkspaceModalHSInstance.value) editWorkspaceModalHSInstance.value.open()
+      })
+    }
+  }
+
+  function closeEditWorkspaceModal() {
+    if (editWorkspaceModalHSInstance.value) {
+      editWorkspaceModalHSInstance.value.close()
+
+      WORKSPACE_STORE.clearWorkspaceToEdit()
+
+      removeFromModalStack('editWorkspaceModal')
     }
   }
 
@@ -145,6 +278,8 @@ export const useUIStore = defineStore('ui', () => {
     tipRef,
     currentTab,
     sidebarRef,
+    modalStack,
+    isModalOnTop,
 
     // Actions
     openEditTaskModal,
@@ -153,6 +288,8 @@ export const useUIStore = defineStore('ui', () => {
     closeEditCategoryModal,
     openEditBoardModal,
     closeEditBoardModal,
+    openEditWorkspaceModal,
+    closeEditWorkspaceModal,
     openSettingsModal,
     closeSettingsModal,
     openChatModal,
@@ -161,6 +298,8 @@ export const useUIStore = defineStore('ui', () => {
     closeSidebar,
     selectArchive,
     selectBoard,
+    addToModalStack,
+    removeFromModalStack,
     $reset,
   }
 })

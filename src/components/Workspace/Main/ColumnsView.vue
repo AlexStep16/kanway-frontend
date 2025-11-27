@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { v4 } from 'uuid'
 import { ref } from 'vue'
+import { generateUUID } from '@utils/idGenerator'
 
 const props = defineProps<{
   items: Array<any>
@@ -58,7 +58,7 @@ watch(
   <div class="flex gap-2">
     <div
       v-for="(columnItems, colIndex) in columns"
-      :key="colIndex + v4()"
+      :key="colIndex + generateUUID()"
       class="flex flex-col gap-2"
       style="width: 250px"
     >

@@ -1,5 +1,5 @@
 import { ITask } from '@interfaces/domain/ITask'
 
-export interface IArchiveTaskResult {
+export interface ITasksResponse {
   tasks: ITask[]
 }

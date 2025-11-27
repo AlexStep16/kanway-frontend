@@ -1,7 +1,8 @@
 import { apiCall } from '@/apiClient'
 import { IClonedBoardResult } from '@interfaces/domain/IClonedBoardResult'
 import { IBoard } from '@interfaces/domain/IBoard'
-import { IArchiveBoardResult } from '@/interfaces/IArchiveBoardResult'
+import { IBoardsWithChildrenResponse } from '@/interfaces/IBoardsWithChildrenResponse'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 
 export async function getBoardsApi(workspaceId: string) {
   return await apiCall<IBoard[]>({
@@ -25,7 +26,7 @@ export async function getArchivedBoardsApi() {
 }
 
 export async function postBoardApi(payload: Partial<IBoard>, workspaceId: string) {
-  return await apiCall<IBoard[]>({
+  return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/boards`,
     data: payload,
@@ -37,7 +38,7 @@ export async function patchBoardApi(
   workspaceId: string,
   payload: Partial<IBoard>,
 ) {
-  return await apiCall<IBoard[]>({
+  return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}`,
     data: payload,
@@ -52,21 +53,21 @@ export async function deleteBoardApi(boardId: string, workspaceId: string) {
 }
 
 export async function archiveBoardApi(boardId: string, workspaceId: string) {
-  return await apiCall<IArchiveBoardResult>({
+  return await apiCall<IResponseWithLog<IBoardsWithChildrenResponse>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/archive`,
   })
 }
 
 export async function recoverBoardApi(boardId: string, workspaceId: string) {
-  return await apiCall<IBoard[]>({
+  return await apiCall<IResponseWithLog<IBoardsWithChildrenResponse>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/recover`,
   })
 }
 
 export async function cloneBoardApi(boardId: string, workspaceId: string) {
-  return await apiCall<IClonedBoardResult>({
+  return await apiCall<IResponseWithLog<IClonedBoardResult>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/boards/${boardId}/clone`,
   })

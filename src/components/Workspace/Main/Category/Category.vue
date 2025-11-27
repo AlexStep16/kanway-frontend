@@ -14,7 +14,6 @@ import draggable from 'vuedraggable'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import _ from 'lodash'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import { useUIStore } from '@/stores/ui'
 
 const props = defineProps<{
   category: ICategoryState
@@ -27,7 +26,6 @@ const emit = defineEmits<{
 const CATEGORY_STORE = useCategoryDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const TASK_STORE = useTaskDataStore()
-const UI_STORE = useUIStore()
 
 const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
 
@@ -80,9 +78,6 @@ function sortTasks() {
 }
 
 function showInput() {
-  CATEGORY_STORE.categoryToEdit = props.category
-  UI_STORE.openEditCategoryModal()
-  /*
   if (isLoading.value) return
 
   isInputVisible.value = true
@@ -91,7 +86,7 @@ function showInput() {
     if (inputEditRef.value) {
       inputEditRef.value.focus()
     }
-  })*/
+  })
 }
 
 function updateCategoryName(event: Event) {

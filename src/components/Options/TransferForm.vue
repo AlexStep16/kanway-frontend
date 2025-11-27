@@ -43,7 +43,7 @@ function closeTransfer() {
         @click="$emit('moveItem', item.id)"
       >
         <div
-          class="flex items-center gap-x-2 group-disabled:opacity-70"
+          class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
           :class="{ 'opacity-0!': isItemMoving }"
         >
           <Archive class="size-4" />

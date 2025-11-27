@@ -29,8 +29,9 @@ import BoardsSkeleton from '@components/Workspace/Sidebar/BoardsSkeleton.vue'
 import NumberBadgeSkeleton from '@components/Badges/NumberBadgeSkeleton.vue'
 import { Nullable } from '@/types/utils'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import AvatarImage from '@/components/Workspace/AvatarImage.vue'
-import { useAuthStore } from '@/stores/auth'
+import AvatarImage from '@components/Workspace/AvatarImage.vue'
+import { useAuthStore } from '@stores/auth'
+import ActiveWorkspaceAvatar from '@components/Workspace/ActiveWorkspaceAvatar.vue'
 
 const UI_STORE = useUIStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
@@ -146,12 +147,7 @@ onMounted(() => {
             aria-expanded="false"
             aria-label="Dropdown"
           >
-            <div
-              class="size-7 shrink-0 rounded-md flex items-center justify-center font-semibold text-white"
-              :style="{ backgroundColor: activeWorkspace.color || '#3B82F6' }"
-            >
-              {{ WORKSPACE_STORE.getFirstLetterOfActiveWorkspace }}
-            </div>
+            <ActiveWorkspaceAvatar />
             <div class="flex flex-col truncate">
               <span class="text-sm truncate" :title="activeWorkspace.name">{{
                 activeWorkspace.name

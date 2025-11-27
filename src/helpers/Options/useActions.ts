@@ -44,7 +44,7 @@ export function useActions(
 
   async function moveItem(newItemId: string) {
     if (edit_type.value === 'board') {
-      await BOARD_STORE.moveBoard(item.value as BoardModel, newItemId)
+      await BOARD_STORE.moveBoard(item.value.id, newItemId)
     } else if (edit_type.value === 'category') {
       await CATEGORY_STORE.moveCategory(item.value.id, newItemId, activeWorkspace.value.id)
     }

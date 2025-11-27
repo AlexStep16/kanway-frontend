@@ -13,6 +13,8 @@ import {
 } from '@api/boards'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useTaskDataStore } from '@stores/taskData'
+import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 
 export function transformBoard(raw: IBoard): BoardModel {
   return new BoardModel({
@@ -41,44 +43,72 @@ export async function fetchArchivedBoards() {
   return boards.map(transformBoard)
 }
 
-export async function createBoard(payload: Partial<BoardModel>, workspaceId: string) {
+export async function createBoard(
+  payload: Partial<BoardModel>,
+  workspaceId: string,
+): Promise<IResponseWithLog<IBoard[]>> {
   const newBoard = await postBoardApi(payload, workspaceId)
 
-  return newBoard.map(transformBoard)
+  return {
+    data: newBoard.data.map(transformBoard),
+    logId: newBoard.logId,
+  }
 }
 
-export async function saveBoard(
-  payload: Partial<BoardModel> & { id: string; workspaceId: string },
-) {
-  const saveResult = await patchBoardApi(payload.id, payload.workspaceId, payload)
+export async function saveBoard(payload: ISingleUpdate<BoardModel>, workspaceId: string) {
+  const saveResult = await patchBoardApi(payload.id, workspaceId, payload)
 
-  return saveResult.map(transformBoard)
+  return {
+    data: saveResult.data.map(transformBoard),
+    logId: saveResult.logId,
+  }
 }
 
 export async function removeBoard(boardId: string, workspaceId: string) {
   await deleteBoardApi(boardId, workspaceId)
 }
 
-export async function archiveBoard(boardId: string, workspaceId: string) {
+export async function archiveBoard(
+  boardId: string,
+  workspaceId: string,
+): Promise<IResponseWithLog<IBoard[]>> {
   const archiveResult = await archiveBoardApi(boardId, workspaceId)
 
-  useCategoryDataStore().integrateCategories(archiveResult.categories)
-  useTaskDataStore().integrateTasks(archiveResult.tasks)
+  useCategoryDataStore().integrateCategories(archiveResult.data.categories)
+  useTaskDataStore().integrateTasks(archiveResult.data.tasks)
 
-  return archiveResult.boards.map(transformBoard)
+  return {
+    data: archiveResult.data.boards.map(transformBoard),
+    logId: archiveResult.logId,
+  }
 }
 
-export async function recoverBoard(boardId: string, workspaceId: string) {
+export async function recoverBoard(
+  boardId: string,
+  workspaceId: string,
+): Promise<IResponseWithLog<IBoard[]>> {
   const recoverResult = await recoverBoardApi(boardId, workspaceId)
 
-  return recoverResult.map(transformBoard)
+  useCategoryDataStore().integrateCategories(recoverResult.data.categories)
+  useTaskDataStore().integrateTasks(recoverResult.data.tasks)
+
+  return {
+    data: recoverResult.data.boards.map(transformBoard),
+    logId: recoverResult.logId,
+  }
 }
 
-export async function cloneBoard(boardId: string, workspaceId: string) {
+export async function cloneBoard(
+  boardId: string,
+  workspaceId: string,
+): Promise<IResponseWithLog<IBoard[]>> {
   const cloneResult = await cloneBoardApi(boardId, workspaceId)
 
-  useCategoryDataStore().integrateCategories(cloneResult.categories)
-  useTaskDataStore().integrateTasks(cloneResult.tasks)
+  useCategoryDataStore().integrateCategories(cloneResult.data.categories)
+  useTaskDataStore().integrateTasks(cloneResult.data.tasks)
 
-  return cloneResult.boards.map(transformBoard)
+  return {
+    data: cloneResult.data.boards.map(transformBoard),
+    logId: cloneResult.logId,
+  }
 }

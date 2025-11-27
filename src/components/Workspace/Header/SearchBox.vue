@@ -5,9 +5,9 @@ import { useTaskDataStore } from '@stores/taskData'
 import { useCategoryDataStore } from '@stores/categoryData'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
-import { ITaskState } from '@stores/interfaces/ITaskState'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { X } from 'lucide-vue-next'
 
 defineProps<{
   isAlwaysVisible?: boolean
@@ -25,6 +25,7 @@ const WORKSPACE_STORE = useWorkspaceDataStore()
 
 const searchBoxRef = ref<Nullable<HTMLElement>>(null)
 const searchDropdownRef = ref<Nullable<HTMLElement>>(null)
+const searchInputRef = ref<Nullable<HTMLInputElement>>(null)
 const searchModel = ref('')
 const preventAutofill = ref(true)
 const isDropdownHidden = ref(true)
@@ -49,10 +50,10 @@ function getPlaceholder() {
   }
 }
 
-function editTask(task: ITaskState) {
-  TASK_STORE.taskToEdit = task
+function clearSearch() {
+  searchModel.value = ''
 
-  UI_STORE.openEditTaskModal()
+  searchInputRef.value?.focus()
 }
 
 const boardTasksByName = computed(() => {
@@ -101,15 +102,6 @@ onMounted(() => {
   setTimeout(() => {
     preventAutofill.value = false
   }, 10)
-
-  document.addEventListener('click', (event) => {
-    const isClickInside = searchBoxRef.value?.contains(event.target as Node)
-
-    if (!isClickInside) {
-      isDropdownHidden.value = true
-      searchModel.value = ''
-    }
-  })
 })
 </script>
 
@@ -145,7 +137,15 @@ onMounted(() => {
           :placeholder="getPlaceholder()"
           v-model="searchModel"
           :disabled="preventAutofill"
+          ref="searchInputRef"
         />
+        <button
+          class="absolute inset-y-0 end-0 pe-2.5 flex items-center group"
+          @click="clearSearch"
+          v-if="searchModel.length > 0"
+        >
+          <X class="size-4 text-gray-400 group-hover:text-gray-600" />
+        </button>
       </div>
     </div>
 
@@ -153,7 +153,7 @@ onMounted(() => {
     <div
       class="z-50 bg-white rounded-xl"
       :class="{
-        'absolute w-80 shadow-xl': !isAlwaysVisible,
+        'absolute w-70 shadow-xl': !isAlwaysVisible,
         'static w-full mt-2!': isAlwaysVisible,
         hidden: isDropdownHidden,
       }"
@@ -188,7 +188,7 @@ onMounted(() => {
             :key="task.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="editTask(task)"
+            @click="TASK_STORE.openTaskToEdit(task)"
           >
             <span class="text-sm text-gray-800 truncate" :title="task.name">{{ task.name }}</span>
             <span class="ms-auto text-xs text-gray-400">{{ task.categoryName }}</span>
@@ -202,6 +202,7 @@ onMounted(() => {
             :key="category.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
+            @click="CATEGORY_STORE.openCategoryToEdit(category)"
           >
             <span class="text-sm text-gray-800 truncate" :title="category.name">{{
               category.name
@@ -216,6 +217,7 @@ onMounted(() => {
             :key="board.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
+            @click="BOARD_STORE.openBoardToEdit(board)"
           >
             <span class="text-sm text-gray-800 truncate" :title="board.name">{{ board.name }}</span>
           </button>
@@ -228,6 +230,7 @@ onMounted(() => {
             :key="workspace.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
+            @click="WORKSPACE_STORE.openWorkspaceToEdit(workspace)"
           >
             <span class="text-sm text-gray-800 truncate" :title="workspace.name">{{
               workspace.name

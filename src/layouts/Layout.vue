@@ -1,5 +1,14 @@
 <template>
-  <Toaster position="top-center" richColors closeButton />
+  <Toaster
+    position="top-center"
+    richColors
+    closeButton
+    :toastOptions="{
+      actionButtonStyle: {
+        backgroundColor: 'var(--color-blue-500)',
+      },
+    }"
+  />
   <slot />
 </template>
 

@@ -14,6 +14,7 @@ import {
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import { useTaskDataStore } from '@stores/taskData'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 
 export function transformCategory(raw: ICategory): ICategoryState {
   const categoryModel = new CategoryModel({
@@ -45,54 +46,82 @@ export async function createCategory(
   payload: Partial<CategoryModel>,
   boardId: string,
   workspaceId: string,
-) {
+): Promise<IResponseWithLog<ICategory[]>> {
   const newCategory = await postCategoryApi(payload, workspaceId, boardId)
 
-  return newCategory.map(transformCategory)
+  return {
+    data: newCategory.data.map(transformCategory),
+    logId: newCategory.logId,
+  }
 }
 
 export async function saveCategory(
   workspaceId: string,
   boardId: string,
   payload: Partial<CategoryModel> & { id: string },
-) {
+): Promise<IResponseWithLog<ICategory[]>> {
   const saveResult = await patchCategoryApi(workspaceId, boardId, payload.id, payload)
 
-  return saveResult.map(transformCategory)
+  return {
+    data: saveResult.data.map(transformCategory),
+    logId: saveResult.logId,
+  }
 }
 
 export async function saveCategories(
   workspaceId: string,
   boardId: string,
   payload: ISingleUpdate<CategoryModel>[],
-) {
+): Promise<IResponseWithLog<ICategory[]>> {
   const saveResult = await bulkUpdateCategoriesApi(workspaceId, boardId, payload)
 
-  return saveResult.map(transformCategory)
+  return {
+    data: saveResult.data.map(transformCategory),
+    logId: saveResult.logId,
+  }
 }
 
 export async function removeCategory(categoryId: string, workspaceId: string, boardId: string) {
   await deleteCategoryApi(categoryId, workspaceId, boardId)
 }
 
-export async function archiveCategory(categoryId: string, workspaceId: string, boardId: string) {
+export async function archiveCategory(
+  categoryId: string,
+  workspaceId: string,
+  boardId: string,
+): Promise<IResponseWithLog<ICategory[]>> {
   const archiveResult = await archiveCategoryApi(categoryId, boardId, workspaceId)
 
-  useTaskDataStore().integrateTasks(archiveResult.tasks)
+  useTaskDataStore().integrateTasks(archiveResult.data.tasks)
 
-  return archiveResult.categories.map(transformCategory)
+  return {
+    data: archiveResult.data.categories.map(transformCategory),
+    logId: archiveResult.logId,
+  }
 }
 
-export async function recoverCategory(categoryId: string, workspaceId: string, boardId: string) {
+export async function recoverCategory(
+  categoryId: string,
+  workspaceId: string,
+  boardId: string,
+): Promise<IResponseWithLog<ICategory[]>> {
   const recoverResult = await recoverCategoryApi(categoryId, boardId, workspaceId)
 
-  return recoverResult.map(transformCategory)
+  useTaskDataStore().integrateTasks(recoverResult.data.tasks)
+
+  return {
+    data: recoverResult.data.categories.map(transformCategory),
+    logId: recoverResult.logId,
+  }
 }
 
 export async function cloneCategory(categoryId: string, workspaceId: string, boardId: string) {
   const cloneResult = await cloneCategoryApi(categoryId, boardId, workspaceId)
 
-  useTaskDataStore().integrateTasks(cloneResult.tasks)
+  useTaskDataStore().integrateTasks(cloneResult.data.tasks)
 
-  return cloneResult.categories.map(transformCategory)
+  return {
+    data: cloneResult.data.categories.map(transformCategory),
+    logId: cloneResult.logId,
+  }
 }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import Header from '@components/Workspace/Header/Header.vue'
-import EntityCard from '@components/Workspace/Main/Archive/EntityCard.vue'
+import EntityCard from '@/components/Workspace/Main/EntityCard.vue'
 import Task from '@components/Workspace/Main/Task/Task.vue'
-import NumberBadge from '@components/Badges/NumberBadge.vue'
 import RecoverButtons from '@components/Workspace/Main/Archive/RecoverButtons.vue'
 
 import Tabs from '@/enums/TabsEnum'
@@ -14,6 +13,7 @@ import { useCategoryDataStore } from '@stores/categoryData'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import ColumnsView from '../ColumnsView.vue'
+import TitleWithBadge from '../TitleWithBadge.vue'
 
 const TASK_STORE = useTaskDataStore()
 const CATEGORY_STORE = useCategoryDataStore()
@@ -70,12 +70,10 @@ const isArchiveEmpty = computed(() => {
     class="size-full py-2 my-1 px-0.5 flex flex-col gap-5 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
     v-else
   >
-    <div class="w-full" ref="tasksContainerRef" v-if="tasks.length > 0">
-      <div class="flex items-center text-sm text-gray-500 gap-x-2">
-        <span>Задачи</span>
-        <NumberBadge :number="tasks.length" />
+    <div class="w-full flex flex-col gap-y-2" ref="tasksContainerRef" v-if="tasks.length > 0">
+      <TitleWithBadge title="Задачи" :number="tasks.length">
         <div class="w-full h-[.5px] bg-gray-200"></div>
-      </div>
+      </TitleWithBadge>
 
       <ColumnsView :items="tasks" :containerRef="tasksContainerRef" :itemWidth="240">
         <template v-slot:default="slotProps">
@@ -96,12 +94,14 @@ const isArchiveEmpty = computed(() => {
       </ColumnsView>
     </div>
 
-    <div class="w-full" ref="categoryContainerRef" v-if="categories.length > 0">
-      <div class="flex items-center text-sm text-gray-500 gap-x-2">
-        <span>Категории</span>
-        <NumberBadge :number="categories.length" />
+    <div
+      class="w-full flex flex-col gap-y-2"
+      ref="categoryContainerRef"
+      v-if="categories.length > 0"
+    >
+      <TitleWithBadge title="Категории" :number="categories.length">
         <div class="w-full h-[.5px] bg-gray-200"></div>
-      </div>
+      </TitleWithBadge>
 
       <ColumnsView :items="categories" :containerRef="categoryContainerRef" :itemWidth="240">
         <template v-slot:default="slotProps">
@@ -111,6 +111,7 @@ const isArchiveEmpty = computed(() => {
             :name="category.name"
             :parentName="category.boardName"
             :showInfo="true"
+            @click="CATEGORY_STORE.openCategoryToEdit(category)"
           >
             <RecoverButtons
               @recover="CATEGORY_STORE.recoverCategory(category)"
@@ -121,12 +122,10 @@ const isArchiveEmpty = computed(() => {
       </ColumnsView>
     </div>
 
-    <div class="w-full" ref="boardContainerRef" v-if="boards.length > 0">
-      <div class="flex items-center text-sm text-gray-500 gap-x-2">
-        <span>Доски</span>
-        <NumberBadge :number="boards.length" />
+    <div class="w-full flex flex-col gap-y-2" ref="boardContainerRef" v-if="boards.length > 0">
+      <TitleWithBadge title="Доски" :number="boards.length">
         <div class="w-full h-[.5px] bg-gray-200"></div>
-      </div>
+      </TitleWithBadge>
 
       <ColumnsView :items="boards" :containerRef="boardContainerRef" :itemWidth="240">
         <template v-slot:default="slotProps">
@@ -136,6 +135,7 @@ const isArchiveEmpty = computed(() => {
             :name="board.name"
             :parentName="board.workspaceName"
             :showInfo="true"
+            @click="BOARD_STORE.openBoardToEdit(board)"
           >
             <RecoverButtons
               @recover="BOARD_STORE.recoverBoard(board)"
@@ -146,12 +146,14 @@ const isArchiveEmpty = computed(() => {
       </ColumnsView>
     </div>
 
-    <div class="w-full" ref="workspaceContainerRef" v-if="workspaces.length > 0">
-      <div class="flex items-center text-sm text-gray-500 gap-x-2">
-        <span>Пространства</span>
-        <NumberBadge :number="workspaces.length" />
+    <div
+      class="w-full flex flex-col gap-y-2"
+      ref="workspaceContainerRef"
+      v-if="workspaces.length > 0"
+    >
+      <TitleWithBadge title="Пространства" :number="workspaces.length">
         <div class="w-full h-[.5px] bg-gray-200"></div>
-      </div>
+      </TitleWithBadge>
 
       <ColumnsView :items="workspaces" :containerRef="workspaceContainerRef" :itemWidth="240">
         <template v-slot:default="slotProps">
@@ -159,6 +161,7 @@ const isArchiveEmpty = computed(() => {
             v-for="workspace in slotProps.data"
             :key="workspace.id"
             :name="workspace.name"
+            @click="WORKSPACE_STORE.openWorkspaceToEdit(workspace)"
           >
             <RecoverButtons
               @recover="WORKSPACE_STORE.recoverWorkspace(workspace)"

@@ -3,7 +3,7 @@ import { ICategory } from '@interfaces/domain/ICategory'
 import { IBoard } from '@interfaces/domain/IBoard'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
-export interface IArchiveWorkspaceResult {
+export interface IWorkspacesWithChildrenResponse {
   workspaces: IWorkspace[]
   boards: IBoard[]
   categories: ICategory[]

@@ -1,6 +1,7 @@
 import { apiCall } from '@/apiClient'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
-import { IArchiveTaskResult } from '@/interfaces/IArchiveTaskResult'
+import { ITasksResponse } from '@/interfaces/ITasksResponse'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ITask } from '@interfaces/domain/ITask'
 
 export async function getTasksApi(workspaceId: string, boardId: string) {
@@ -18,7 +19,7 @@ export async function getArchivedTasksApi() {
 }
 
 export async function postTaskApi(payload: Partial<ITask>, workspaceId: string, boardId: string) {
-  return await apiCall<ITask[]>({
+  return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks`,
     data: payload,
@@ -31,7 +32,7 @@ export async function patchTaskApi(
   taskId: string,
   payload: Partial<ITask>,
 ) {
-  return await apiCall<ITask[]>({
+  return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}`,
     data: payload,
@@ -41,9 +42,9 @@ export async function patchTaskApi(
 export async function bulkUpdateTasksApi(
   workspaceId: string,
   boardId: string,
-  payload: ISingleUpdate<ITask>[],
+  payload: ISingleUpdate<IResponseWithLog<ITask>>[],
 ) {
-  return await apiCall<ITask[]>({
+  return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/bulk`,
     data: payload,
@@ -58,21 +59,21 @@ export async function deleteTaskApi(workspaceId: string, boardId: string, taskId
 }
 
 export async function archiveTaskApi(workspaceId: string, boardId: string, taskId: string) {
-  return await apiCall<IArchiveTaskResult>({
+  return await apiCall<IResponseWithLog<ITasksResponse>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}/archive`,
   })
 }
 
 export async function recoverTaskApi(workspaceId: string, boardId: string, taskId: string) {
-  return await apiCall<ITask[]>({
+  return await apiCall<IResponseWithLog<ITasksResponse>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}/recover`,
   })
 }
 
 export async function cloneTaskApi(workspaceId: string, boardId: string, taskId: string) {
-  return await apiCall<ITask[]>({
+  return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/boards/${boardId}/tasks/${taskId}/clone`,
   })

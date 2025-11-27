@@ -3,11 +3,12 @@ import { computed, onMounted } from 'vue'
 import Sidebar from '@components/Workspace/Sidebar/Sidebar.vue'
 import TaskEdit from '@components/Workspace/Main/Task/Edit/Edit.vue'
 import CategoryEdit from '@components/Workspace/Main/Category/Edit.vue'
-import Board from '@components/Workspace/Main/Board.vue'
+import BoardEdit from '@components/Workspace/Main/Board/Edit.vue'
+import WorkspaceEdit from '@components/Workspace/Edit.vue'
+import Board from '@/components/Workspace/Main/Board/Board.vue'
 import Archive from '@components/Workspace/Main/Archive/Archive.vue'
 import Start from '@components/Workspace/Main/Start.vue'
 import { useUIStore } from '@stores/ui'
-import { useTaskDataStore } from '@stores/taskData'
 import { HSOverlay } from 'preline/dist'
 import Settings from '@components/Workspace/Settings/Settings.vue'
 import Chat from '@components/Workspace/Main/Chat/Chat.vue'
@@ -18,11 +19,8 @@ import { useRootStore } from '@stores/root'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { useBoardDataStore } from '@stores/boardData'
-import { useCategoryDataStore } from '@stores/categoryData'
 
 const UI_STORE = useUIStore()
-const TASK_STORE = useTaskDataStore()
-const CATEGORY_STORE = useCategoryDataStore()
 const ROOT_STORE = useRootStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const BOARD_STORE = useBoardDataStore()
@@ -32,20 +30,24 @@ const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWo
 function initEditTaskModal() {
   if (UI_STORE.editTaskModalRef) {
     UI_STORE.editTaskModalHSInstance = new HSOverlay(UI_STORE.editTaskModalRef)
-
-    UI_STORE.editTaskModalHSInstance.on('close', () => {
-      TASK_STORE.clearTaskToEdit()
-    })
   }
 }
 
 function initCategoryEditModal() {
   if (UI_STORE.editCategoryModalRef) {
     UI_STORE.editCategoryModalHSInstance = new HSOverlay(UI_STORE.editCategoryModalRef)
+  }
+}
 
-    UI_STORE.editCategoryModalHSInstance.on('close', () => {
-      CATEGORY_STORE.clearCategoryToEdit()
-    })
+function initBoardEditModal() {
+  if (UI_STORE.editBoardModalRef) {
+    UI_STORE.editBoardModalHSInstance = new HSOverlay(UI_STORE.editBoardModalRef)
+  }
+}
+
+function initWorkspaceEditModal() {
+  if (UI_STORE.editWorkspaceModalRef) {
+    UI_STORE.editWorkspaceModalHSInstance = new HSOverlay(UI_STORE.editWorkspaceModalRef)
   }
 }
 
@@ -66,6 +68,8 @@ onMounted(() => {
 
   initEditTaskModal()
   initCategoryEditModal()
+  initBoardEditModal()
+  initWorkspaceEditModal()
   initSettingsModal()
   initChatModal()
 
@@ -94,6 +98,8 @@ onMounted(() => {
     <Teleport to="body">
       <TaskEdit />
       <CategoryEdit />
+      <BoardEdit />
+      <WorkspaceEdit />
       <Settings />
       <Chat />
       <Tip />

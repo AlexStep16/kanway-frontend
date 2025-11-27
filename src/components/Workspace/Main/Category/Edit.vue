@@ -14,6 +14,8 @@ import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import { useTaskDataStore } from '@stores/taskData'
 import Task from '@components/Workspace/Main/Task/Task.vue'
 import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
+import { SquareKanban } from 'lucide-vue-next'
+import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
 
 const TASK_STORE = useTaskDataStore()
 const CATEGORY_STORE = useCategoryDataStore()
@@ -23,10 +25,26 @@ const editableCategory = ref<Nullable<ICategoryState>>(null)
 const textareaNameAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
 const updateNameTimeout = ref<Nullable<number>>(null)
 const tasksContainerRef = ref<HTMLElement | null>(null)
+const categoryUpdatesCounter = ref(0)
 
-function handleMoveCategory() {}
-function copyCategory() {}
-function archiveCategory() {}
+async function handleMoveCategory(categoryId: string, newBoardId: string) {
+  if (!editableCategory.value) return
+
+  await CATEGORY_STORE.moveCategory(categoryId, newBoardId, editableCategory.value.workspaceId)
+}
+
+async function copyCategory(category: ICategoryState) {
+  await CATEGORY_STORE.cloneCategory(category, category.workspaceId)
+
+  UI_STORE.closeEditCategoryModal()
+}
+
+async function archiveCategory(category: ICategoryState) {
+  await CATEGORY_STORE.archiveCategory(category, category.workspaceId)
+
+  UI_STORE.closeEditCategoryModal()
+}
+
 function updateCategory(updatedFields: ISingleUpdate<ICategoryState>) {
   if (!editableCategory.value) return
 
@@ -34,6 +52,7 @@ function updateCategory(updatedFields: ISingleUpdate<ICategoryState>) {
     updatedFields,
     editableCategory.value.boardId,
     editableCategory.value.workspaceId,
+    true,
   )
 }
 
@@ -72,10 +91,20 @@ function initializeTextarea(textarea: Nullable<HTMLTextAreaElement>) {
   }
 }
 
+const getTasks = computed(() => {
+  if (!editableCategory.value) return []
+
+  if (editableCategory.value.isDeleted)
+    return TASK_STORE.getAllTasksByCategoryId(editableCategory.value.id)
+
+  return TASK_STORE.getTasksByCategoryId(editableCategory.value.id)
+})
+
 watch(
   () => CATEGORY_STORE.categoryToEdit,
   (newCategory) => {
     const shouldInitialize = newCategory && !editableCategory.value
+    categoryUpdatesCounter.value++
 
     if (newCategory) {
       editableCategory.value = _.cloneDeep(newCategory)
@@ -103,13 +132,10 @@ watch(
         if (el) UI_STORE.editCategoryModalRef = el as HTMLElement
       }
     "
-    class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-85 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
+    class="hs-overlay [--overlay-backdrop:static] hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-85 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
     role="dialog"
     tabindex="-1"
     aria-labelledby="hs-category-edit-label"
-    data-hs-overlay-options='{
-      "isClosePrev": false
-    }'
   >
     <div class="size-full flex items-center justify-center p-2 sm:p-4">
       <div
@@ -122,11 +148,16 @@ watch(
             <MoveDropdown
               :entity="editableCategory"
               :type="1"
+              :key="categoryUpdatesCounter"
               @moveCategory="handleMoveCategory"
               v-if="!editableCategory.isDeleted"
-            />
+            >
+              <SquareKanban class="size-4 shrink-0" />
+            </MoveDropdown>
 
-            <MoveDropdownButton :title="editableCategory.boardName" :disabled="true" v-else />
+            <MoveDropdownButton :title="editableCategory.boardName" :disabled="true" v-else>
+              <SquareKanban class="size-4 shrink-0" />
+            </MoveDropdownButton>
           </div>
 
           <ActionAndCloseButtons
@@ -157,15 +188,14 @@ watch(
         </div>
 
         <div class="flex flex-col gap-y-2 px-4 pb-4 mt-4 items-start overflow-hidden">
-          <span class="text-sm text-gray-400">Задачи</span>
+          <TitleWithBadge title="Задачи" :number="getTasks.length" />
+
           <div
-            class="flex gap-2 flex-wrap w-full min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+            class="flex gap-2 pb-2 flex-wrap w-full min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
             ref="tasksContainerRef"
+            v-if="getTasks.length > 0"
           >
-            <ColumnsView
-              :items="TASK_STORE.getTasksByCategoryId(editableCategory.id)"
-              :containerRef="tasksContainerRef"
-            >
+            <ColumnsView :items="getTasks" :containerRef="tasksContainerRef">
               <template v-slot:default="slotProps">
                 <Task
                   v-for="task in slotProps.data"

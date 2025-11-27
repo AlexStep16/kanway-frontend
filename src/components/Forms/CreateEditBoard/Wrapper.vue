@@ -116,7 +116,7 @@ async function editBoard() {
     return
   }
 
-  const result = await BOARD_STORE.updateBoard(board)
+  const result = await BOARD_STORE.updateBoard(board, board.workspaceId)
 
   if (result !== false) {
     closeDropdown()

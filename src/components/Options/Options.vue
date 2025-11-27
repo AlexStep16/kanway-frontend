@@ -156,7 +156,7 @@ onMounted(() => {
     </button>
 
     <div
-      class="hs-dropdown-menu transition-[opacity,margin] z-10 duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-50 bg-white shadow-md rounded-lg mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
+      class="hs-dropdown-menu transition-[opacity,margin] z-10 duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
       role="menu"
       ref="dropdownMenu"
       aria-orientation="vertical"
@@ -186,7 +186,7 @@ onMounted(() => {
               Копирование...
             </div>
             <div
-              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
               :class="{ 'opacity-0!': isItemCopying }"
             >
               <Copy class="size-4" />
@@ -206,7 +206,7 @@ onMounted(() => {
               Перемещение...
             </div>
             <div
-              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
               :class="{ 'opacity-0!': isItemMoving }"
             >
               <MoveHorizontal class="size-4" />
@@ -230,7 +230,7 @@ onMounted(() => {
               <span v-if="isItemFavorite">Удаление...</span>
             </div>
             <div
-              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
               :class="{ 'opacity-0!': isItemAddingToFavorites }"
             >
               <Star class="size-4" v-if="!isItemFavorite" />
@@ -252,7 +252,7 @@ onMounted(() => {
               Архивирование...
             </div>
             <div
-              class="flex items-center gap-x-2 group-disabled:opacity-70"
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
               :class="{ 'opacity-0!': isItemArchiving }"
             >
               <Archive class="size-4" />

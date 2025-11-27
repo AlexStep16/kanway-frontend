@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import { useTaskDataStore } from '@stores/taskData'
-import { useUIStore } from '@stores/ui'
 import dayjs from 'dayjs'
 import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -35,7 +34,6 @@ const dragStartTime = ref<number>(0)
 const dragEndTime = ref<number>(0)
 const inputAddRef = ref<HTMLInputElement | null>(null)
 
-const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
 
 watch(inputAddRef, (newVal) => {
@@ -85,9 +83,7 @@ function edit(task: ITaskState) {
     return
   }
 
-  TASK_STORE.taskToEdit = task
-
-  UI_STORE.openEditTaskModal()
+  TASK_STORE.openTaskToEdit(task)
 }
 
 function copyTask(task: ITaskState) {
@@ -113,6 +109,14 @@ async function createOrSplice(task: ITaskState, target: HTMLInputElement, isEnte
 function startDragging() {
   dragStartTime.value = Date.now()
 }
+
+const isCopyAvailable = computed(() => {
+  return props.hasCopy && !props.task.isNew && !props.task.isDeleted
+})
+
+const isDeleteAvailable = computed(() => {
+  return props.hasDelete && !props.task.isNew && !props.task.isDeleted
+})
 
 const isTaskAdding = computed(() => {
   return TASK_STORE.isTaskAdding(props.task.id)
@@ -140,7 +144,7 @@ const isTaskArchiving = computed(() => {
     @click="edit(task)"
   >
     <div class="h-3 w-full" v-if="task.color" :style="{ backgroundColor: task.color }" />
-    <div class="flex gap-x-2 py-3 px-3 relative" v-if="task.isNew">
+    <div class="flex gap-x-2 p-3 relative" v-if="task.isNew">
       <div class="flex items-center" v-if="isTaskAdding">
         <Spinner class="size-3.5 text-gray-600" />
       </div>
@@ -154,7 +158,7 @@ const isTaskArchiving = computed(() => {
         placeholder="Название задачи"
       />
     </div>
-    <div class="flex flex-col gap-y-2 py-3 px-3 group/task relative" v-else>
+    <div class="flex flex-col gap-y-2 p-3 group/task relative" v-else>
       <!-- Info -->
       <div class="flex items-center gap-x-2" v-if="showInfo">
         <div class="flex items-center gap-x-1 text-gray-500">
@@ -256,7 +260,7 @@ const isTaskArchiving = computed(() => {
           class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"
           :class="{
             'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto!':
-              hasCopy || hasDelete,
+              isCopyAvailable || isDeleteAvailable,
           }"
         >
           <button
@@ -264,7 +268,7 @@ const isTaskArchiving = computed(() => {
             class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
             title="Копировать"
             @click.stop="copyTask(task)"
-            v-if="hasCopy"
+            v-if="isCopyAvailable"
           >
             <Spinner v-if="isTaskCopying" class="size-4" />
             <Copy v-else class="size-4" />
@@ -273,7 +277,7 @@ const isTaskArchiving = computed(() => {
             type="button"
             class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
             title="Архивировать"
-            v-if="hasDelete"
+            v-if="isDeleteAvailable"
             @click.stop="archiveTask(task)"
           >
             <Spinner v-if="isTaskArchiving" class="size-4" />

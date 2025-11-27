@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Layers } from 'lucide-vue-next'
-
 defineProps<{
   title: string
   disabled?: boolean
@@ -18,7 +16,7 @@ defineProps<{
     :disabled="disabled"
   >
     <div class="flex items-center gap-x-2 min-w-0">
-      <Layers class="size-4 shrink-0" />
+      <slot></slot>
       <span class="truncate min-w-0">{{ title }}</span>
     </div>
     <svg

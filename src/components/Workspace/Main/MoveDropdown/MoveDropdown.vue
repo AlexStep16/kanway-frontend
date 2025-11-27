@@ -22,9 +22,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'moveTask', payload: { taskId: string; newCategoryId: string }): void
-  (e: 'moveCategory', payload: { categoryId: string; newBoardId: string }): void
-  (e: 'moveBoard', payload: { boardId: string; newWorkspaceId: string }): void
+  (e: 'moveTask', entityId: string, newParentId: string): void
+  (e: 'moveCategory', entityId: string, newParentId: string): void
+  (e: 'moveBoard', entityId: string, newParentId: string): void
 }>()
 
 const CATEGORY_STORE = useCategoryDataStore()
@@ -140,10 +140,7 @@ function removeCurrentBoardOptions() {
 function moveTask() {
   if (!selectedCategory.value) return
 
-  emit('moveTask', {
-    taskId: props.entity.id,
-    newCategoryId: selectedCategory.value,
-  })
+  emit('moveTask', props.entity.id, selectedCategory.value)
 
   if (moveInstance.value) {
     moveInstance.value.close()
@@ -151,12 +148,9 @@ function moveTask() {
 }
 
 function moveCategory() {
-  if (!selectedCategory.value) return
+  if (!selectedBoard.value) return
 
-  emit('moveCategory', {
-    categoryId: props.entity.id,
-    newBoardId: selectedBoard.value || '',
-  })
+  emit('moveCategory', props.entity.id, selectedBoard.value)
 
   if (moveInstance.value) {
     moveInstance.value.close()
@@ -164,12 +158,9 @@ function moveCategory() {
 }
 
 function moveBoard() {
-  if (!selectedBoard.value) return
+  if (!selectedWorkspace.value) return
 
-  emit('moveBoard', {
-    boardId: props.entity.id,
-    newWorkspaceId: selectedWorkspace.value,
-  })
+  emit('moveBoard', props.entity.id, selectedWorkspace.value)
 
   if (moveInstance.value) {
     moveInstance.value.close()
@@ -347,7 +338,9 @@ onMounted(() => {
 
 <template>
   <div class="hs-dropdown [--auto-close:inside] relative inline-flex min-w-0" ref="moveRef">
-    <MoveDropdownButton :title="getButtonTitle" />
+    <MoveDropdownButton :title="getButtonTitle">
+      <slot></slot>
+    </MoveDropdownButton>
 
     <div
       class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 z-90 opacity-0 hidden w-65 bg-white shadow-md rounded-lg mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"

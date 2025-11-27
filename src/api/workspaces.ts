@@ -2,7 +2,8 @@ import { apiCall } from '@/apiClient'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { IBoard } from '@interfaces/domain/IBoard'
 import { IClonedWorkspaceResult } from '@interfaces/domain/IClonedWorkspaceResult'
-import { IArchiveWorkspaceResult } from '@/interfaces/IArchiveWorkspaceResult'
+import { IWorkspacesWithChildrenResponse } from '@/interfaces/IWorkspacesWithChildrenResponse'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 
 export async function getWorkspacesApi() {
   return await apiCall<IWorkspace[]>({
@@ -19,7 +20,7 @@ export async function getArchivedWorkspacesApi() {
 }
 
 export async function postWorkspaceApi(payload: Partial<IBoard>) {
-  return await apiCall<IWorkspace[]>({
+  return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'POST',
     url: `/workspaces`,
     data: payload,
@@ -27,7 +28,7 @@ export async function postWorkspaceApi(payload: Partial<IBoard>) {
 }
 
 export async function patchWorkspaceApi(workspaceId: string, payload: Partial<IBoard>) {
-  return await apiCall<IWorkspace[]>({
+  return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}`,
     data: payload,
@@ -42,21 +43,21 @@ export async function deleteWorkspaceApi(workspaceId: string) {
 }
 
 export async function archiveWorkspaceApi(workspaceId: string) {
-  return await apiCall<IArchiveWorkspaceResult>({
+  return await apiCall<IResponseWithLog<IWorkspacesWithChildrenResponse>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/archive`,
   })
 }
 
 export async function recoverWorkspaceApi(workspaceId: string) {
-  return await apiCall<IWorkspace[]>({
+  return await apiCall<IResponseWithLog<IWorkspacesWithChildrenResponse>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/recover`,
   })
 }
 
 export async function cloneWorkspaceApi(workspaceId: string) {
-  return await apiCall<IClonedWorkspaceResult>({
+  return await apiCall<IResponseWithLog<IClonedWorkspaceResult>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/clone`,
   })

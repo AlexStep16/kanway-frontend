@@ -20,7 +20,7 @@ import { TaskModel } from '@models/TaskModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { Nullable } from '@/types/utils'
-import { v4 } from 'uuid'
+import { generateUUID } from '@utils/idGenerator'
 import { ITask } from '@/interfaces/domain/ITask'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import _ from 'lodash'
@@ -29,8 +29,11 @@ import dayjs from 'dayjs'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import { useCategoryDataStore } from '@stores/categoryData'
-import { IWorkspace } from '@/interfaces/domain/IWorkspace'
-import { IBoard } from '@/interfaces/domain/IBoard'
+import { useUIStore } from '@stores/ui'
+import { useLogStore } from '@stores/log'
+import { IWorkspace } from '@interfaces/domain/IWorkspace'
+import { IBoard } from '@interfaces/domain/IBoard'
+import { IResponseWithLog } from '@interfaces/IResponseWithLog'
 
 type TaskErrorType = Nullable<BackendError | HttpError>
 
@@ -38,6 +41,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
   const BOARD_STORE = useBoardDataStore()
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const CATEGORY_STORE = useCategoryDataStore()
+  const UI_STORE = useUIStore()
+  const LOG_STORE = useLogStore()
 
   const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
   const activeBoard = computed(() => BOARD_STORE.getActiveBoard as IBoard)
@@ -162,7 +167,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     const category = CATEGORY_STORE.getCategoryById(categoryId) as ICategoryState
 
     const newTask = new TaskModel({
-      id: 'new-' + v4(),
+      id: 'new-' + generateUUID(),
       name: '',
       workspaceId: activeWorkspace.value.id,
       workspaceName: activeWorkspace.value.name,
@@ -213,8 +218,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
     payload: TaskModel,
     categoryId: Nullable<string>,
     boardId: string | null,
-  ): Promise<ITaskState | false> {
-    if (!categoryId || !boardId || !payload) return false
+  ): Promise<IResponseWithLog<ITaskState>> {
+    if (!categoryId || !boardId || !payload) throw new Error('Нет данных для создания задачи')
 
     _addTasksError.value.delete(payload.id)
 
@@ -224,9 +229,9 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const board = BOARD_STORE.getBoardById(boardId)
       const category = CATEGORY_STORE.getCategoryById(categoryId)
 
-      if (!board || !category) return false
+      if (!board || !category) throw new Error('Нет данных для создания задачи')
 
-      const newTasks: ITaskState[] = await createTask(
+      const createResult = await createTask(
         {
           ...payload,
           categoryId,
@@ -238,7 +243,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
         activeWorkspace.value.id,
       )
 
-      return newTasks[0]
+      const newTasks: ITaskState[] = createResult.data
+
+      return {
+        data: newTasks[0],
+        logId: createResult.logId,
+      }
     } catch (e) {
       if (e instanceof BackendError) {
         _addTasksError.value.set(payload.id, e)
@@ -269,11 +279,20 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
       const result = await _addTask(clonedPayload, payload.categoryId, boardId)
 
-      if (result) _updateOrAddTasksInStore([result])
+      const data = result.data
 
-      toast.success('Задача успешно создана')
+      if (data) _updateOrAddTasksInStore([data])
 
-      return result
+      toast.success('Задача успешно создана', {
+        action: {
+          label: 'Отменить',
+          onClick: () => {
+            if (result.logId) LOG_STORE.undo(result.logId)
+          },
+        },
+      })
+
+      return data
     } catch {
       toast.error(_addTasksError.value.get(payload.id)?.message ?? 'Ошибка при создании задачи')
 
@@ -301,7 +320,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     payload: ISingleUpdate<TaskModel>[],
     workspaceId: string,
     boardId: string,
-  ): Promise<ITaskState[]> {
+  ): Promise<IResponseWithLog<ITaskState[]>> {
     if (payload.length === 0) throw new Error('Нет данных для обновления задачи')
 
     try {
@@ -316,11 +335,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
         payload.map((p) => p.id),
         coreAction,
       )
-      const newTasks = editManyResult.filter((t) => payload.some((p) => p.id === t.id))
+      const newTasks = editManyResult.data.filter((t) => payload.some((p) => p.id === t.id))
 
       if (newTasks.length === 0) throw new Error('Сервер не вернул обновленные задачи')
 
-      return newTasks
+      return {
+        data: newTasks,
+        logId: editManyResult.logId,
+      }
     } catch (e) {
       if (e instanceof BackendError) {
         for (const p of payload) {
@@ -351,7 +373,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     payload: ISingleUpdate<TaskModel>,
     workspaceId: string,
     boardId: string,
-  ): Promise<ITaskState> {
+  ): Promise<IResponseWithLog<ITaskState>> {
     if (!payload) throw new Error('Нет данных для обновления задачи')
 
     _editTasksError.value.delete(payload.id)
@@ -363,11 +385,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
       const editResult = await requestQueueService.enqueue(payload.id, coreAction)
 
-      const newTask = editResult.find((c) => c.id === payload.id)
+      const newTask = editResult.data.find((c) => c.id === payload.id)
 
       if (!newTask) throw new Error('Сервер не вернул обновленную задачу')
 
-      return newTask
+      return {
+        data: newTask,
+        logId: editResult.logId,
+      }
     } catch (e) {
       if (e instanceof BackendError) {
         _editTasksError.value.set(payload.id, e)
@@ -405,10 +430,11 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const clonedPayload: ISingleUpdate<ITaskState> = { ...payload }
       cleanStateFields(clonedPayload)
       const result = await _updateTask(clonedPayload, activeWorkspace.value.id, board.id)
+      const data = result.data
 
-      _updateOrAddTasksInStore([result])
+      _updateOrAddTasksInStore([data])
 
-      return result
+      return data
     } catch {
       if (isOptimisticUpdate && savedTask) {
         _updateOrAddTasksInStore([savedTask])
@@ -456,10 +482,11 @@ export const useTaskDataStore = defineStore('taskData', () => {
         activeWorkspace.value.id,
         activeBoard.value.id,
       )
+      const data = result.data
 
-      _updateOrAddTasksInStore(result)
+      _updateOrAddTasksInStore(data)
 
-      return result
+      return data
     } catch {
       if (isOptimisticUpdate) {
         _updateOrAddTasksInStore(savedTasks)
@@ -475,7 +502,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   async function _deleteTask(task: ITaskState): Promise<void> {
     if (!task) throw new Error('Нет задачи для удаления')
-    if (_deletingTasks.value.has(task.id)) return
+    if (_deletingTasks.value.has(task.id)) throw new Error('Задача уже в процессе удаления')
 
     _deleteTasksError.value.delete(task.id)
 
@@ -509,6 +536,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function deleteTask(task: ITaskState): Promise<boolean> {
+    if (!task || _deletingTasks.value.has(task.id)) return false
+
     try {
       const clonedTask: ITaskState = { ...task }
       cleanStateFields(clonedTask)
@@ -525,8 +554,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
-  async function _archiveTask(task: TaskModel, workspaceId: string): Promise<ITaskState[]> {
+  async function _archiveTask(
+    task: TaskModel,
+    workspaceId: string,
+  ): Promise<IResponseWithLog<ITaskState[]>> {
     if (!task) throw new Error('Нет задачи для архивирования')
+    if (_archivingTasks.value.has(task.id)) throw new Error('Задача уже в процессе архивирования')
 
     _archiveTasksError.value.delete(task.id)
 
@@ -536,11 +569,15 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const coreAction = () => archiveTaskService(task.id, workspaceId, task.boardId)
 
       const archiveResult = await requestQueueService.enqueue(task.id, coreAction)
-      const archivedTask = archiveResult.find((t) => t.id === task.id)
+      const archivedTasks = archiveResult.data
+      const archivedTask = archivedTasks.find((t) => t.id === task.id)
 
       if (!archivedTask) throw new Error('Сервер не вернул архивированную задачу')
 
-      return archiveResult
+      return {
+        data: archivedTasks,
+        logId: archiveResult.logId,
+      }
     } catch (e) {
       if (e instanceof BackendError) {
         _archiveTasksError.value.set(task.id, e)
@@ -560,16 +597,26 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function archiveTask(task: ITaskState): Promise<ITaskState | false> {
+    if (!task || _archivingTasks.value.has(task.id)) return false
+
     try {
       const clonedTask: ITaskState = { ...task }
       cleanStateFields(clonedTask)
 
       const archiveResult = await _archiveTask(clonedTask, activeWorkspace.value.id)
-      const archivedTask = archiveResult.find((t) => t.id === task.id) as ITaskState
+      const data = archiveResult.data
+      const archivedTask = data.find((t) => t.id === task.id) as ITaskState
 
-      _updateOrAddTasksInStore(archiveResult)
+      _updateOrAddTasksInStore(data)
 
-      toast.success('Задача успешно архивирована')
+      toast.success('Задача успешно архивирована', {
+        action: {
+          label: 'Отменить',
+          onClick: () => {
+            if (archiveResult.logId) LOG_STORE.undo(archiveResult.logId)
+          },
+        },
+      })
 
       return archivedTask
     } catch {
@@ -581,8 +628,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
-  async function _recoverTask(task: TaskModel, workspaceId: string): Promise<ITaskState[]> {
+  async function _recoverTask(
+    task: TaskModel,
+    workspaceId: string,
+  ): Promise<IResponseWithLog<ITaskState[]>> {
     if (!task) throw new Error('Нет задачи для восстановления')
+    if (_recoveringTasks.value.has(task.id)) throw new Error('Задача уже в процессе восстановления')
 
     _recoverTasksError.value.delete(task.id)
 
@@ -594,11 +645,15 @@ export const useTaskDataStore = defineStore('taskData', () => {
       const coreAction = () => recoverTaskService(task.id, workspaceId, task.boardId)
 
       const recoverResult = await requestQueueService.enqueue(task.id, coreAction)
-      const recoveredTask = recoverResult.find((t) => t.id === task.id)
+      const recoveredTasks = recoverResult.data
+      const recoveredTask = recoveredTasks.find((t) => t.id === task.id)
 
       if (!recoveredTask) throw new Error('Сервер не вернул восстановленную задачу')
 
-      return recoverResult
+      return {
+        data: recoveredTasks,
+        logId: recoverResult.logId,
+      }
     } catch (e) {
       if (e instanceof BackendError) {
         _recoverTasksError.value.set(task.id, e)
@@ -618,16 +673,26 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function recoverTask(task: ITaskState): Promise<ITaskState | false> {
+    if (!task || _recoveringTasks.value.has(task.id)) return false
+
     try {
       const clonedTask: ITaskState = { ...task }
       cleanStateFields(clonedTask)
 
       const recoverResult = await _recoverTask(clonedTask, activeWorkspace.value.id)
-      const recoveredTask = recoverResult.find((t) => t.id === task.id) as ITaskState
+      const data = recoverResult.data
+      const recoveredTask = data.find((t) => t.id === task.id) as ITaskState
 
-      _updateOrAddTasksInStore(recoverResult)
+      _updateOrAddTasksInStore(data)
 
-      toast.success('Задача успешно восстановлена')
+      toast.success('Задача успешно восстановлена', {
+        action: {
+          label: 'Отменить',
+          onClick: () => {
+            if (recoverResult.logId) LOG_STORE.undo(recoverResult.logId)
+          },
+        },
+      })
 
       return recoveredTask
     } catch {
@@ -639,8 +704,12 @@ export const useTaskDataStore = defineStore('taskData', () => {
     }
   }
 
-  async function _cloneTask(task: TaskModel, workspaceId: string): Promise<ITaskState> {
+  async function _cloneTask(
+    task: TaskModel,
+    workspaceId: string,
+  ): Promise<IResponseWithLog<ITaskState>> {
     if (!task) throw new Error('Нет задачи для копирования')
+    if (_cloningTasks.value.has(task.id)) throw new Error('Задача уже в процессе копирования')
 
     _cloneTasksError.value.delete(task.id)
 
@@ -649,11 +718,15 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
       const coreAction = () => cloneTaskService(task.id, workspaceId, task.boardId)
 
-      const newTasks = await requestQueueService.enqueue(task.id, coreAction)
+      const cloneResult = await requestQueueService.enqueue(task.id, coreAction)
+      const clonedTasks = cloneResult.data
 
-      if (!newTasks[0]) throw new Error('Сервер не вернул новую задачу')
+      if (!clonedTasks[0]) throw new Error('Сервер не вернул новую задачу')
 
-      return newTasks[0]
+      return {
+        data: clonedTasks[0],
+        logId: cloneResult.logId,
+      }
     } catch (e) {
       if (e instanceof BackendError) {
         _cloneTasksError.value.set(task.id, e)
@@ -673,17 +746,27 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function cloneTask(task: ITaskState): Promise<ITaskState | false> {
+    if (!task || _cloningTasks.value.has(task.id)) return false
+
     try {
       const clonedTask: ITaskState = { ...task }
       cleanStateFields(clonedTask)
 
       const result = await _cloneTask(clonedTask, activeWorkspace.value.id)
+      const data = result.data
 
-      _updateOrAddTasksInStore([result])
+      _updateOrAddTasksInStore([data])
 
-      toast.success('Задача успешно скопирована')
+      toast.success('Задача успешно скопирована', {
+        action: {
+          label: 'Отменить',
+          onClick: () => {
+            if (result.logId) LOG_STORE.undo(result.logId)
+          },
+        },
+      })
 
-      return result
+      return data
     } catch {
       toast.error(_cloneTasksError.value.get(task.id)?.message || 'Ошибка при копировании задачи')
 
@@ -696,6 +779,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
     newCategoryId: string,
     workspaceId: string,
   ): Promise<ITaskState | false> {
+    if (!taskId || _movingTasks.value.has(taskId)) return false
+
     const task = tasks.value.find((t) => t.id === taskId)
     const newCategory = CATEGORY_STORE.getCategoryById(newCategoryId)
 
@@ -712,12 +797,20 @@ export const useTaskDataStore = defineStore('taskData', () => {
       _movingTasks.value.add(task.id)
 
       const result = await _updateTask(newTask, workspaceId, task.boardId)
+      const data = result.data
 
-      _updateOrAddTasksInStore([result])
+      _updateOrAddTasksInStore([data])
 
-      toast.success('Задача успешно перемещена')
+      toast.success('Задача успешно перемещена', {
+        action: {
+          label: 'Отменить',
+          onClick: () => {
+            if (result.logId) LOG_STORE.undo(result.logId)
+          },
+        },
+      })
 
-      return result
+      return data
     } catch {
       toast.error(_editTasksError.value.get(task.id)?.message || 'Ошибка при перемещении задачи')
 
@@ -729,6 +822,19 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   function clearTaskToEdit() {
     taskToEdit.value = null
+  }
+
+  function openTaskToEdit(task: ITaskState) {
+    const taskOriginal = tasks.value.find((t) => t.id === task.id)
+    if (!taskOriginal) return
+
+    taskToEdit.value = taskOriginal
+
+    UI_STORE.openEditTaskModal()
+  }
+
+  function deleteFromStore(taskIds: string[]) {
+    tasks.value = tasks.value.filter((t) => !taskIds.includes(t.id))
   }
 
   function integrateTasks(rawTasks: ITask[]) {
@@ -748,6 +854,10 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
   function getTasksByCategoryId(categoryId: string): ITaskState[] {
     return tasks.value.filter((task) => task.categoryId === categoryId && !task.isDeleted)
+  }
+
+  function getAllTasksByCategoryId(categoryId: string): ITaskState[] {
+    return tasks.value.filter((task) => task.categoryId === categoryId)
   }
 
   function getVisibleTasksByCategoryId(categoryId: string, sort = true): ITaskState[] {
@@ -1020,11 +1130,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
     cloneTask,
     getVisibleTasksByCategoryId,
     getTasksByCategoryId,
+    getAllTasksByCategoryId,
     clearTaskToEdit,
     addTaskToStore,
+    openTaskToEdit,
     createOrSplice,
     integrateTasks,
     clearFilters,
+    deleteFromStore,
 
     $reset,
   }

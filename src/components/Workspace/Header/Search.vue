@@ -14,7 +14,7 @@ function openMobileSearch() {
 </script>
 
 <template>
-  <div class="max-w-sm">
+  <div class="w-70">
     <div class="hidden sm:block">
       <SearchBox />
     </div>

@@ -16,6 +16,7 @@ import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
 import { Nullable } from '@/types/utils'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
+import { Layers } from 'lucide-vue-next'
 
 import _ from 'lodash'
 import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
@@ -30,6 +31,7 @@ const textareaNameAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
 const textareaDescriptionAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
 const editableTask = ref<Nullable<TaskModel>>(null)
 const dateComponentRef = ref<Nullable<typeof Date>>(null)
+const taskUpdatesCounter = ref(0)
 
 const updateNameTimeout = ref<Nullable<number>>(null)
 const updateDescriptionTimeout = ref<Nullable<number>>(null)
@@ -155,8 +157,8 @@ function handleClearColor() {
   })
 }
 
-function handleMoveTask(payload: { taskId: string; newCategoryId: string }) {
-  TASK_STORE.moveTask(payload.taskId, payload.newCategoryId, activeWorkspace.value.id)
+function handleMoveTask(taskId: string, newCategoryId: string) {
+  TASK_STORE.moveTask(taskId, newCategoryId, activeWorkspace.value.id)
 }
 
 function updateTask(payload: Partial<TaskModel>) {
@@ -168,6 +170,7 @@ function updateTask(payload: Partial<TaskModel>) {
       ...payload,
     },
     editableTask.value.boardId,
+    true,
   )
 }
 
@@ -242,6 +245,7 @@ watch(
   () => TASK_STORE.taskToEdit,
   (newTask) => {
     const shouldInitialize = newTask && !editableTask.value
+    taskUpdatesCounter.value += 1
 
     if (newTask) {
       editableTask.value = _.cloneDeep(newTask)
@@ -272,13 +276,10 @@ watch(
         if (el) UI_STORE.editTaskModalRef = el as HTMLElement
       }
     "
-    class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-90 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
+    class="hs-overlay [--overlay-backdrop:static] hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-90 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
     role="dialog"
     tabindex="-1"
     aria-labelledby="hs-task-edit-label"
-    data-hs-overlay-options='{
-      "isClosePrev": false
-    }'
   >
     <div class="size-full flex items-center justify-center p-2 sm:p-4">
       <div
@@ -335,10 +336,15 @@ watch(
               :entity="editableTask"
               :type="0"
               @moveTask="handleMoveTask"
+              :key="taskUpdatesCounter"
               v-if="!editableTask.isDeleted"
-            />
+            >
+              <Layers class="size-4 shrink-0" />
+            </MoveDropdown>
 
-            <MoveDropdownButton :title="editableTask.categoryName" :disabled="true" v-else />
+            <MoveDropdownButton :title="editableTask.categoryName" :disabled="true" v-else>
+              <Layers class="size-4 shrink-0" />
+            </MoveDropdownButton>
           </div>
 
           <ActionAndCloseButtons
