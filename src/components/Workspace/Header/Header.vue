@@ -7,8 +7,18 @@ import Tabs from '@/enums/TabsEnum'
 import { PanelLeftOpen } from 'lucide-vue-next'
 import { useUIStore } from '@/stores/ui'
 import { computed } from 'vue'
+import TitleBoardSkeleton from '@components/Workspace/Header/TitleBoardSkeleton.vue'
+import SearchSkeleton from '@components/Workspace/Header/SearchSkeleton.vue'
+import FilterSkeleton from '@components/Workspace/Header/FilterSkeleton.vue'
+import { useBoardDataStore } from '@/stores/boardData'
+import { useWorkspaceDataStore } from '@/stores/workspaceData'
 
 const UI_STORE = useUIStore()
+const BOARD_STORE = useBoardDataStore()
+const WORKSPACE_STORE = useWorkspaceDataStore()
+
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
+const isArchiveLoading = computed(() => UI_STORE.isArchiveLoading)
 
 const isArchiveTab = computed(() => {
   return UI_STORE.currentTab === Tabs.Archive
@@ -32,12 +42,21 @@ const isBoardTab = computed(() => {
     >
       <PanelLeftOpen class="size-4" />
     </button>
-    <TitleBoard v-if="isBoardTab" />
-    <TitleArchive v-if="isArchiveTab" />
+
+    <TitleBoardSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')" />
+    <TitleBoard v-else-if="isBoardTab" />
+    <TitleArchive v-else-if="isArchiveTab" />
 
     <div class="flex shrink-0 ms-auto items-stretch gap-x-3">
-      <Search />
-      <Filter v-if="!isArchiveTab" />
+      <SearchSkeleton
+        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '') || isArchiveLoading"
+      />
+      <Search v-else />
+
+      <FilterSkeleton
+        v-if="isBoardTab && BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
+      />
+      <Filter v-else-if="isBoardTab" />
     </div>
   </div>
   <!-- End Header -->

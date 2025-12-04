@@ -6,7 +6,10 @@ import { HSSelect, HSStaticMethods, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
 
 const SETTING_STORE = useSettingDataStore()
+SETTING_STORE.loadSetting()
+
 const setting = toRef(SETTING_STORE, 'setting')
+const isSettingLoading = computed(() => SETTING_STORE.isSettingLoading)
 const settingModel = ref({ ...setting.value })
 const validationErrors = ref({
   aiName: '',
@@ -14,6 +17,7 @@ const validationErrors = ref({
   aiDefaultCategory: '',
   aiDefaultBoard: '',
 })
+const selectContainerRef = ref<HTMLElement | null>(null)
 
 const selectTypeRef = ref<HTMLElement | null>(null)
 
@@ -21,6 +25,7 @@ watch(
   setting,
   (newSetting) => {
     Object.assign(settingModel.value, newSetting)
+    HSStaticMethods.autoInit()
 
     if (selectTypeRef.value) {
       const { element } = HSSelect.getInstance(
@@ -33,6 +38,16 @@ watch(
   },
   { deep: true },
 )
+
+watch(isSettingLoading, (newVal) => {
+  if (!newVal) {
+    const hsSelect = selectContainerRef.value?.querySelector('.hs-select')
+
+    if (hsSelect) {
+      hsSelect.classList.remove('hidden')
+    }
+  }
+})
 
 function validateSetting(): boolean {
   if (!settingModel.value) {
@@ -118,15 +133,19 @@ const isButtonDisabled = computed(() => {
   return isSettingUpdating.value || !hasSomethingChanged.value
 })
 
-SETTING_STORE.loadSetting()
-
 onMounted(() => {
   HSStaticMethods.autoInit()
+
+  const hsSelect = selectContainerRef.value?.querySelector('.hs-select')
+
+  if (hsSelect) {
+    hsSelect.classList.add('hidden') // Hide until setting is loaded; Note: v-if is not working here due to HSSelect initialization
+  }
 })
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-2" v-if="setting">
+  <div class="flex flex-col gap-y-2">
     <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
       Персонализация ассистента
     </h3>
@@ -134,6 +153,10 @@ onMounted(() => {
     <div class="flex flex-col gap-y-3">
       <div class="flex flex-col gap-y-1">
         <label class="text-custom-sm font-medium text-gray-500">Имя ассистента</label>
+        <div
+          class="bg-gray-300 animate-pulse w-full max-w-80 rounded-md px-3 py-2 text-sm h-9"
+          v-if="isSettingLoading"
+        ></div>
         <input
           id="settings-ai-name"
           name="name"
@@ -144,6 +167,7 @@ onMounted(() => {
           @input="resetValidationAiName"
           placeholder="Введите имя"
           v-model="settingModel.aiName"
+          v-else
         />
 
         <div v-if="validationErrors.aiName" class="text-red-500 text-xs">
@@ -153,7 +177,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="flex flex-col gap-y-2">
+  <div class="flex flex-col gap-y-2" ref="selectContainerRef">
     <h3
       class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
     >
@@ -162,6 +186,10 @@ onMounted(() => {
     <div class="flex flex-col gap-y-3">
       <div class="flex flex-col max-w-80 gap-y-1">
         <label class="text-custom-sm font-medium text-gray-500">Режим подтверждения действий</label>
+        <div
+          class="bg-gray-300 animate-pulse w-full max-w-80 rounded-md px-3 py-2 text-sm h-9"
+          v-if="isSettingLoading"
+        ></div>
         <select
           data-hs-select='{
           "placeholder": "Выберите действие по умолчанию...",
@@ -198,6 +226,10 @@ onMounted(() => {
         <label class="text-custom-sm font-medium text-gray-500"
           >Категория по умолчанию для новых задач</label
         >
+        <div
+          class="bg-gray-300 animate-pulse w-full max-w-80 rounded-md px-3 py-2 text-sm h-9"
+          v-if="isSettingLoading"
+        ></div>
         <input
           id="settings-ai-category-name"
           name="name"
@@ -208,6 +240,7 @@ onMounted(() => {
           maxlength="100"
           @input="resetValidationAiDefaultCategory"
           v-model="settingModel.aiDefaultCategory"
+          v-else
         />
 
         <div v-if="validationErrors.aiDefaultCategory" class="text-red-500 text-xs">
@@ -219,6 +252,10 @@ onMounted(() => {
         <label class="text-custom-sm font-medium text-gray-500"
           >Доска по умолчанию для новых категорий</label
         >
+        <div
+          class="bg-gray-300 animate-pulse w-full max-w-80 rounded-md px-3 py-2 text-sm h-9"
+          v-if="isSettingLoading"
+        ></div>
         <input
           id="settings-ai-board-name"
           name="name"
@@ -229,6 +266,7 @@ onMounted(() => {
           maxlength="100"
           @input="resetValidationAiDefaultBoard"
           v-model="settingModel.aiDefaultBoard"
+          v-else
         />
 
         <div v-if="validationErrors.aiDefaultBoard" class="text-red-500 text-xs">

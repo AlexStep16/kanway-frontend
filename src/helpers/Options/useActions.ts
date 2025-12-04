@@ -5,7 +5,6 @@ import WorkspaceModel from '@models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { computed, Ref } from 'vue'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 export function useActions(
   item: Ref<WorkspaceModel | BoardModel | CategoryModel>,
@@ -16,9 +15,11 @@ export function useActions(
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const CATEGORY_STORE = useCategoryDataStore()
 
-  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
   async function archiveItem() {
+    if (!activeWorkspace.value) return
+
     if (edit_type.value === 'board') {
       await BOARD_STORE.archiveBoard(item.value as BoardModel, activeWorkspace.value.id)
     } else if (edit_type.value === 'workspace') {
@@ -31,6 +32,8 @@ export function useActions(
   }
 
   async function cloneItem() {
+    if (!activeWorkspace.value) return
+
     if (edit_type.value === 'board') {
       await BOARD_STORE.cloneBoard(item.value as BoardModel)
     } else if (edit_type.value === 'workspace') {
@@ -43,6 +46,8 @@ export function useActions(
   }
 
   async function moveItem(newItemId: string) {
+    if (!activeWorkspace.value) return
+
     if (edit_type.value === 'board') {
       await BOARD_STORE.moveBoard(item.value.id, newItemId)
     } else if (edit_type.value === 'category') {

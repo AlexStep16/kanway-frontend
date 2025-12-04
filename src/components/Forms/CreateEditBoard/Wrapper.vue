@@ -23,7 +23,7 @@ const validationErrors = ref<BoardValidationErrors>({
 const BOARD_STORE = useBoardDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 
-const activeWorkspace = ref<IWorkspace>(WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+const activeWorkspace = ref<Nullable<IWorkspace>>(WORKSPACE_STORE.getActiveWorkspace)
 
 const name = ref('')
 const isFormChanged = computed(() => {
@@ -74,7 +74,7 @@ defineExpose({
 })
 
 async function createBoard() {
-  if (validationErrors.value.name.isValid === false) return
+  if (validationErrors.value.name.isValid === false || !activeWorkspace.value) return
 
   const board = {
     name: name.value,

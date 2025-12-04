@@ -717,6 +717,10 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       return _addingToFavoritesWorkspaces.value.has(workspaceId)
     })
 
+    const isArchivedWorkspacesLoading = computed((): boolean => {
+      return _loadingStatusArchived.value
+    })
+
     function isWorkspaceProcessing(workspaceId: string): boolean {
       return (
         _deletingWorkspaces.value.has(workspaceId) ||
@@ -793,6 +797,7 @@ export const useWorkspaceDataStore = (pinia?: Pinia) => {
       isWorkspaceCloning,
       isWorkspaceProcessing,
       isWorkspaceAddingToFavorites,
+      isArchivedWorkspacesLoading,
       getFavoriteWorkspaces,
       getWorkspaces,
       getActiveWorkspace,

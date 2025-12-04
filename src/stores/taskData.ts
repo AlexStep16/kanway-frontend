@@ -31,7 +31,6 @@ import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useUIStore } from '@stores/ui'
 import { useLogStore } from '@stores/log'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { IBoard } from '@interfaces/domain/IBoard'
 import { IResponseWithLog } from '@interfaces/IResponseWithLog'
 
@@ -44,7 +43,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
   const UI_STORE = useUIStore()
   const LOG_STORE = useLogStore()
 
-  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
   const activeBoard = computed(() => BOARD_STORE.getActiveBoard as IBoard)
 
   // State
@@ -162,7 +161,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   function addTaskToStore(categoryId: string) {
-    if (!categoryId) return null
+    if (!categoryId || !activeWorkspace.value) return null
     if (tasks.value.some((t) => t.categoryId === categoryId && t.isNew)) return null
     const category = CATEGORY_STORE.getCategoryById(categoryId) as ICategoryState
 
@@ -220,6 +219,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     boardId: string | null,
   ): Promise<IResponseWithLog<ITaskState>> {
     if (!categoryId || !boardId || !payload) throw new Error('Нет данных для создания задачи')
+    if (!activeWorkspace.value) throw new Error('Нет активного рабочего пространства')
 
     _addTasksError.value.delete(payload.id)
 
@@ -416,7 +416,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     boardId: string,
     isOptimisticUpdate: boolean = false,
   ): Promise<ITaskState | false> {
-    if (!isTaskChanged(payload)) return false
+    if (!isTaskChanged(payload) || !activeWorkspace.value) return false
     const savedTask = _.cloneDeep(tasks.value.find((t) => t.id === payload.id))
     const board = BOARD_STORE.getBoardById(boardId)
 
@@ -453,7 +453,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     boardId: string,
     isOptimisticUpdate: boolean = false,
   ): Promise<ITaskState[] | false> {
-    if (payload.length === 0) return false
+    if (payload.length === 0 || !activeWorkspace.value) return false
     const savedTasks: ITaskState[] = []
     const board = BOARD_STORE.getBoardById(boardId)
 
@@ -503,13 +503,14 @@ export const useTaskDataStore = defineStore('taskData', () => {
   async function _deleteTask(task: ITaskState): Promise<void> {
     if (!task) throw new Error('Нет задачи для удаления')
     if (_deletingTasks.value.has(task.id)) throw new Error('Задача уже в процессе удаления')
+    if (!activeWorkspace.value) throw new Error('Нет активного рабочего пространства')
 
     _deleteTasksError.value.delete(task.id)
 
     try {
       _deletingTasks.value.add(task.id)
 
-      const coreAction = () => removeTask(task.id, activeWorkspace.value.id, task.boardId)
+      const coreAction = () => removeTask(task.id, activeWorkspace.value!.id, task.boardId)
 
       await requestQueueService.enqueue(task.id, coreAction)
 
@@ -597,7 +598,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function archiveTask(task: ITaskState): Promise<ITaskState | false> {
-    if (!task || _archivingTasks.value.has(task.id)) return false
+    if (!task || _archivingTasks.value.has(task.id) || !activeWorkspace.value) return false
 
     try {
       const clonedTask: ITaskState = { ...task }
@@ -673,7 +674,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function recoverTask(task: ITaskState): Promise<ITaskState | false> {
-    if (!task || _recoveringTasks.value.has(task.id)) return false
+    if (!task || _recoveringTasks.value.has(task.id) || !activeWorkspace.value) return false
 
     try {
       const clonedTask: ITaskState = { ...task }
@@ -746,7 +747,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
   }
 
   async function cloneTask(task: ITaskState): Promise<ITaskState | false> {
-    if (!task || _cloningTasks.value.has(task.id)) return false
+    if (!task || _cloningTasks.value.has(task.id) || !activeWorkspace.value) return false
 
     try {
       const clonedTask: ITaskState = { ...task }
@@ -1078,6 +1079,10 @@ export const useTaskDataStore = defineStore('taskData', () => {
     return _cloningTasks.value.has(taskId)
   })
 
+  const isArchivedTasksLoading = computed((): boolean => {
+    return _loadingStatusArchived.value
+  })
+
   const isFilterActive = computed((): boolean => {
     for (const key in taskFilters.value) {
       const filterKey = key as keyof ITaskFilters
@@ -1106,6 +1111,7 @@ export const useTaskDataStore = defineStore('taskData', () => {
     isTaskArchiving,
     isTaskCloning,
     isTaskAdding,
+    isArchivedTasksLoading,
     getVisibleTasks,
     getTasksTags,
     isFilterActive,

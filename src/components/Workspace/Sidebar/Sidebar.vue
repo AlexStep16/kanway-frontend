@@ -28,7 +28,6 @@ import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
 import BoardsSkeleton from '@components/Workspace/Sidebar/BoardsSkeleton.vue'
 import NumberBadgeSkeleton from '@components/Badges/NumberBadgeSkeleton.vue'
 import { Nullable } from '@/types/utils'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import AvatarImage from '@components/Workspace/AvatarImage.vue'
 import { useAuthStore } from '@stores/auth'
 import ActiveWorkspaceAvatar from '@components/Workspace/ActiveWorkspaceAvatar.vue'
@@ -40,7 +39,7 @@ const AUTH_STORE = useAuthStore()
 
 const user = toRef(AUTH_STORE, 'user')
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
 if (window.innerWidth < 1280) {
   UI_STORE.isSidebarOpen = false
@@ -149,8 +148,8 @@ onMounted(() => {
           >
             <ActiveWorkspaceAvatar />
             <div class="flex flex-col truncate">
-              <span class="text-sm truncate" :title="activeWorkspace.name">{{
-                activeWorkspace.name
+              <span class="text-sm truncate" :title="activeWorkspace?.name">{{
+                activeWorkspace?.name
               }}</span>
             </div>
             <svg
@@ -183,7 +182,7 @@ onMounted(() => {
                 v-for="workspace in WORKSPACE_STORE.getWorkspaces"
                 :key="workspace.id"
                 :item="workspace"
-                :selected="workspace.id === activeWorkspace.id ? true : false"
+                :selected="workspace.id === activeWorkspace?.id ? true : false"
                 :resetForm="resetWorkspaceForm"
                 @select="selectWorkspace(workspace)"
                 type="workspace"
@@ -251,7 +250,9 @@ onMounted(() => {
               >
                 <SquareKanban class="size-4" />
                 Доски
-                <NumberBadgeSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)" />
+                <NumberBadgeSkeleton
+                  v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
+                />
                 <NumberBadge :number="BOARD_STORE.getActiveWorkspaceBoards.length" v-else />
 
                 <ChevronDown
@@ -268,7 +269,7 @@ onMounted(() => {
                 role="region"
                 aria-labelledby="boards-accordion"
               >
-                <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)" />
+                <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')" />
                 <ul
                   class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
                   v-else
@@ -410,7 +411,7 @@ onMounted(() => {
                           v-for="workspace in WORKSPACE_STORE.getFavoriteWorkspaces"
                           :key="workspace.id"
                           :item="workspace"
-                          :selected="workspace.id === activeWorkspace.id ? true : false"
+                          :selected="workspace.id === activeWorkspace?.id ? true : false"
                           :resetForm="resetWorkspaceForm"
                           type="workspace"
                         >
@@ -448,7 +449,7 @@ onMounted(() => {
                     >
                       Доски
                       <NumberBadgeSkeleton
-                        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)"
+                        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
                       />
                       <NumberBadge
                         :number="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
@@ -471,7 +472,9 @@ onMounted(() => {
                       role="region"
                       aria-labelledby="users-accordion-sub-2"
                     >
-                      <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace.id)" />
+                      <BoardsSkeleton
+                        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
+                      />
                       <ul
                         class="pt-1 ps-2 space-y-1"
                         v-else-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"

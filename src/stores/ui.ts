@@ -255,6 +255,15 @@ export const useUIStore = defineStore('ui', () => {
     currentTab.value = Tabs.Board
   }
 
+  const isArchiveLoading = computed(() => {
+    return (
+      TASK_STORE.isArchivedTasksLoading ||
+      CATEGORY_STORE.isArchivedCategoriesLoading ||
+      BOARD_STORE.isArchivedBoardsLoading ||
+      WORKSPACE_STORE.isArchivedWorkspacesLoading
+    )
+  })
+
   function $reset() {
     //...
   }
@@ -280,6 +289,7 @@ export const useUIStore = defineStore('ui', () => {
     sidebarRef,
     modalStack,
     isModalOnTop,
+    isArchiveLoading,
 
     // Actions
     openEditTaskModal,

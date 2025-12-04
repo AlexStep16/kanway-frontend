@@ -24,7 +24,6 @@ import { ICategory } from '@/interfaces/domain/ICategory'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import _ from 'lodash'
 import { requestQueueService } from '@/utils/RequestQueueService'
-import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { generateUUID } from '@utils/idGenerator'
 import { useUIStore } from '@stores/ui'
@@ -39,7 +38,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   const UI_STORE = useUIStore()
   const LOG_STORE = useLogStore()
 
-  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+  const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
   const activeBoard = computed(() => BOARD_STORE.getActiveBoard as IBoard)
 
   // State
@@ -154,6 +153,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     boardId: string,
   ): Promise<IResponseWithLog<ICategoryState>> {
     if (!boardId || !payload) throw new Error('Нет данных для создания категории')
+    if (!activeWorkspace.value) throw new Error('Нет активного рабочего пространства')
 
     _addCategoriesError.value.delete(payload.id)
 
@@ -231,6 +231,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   }
 
   function addCategoryToStore(boardId: string) {
+    if (!activeWorkspace.value) throw new Error('Нет активного рабочего пространства')
     if (categories.value.some((c) => c.boardId === boardId && c.isNew)) return null
     const board = BOARD_STORE.getBoardById(boardId)
 
@@ -439,7 +440,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     payload: ISingleUpdate<ICategoryState>[],
     isOptimisticUpdate: boolean = false,
   ): Promise<ICategoryState[] | false> {
-    if (payload.length === 0) return false
+    if (payload.length === 0 || !activeWorkspace.value) return false
     const savedCategories: ICategoryState[] = []
 
     for (const p of payload) {
@@ -485,6 +486,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
 
   async function _deleteCategory(category: CategoryModel): Promise<void> {
     if (!category) throw new Error('Нет категории для удаления')
+    if (!activeWorkspace.value) throw new Error('Нет активного рабочего пространства')
     if (_deletingCategories.value.has(category.id))
       throw new Error('Категория уже в процессе удаления')
 
@@ -494,7 +496,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
       _deletingCategories.value.add(category.id)
 
       const coreAction = () =>
-        removeCategory(category.id, activeWorkspace.value.id, category.boardId)
+        removeCategory(category.id, activeWorkspace.value!.id, category.boardId)
 
       await requestQueueService.enqueue(category.id, coreAction)
 
@@ -679,13 +681,14 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
   }
 
   async function recoverCategory(category: CategoryModel): Promise<ICategoryState | false> {
-    if (!category || _recoveringCategories.value.has(category.id)) return false
+    if (!category || _recoveringCategories.value.has(category.id) || !activeWorkspace.value)
+      return false
 
     try {
       const clonedCategory: ICategoryState = { ...category }
       cleanStateFields(clonedCategory)
 
-      const recoverResult = await _recoverCategory(clonedCategory, activeWorkspace.value.id)
+      const recoverResult = await _recoverCategory(clonedCategory, activeWorkspace.value!.id)
       const recoveredCategories = recoverResult.data
       const recoveredCategory = recoveredCategories.find(
         (c) => c.id === category.id,
@@ -961,6 +964,10 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     return _addingCategories.value.has(categoryId)
   })
 
+  const isArchivedCategoriesLoading = computed((): boolean => {
+    return _loadingStatusArchived.value
+  })
+
   function $reset() {}
 
   return {
@@ -973,6 +980,7 @@ export const useCategoryDataStore = defineStore('categoryData', () => {
     isCategoryArchiving,
     isCategoryCloning,
     isCategoryAdding,
+    isArchivedCategoriesLoading,
     getActiveBoardCategoriesByName,
     getArchivedCategories,
     getArchivedCategoriesByName,

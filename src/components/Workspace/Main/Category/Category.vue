@@ -13,7 +13,6 @@ import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import draggable from 'vuedraggable'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import _ from 'lodash'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
 
 const props = defineProps<{
   category: ICategoryState
@@ -27,7 +26,7 @@ const CATEGORY_STORE = useCategoryDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const TASK_STORE = useTaskDataStore()
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
 const isInputVisible = ref(false)
 const inputEditRef = ref<Nullable<HTMLInputElement>>(null)
@@ -90,6 +89,8 @@ function showInput() {
 }
 
 function updateCategoryName(event: Event) {
+  if (!activeWorkspace.value) return
+
   const target = event.target as HTMLInputElement
   const newName = target.value.trim()
 

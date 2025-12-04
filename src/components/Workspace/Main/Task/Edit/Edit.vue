@@ -15,7 +15,6 @@ import { TASK_COLORS } from '@/constants/TASK_COLORS'
 import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
 import { Nullable } from '@/types/utils'
 import { ITaskState } from '@stores/interfaces/ITaskState'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { Layers } from 'lucide-vue-next'
 
 import _ from 'lodash'
@@ -25,7 +24,7 @@ const UI_STORE = useUIStore()
 const TASK_STORE = useTaskDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
 const textareaNameAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
 const textareaDescriptionAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
@@ -158,6 +157,8 @@ function handleClearColor() {
 }
 
 function handleMoveTask(taskId: string, newCategoryId: string) {
+  if (!activeWorkspace.value) return
+
   TASK_STORE.moveTask(taskId, newCategoryId, activeWorkspace.value.id)
 }
 

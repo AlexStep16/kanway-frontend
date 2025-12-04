@@ -16,6 +16,8 @@ const WORKSPACE_STORE = useWorkspaceDataStore()
 const user = toRef(AUTH_STORE, 'user')
 const boardsCount = toRef(BOARD_STORE, 'boardsCount')
 const isBoardsCountLoading = toRef(BOARD_STORE, 'isLoadingBoardsCount')
+const isSubscriptionsLoading = computed(() => SETTING_STORE.isSubscriptionsLoading)
+const isLoadingBoardsCount = computed(() => BOARD_STORE.isLoadingBoardsCount)
 
 SETTING_STORE.loadSubscriptions()
 BOARD_STORE.loadBoardsCount()
@@ -205,7 +207,11 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70">
+      <div
+        class="bg-gray-300 animate-pulse w-full max-w-70 h-19 rounded-md"
+        v-if="isLoadingBoardsCount"
+      ></div>
+      <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70" v-else>
         <div class="flex items-start justify-between p-3">
           <div class="flex flex-col grow-1 gap-y-1">
             <span class="text-sm text-gray-500">Досок осталось:</span>
@@ -237,348 +243,355 @@ onMounted(() => {
     </h3>
 
     <div class="grid gap-2 grid-cols-1 md:grid-cols-2 grid-flow-row auto-rows-max">
-      <div class="rounded-md bg-white border border-gray-200 grow-1">
-        <div class="flex items-start justify-between p-3 size-full">
-          <div class="flex flex-col size-full gap-y-1">
-            <span class="text-sm font-medium text-gray-800">Базовая</span>
-            <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
-            <div class="flex flex-col mt-1 gap-y-1 grow-1">
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
+      <template v-if="isSubscriptionsLoading">
+        <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
+        <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
+        <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
+      </template>
+      <template v-else>
+        <div class="rounded-md bg-white border border-gray-200 grow-1">
+          <div class="flex items-start justify-between p-3 size-full">
+            <div class="flex flex-col size-full gap-y-1">
+              <span class="text-sm font-medium text-gray-800">Базовая</span>
+              <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
+              <div class="flex flex-col mt-1 gap-y-1 grow-1">
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
                     data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">1 рабочее пространство</span>
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">1 рабочее пространство</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">5 досок</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">20 сообщений в месяц</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно задач</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Обычная поддержка</span>
+                </div>
               </div>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">5 досок</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">20 сообщений в месяц</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно задач</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Обычная поддержка</span>
-              </div>
+              <CurrentSubscriptionButton v-if="isBasicSubscription" />
             </div>
-
-            <CurrentSubscriptionButton v-if="isBasicSubscription" />
           </div>
         </div>
-      </div>
 
-      <div class="rounded-md bg-white border border-gray-200 grow-1">
-        <div class="flex items-start justify-between p-3 size-full">
-          <div class="flex flex-col size-full gap-y-1">
-            <span class="text-sm font-medium text-gray-800">Премиум</span>
-            <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
-              /месяц
-            </span>
-            <div class="flex flex-col mt-1 gap-y-1 grow-1">
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
+        <div class="rounded-md bg-white border border-gray-200 grow-1">
+          <div class="flex items-start justify-between p-3 size-full">
+            <div class="flex flex-col size-full gap-y-1">
+              <span class="text-sm font-medium text-gray-800">Премиум</span>
+              <span class="text-sm text-gray-400">
+                <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
+                /месяц
+              </span>
+              <div class="flex flex-col mt-1 gap-y-1 grow-1">
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
                     data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно пространств</span>
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно пространств</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно досок</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">300 сообщений в месяц</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно задач</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Приоритетная поддержка</span>
+                </div>
               </div>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно досок</span>
-              </div>
+              <button
+                type="button"
+                class="text-xs text-white p-2 w-full items-center gap-x-2 font-medium rounded-md mt-3 border border-transparent bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
+                v-if="!isPremiumSubscription"
+              >
+                Повысить до Премиум
+              </button>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">300 сообщений в месяц</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно задач</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Приоритетная поддержка</span>
-              </div>
+              <CurrentSubscriptionButton v-else />
             </div>
-
-            <button
-              type="button"
-              class="text-xs text-white p-2 w-full items-center gap-x-2 font-medium rounded-md mt-3 border border-transparent bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
-              v-if="!isPremiumSubscription"
-            >
-              Повысить до Премиум
-            </button>
-
-            <CurrentSubscriptionButton v-else />
           </div>
         </div>
-      </div>
 
-      <div class="rounded-md bg-white border border-gray-200 grow-1">
-        <div class="flex items-start justify-between p-3 size-full">
-          <div class="flex flex-col gap-y-1 size-full">
-            <span class="text-sm font-medium text-gray-800">Бизнес</span>
-            <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
-              /месяц
-            </span>
-            <div class="flex flex-col mt-1 gap-y-1 grow-1">
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
+        <div class="rounded-md bg-white border border-gray-200 grow-1">
+          <div class="flex items-start justify-between p-3 size-full">
+            <div class="flex flex-col gap-y-1 size-full">
+              <span class="text-sm font-medium text-gray-800">Бизнес</span>
+              <span class="text-sm text-gray-400">
+                <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
+                /месяц
+              </span>
+              <div class="flex flex-col mt-1 gap-y-1 grow-1">
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
                     data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно пространств</span>
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно пространств</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно досок</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно сообщений в месяц</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Неограниченно задач</span>
+                </div>
+
+                <div class="flex gap-x-1 text-gray-500 items-center">
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18px"
+                    height="18px"
+                    data-v-511ff0d3=""
+                  >
+                    <title data-v-511ff0d3=""></title>
+                    <path
+                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
+                      fill="#3b82f6"
+                      data-v-511ff0d3=""
+                    ></path>
+                  </svg>
+                  <span class="text-xs">Приоритетная поддержка</span>
+                </div>
               </div>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно досок</span>
-              </div>
+              <button
+                type="button"
+                class="text-xs text-white p-2 w-full items-center gap-x-2 font-medium rounded-md mt-3 border border-transparent bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
+                v-if="!isBusinessSubscription"
+              >
+                Повысить до Бизнес
+              </button>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно сообщений в месяц</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Неограниченно задач</span>
-              </div>
-
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <svg
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18px"
-                  height="18px"
-                  data-v-511ff0d3=""
-                >
-                  <title data-v-511ff0d3=""></title>
-                  <path
-                    d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                    fill="#3b82f6"
-                    data-v-511ff0d3=""
-                  ></path>
-                </svg>
-                <span class="text-xs">Приоритетная поддержка</span>
-              </div>
+              <CurrentSubscriptionButton v-else />
             </div>
-
-            <button
-              type="button"
-              class="text-xs text-white p-2 w-full items-center gap-x-2 font-medium rounded-md mt-3 border border-transparent bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
-              v-if="!isBusinessSubscription"
-            >
-              Повысить до Бизнес
-            </button>
-
-            <CurrentSubscriptionButton v-else />
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>

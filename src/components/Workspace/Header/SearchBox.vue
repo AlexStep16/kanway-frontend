@@ -128,7 +128,8 @@ onMounted(() => {
           </svg>
         </div>
         <input
-          class="py-1.5 ps-10 pe-4 block w-full outline-0 border border-gray-200 bg-gray-100 hover:bg-gray-200 transition-colors duration-100 focus:bg-gray-100 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none"
+          class="py-1.5 h-9 ps-10 pe-8.5 block outline-0 border border-gray-200 bg-gray-100 hover:bg-gray-200 transition-colors duration-100 focus:bg-gray-100 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none"
+          :class="{ 'w-full': isAlwaysVisible, 'w-70': !isAlwaysVisible }"
           type="text"
           name="header-search-input"
           autocomplete="off"

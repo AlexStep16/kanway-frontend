@@ -17,15 +17,12 @@ import MobileSearch from '@components/Workspace/MobileSearch.vue'
 import Tabs from '@/enums/TabsEnum'
 import { useRootStore } from '@stores/root'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import { useBoardDataStore } from '@stores/boardData'
 
 const UI_STORE = useUIStore()
 const ROOT_STORE = useRootStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
-const BOARD_STORE = useBoardDataStore()
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
 function initEditTaskModal() {
   if (UI_STORE.editTaskModalRef) {
@@ -88,9 +85,7 @@ onMounted(() => {
     <div
       class="h-full overflow-hidden flex flex-col px-3 sm:px-5 bg-white lg:border lg:border-gray-200 lg:shadow-xs lg:rounded-md"
     >
-      <Board
-        v-if="UI_STORE.currentTab === Tabs.Board && BOARD_STORE.getActiveWorkspaceBoards.length > 0"
-      />
+      <Board v-if="UI_STORE.currentTab === Tabs.Board" />
       <Archive v-else-if="UI_STORE.currentTab === Tabs.Archive" />
       <Start v-else />
     </div>

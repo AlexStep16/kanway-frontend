@@ -1,16 +1,18 @@
 import { apiCall } from '@/apiClient'
-import { ISubscription } from '@/interfaces/domain/ISubscription'
+import { IPayment } from '@interfaces/domain/IPayment'
+import { IPaymentMethod } from '@interfaces/domain/IPaymentMethod'
+import { ISubscription } from '@interfaces/domain/ISubscription'
 import { ISetting } from '@interfaces/domain/ISetting'
 
 export async function getSettingApi() {
-  return await apiCall<ISetting>({
+  return await apiCall<ISetting[]>({
     method: 'GET',
     url: '/settings',
   })
 }
 
 export async function patchSettingApi(payload: Partial<ISetting>) {
-  return apiCall<ISetting>({
+  return apiCall<ISetting[]>({
     method: 'PATCH',
     url: '/settings',
     data: payload,
@@ -25,14 +27,14 @@ export async function getSubscriptionsApi() {
 }
 
 export async function getPaymentsApi() {
-  return await apiCall<any[]>({
+  return await apiCall<IPayment[]>({
     method: 'GET',
     url: '/payments',
   })
 }
 
 export async function getPaymentMethodsApi() {
-  return await apiCall<any[]>({
+  return await apiCall<IPaymentMethod[]>({
     method: 'GET',
     url: '/payment-methods',
   })

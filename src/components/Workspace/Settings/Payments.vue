@@ -12,8 +12,9 @@ const AUTH_STORE = useAuthStore()
 const user = toRef(AUTH_STORE, 'user')
 const payments = toRef(SETTING_STORE, 'payments')
 const paymentMethods = toRef(SETTING_STORE, 'paymentMethods')
-//const isPaymentMethodsLoading = toRef(SETTING_STORE, 'isPaymentMethodsLoading')
+const isPaymentMethodsLoading = toRef(SETTING_STORE, 'isPaymentMethodsLoading')
 const isPaymentMethodDeleting = toRef(SETTING_STORE, 'isPaymentMethodDeleting')
+const isPaymentsLoading = toRef(SETTING_STORE, 'isPaymentsLoading')
 const isUserPaymentMethodUpdating = toRef(AUTH_STORE, 'isUserPaymentMethodUpdating')
 
 SETTING_STORE.loadPayments()
@@ -75,13 +76,19 @@ onMounted(() => {
       Способ оплаты
     </h3>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2" v-if="paymentMethods.length > 0">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-2"
+      v-if="paymentMethods.length > 0 || isPaymentMethodsLoading"
+    >
+      <div class="bg-gray-300 animate-pulse rounded-md h-19" v-if="isPaymentMethodsLoading"></div>
+      <div class="bg-gray-300 animate-pulse rounded-md h-19" v-if="isPaymentMethodsLoading"></div>
       <div
         class="bg-blue-50 border border-gray-200 rounded-md"
         :class="{ 'border-blue-300!': isUserPaymentMethod(paymentMethod) }"
         v-for="paymentMethod in paymentMethods"
         :key="paymentMethod.id"
         @click="updatePaymentMethod(paymentMethod.id)"
+        v-else
       >
         <label
           :for="'payment-method-' + paymentMethod.id"
@@ -158,7 +165,17 @@ onMounted(() => {
       История платежей
     </h3>
 
-    <div class="flex flex-col">
+    <template v-if="isPaymentsLoading">
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+      <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
+    </template>
+
+    <div class="flex flex-col" v-else>
       <div class="overflow-x-auto">
         <div class="min-w-full inline-block align-middle">
           <div class="border border-gray-200 rounded-lg overflow-hidden" v-if="payments.length > 0">

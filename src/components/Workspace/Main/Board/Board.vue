@@ -2,17 +2,21 @@
 import Header from '@components/Workspace/Header/Header.vue'
 import Category from '@components/Workspace/Main/Category/Category.vue'
 import AIInput from '@components/Workspace/Main/AIInput.vue'
+import CategorySkeleton from '@components/Workspace/Main/Category/CategorySkeleton.vue'
 import { useCategoryDataStore } from '@stores/categoryData'
 import { useBoardDataStore } from '@stores/boardData'
-import draggable from 'vuedraggable'
-
-import { Plus } from 'lucide-vue-next'
-import { computed, nextTick, ref, watch } from 'vue'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
+import { useWorkspaceDataStore } from '@stores/workspaceData'
+import draggable from 'vuedraggable'
+import { computed, nextTick, ref, watch } from 'vue'
+import { Plus } from 'lucide-vue-next'
 import _ from 'lodash'
 
 const CATEGORY_STORE = useCategoryDataStore()
 const BOARD_STORE = useBoardDataStore()
+const WORKSPACE_STORE = useWorkspaceDataStore()
+
+const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
 const boardCategories = computed(() => CATEGORY_STORE.getActiveBoardCategories)
 
@@ -58,43 +62,53 @@ function connectInputEditRef(el: HTMLInputElement) {
   <div
     class="size-full py-1.5 flex gap-3 overflow-y-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
   >
-    <draggable
-      @change="sortCategories"
-      :list="localCategoryList"
-      :delay="300"
-      class="flex gap-x-3"
-      itemKey="id"
-      :delayOnTouchOnly="true"
-      group="categories"
-      :animation="150"
-      ghostClass="ghost-class"
-      chosenClass="chosen-class"
-      dragClass="drag-class"
-      filter=".undraggable"
-      :forceFallback="true"
-      :fallbackTolerance="2"
-      :prevent-on-filter="false"
-    >
-      <template #item="{ element }">
-        <Category
-          :key="element.id"
-          :category="element"
-          @update-task="updateTask"
-          @connectInputEditRef="connectInputEditRef"
-        />
-      </template>
-    </draggable>
-
-    <div class="h-full flex items-center">
-      <button
-        type="button"
-        class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
-        title="Добавить категорию"
-        @click="CATEGORY_STORE.addCategoryToStore(BOARD_STORE.activeBoard?.id || '')"
+    <template v-if="!BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')">
+      <draggable
+        @change="sortCategories"
+        :list="localCategoryList"
+        :delay="300"
+        class="flex gap-x-3"
+        itemKey="id"
+        :delayOnTouchOnly="true"
+        group="categories"
+        :animation="150"
+        ghostClass="ghost-class"
+        chosenClass="chosen-class"
+        dragClass="drag-class"
+        filter=".undraggable"
+        :forceFallback="true"
+        :fallbackTolerance="2"
+        :prevent-on-filter="false"
       >
-        <Plus class="size-6" />
-      </button>
-    </div>
+        <template #item="{ element }">
+          <Category
+            :key="element.id"
+            :category="element"
+            @update-task="updateTask"
+            @connectInputEditRef="connectInputEditRef"
+          />
+        </template>
+      </draggable>
+
+      <div class="h-full flex items-center">
+        <button
+          type="button"
+          class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
+          title="Добавить категорию"
+          @click="CATEGORY_STORE.addCategoryToStore(BOARD_STORE.activeBoard?.id || '')"
+        >
+          <Plus class="size-6" />
+        </button>
+      </div>
+    </template>
+
+    <template v-else>
+      <CategorySkeleton v-for="n in 3" :key="n + '_skeleton_category'" />
+
+      <div class="h-full flex items-center">
+        <div class="size-10 bg-gray-300 rounded-full animate-pulse"></div>
+      </div>
+    </template>
   </div>
 
   <AIInput />

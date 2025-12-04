@@ -25,7 +25,6 @@ import { IBoard } from '@/interfaces/domain/IBoard'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import _ from 'lodash'
 import { requestQueueService } from '@/utils/RequestQueueService'
-import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { useLogStore } from './log'
 
@@ -52,7 +51,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     const UI_STORE = useUIStore()
     const LOG_STORE = useLogStore()
 
-    const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace as IWorkspace)
+    const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
     // Errors
     const loadBoardsError = ref<BoardErrorType>(null)
@@ -564,7 +563,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
     }
 
     async function recoverBoard(board: BoardModel): Promise<BoardModel | false> {
-      if (!board || _recoveringBoards.value.has(board.id)) return false
+      if (!board || _recoveringBoards.value.has(board.id) || !activeWorkspace.value) return false
 
       try {
         const recoverResult = await _recoverBoard(board, activeWorkspace.value.id)
@@ -822,6 +821,10 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       return _addingToFavoritesBoards.value.has(boardId)
     })
 
+    const isArchivedBoardsLoading = computed((): boolean => {
+      return _loadingStatusArchived.value
+    })
+
     function isBoardProcessing(boardId: string): boolean {
       return (
         _deletingBoards.value.has(boardId) ||
@@ -835,7 +838,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       if (!activeWorkspace.value) return []
 
       return boards.value
-        .filter((board) => board.workspaceId === activeWorkspace.value.id && !board.isDeleted)
+        .filter((board) => board.workspaceId === activeWorkspace.value?.id && !board.isDeleted)
         .sort((a, b) => {
           return a.order - b.order
         })
@@ -920,6 +923,7 @@ export const useBoardDataStore = (pinia?: Pinia) => {
       isBoardMoving,
       isBoardAddingToFavorites,
       isLoadingBoardsCount,
+      isArchivedBoardsLoading,
       getActiveWorkspaceFavoriteBoards,
       getActiveBoard,
       getOtherBoards,
