@@ -94,6 +94,8 @@ const getBoards = computed(() => {
 watch(
   () => WORKSPACE_STORE.workspaceToEdit,
   (newWorkspace) => {
+    if (newWorkspace && newWorkspace.id === editableWorkspace.value?.id) return
+
     const shouldInitialize = newWorkspace && !editableWorkspace.value
 
     if (newWorkspace) {

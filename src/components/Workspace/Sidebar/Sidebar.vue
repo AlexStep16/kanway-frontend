@@ -31,11 +31,13 @@ import { Nullable } from '@/types/utils'
 import AvatarImage from '@components/Workspace/AvatarImage.vue'
 import { useAuthStore } from '@stores/auth'
 import ActiveWorkspaceAvatar from '@components/Workspace/ActiveWorkspaceAvatar.vue'
+import { useChatStore } from '@/stores/chat'
 
 const UI_STORE = useUIStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const BOARD_STORE = useBoardDataStore()
 const AUTH_STORE = useAuthStore()
+const CHAT_STORE = useChatStore()
 
 const user = toRef(AUTH_STORE, 'user')
 
@@ -320,7 +322,7 @@ onMounted(() => {
               >
                 <MessagesSquare class="size-4" />
                 Чаты
-                <NumberBadge :number="1" />
+                <NumberBadge :number="CHAT_STORE.chats.length" />
 
                 <ChevronDown
                   class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
@@ -330,24 +332,25 @@ onMounted(() => {
                 />
               </button>
 
-              <!-- <div
-                id="boards-accordion-sub-1-collapse-1"
+              <div
+                id="chats-accordion-sub-1-collapse-1"
                 class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300"
                 role="region"
-                aria-labelledby="boards-accordion"
+                aria-labelledby="chats-accordion"
               >
                 <ul
                   class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
                 >
                   <SidebarItem
-                    :item="{
-                      id: '3',
-                      name: 'Удали задачу с названием Сделать домашку по математике',
-                    }"
+                    v-for="chat in CHAT_STORE.chats"
+                    :key="chat.id"
+                    :item="chat"
+                    @select="CHAT_STORE.selectChat(chat, true)"
+                    :selected="chat.id === CHAT_STORE.activeChatId"
                     type="chat"
                   />
                 </ul>
-              </div> -->
+              </div>
             </li>
 
             <li class="hs-accordion" id="users-accordion">

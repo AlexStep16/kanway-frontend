@@ -5,9 +5,10 @@ import WorkspaceModel from '@models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { computed, Ref } from 'vue'
+import ChatModel from '@/models/ChatModel'
 
 export function useGetters(
-  item: Ref<WorkspaceModel | BoardModel | CategoryModel>,
+  item: Ref<WorkspaceModel | BoardModel | CategoryModel | ChatModel>,
   type: Ref<string>,
 ) {
   const BOARD_STORE = useBoardDataStore()

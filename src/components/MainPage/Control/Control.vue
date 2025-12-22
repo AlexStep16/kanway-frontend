@@ -91,7 +91,7 @@ onMounted(() => {
     </div>
 
     <!-- Tab Content -->
-    <div class="px-4 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-6 lg:px-8 tab-content">
       <div
         data-aos="fade"
         data-aos-duration="1000"

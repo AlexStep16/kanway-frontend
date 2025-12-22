@@ -1,5 +1,19 @@
 <script setup lang="ts">
 import { Mic, SendHorizontal } from 'lucide-vue-next'
+import { ref } from 'vue'
+
+const message = ref<string>('')
+
+const emit = defineEmits<{
+  (e: 'send', message: string): void
+}>()
+
+function sendChatMessage() {
+  if (message.value.trim() !== '') {
+    emit('send', message.value.trim())
+    message.value = ''
+  }
+}
 </script>
 
 <template>
@@ -14,6 +28,7 @@ import { Mic, SendHorizontal } from 'lucide-vue-next'
             "defaultHeight": "auto"
           }'
           rows="1"
+          v-model="message"
         ></textarea>
       </div>
       <div class="flex shrink-0 items-center gap-x-2">
@@ -25,6 +40,7 @@ import { Mic, SendHorizontal } from 'lucide-vue-next'
         </button>
         <button
           class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
+          @click="sendChatMessage()"
         >
           <span class="hidden sm:inline">Отправить</span>
           <SendHorizontal class="size-4" />

@@ -34,12 +34,10 @@ import {
       </div>
     </div>
 
-    <div
-      class="max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-10 pb-16 md:pb-24 lg:pt-14 mx-auto icon-grid-block"
-    >
+    <div class="max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-10 pb-16 md:pb-24 lg:pt-14 mx-auto">
       <!-- Grid -->
       <div
-        class="grid grid-cols-[repeat(1,minmax(200px,500px))] justify-center md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6"
+        class="grid grid-cols-[repeat(1,minmax(200px,500px))] justify-center md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 icon-grid-block"
       >
         <!-- Icon Block -->
         <div

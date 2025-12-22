@@ -4,10 +4,12 @@ import WorkspaceModel from '@/models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useData } from 'vike-vue/useData'
 import { Nullable } from '@/types/utils'
+import { useChatStore } from './chat'
 
 export const useRootStore = defineStore('root', () => {
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const BOARD_STORE = useBoardDataStore()
+  const CHAT_STORE = useChatStore()
 
   async function updateWorkspaceFromRoute() {
     let selectedWorkspace: Nullable<WorkspaceModel> = null
@@ -29,8 +31,7 @@ export const useRootStore = defineStore('root', () => {
 
     if (selectedWorkspace) {
       await BOARD_STORE.loadBoards(selectedWorkspace.id)
-
-      //await CHAT_STORE.getChats(selectedWorkspace.id)
+      await CHAT_STORE.loadChats(selectedWorkspace.id)
 
       await WORKSPACE_STORE.selectWorkspace(selectedWorkspace, false, false)
     } else {

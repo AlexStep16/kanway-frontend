@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import AvatarImage from '@components/Workspace/AvatarImage.vue'
 
 defineProps<{
   text: string
@@ -14,10 +14,8 @@ defineProps<{
           {{ text }}
         </p>
       </div>
-      <div
-        class="size-8 rounded-full bg-green-700 items-center justify-center font-medium hidden sm:inline-flex text-white shrink-0"
-      >
-        A
+      <div class="shrink-0 size-8 rounded-full">
+        <AvatarImage imageClasses="text-sm sm:text-lg" />
       </div>
     </div>
     <div

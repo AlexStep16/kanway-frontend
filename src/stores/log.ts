@@ -8,7 +8,6 @@ import { useBoardDataStore } from '@stores/boardData'
 import { ref } from 'vue'
 import { undoOperation } from '@/services/log'
 import { IWorkspacesWithChildrenResponse } from '@/interfaces/IWorkspacesWithChildrenResponse'
-import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ErrorsMessage } from '@/enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
@@ -51,7 +50,7 @@ export const useLogStore = defineStore('log', () => {
 
   async function _undo(
     id: string,
-  ): Promise<IResponseWithLog<IUndoResponse<Partial<IWorkspacesWithChildrenResponse>>>> {
+  ): Promise<IUndoResponse<Partial<IWorkspacesWithChildrenResponse>>> {
     if (!id) throw new Error('Не указан ID операции для отмены')
 
     _undoError.value.delete(id)
@@ -63,7 +62,7 @@ export const useLogStore = defineStore('log', () => {
 
       const undoResult = await requestQueueService.enqueue(id, coreAction)
 
-      if (isDataEmpty(undoResult.data)) throw new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+      if (isDataEmpty(undoResult)) throw new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
 
       return undoResult
     } catch (e) {
@@ -88,24 +87,24 @@ export const useLogStore = defineStore('log', () => {
     try {
       const undoResult = await _undo(id)
 
-      if (undoResult.data.create) {
-        const data = undoResult.data.create
+      if (undoResult.create) {
+        const data = undoResult.create
 
         BOARD_STORE.integrateBoards(data.boards || [])
         CATEGORY_STORE.integrateCategories(data.categories || [])
         TASK_STORE.integrateTasks(data.tasks || [])
         WORKSPACE_STORE.integrateWorkspaces(data.workspaces || [])
       }
-      if (undoResult.data.update) {
-        const data = undoResult.data.update
+      if (undoResult.update) {
+        const data = undoResult.update
 
         BOARD_STORE.integrateBoards(data.boards || [])
         CATEGORY_STORE.integrateCategories(data.categories || [])
         TASK_STORE.integrateTasks(data.tasks || [])
         WORKSPACE_STORE.integrateWorkspaces(data.workspaces || [])
       }
-      if (undoResult.data.delete) {
-        const data = undoResult.data.delete
+      if (undoResult.delete) {
+        const data = undoResult.delete
 
         BOARD_STORE.deleteFromStore(data.boards?.map((b) => b.id) || [])
         CATEGORY_STORE.deleteFromStore(data.categories?.map((c) => c.id) || [])

@@ -103,6 +103,8 @@ const getTasks = computed(() => {
 watch(
   () => CATEGORY_STORE.categoryToEdit,
   (newCategory) => {
+    if (newCategory && newCategory.id === editableCategory.value?.id) return
+
     const shouldInitialize = newCategory && !editableCategory.value
     categoryUpdatesCounter.value++
 

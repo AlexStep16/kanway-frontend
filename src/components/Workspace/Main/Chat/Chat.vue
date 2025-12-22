@@ -1,100 +1,36 @@
 <script setup lang="ts">
 import { useUIStore } from '@/stores/ui'
-import { X, MessagesSquare } from 'lucide-vue-next'
+import { X, MessagesSquare, Check } from 'lucide-vue-next'
 import UserBubble from '@components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import Confirmation from '@components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
 import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
 import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 import Status from '@components/Workspace/Main/Chat/Bubbles/Status.vue'
-import { computed, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import Task from '@components/Workspace/Main/Task/Task.vue'
 import EntityCard from '@/components/Workspace/Main/EntityCard.vue'
+import { useChatStore } from '@/stores/chat'
+import { useChatMessageStore } from '@/stores/chatMessages'
+import ColumnsView from '@/components/Workspace/Main/ColumnsView.vue'
+import { useAgentStatusStore } from '@stores/agentStatus'
+import Spinner from '@components/Loader/Spinner.vue'
+import dayjs from 'dayjs'
 
 const UI_STORE = useUIStore()
-const numCols = ref(2)
+const CHAT_STORE = useChatStore()
+const CHAT_MESSAGE_STORE = useChatMessageStore()
+const AGENT_STATUS_STORE = useAgentStatusStore()
 
-const tasks = ref([
-  { id: 1, name: 'Задача 1', is_completed: false, tags: ['важно'] },
-  { id: 2, name: 'Задача 2', color: '#FFEEAA', is_completed: false },
-  {
-    id: 3,
-    name: 'Задача 3',
-    color: '#EEAABB',
-    description: 'Описание задачи',
-    due_date: '2025-09-15T14:14:00',
-    is_completed: false,
-    tags: ['отчеты', 'встречи'],
-  },
-  {
-    id: 4,
-    name: 'Задача 4',
-    due_date: '2025-09-16T14:14:00',
-    is_completed: false,
-  },
-  {
-    id: 5,
-    name: 'Задача 3',
-    color: '#EEAABB',
-    due_date: '2025-09-15T14:14:00',
-    is_completed: false,
-    tags: ['отчеты', 'встречи'],
-  },
-  { id: 6, name: 'Задача 1', is_completed: false, tags: ['важно'] },
-  { id: 7, name: 'Задача 2', color: '#FFEEAA', is_completed: false },
-  {
-    id: 8,
-    name: 'Задача 4',
-    due_date: '2025-09-16T14:14:00',
-    is_completed: false,
-  },
-])
+const chatRef = ref<HTMLElement | null>(null)
 
-const categories = ref([
-  { id: 1, name: 'Категория 1' },
-  { id: 2, name: 'Категория 2' },
-  { id: 3, name: 'Категория 3' },
-  { id: 4, name: 'Категория 4' },
-])
-
-const toolStatuses = ['Удаляю категории', 'Создаю задачи', 'Назначаю даты', 'Создаю категории']
-const currentToolStatusesIndex = ref(0)
-const currentToolStatus = computed(() => toolStatuses[currentToolStatusesIndex.value])
-
-setInterval(() => {
-  currentToolStatusesIndex.value = (currentToolStatusesIndex.value + 1) % toolStatuses.length
-}, 3000)
-
-const taskColumns = computed(() => {
-  const result: any = Array.from({ length: numCols.value }, () => [])
-  tasks.value.forEach((task, index) => {
-    result[index % numCols.value].push(task)
-  })
-  return result
-})
-
-const categoryColumns = computed(() => {
-  const result: any = Array.from({ length: numCols.value }, () => [])
-  categories.value.forEach((category, index) => {
-    result[index % numCols.value].push(category)
-  })
-  return result
-})
-
-function updateTaskColumns() {
-  const windowWidth = window.innerWidth
-
-  if (windowWidth <= 640) {
-    numCols.value = 1
-  } else {
-    numCols.value = 2
-  }
+function send(message: string) {
+  CHAT_STORE.sendMessage(message)
 }
 
-onMounted(() => {
-  updateTaskColumns()
-  window.addEventListener('resize', updateTaskColumns)
-})
+function isToolCallApproved(toolCall: any) {
+  return toolCall.isConfirmed || toolCall.isCancelled
+}
 </script>
 
 <template>
@@ -115,10 +51,12 @@ onMounted(() => {
         class="flex flex-col size-full max-w-4xl max-h-160 bg-white rounded-md pointer-events-auto px-4 py-3 overflow-auto"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center gap-x-2 pb-1 border-b border-gray-200">
+        <div class="flex justify-between items-center gap-x-2 pb-2 border-b border-gray-200">
           <div class="flex items-center justify-center gap-x-2">
             <MessagesSquare class="size-4" />
-            <h5 id="hs-task-edit-label" class="text-sm font-medium text-gray-800">Чат с ИИ</h5>
+            <h5 id="hs-task-edit-label" class="text-sm font-medium text-gray-800">
+              {{ CHAT_STORE.activeChat?.name }}
+            </h5>
           </div>
           <button
             class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"
@@ -132,111 +70,121 @@ onMounted(() => {
         <!-- Body -->
         <div
           class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+          ref="chatRef"
         >
-          <UserBubble
-            text="Привет! Создай задачу сходить в магазин и назначь ей дату 17 июля 2026"
-          />
+          <template v-for="message in CHAT_MESSAGE_STORE.currentChatMessages" :key="message.id">
+            <UserBubble v-if="message.role === 'user'" :text="message.content" />
+            <AIBubble
+              v-else-if="message.role === 'assistant'"
+              :date="
+                dayjs(message.createdAt).calendar() +
+                ' в ' +
+                dayjs(message.createdAt).format('HH:mm')
+              "
+            >
+              <Assistant :text="message.content" />
+            </AIBubble>
+            <template v-else-if="message.role === 'preview'">
+              <AIBubble v-for="content in message.content" :key="content.callId">
+                <Confirmation :text="content.title" />
 
-          <AIBubble :hideBackground="true">
-            <Status :currentToolStatus="currentToolStatus" />
+                <div class="flex gap-2 mt-3">
+                  <ColumnsView :items="content.context" :containerRef="chatRef" :itemWidth="240">
+                    <template v-slot:default="slotProps">
+                      <template v-if="content.entityType === 'task'">
+                        <Task
+                          v-for="task in slotProps.data"
+                          :key="task.id"
+                          :task="task"
+                          :hasBorder="true"
+                          :showInfo="true"
+                          taskClasses="self-start"
+                        />
+                      </template>
+
+                      <template v-else>
+                        <EntityCard
+                          v-for="category in slotProps.data"
+                          :key="category.id"
+                          :name="category.name"
+                          :parentName="category.boardName"
+                          :showInfo="true"
+                        /> </template
+                    ></template>
+                  </ColumnsView>
+                </div>
+
+                <div
+                  class="flex gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200"
+                  v-if="!isToolCallApproved(content)"
+                >
+                  <button
+                    type="button"
+                    class="flex items-center justify-center text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity duration-100 relative"
+                    @click="CHAT_STORE.approveToolCall(content.callId, message.id, 'confirm')"
+                  >
+                    <div
+                      class="flex items-center justify-center absolute"
+                      v-if="CHAT_STORE.isToolCallApproving(content.callId)"
+                    >
+                      <Spinner class="size-4" />
+                    </div>
+                    <span :class="{ 'opacity-0': CHAT_STORE.isToolCallApproving(content.callId) }">
+                      Подтвердить
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 relative"
+                    @click="CHAT_STORE.approveToolCall(content.callId, message.id, 'cancel')"
+                  >
+                    <div
+                      class="flex items-center justify-center absolute"
+                      v-if="CHAT_STORE.isToolCallApproving(content.callId)"
+                    >
+                      <Spinner class="size-4" />
+                    </div>
+                    <span :class="{ 'opacity-0': CHAT_STORE.isToolCallApproving(content.callId) }">
+                      Отменить
+                    </span>
+                  </button>
+                </div>
+
+                <div v-if="content.isConfirmed" class="text-green-600 flex items-center gap-x-2">
+                  <Check class="size-4" />
+                  <span class="text-xs font-medium">Выполнение запланировано.</span>
+                </div>
+                <div v-else-if="content.isCancelled" class="text-red-500 flex items-center gap-x-2">
+                  <Check class="size-4" />
+                  <span class="text-xs font-medium">Выполнение отменено.</span>
+                </div>
+              </AIBubble>
+            </template>
+          </template>
+
+          <AIBubble
+            :hideBackground="true"
+            v-if="AGENT_STATUS_STORE.currentActivity && !AGENT_STATUS_STORE.assistantStream"
+          >
+            <Status :currentToolStatus="AGENT_STATUS_STORE.currentActivity" />
           </AIBubble>
 
           <AIBubble
-            date="18 ноября в 15:00"
+            :date="dayjs().calendar()"
             :fastQuestions="[
               'Добавь хлеб, молоко в описание',
               'Добавь ей тег покупки',
               'Перенеси на завтра',
             ]"
+            v-else-if="AGENT_STATUS_STORE.assistantStream"
           >
-            <Assistant
-              text="Привет! Конечно! Я создал задачу 'Сходить в магазин' и назначил ей дату на 17 июля 2026
-          года. Если тебе нужно что-то еще, просто скажи!"
-            />
-          </AIBubble>
-
-          <UserBubble
-            text="Давай изменим цвет на синий и переместим в категорию Срочно все задачи с тегом 'Покупки'"
-          />
-
-          <AIBubble :hideAvatar="true">
-            <Confirmation text="Следующим задачам будут присвоены значения:" />
-
-            <div class="flex gap-2 mt-3">
-              <div
-                v-for="(columnTasks, colIndex) in taskColumns"
-                :key="colIndex"
-                class="flex flex-col gap-2"
-              >
-                <Task
-                  v-for="task in columnTasks"
-                  :key="task.id"
-                  :task="task"
-                  :hasBorder="true"
-                  :hasCheckbox="true"
-                  :showInfo="true"
-                  taskClasses="self-start"
-                ></Task>
-              </div>
-            </div>
-
-            <div class="flex gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200">
-              <button
-                type="button"
-                class="text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity duration-100"
-              >
-                Подтвердить
-              </button>
-
-              <button
-                type="button"
-                class="text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100"
-              >
-                Отклонить
-              </button>
-            </div>
-          </AIBubble>
-
-          <AIBubble
-            date="18 ноября в 15:00"
-            :fastQuestions="['Создать задачу', 'Запланировать встречу', 'Показать отчёт']"
-          >
-            <Assistant text="Следующие категории будут удалены:" />
-
-            <div class="flex gap-2 mt-3">
-              <div
-                v-for="(columnCategories, colIndex) in categoryColumns"
-                :key="colIndex"
-                class="flex flex-col gap-2"
-              >
-                <EntityCard
-                  v-for="category in columnCategories"
-                  :key="category.id"
-                  :name="category.name"
-                  :showInfo="true"
-                ></EntityCard>
-              </div>
-            </div>
-
-            <div class="flex gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200">
-              <button
-                type="button"
-                class="text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity duration-100"
-              >
-                Подтвердить
-              </button>
-
-              <button
-                type="button"
-                class="text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100"
-              >
-                Отклонить
-              </button>
-            </div>
+            <Assistant :text="AGENT_STATUS_STORE.assistantStream" />
           </AIBubble>
         </div>
+
         <!-- Footer -->
-        <AIInput :no-input-margin="true" />
+        <AIInput @send="send" :no-input-margin="true" />
       </div>
     </div>
   </div>

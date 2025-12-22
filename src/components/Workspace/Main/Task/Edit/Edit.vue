@@ -245,6 +245,8 @@ watch(
 watch(
   () => TASK_STORE.taskToEdit,
   (newTask) => {
+    if (newTask && newTask.id === editableTask.value?.id) return
+
     const shouldInitialize = newTask && !editableTask.value
     taskUpdatesCounter.value += 1
 

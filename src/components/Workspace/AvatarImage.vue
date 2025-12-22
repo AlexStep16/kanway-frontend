@@ -41,7 +41,7 @@ const getUsernameFirstLetter = computed(() => {
       backgroundPosition: 'center',
     }"
     alt="Аватар"
-    v-if="AUTH_STORE.user?.avatarUrl"
+    v-if="user?.avatarUrl"
   />
 
   <div

@@ -15,7 +15,7 @@ defineProps<{
         :key="status"
       >
         <Spinner class="size-4" />
-        <span class="text-sm text-gray-700">{{ currentToolStatus }}...</span>
+        <span class="text-sm text-gray-600">{{ currentToolStatus }}...</span>
       </div>
     </TransitionGroup>
   </div>

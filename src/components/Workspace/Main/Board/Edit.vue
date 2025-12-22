@@ -98,6 +98,8 @@ const getCategories = computed(() => {
 watch(
   () => BOARD_STORE.boardToEdit,
   (newBoard) => {
+    if (newBoard && newBoard.id === editableBoard.value?.id) return
+
     const shouldInitialize = newBoard && !editableBoard.value
     boardUpdatesCounter.value++
 

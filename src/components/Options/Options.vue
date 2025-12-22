@@ -20,6 +20,7 @@ import TransferForm from './TransferForm.vue'
 import { Nullable } from '@/types/utils'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useBoardDataStore } from '@stores/boardData'
+import ChatModel from '@/models/ChatModel'
 
 const props = defineProps<{
   options: {
@@ -29,7 +30,7 @@ const props = defineProps<{
     favorite: boolean
     archive: boolean
   }
-  item: WorkspaceModel | BoardModel | CategoryModel
+  item: WorkspaceModel | BoardModel | CategoryModel | ChatModel
   group_name: string
   edit_type: 'board' | 'workspace' | 'chat' | 'category'
   resetForm?: () => void
