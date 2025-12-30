@@ -87,7 +87,6 @@ const getBoards = computed(() => {
 
   if (editableWorkspace.value.isDeleted)
     return BOARD_STORE.getAllBoardsByWorkspaceId(editableWorkspace.value.id)
-  console.log(BOARD_STORE.getBoardsByWorkspaceId(editableWorkspace.value.id))
   return BOARD_STORE.getBoardsByWorkspaceId(editableWorkspace.value.id)
 })
 

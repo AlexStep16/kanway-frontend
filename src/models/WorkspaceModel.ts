@@ -8,6 +8,7 @@ export default class WorkspaceModel implements IWorkspace {
   public isFavorite: boolean
   public order: number
   public color: AvailableColors
+  public colorName: string
   public isDeleted: boolean
   public deletedTime?: Date
   public createdAt: Date
@@ -20,6 +21,7 @@ export default class WorkspaceModel implements IWorkspace {
     this.isFavorite = props.isFavorite
     this.order = props.order
     this.color = props.color
+    this.colorName = props.colorName
     this.isDeleted = props.isDeleted
     this.deletedTime = props.deletedTime
     this.createdAt = props.createdAt

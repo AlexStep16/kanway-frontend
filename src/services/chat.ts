@@ -5,11 +5,13 @@ import {
   cloneChatApi,
   sendMessageApi,
   approveToolCallApi,
+  retryApi,
 } from '@api/chats'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import ChatModel from '@/models/ChatModel'
 import { SendMessagePayload } from '@/interfaces/SendMessagePayload'
 import { ApproveToolCall } from '@/interfaces/ApproveToolCall'
+import { RetryAgentPayload } from '@/interfaces/RetryAgentPayload'
 
 export function transformChat(raw: IChat): ChatModel {
   return new ChatModel({
@@ -21,6 +23,12 @@ export function transformChat(raw: IChat): ChatModel {
 
 export async function sendMessage(workspaceId: string, payload: SendMessagePayload) {
   const result = sendMessageApi(workspaceId, payload)
+
+  return result
+}
+
+export async function retryAgent(data: RetryAgentPayload, workspaceId: string) {
+  const result = await retryApi(data, workspaceId)
 
   return result
 }

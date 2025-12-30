@@ -8,6 +8,7 @@ import {
   fetchChats,
   sendMessage as sendMessageService,
   approveToolCall as approveToolCallService,
+  retryAgent as retryAgentService,
 } from '@services/chat'
 import ChatModel from '@models/ChatModel'
 import { useBoardDataStore } from '@stores/boardData'
@@ -17,6 +18,7 @@ import { useUIStore } from '@stores/ui'
 import { useChatMessageStore } from '@stores/chatMessages'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { ApproveToolCall } from '@/interfaces/ApproveToolCall'
+import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 
 type ChatErrorType = Nullable<BackendError | HttpError>
 
@@ -34,6 +36,7 @@ export const useChatStore = defineStore('chat', () => {
   const loadChatsError = ref<ChatErrorType>(null)
   const startChatError = ref<ChatErrorType>(null)
   const sendMessageError = ref<ChatErrorType>(null)
+  const retryAgentError = ref<ChatErrorType>(null)
   const _approveToolCallsError = ref<Map<string, ChatErrorType>>(new Map())
 
   //Loading
@@ -41,6 +44,7 @@ export const useChatStore = defineStore('chat', () => {
   const _loadedWorkspaces = ref<Set<string>>(new Set())
   const _isChatStarting = ref<boolean>(false)
   const _isMessageSending = ref<boolean>(false)
+  const _isAgentRetrying = ref<boolean>(false)
   const _approvingTools = ref<Set<string>>(new Set())
 
   async function loadChats(workspaceId: string, force_reload: boolean = false) {
@@ -112,7 +116,7 @@ export const useChatStore = defineStore('chat', () => {
         workspaceId,
       })
 
-      chats.value.push(sendResult.chat)
+      chats.value.unshift(sendResult.chat)
       CHAT_MESSAGE_STORE.addChatMessages(sendResult.chatMessages)
 
       activeChatId.value = sendResult.chat.id
@@ -178,6 +182,49 @@ export const useChatStore = defineStore('chat', () => {
       return false
     } finally {
       _isMessageSending.value = false
+    }
+  }
+
+  async function retryAgent(chatMessage: IChatMessage) {
+    if (isMessageSending.value) return
+    if (!activeChat.value || !activeChat.value.threadId) return
+    if (!WORKSPACE_STORE.activeWorkspace) return
+
+    try {
+      _isAgentRetrying.value = true
+      retryAgentError.value = null
+
+      const retryResult = await retryAgentService(
+        {
+          chatId: chatMessage.chatId,
+          threadId: chatMessage.threadId,
+          boardId: BOARD_STORE.getActiveBoard?.id || '',
+          workspaceId: WORKSPACE_STORE.activeWorkspace.id,
+          timezone: dayjs.tz.guess(),
+        },
+        WORKSPACE_STORE.activeWorkspace.id,
+      )
+
+      CHAT_MESSAGE_STORE.removeChatMessageFromStore(chatMessage.id)
+
+      AGENT_STATUS_STORE.connectSSE(retryResult.jobId)
+    } catch (e) {
+      if (e instanceof BackendError) {
+        retryAgentError.value = e
+      } else if (e instanceof HttpError) {
+        retryAgentError.value = e
+
+        if (e.status === 401) {
+        }
+      } else {
+        retryAgentError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+      }
+
+      toast.error(retryAgentError.value.message)
+
+      return false
+    } finally {
+      _isAgentRetrying.value = false
     }
   }
 
@@ -273,5 +320,6 @@ export const useChatStore = defineStore('chat', () => {
     sendMessage,
     approveToolCall,
     selectChat,
+    retryAgent,
   }
 })

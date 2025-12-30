@@ -84,6 +84,9 @@ function closeWorkspacesDropdown() {
     workspaceDropdownInstance.value.close()
   }
 }
+function isChatActive(chat: any) {
+  return CHAT_STORE.activeChatId === chat.id && UI_STORE.isChatModalOpen
+}
 
 onMounted(() => {
   if (workspaceDropdown.value && workspaceDropdown.value instanceof HTMLElement) {
@@ -272,10 +275,7 @@ onMounted(() => {
                 aria-labelledby="boards-accordion"
               >
                 <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')" />
-                <ul
-                  class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
-                  v-else
-                >
+                <ul class="my-1 relative ps-2.5 space-y-1" v-else>
                   <SidebarItem
                     v-for="board in BOARD_STORE.getActiveWorkspaceBoards"
                     :key="board.id"
@@ -338,15 +338,13 @@ onMounted(() => {
                 role="region"
                 aria-labelledby="chats-accordion"
               >
-                <ul
-                  class="my-1 relative ps-2.5 ms-4.5 space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
-                >
+                <ul class="my-1 relative ps-2.5 space-y-1">
                   <SidebarItem
                     v-for="chat in CHAT_STORE.chats"
                     :key="chat.id"
                     :item="chat"
                     @select="CHAT_STORE.selectChat(chat, true)"
-                    :selected="chat.id === CHAT_STORE.activeChatId"
+                    :selected="isChatActive(chat)"
                     type="chat"
                   />
                 </ul>
@@ -372,20 +370,21 @@ onMounted(() => {
               </button>
 
               <div
-                id="users-accordion-collapse-1"
+                id="favorite-accordion"
                 class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
                 role="region"
-                aria-labelledby="users-accordion"
+                aria-labelledby="favorite-accordion"
               >
                 <ul
-                  class="hs-accordion-group my-1 ps-2.5 ms-4.5 relative space-y-1 before:content-[''] before:block before:absolute before:top-0 before:-left-[1px] before:border-l-2 before:h-full before:border-gray-200"
+                  class="hs-accordion-group my-1 ps-2.5 relative space-y-1"
+                  data-hs-accordion-always-open
                 >
-                  <li class="hs-accordion" id="users-accordion-sub-1">
+                  <li class="hs-accordion" id="favorite-accordion-workspaces">
                     <button
                       type="button"
                       class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                       aria-expanded="true"
-                      aria-controls="users-accordion-sub-1-collapse-1"
+                      aria-controls="favorite-accordion-workspaces-sub-1"
                     >
                       Пространства
                       <NumberBadge :number="WORKSPACE_STORE.getFavoriteWorkspaces.length" />
@@ -401,10 +400,10 @@ onMounted(() => {
                     </button>
 
                     <div
-                      id="users-accordion-sub-1-collapse-1"
+                      id="favorite-workspaces-accordion"
                       class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
                       role="region"
-                      aria-labelledby="users-accordion-sub-1"
+                      aria-labelledby="favorite-accordion-workspaces-sub-1"
                     >
                       <ul
                         class="pt-1 ps-2 space-y-1"
@@ -443,12 +442,12 @@ onMounted(() => {
                     </div>
                   </li>
 
-                  <li class="hs-accordion" id="users-accordion-sub-2">
+                  <li class="hs-accordion" id="favorite-accordion-boards">
                     <button
                       type="button"
                       class="hs-accordion-toggle w-full text-start flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
                       aria-expanded="true"
-                      aria-controls="users-accordion-sub-2-collapse-1"
+                      aria-controls="favorite-accordion-boards-sub-1"
                     >
                       Доски
                       <NumberBadgeSkeleton
@@ -470,10 +469,10 @@ onMounted(() => {
                     </button>
 
                     <div
-                      id="users-accordion-sub-2-collapse-1"
+                      id="favorite-accordion-boards-sub-1"
                       class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
                       role="region"
-                      aria-labelledby="users-accordion-sub-2"
+                      aria-labelledby="favorite-accordion-boards-sub-1"
                     >
                       <BoardsSkeleton
                         v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"

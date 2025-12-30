@@ -4,9 +4,9 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { ErrorsMessage } from '@/enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
-import ChatMessageModel from '@models/ChatMessageModel'
 import { fetchChatMessages } from '@/services/chatMessage'
 import { useChatStore } from '@stores/chat'
+import ChatMessageModel from '@/models/ChatMessageModel'
 
 type ChatMessageErrorType = Nullable<BackendError | HttpError>
 
@@ -72,6 +72,10 @@ export const useChatMessageStore = defineStore('chatMessage', () => {
     }
   }
 
+  function removeChatMessageFromStore(messageId: string) {
+    messages.value = messages.value.filter((m) => m.id !== messageId)
+  }
+
   function deleteFromStore(messageIds: string[]) {
     messages.value = messages.value.filter((m) => !messageIds.includes(m.id))
   }
@@ -103,5 +107,6 @@ export const useChatMessageStore = defineStore('chatMessage', () => {
     addChatMessages,
     updateChatMessageInStore,
     deleteFromStore,
+    removeChatMessageFromStore,
   }
 })

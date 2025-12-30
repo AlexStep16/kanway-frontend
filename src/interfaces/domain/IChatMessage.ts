@@ -1,7 +1,10 @@
+import { IChatMessageRoles } from '@interfaces/IChatMessageRoles'
+
 export interface IChatMessage {
   id: string
-  role: 'user' | 'assistant' | 'preview'
+  role: IChatMessageRoles
   content: any
+  listType?: string
   userId: string
   chatId: string
   threadId: string

@@ -21,10 +21,14 @@ const BOARD_STORE = useBoardDataStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
 const CHAT_STORE = useChatStore()
 
-function startChat() {
+async function startChat() {
   if (!WORKSPACE_STORE.activeWorkspace || !BOARD_STORE.activeBoard) return
 
-  CHAT_STORE.startChat(WORKSPACE_STORE.activeWorkspace.id, aiInput.value)
+  const startResult = await CHAT_STORE.startChat(WORKSPACE_STORE.activeWorkspace.id, aiInput.value)
+
+  if (startResult !== false) {
+    aiInput.value = ''
+  }
 }
 
 setInterval(() => {

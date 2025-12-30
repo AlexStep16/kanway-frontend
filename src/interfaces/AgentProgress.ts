@@ -34,3 +34,10 @@ export type AgentProgress =
       role: AgentRolesEnum.NEW_MESSAGE
       message: ChatMessageModel
     }
+  | {
+      role: AgentRolesEnum.LIST_ENTITIES
+      content: {
+        entities: any[]
+        type: string
+      }
+    }

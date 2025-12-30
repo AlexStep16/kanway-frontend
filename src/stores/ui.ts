@@ -41,6 +41,7 @@ export const useUIStore = defineStore('ui', () => {
   const CATEGORY_STORE = useCategoryDataStore()
 
   const isSidebarOpen = ref(true)
+  const isChatModalOpen = ref(false)
 
   function watchForBackdropClicks(
     newVal: Nullable<HTMLElement>,
@@ -290,6 +291,7 @@ export const useUIStore = defineStore('ui', () => {
     modalStack,
     isModalOnTop,
     isArchiveLoading,
+    isChatModalOpen,
 
     // Actions
     openEditTaskModal,

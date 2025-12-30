@@ -1,23 +1,17 @@
 <script setup lang="ts">
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import { useTaskDataStore } from '@stores/taskData'
-import dayjs from 'dayjs'
 import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
 import { computed, nextTick, ref, watch } from 'vue'
 import { getTimeInReadableFormat } from '@utils/date'
 import Spinner from '@/components/Loader/Spinner.vue'
+import { getTimeStatus } from '@/helpers/getTimeStatus'
+import { TimeStatus } from '@/enums/TimeStatus'
 
 const emit = defineEmits<{
   (e: 'updateTask', payload: { id: string; isCompleted: boolean }): void
   (e: 'connectInputEditRef', el: HTMLInputElement): void
 }>()
-
-enum TimeStatus {
-  EXPIRED = 0,
-  EXPIRING = 1,
-  PROGRESS = 2,
-  COMPLETED = 3,
-}
 
 const props = defineProps<{
   task: ITaskState
@@ -46,32 +40,6 @@ function toggleTaskCompletion() {
     props.task.boardId,
     true,
   )
-}
-
-function getTimeStatus(
-  dueDate: string,
-  isCompleted: boolean,
-  dueHours?: number,
-  dueMinutes?: number,
-): TimeStatus {
-  if (isCompleted) return TimeStatus.COMPLETED
-
-  let validTime = new Date()
-
-  const date =
-    dueHours !== undefined && dueMinutes !== undefined
-      ? dayjs(dueDate).hour(dueHours).minute(dueMinutes).toDate()
-      : dayjs(dueDate).startOf('day').toDate()
-
-  if (typeof date === 'string') validTime = dayjs(date).toDate()
-  else if (date instanceof Date) validTime = date
-
-  if (validTime < new Date()) return TimeStatus.EXPIRED
-  if (validTime >= new Date() && validTime <= dayjs(new Date()).add(2, 'days').toDate())
-    return TimeStatus.EXPIRING
-  else if (validTime >= new Date()) return TimeStatus.PROGRESS
-
-  return TimeStatus.PROGRESS
 }
 
 function edit(task: ITaskState) {
@@ -303,13 +271,17 @@ const isTaskArchiving = computed(() => {
         class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm py-1 px-2"
         :class="{
           'bg-red-100 text-red-400':
-            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.EXPIRED,
+            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
+            TimeStatus.EXPIRED,
           'bg-yellow-100 text-yellow-500':
-            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.EXPIRING,
+            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
+            TimeStatus.EXPIRING,
           'bg-gray-100 text-gray-500':
-            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.PROGRESS,
+            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
+            TimeStatus.PROGRESS,
           'bg-green-100 text-green-500':
-            getTimeStatus(task.dueDate, task.isCompleted) === TimeStatus.COMPLETED,
+            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
+            TimeStatus.COMPLETED,
         }"
       >
         <Clock class="size-4" />

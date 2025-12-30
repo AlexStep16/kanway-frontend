@@ -23,6 +23,7 @@ const CHAT_MESSAGE_STORE = useChatMessageStore()
 const AGENT_STATUS_STORE = useAgentStatusStore()
 
 const chatRef = ref<HTMLElement | null>(null)
+const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
 
 function send(message: string) {
   CHAT_STORE.sendMessage(message)
@@ -30,6 +31,25 @@ function send(message: string) {
 
 function isToolCallApproved(toolCall: any) {
   return toolCall.isConfirmed || toolCall.isCancelled
+}
+
+function getListTitle(listType: string) {
+  switch (listType) {
+    case 'task':
+      return 'задачи'
+    case 'category':
+      return 'категории'
+    case 'board':
+      return 'доски'
+    case 'workspace':
+      return 'пространства'
+    default:
+      return 'элементы'
+  }
+}
+
+const getFormattedDate = (date: Date) => {
+  return dayjs(date).calendar() + ' в ' + dayjs(date).format('HH:mm')
 }
 </script>
 
@@ -73,23 +93,86 @@ function isToolCallApproved(toolCall: any) {
           ref="chatRef"
         >
           <template v-for="message in CHAT_MESSAGE_STORE.currentChatMessages" :key="message.id">
-            <UserBubble v-if="message.role === 'user'" :text="message.content" />
+            <UserBubble
+              v-if="message.role === 'user'"
+              :text="message.content"
+              :date="getFormattedDate(message.createdAt)"
+            />
             <AIBubble
-              v-else-if="message.role === 'assistant'"
-              :date="
-                dayjs(message.createdAt).calendar() +
-                ' в ' +
-                dayjs(message.createdAt).format('HH:mm')
-              "
+              v-else-if="['assistant', 'error'].includes(message.role)"
+              :date="getFormattedDate(message.createdAt)"
+              :isError="message.role === 'error'"
+              @tryAgain="CHAT_STORE.retryAgent(message)"
             >
               <Assistant :text="message.content" />
             </AIBubble>
-            <template v-else-if="message.role === 'preview'">
-              <AIBubble v-for="content in message.content" :key="content.callId">
-                <Confirmation :text="content.title" />
 
-                <div class="flex gap-2 mt-3">
-                  <ColumnsView :items="content.context" :containerRef="chatRef" :itemWidth="240">
+            <template v-else-if="message.role === 'list_entities'">
+              <AIBubble :hideAvatar="true" :isContentFullWidth="true">
+                <Assistant
+                  :text="'Вот ' + getListTitle(message.listType || '') + ' по вашему запросу:'"
+                />
+
+                <div
+                  class="flex gap-2 mt-3 w-full"
+                  :ref="
+                    (el) => {
+                      messagesContainerRefMap[message.id] = el as HTMLElement
+                    }
+                  "
+                >
+                  <ColumnsView
+                    :items="message.content"
+                    :containerRef="messagesContainerRefMap[message.id]"
+                    v-if="message.content"
+                  >
+                    <template v-slot:default="slotProps">
+                      <template v-if="message.listType === 'task'">
+                        <Task
+                          v-for="task in slotProps.data"
+                          :key="task.id"
+                          :task="task"
+                          :hasBorder="true"
+                          :showInfo="true"
+                          taskClasses="self-start"
+                        />
+                      </template>
+
+                      <template v-else>
+                        <EntityCard
+                          v-for="category in slotProps.data"
+                          :key="category.id"
+                          :name="category.name"
+                          :parentName="category.boardName"
+                          :showInfo="true"
+                        /> </template
+                    ></template>
+                  </ColumnsView>
+                </div>
+              </AIBubble>
+            </template>
+
+            <template v-else-if="message.role === 'preview'">
+              <AIBubble
+                v-for="content in message.content"
+                :key="content.callId"
+                :isContentFullWidth="true"
+              >
+                <Confirmation :text="content.title" :changes="content.args.changes" />
+
+                <div
+                  class="flex gap-2 mt-3 w-full"
+                  :ref="
+                    (el) => {
+                      messagesContainerRefMap[message.id] = el as HTMLElement
+                    }
+                  "
+                >
+                  <ColumnsView
+                    :items="content.context"
+                    :containerRef="messagesContainerRefMap[message.id]"
+                    v-if="content.context"
+                  >
                     <template v-slot:default="slotProps">
                       <template v-if="content.entityType === 'task'">
                         <Task
@@ -172,11 +255,7 @@ function isToolCallApproved(toolCall: any) {
 
           <AIBubble
             :date="dayjs().calendar()"
-            :fastQuestions="[
-              'Добавь хлеб, молоко в описание',
-              'Добавь ей тег покупки',
-              'Перенеси на завтра',
-            ]"
+            :fastQuestions="[]"
             v-else-if="AGENT_STATUS_STORE.assistantStream"
           >
             <Assistant :text="AGENT_STATUS_STORE.assistantStream" />

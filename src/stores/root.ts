@@ -4,11 +4,17 @@ import WorkspaceModel from '@/models/WorkspaceModel'
 import { useBoardDataStore } from '@stores/boardData'
 import { useData } from 'vike-vue/useData'
 import { Nullable } from '@/types/utils'
-import { useChatStore } from './chat'
+import { useChatStore } from '@stores/chat'
+import { IUndoResponse } from '@/interfaces/IUndoResponse'
+import { IWorkspacesWithChildrenResponse } from '@/interfaces/IWorkspacesWithChildrenResponse'
+import { useCategoryDataStore } from '@stores/categoryData'
+import { useTaskDataStore } from '@stores/taskData'
 
 export const useRootStore = defineStore('root', () => {
   const WORKSPACE_STORE = useWorkspaceDataStore()
   const BOARD_STORE = useBoardDataStore()
+  const CATEGORY_STORE = useCategoryDataStore()
+  const TASK_STORE = useTaskDataStore()
   const CHAT_STORE = useChatStore()
 
   async function updateWorkspaceFromRoute() {
@@ -73,11 +79,39 @@ export const useRootStore = defineStore('root', () => {
     }
   }
 
+  function integrateEntities(result: IUndoResponse<Partial<IWorkspacesWithChildrenResponse>>) {
+    if (result.create) {
+      const data = result.create
+
+      BOARD_STORE.integrateBoards(data.boards || [])
+      CATEGORY_STORE.integrateCategories(data.categories || [])
+      TASK_STORE.integrateTasks(data.tasks || [])
+      WORKSPACE_STORE.integrateWorkspaces(data.workspaces || [])
+    }
+    if (result.update) {
+      const data = result.update
+
+      BOARD_STORE.integrateBoards(data.boards || [])
+      CATEGORY_STORE.integrateCategories(data.categories || [])
+      TASK_STORE.integrateTasks(data.tasks || [])
+      WORKSPACE_STORE.integrateWorkspaces(data.workspaces || [])
+    }
+    if (result.delete) {
+      const data = result.delete
+
+      BOARD_STORE.deleteFromStore(data.boards?.map((b) => b.id) || [])
+      CATEGORY_STORE.deleteFromStore(data.categories?.map((c) => c.id) || [])
+      TASK_STORE.deleteFromStore(data.tasks?.map((t) => t.id) || [])
+      WORKSPACE_STORE.deleteFromStore(data.workspaces?.map((w) => w.id) || [])
+    }
+  }
+
   function $reset() {}
 
   return {
     // Actions
     updateWorkspaceFromRoute,
+    integrateEntities,
     $reset,
   }
 })

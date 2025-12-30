@@ -57,6 +57,14 @@ function initSettingsModal() {
 function initChatModal() {
   if (UI_STORE.chatModalRef) {
     UI_STORE.chatModalHSInstance = new HSOverlay(UI_STORE.chatModalRef)
+
+    UI_STORE.chatModalHSInstance.on('close', () => {
+      UI_STORE.isChatModalOpen = false
+    })
+
+    UI_STORE.chatModalHSInstance.on('open', () => {
+      UI_STORE.isChatModalOpen = true
+    })
   }
 }
 

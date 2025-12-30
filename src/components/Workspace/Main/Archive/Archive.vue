@@ -75,7 +75,7 @@ const isArchiveEmpty = computed(() => {
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </TitleWithBadge>
 
-      <ColumnsView :items="tasks" :containerRef="tasksContainerRef" :itemWidth="240">
+      <ColumnsView :items="tasks" :containerRef="tasksContainerRef">
         <template v-slot:default="slotProps">
           <Task
             v-for="task in slotProps.data"
@@ -103,7 +103,7 @@ const isArchiveEmpty = computed(() => {
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </TitleWithBadge>
 
-      <ColumnsView :items="categories" :containerRef="categoryContainerRef" :itemWidth="240">
+      <ColumnsView :items="categories" :containerRef="categoryContainerRef">
         <template v-slot:default="slotProps">
           <EntityCard
             v-for="category in slotProps.data"
@@ -127,7 +127,7 @@ const isArchiveEmpty = computed(() => {
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </TitleWithBadge>
 
-      <ColumnsView :items="boards" :containerRef="boardContainerRef" :itemWidth="240">
+      <ColumnsView :items="boards" :containerRef="boardContainerRef">
         <template v-slot:default="slotProps">
           <EntityCard
             v-for="board in slotProps.data"
@@ -155,7 +155,7 @@ const isArchiveEmpty = computed(() => {
         <div class="w-full h-[.5px] bg-gray-200"></div>
       </TitleWithBadge>
 
-      <ColumnsView :items="workspaces" :containerRef="workspaceContainerRef" :itemWidth="240">
+      <ColumnsView :items="workspaces" :containerRef="workspaceContainerRef">
         <template v-slot:default="slotProps">
           <EntityCard
             v-for="workspace in slotProps.data"

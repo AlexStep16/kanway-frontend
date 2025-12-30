@@ -3,6 +3,7 @@ import AvatarImage from '@components/Workspace/AvatarImage.vue'
 
 defineProps<{
   text: string
+  date: string
 }>()
 </script>
 
@@ -21,7 +22,7 @@ defineProps<{
     <div
       class="flex items-center sm:pe-10 justify-start opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-100 gap-x-1"
     >
-      <span class="text-xs text-gray-500">18 ноября в 15:00</span>
+      <span class="text-xs text-gray-500">{{ date }}</span>
     </div>
   </div>
 </template>

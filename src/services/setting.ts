@@ -22,7 +22,7 @@ export function transformSetting(raw: ISetting): SettingModel {
 export async function fetchSetting(): Promise<SettingModel> {
   const setting = await getSettingApi()
 
-  return transformSetting(setting[0])
+  return transformSetting(setting)
 }
 
 export async function updateSetting(payload: Partial<ISetting>): Promise<ISetting> {

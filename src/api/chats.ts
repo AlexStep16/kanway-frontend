@@ -1,10 +1,11 @@
 import { apiCall } from '@/apiClient'
 import { IChat } from '@interfaces/domain/IChat'
-import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
-import { SendMessagePayload } from '@/interfaces/SendMessagePayload'
-import { SendMessageResponse } from '@/interfaces/SendMessageResponse'
-import { ApproveToolCall } from '@/interfaces/ApproveToolCall'
-import { IChatMessage } from '@/interfaces/domain/IChatMessage'
+import { IResponseWithLog } from '@interfaces/IResponseWithLog'
+import { SendMessagePayload } from '@interfaces/SendMessagePayload'
+import { SendMessageResponse } from '@interfaces/SendMessageResponse'
+import { ApproveToolCall } from '@interfaces/ApproveToolCall'
+import { IChatMessage } from '@interfaces/domain/IChatMessage'
+import { RetryAgentPayload } from '@interfaces/RetryAgentPayload'
 
 export async function getChatsApi(workspaceId: string) {
   return await apiCall<IChat[]>({
@@ -17,6 +18,14 @@ export async function sendMessageApi(workspaceId: string, data: SendMessagePaylo
   return await apiCall<SendMessageResponse>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/chats/send`,
+    data,
+  })
+}
+
+export async function retryApi(data: RetryAgentPayload, workspaceId: string) {
+  return await apiCall<{ jobId: string }>({
+    method: 'POST',
+    url: `/workspaces/${workspaceId}/chats/retry`,
     data,
   })
 }

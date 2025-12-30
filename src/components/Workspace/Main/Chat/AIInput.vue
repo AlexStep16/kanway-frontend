@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAgentStatusStore } from '@stores/agentStatus'
 import { Mic, SendHorizontal } from 'lucide-vue-next'
 import { ref } from 'vue'
 
@@ -7,6 +8,8 @@ const message = ref<string>('')
 const emit = defineEmits<{
   (e: 'send', message: string): void
 }>()
+
+const AGENT_STATUS_STORE = useAgentStatusStore()
 
 function sendChatMessage() {
   if (message.value.trim() !== '') {
@@ -34,12 +37,14 @@ function sendChatMessage() {
       <div class="flex shrink-0 items-center gap-x-2">
         <button
           type="button"
-          class="flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100 size-8 rounded-md"
+          class="flex items-center justify-center text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:pointer-events-none hover:bg-gray-200 transition-colors duration-100 size-8 rounded-md"
+          :disabled="AGENT_STATUS_STORE.isSSEActive()"
         >
           <Mic class="size-5" />
         </button>
         <button
-          class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
+          class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
+          :disabled="AGENT_STATUS_STORE.isSSEActive()"
           @click="sendChatMessage()"
         >
           <span class="hidden sm:inline">Отправить</span>

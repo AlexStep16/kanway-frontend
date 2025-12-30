@@ -1,9 +1,11 @@
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
+import { IChatMessageRoles } from '@interfaces/IChatMessageRoles'
 
 export default class ChatMessageModel implements IChatMessage {
   public id: string
-  public role: 'user' | 'assistant' | 'preview'
+  public role: IChatMessageRoles
   public content: any
+  public listType?: string
   public userId: string
   public chatId: string
   public threadId: string
@@ -14,6 +16,7 @@ export default class ChatMessageModel implements IChatMessage {
     this.id = props.id
     this.role = props.role
     this.content = props.content
+    this.listType = props.listType
     this.userId = props.userId
     this.chatId = props.chatId
     this.threadId = props.threadId

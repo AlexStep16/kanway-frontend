@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { RotateCcw } from 'lucide-vue-next'
+
+defineEmits<{
+  (e: 'tryAgain'): void
+}>()
+
 defineProps<{
-  isLoading?: boolean
+  isError?: boolean
   date?: string
   hideAvatar?: boolean
   hideBackground?: boolean
+  isContentFullWidth?: boolean
   fastQuestions?: string[]
 }>()
 </script>
@@ -16,14 +23,27 @@ defineProps<{
         :class="{ 'bg-[url(/src/assets/logo_circle.svg)] bg-center bg-cover': !hideAvatar }"
       ></div>
       <div
-        class="rounded-lg bg-gray-100 p-3 max-w-[90%] sm:max-w-lg"
+        class="rounded-lg bg-gray-100 p-3"
         :class="{
           'rounded-bl-none': !hideAvatar,
           'bg-transparent inline-flex items-center p-0! ps-2! grow-1': hideBackground,
+          'w-full sm:w-full max-w-[90%] sm:max-w-xl': isContentFullWidth,
+          'max-w-[90%] sm:max-w-lg': !isContentFullWidth,
         }"
       >
         <slot></slot>
       </div>
+    </div>
+
+    <div class="flex flex-wrap items-center sm:ps-10 justify-start gap-1" v-if="isError">
+      <button
+        type="button"
+        class="text-xs flex items-center gap-x-1 rounded-md text-gray-500 py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100"
+        @click="$emit('tryAgain')"
+      >
+        <RotateCcw class="size-3" />
+        <span>Попробовать еще раз</span>
+      </button>
     </div>
 
     <div

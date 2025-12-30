@@ -1,10 +1,6 @@
 import { Nullable } from '@/types/utils'
 import { BackendError, HttpError } from '@/utils/errors'
 import { defineStore } from 'pinia'
-import { useTaskDataStore } from '@stores/taskData'
-import { useCategoryDataStore } from '@stores/categoryData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { useBoardDataStore } from '@stores/boardData'
 import { ref } from 'vue'
 import { undoOperation } from '@/services/log'
 import { IWorkspacesWithChildrenResponse } from '@/interfaces/IWorkspacesWithChildrenResponse'
@@ -12,14 +8,12 @@ import { requestQueueService } from '@/utils/RequestQueueService'
 import { ErrorsMessage } from '@/enums/ErrorsMessage'
 import { toast } from 'vue-sonner'
 import { IUndoResponse } from '@/interfaces/IUndoResponse'
+import { useRootStore } from '@stores/root'
 
 type LogErrorType = Nullable<BackendError | HttpError>
 
 export const useLogStore = defineStore('log', () => {
-  const BOARD_STORE = useBoardDataStore()
-  const WORKSPACE_STORE = useWorkspaceDataStore()
-  const CATEGORY_STORE = useCategoryDataStore()
-  const TASK_STORE = useTaskDataStore()
+  const ROOT_STORE = useRootStore()
 
   // Errors
   const _undoError = ref<Map<string, LogErrorType>>(new Map())
@@ -87,30 +81,7 @@ export const useLogStore = defineStore('log', () => {
     try {
       const undoResult = await _undo(id)
 
-      if (undoResult.create) {
-        const data = undoResult.create
-
-        BOARD_STORE.integrateBoards(data.boards || [])
-        CATEGORY_STORE.integrateCategories(data.categories || [])
-        TASK_STORE.integrateTasks(data.tasks || [])
-        WORKSPACE_STORE.integrateWorkspaces(data.workspaces || [])
-      }
-      if (undoResult.update) {
-        const data = undoResult.update
-
-        BOARD_STORE.integrateBoards(data.boards || [])
-        CATEGORY_STORE.integrateCategories(data.categories || [])
-        TASK_STORE.integrateTasks(data.tasks || [])
-        WORKSPACE_STORE.integrateWorkspaces(data.workspaces || [])
-      }
-      if (undoResult.delete) {
-        const data = undoResult.delete
-
-        BOARD_STORE.deleteFromStore(data.boards?.map((b) => b.id) || [])
-        CATEGORY_STORE.deleteFromStore(data.categories?.map((c) => c.id) || [])
-        TASK_STORE.deleteFromStore(data.tasks?.map((t) => t.id) || [])
-        WORKSPACE_STORE.deleteFromStore(data.workspaces?.map((w) => w.id) || [])
-      }
+      ROOT_STORE.integrateEntities(undoResult)
 
       toast.success('Операция успешно отменена')
     } catch (e) {

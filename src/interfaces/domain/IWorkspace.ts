@@ -7,6 +7,7 @@ export interface IWorkspace {
   isFavorite: boolean
   order: number
   color: AvailableColors
+  colorName: string
   isDeleted: boolean
   deletedTime?: Date
   createdAt: Date
