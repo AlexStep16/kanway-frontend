@@ -72,6 +72,10 @@ export const useChatMessageStore = defineStore('chatMessage', () => {
     }
   }
 
+  function getLastMessageInStore(): ChatMessageModel | null {
+    return currentChatMessages.value.at(-1) || null
+  }
+
   function removeChatMessageFromStore(messageId: string) {
     messages.value = messages.value.filter((m) => m.id !== messageId)
   }
@@ -108,5 +112,6 @@ export const useChatMessageStore = defineStore('chatMessage', () => {
     updateChatMessageInStore,
     deleteFromStore,
     removeChatMessageFromStore,
+    getLastMessageInStore,
   }
 })

@@ -1,7 +1,7 @@
 import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
 import { AgentProgress } from '@/interfaces/AgentProgress'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useChatMessageStore } from '@stores/chatMessages'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useRootStore } from '@stores/root'
@@ -20,6 +20,40 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
   const activeJobId = ref<string | null>(null)
   const currentActivity = ref<string | null>(null)
+  const timeElapsed = ref(0)
+
+  let timerInterval: number | null = null
+
+  // Форматирование времени MM:SS или S.s
+  const formattedTime = computed(() => {
+    const seconds = Math.floor(timeElapsed.value / 1000)
+    const ms = Math.floor((timeElapsed.value % 1000) / 100) // Десятые доли секунды
+
+    if (seconds < 60) {
+      return `${seconds}.${ms}c` // Показывем "4.5s" для динамики
+    }
+
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  })
+
+  const startTimer = () => {
+    const start = Date.now()
+    // Сбрасываем при новом старте
+    timeElapsed.value = 0
+
+    timerInterval = window.setInterval(() => {
+      timeElapsed.value = Date.now() - start
+    }, 100) // Обновляем каждые 100мс для плавности
+  }
+
+  const stopTimer = () => {
+    if (timerInterval) {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+  }
 
   const assistantStream = ref<string>('')
 
@@ -30,6 +64,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     if (eventSource.value) eventSource.value.close()
 
     currentActivity.value = 'Думаю'
+
+    startTimer()
 
     eventSource.value = new EventSource(
       import.meta.env.VITE_SERVER_BASE_URL +
@@ -81,6 +117,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     activeJobId.value = null
     assistantStream.value = ''
     currentActivity.value = null
+
+    stopTimer()
   }
 
   function isSSEActive() {
@@ -91,6 +129,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     activeJobId,
     currentActivity,
     assistantStream,
+    formattedTime,
 
     connectSSE,
     isSSEActive,

@@ -138,15 +138,34 @@ const getFormattedDate = (date: Date) => {
                         />
                       </template>
 
-                      <template v-else>
+                      <template v-else-if="message.listType === 'category'">
                         <EntityCard
                           v-for="category in slotProps.data"
                           :key="category.id"
                           :name="category.name"
                           :parentName="category.boardName"
                           :showInfo="true"
-                        /> </template
-                    ></template>
+                        />
+                      </template>
+
+                      <template v-else-if="message.listType === 'board'">
+                        <EntityCard
+                          v-for="board in slotProps.data"
+                          :key="board.id"
+                          :name="board.name"
+                          :parentName="board.workspaceName"
+                          :showInfo="true"
+                        />
+                      </template>
+
+                      <template v-else-if="message.listType === 'workspace'">
+                        <EntityCard
+                          v-for="workspace in slotProps.data"
+                          :key="workspace.id"
+                          :name="workspace.name"
+                        />
+                      </template>
+                    </template>
                   </ColumnsView>
                 </div>
               </AIBubble>

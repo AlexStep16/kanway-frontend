@@ -211,25 +211,41 @@ export const useUIStore = defineStore('ui', () => {
 
   function openSettingsModal() {
     if (settingsModalHSInstance.value) {
-      settingsModalHSInstance.value.open()
+      addToModalStack('settingsModal')
+
+      modalInstances.value.set('settingsModal', settingsModalHSInstance.value)
+
+      nextTick(() => {
+        if (settingsModalHSInstance.value) settingsModalHSInstance.value.open()
+      })
     }
   }
 
   function closeSettingsModal() {
     if (settingsModalHSInstance.value) {
       settingsModalHSInstance.value.close()
+
+      removeFromModalStack('settingsModal')
     }
   }
 
   function openChatModal() {
     if (chatModalHSInstance.value) {
-      chatModalHSInstance.value.open()
+      addToModalStack('chatModal')
+
+      modalInstances.value.set('chatModal', chatModalHSInstance.value)
+
+      nextTick(() => {
+        if (chatModalHSInstance.value) chatModalHSInstance.value.open()
+      })
     }
   }
 
   function closeChatModal() {
     if (chatModalHSInstance.value) {
       chatModalHSInstance.value.close()
+
+      removeFromModalStack('chatModal')
     }
   }
 

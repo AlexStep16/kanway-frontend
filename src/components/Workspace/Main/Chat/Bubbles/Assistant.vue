@@ -16,5 +16,8 @@ const textConverter = new showdown.Converter({
 </script>
 
 <template>
-  <div class="text-sm text-gray-700" v-html="textConverter.makeHtml(text || '')"></div>
+  <div
+    class="text-sm text-gray-700 overflow-x-auto"
+    v-html="textConverter.makeHtml(text || '')"
+  ></div>
 </template>

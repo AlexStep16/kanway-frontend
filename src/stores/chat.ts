@@ -9,6 +9,7 @@ import {
   sendMessage as sendMessageService,
   approveToolCall as approveToolCallService,
   retryAgent as retryAgentService,
+  stopAgent as stopAgentService,
 } from '@services/chat'
 import ChatModel from '@models/ChatModel'
 import { useBoardDataStore } from '@stores/boardData'
@@ -37,6 +38,7 @@ export const useChatStore = defineStore('chat', () => {
   const startChatError = ref<ChatErrorType>(null)
   const sendMessageError = ref<ChatErrorType>(null)
   const retryAgentError = ref<ChatErrorType>(null)
+  const stopAgentError = ref<ChatErrorType>(null)
   const _approveToolCallsError = ref<Map<string, ChatErrorType>>(new Map())
 
   //Loading
@@ -45,6 +47,7 @@ export const useChatStore = defineStore('chat', () => {
   const _isChatStarting = ref<boolean>(false)
   const _isMessageSending = ref<boolean>(false)
   const _isAgentRetrying = ref<boolean>(false)
+  const _isAgentStopping = ref<boolean>(false)
   const _approvingTools = ref<Set<string>>(new Set())
 
   async function loadChats(workspaceId: string, force_reload: boolean = false) {
@@ -145,10 +148,17 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   async function sendMessage(initialMessage: string) {
-    if (!initialMessage.trim()) return
     if (isMessageSending.value) return
     if (!activeChat.value || !activeChat.value.threadId) return
     if (!WORKSPACE_STORE.activeWorkspace) return
+
+    if (!initialMessage.trim()) {
+      const lastMessage = CHAT_MESSAGE_STORE.getLastMessageInStore()
+
+      if (lastMessage && lastMessage.role === 'assistant') {
+        return
+      }
+    }
 
     try {
       _isMessageSending.value = true
@@ -228,6 +238,47 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  async function stopAgent() {
+    if (isMessageSending.value) return
+    if (!activeChat.value || !activeChat.value.threadId) return
+    if (!WORKSPACE_STORE.activeWorkspace) return
+
+    try {
+      _isAgentStopping.value = true
+      stopAgentError.value = null
+
+      await stopAgentService(
+        {
+          chatId: activeChat.value.id,
+          threadId: activeChat.value.threadId,
+          jobId: AGENT_STATUS_STORE.activeJobId || '',
+        },
+        WORKSPACE_STORE.activeWorkspace.id,
+      )
+
+      AGENT_STATUS_STORE.closeSSE()
+
+      return true
+    } catch (e) {
+      if (e instanceof BackendError) {
+        stopAgentError.value = e
+      } else if (e instanceof HttpError) {
+        stopAgentError.value = e
+
+        if (e.status === 401) {
+        }
+      } else {
+        stopAgentError.value = new HttpError(ErrorsMessage.UNEXPECTED_ERROR, null)
+      }
+
+      toast.error(stopAgentError.value.message)
+
+      return false
+    } finally {
+      _isAgentStopping.value = false
+    }
+  }
+
   async function approveToolCall(
     toolCallId: string,
     chatMessageId: string,
@@ -298,6 +349,8 @@ export const useChatStore = defineStore('chat', () => {
   const isToolCallApproving = computed(() => (toolCallId: string) => {
     return _approvingTools.value.has(toolCallId)
   })
+  const isAgentRetrying = computed(() => _isAgentRetrying.value)
+  const isAgentStopping = computed(() => _isAgentStopping.value)
 
   const activeChat = computed(
     () => chats.value.find((chat) => chat.id === activeChatId.value) || null,
@@ -313,6 +366,10 @@ export const useChatStore = defineStore('chat', () => {
     isToolCallApproving,
     sendMessageError,
     activeChat,
+    isAgentRetrying,
+    isAgentStopping,
+    retryAgentError,
+    stopAgentError,
 
     //Actions
     loadChats,
@@ -321,5 +378,6 @@ export const useChatStore = defineStore('chat', () => {
     approveToolCall,
     selectChat,
     retryAgent,
+    stopAgent,
   }
 })

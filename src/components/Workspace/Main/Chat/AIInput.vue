@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useChatStore } from '@stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
-import { Mic, SendHorizontal } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { Mic, Square } from 'lucide-vue-next'
+import Sparkles from '@assets/sparkles.svg?component'
+import { computed, ref } from 'vue'
 
 const message = ref<string>('')
 
@@ -10,13 +12,17 @@ const emit = defineEmits<{
 }>()
 
 const AGENT_STATUS_STORE = useAgentStatusStore()
+const CHAT_STORE = useChatStore()
 
 function sendChatMessage() {
-  if (message.value.trim() !== '') {
-    emit('send', message.value.trim())
-    message.value = ''
-  }
+  emit('send', message.value.trim())
+
+  message.value = ''
 }
+
+const isRunButtonDisabled = computed(() => {
+  return message.value.trim().length === 0 || AGENT_STATUS_STORE.isSSEActive()
+})
 </script>
 
 <template>
@@ -43,12 +49,24 @@ function sendChatMessage() {
           <Mic class="size-5" />
         </button>
         <button
+          type="button"
           class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
-          :disabled="AGENT_STATUS_STORE.isSSEActive()"
+          :disabled="isRunButtonDisabled"
+          v-if="!AGENT_STATUS_STORE.isSSEActive()"
           @click="sendChatMessage()"
         >
-          <span class="hidden sm:inline">Отправить</span>
-          <SendHorizontal class="size-4" />
+          <span class="hidden sm:inline">Выполнить</span>
+          <Sparkles class="size-4" />
+        </button>
+
+        <button
+          type="button"
+          class="text-white bg-blue-500 px-3 text-xs min-w-20 font-medium hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
+          v-else
+          @click="CHAT_STORE.stopAgent()"
+        >
+          <Square class="size-3.5" fill="#FFFFFF" />
+          <span>{{ AGENT_STATUS_STORE.formattedTime }}</span>
         </button>
       </div>
     </div>

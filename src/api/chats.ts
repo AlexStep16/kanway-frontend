@@ -6,6 +6,7 @@ import { SendMessageResponse } from '@interfaces/SendMessageResponse'
 import { ApproveToolCall } from '@interfaces/ApproveToolCall'
 import { IChatMessage } from '@interfaces/domain/IChatMessage'
 import { RetryAgentPayload } from '@interfaces/RetryAgentPayload'
+import { StopAgentPayload } from '@interfaces/StopAgentPayload'
 
 export async function getChatsApi(workspaceId: string) {
   return await apiCall<IChat[]>({
@@ -49,5 +50,13 @@ export async function approveToolCallApi(data: ApproveToolCall, workspaceId: str
     method: 'POST',
     url: `/workspaces/${workspaceId}/chats/tools/approve`,
     data,
+  })
+}
+
+export async function stopAgentApi(data: StopAgentPayload, workspaceId: string) {
+  return await apiCall<void>({
+    method: 'POST',
+    url: `/workspaces/${workspaceId}/chats/${data.jobId}/stop`,
+    data: { chatId: data.chatId, threadId: data.threadId },
   })
 }

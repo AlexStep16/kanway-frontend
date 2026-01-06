@@ -6,12 +6,14 @@ import {
   sendMessageApi,
   approveToolCallApi,
   retryApi,
+  stopAgentApi,
 } from '@api/chats'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import ChatModel from '@/models/ChatModel'
 import { SendMessagePayload } from '@/interfaces/SendMessagePayload'
 import { ApproveToolCall } from '@/interfaces/ApproveToolCall'
 import { RetryAgentPayload } from '@/interfaces/RetryAgentPayload'
+import { StopAgentPayload } from '@/interfaces/StopAgentPayload'
 
 export function transformChat(raw: IChat): ChatModel {
   return new ChatModel({
@@ -62,4 +64,8 @@ export async function cloneChat(
     data: transformChat(cloneResult.data),
     logId: cloneResult.logId,
   }
+}
+
+export async function stopAgent(data: StopAgentPayload, workspaceId: string) {
+  return await stopAgentApi(data, workspaceId)
 }
