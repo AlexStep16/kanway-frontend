@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Mic } from 'lucide-vue-next'
 import { HSTextareaAutoHeight } from 'preline'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { Nullable } from '@/types/utils'
 import { useBoardDataStore } from '@stores/boardData'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
@@ -29,6 +29,19 @@ async function startChat() {
 
   if (startResult !== false) {
     aiInput.value = ''
+
+    nextTick(() => {
+      reInitializeTextarea()
+    })
+  }
+}
+
+function reInitializeTextarea() {
+  if (textareaRef.value && textareaRef.value instanceof HTMLTextAreaElement) {
+    const { element } = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
+
+    element?.destroy()
+    element?.init()
   }
 }
 
@@ -41,14 +54,7 @@ const isChatStarting = computed(() => CHAT_STORE.isChatStarting)
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
 
-  window.addEventListener('resize', () => {
-    if (textareaRef.value && textareaRef.value instanceof HTMLTextAreaElement) {
-      const { element } = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
-
-      element?.destroy()
-      element?.init()
-    }
-  })
+  window.addEventListener('resize', reInitializeTextarea)
 })
 </script>
 

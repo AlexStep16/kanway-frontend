@@ -153,11 +153,7 @@ export const useChatStore = defineStore('chat', () => {
     if (!WORKSPACE_STORE.activeWorkspace) return
 
     if (!initialMessage.trim()) {
-      const lastMessage = CHAT_MESSAGE_STORE.getLastMessageInStore()
-
-      if (lastMessage && lastMessage.role === 'assistant') {
-        return
-      }
+      if (!isLastMessageFromHuman.value) return
     }
 
     try {
@@ -344,6 +340,13 @@ export const useChatStore = defineStore('chat', () => {
     return _loadedWorkspaces.value.has(workspaceId)
   }
 
+  const isLastMessageFromHuman = computed(() => {
+    const lastMessage = CHAT_MESSAGE_STORE.getLastMessageInStore()
+
+    if (lastMessage && lastMessage.role === 'user') {
+      return true
+    } else return false
+  })
   const isChatStarting = computed(() => _isChatStarting.value)
   const isMessageSending = computed(() => _isMessageSending.value)
   const isToolCallApproving = computed(() => (toolCallId: string) => {
@@ -368,6 +371,7 @@ export const useChatStore = defineStore('chat', () => {
     activeChat,
     isAgentRetrying,
     isAgentStopping,
+    isLastMessageFromHuman,
     retryAgentError,
     stopAgentError,
 

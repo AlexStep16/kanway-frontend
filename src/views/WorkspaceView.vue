@@ -17,10 +17,14 @@ import MobileSearch from '@components/Workspace/MobileSearch.vue'
 import Tabs from '@/enums/TabsEnum'
 import { useRootStore } from '@stores/root'
 import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useChatStore } from '@stores/chat'
+import { useAgentStatusStore } from '@stores/agentStatus'
 
 const UI_STORE = useUIStore()
 const ROOT_STORE = useRootStore()
 const WORKSPACE_STORE = useWorkspaceDataStore()
+const CHAT_STORE = useChatStore()
+const AGENT_STATUS_STORE = useAgentStatusStore()
 
 const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
 
@@ -60,6 +64,8 @@ function initChatModal() {
 
     UI_STORE.chatModalHSInstance.on('close', () => {
       UI_STORE.isChatModalOpen = false
+
+      if (AGENT_STATUS_STORE.isSSEActive()) CHAT_STORE.stopAgent()
     })
 
     UI_STORE.chatModalHSInstance.on('open', () => {

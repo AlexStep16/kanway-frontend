@@ -95,7 +95,8 @@ export const useTaskDataStore = defineStore('taskData', () => {
 
     try {
       const tasksPayload = await fetchTasks(workspaceId, boardId)
-
+      console.log(tasks.value.map((t) => t.boardId))
+      console.log(boardId)
       tasks.value = tasks.value.filter((t) => t.boardId !== boardId || t.isDeleted) // Remove old tasks of this board
 
       tasks.value.push(...tasksPayload)

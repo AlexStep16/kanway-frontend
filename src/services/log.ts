@@ -7,5 +7,5 @@ export async function undoOperation(
 ): Promise<IUndoResponse<IWorkspacesWithChildrenResponse>> {
   const response = await patchUndoApi(id)
 
-  return response[0]
+  return response
 }

@@ -3,9 +3,12 @@ import { useChatStore } from '@stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import { Mic, Square } from 'lucide-vue-next'
 import Sparkles from '@assets/sparkles.svg?component'
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { Nullable } from '@/types/utils'
+import { HSTextareaAutoHeight } from 'preline'
 
 const message = ref<string>('')
+const textareaRef = ref<Nullable<HTMLTextAreaElement>>(null)
 
 const emit = defineEmits<{
   (e: 'send', message: string): void
@@ -18,10 +21,32 @@ function sendChatMessage() {
   emit('send', message.value.trim())
 
   message.value = ''
+
+  nextTick(() => {
+    reInitializeTextarea()
+  })
+}
+
+function reInitializeTextarea() {
+  if (textareaRef.value && textareaRef.value instanceof HTMLTextAreaElement) {
+    const { element } = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
+
+    element?.destroy()
+    element?.init()
+  }
 }
 
 const isRunButtonDisabled = computed(() => {
-  return message.value.trim().length === 0 || AGENT_STATUS_STORE.isSSEActive()
+  return (
+    AGENT_STATUS_STORE.isSSEActive() ||
+    (CHAT_STORE.isLastMessageFromHuman === false && message.value.trim() === '')
+  )
+})
+
+onMounted(() => {
+  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+
+  window.addEventListener('resize', reInitializeTextarea)
 })
 </script>
 
@@ -30,7 +55,6 @@ const isRunButtonDisabled = computed(() => {
     <div class="flex gap-x-1 items-end">
       <div class="w-full min-h-8 flex items-center">
         <textarea
-          id="chat-textarea"
           class="block p-0 w-full ps-1 text-gray-700 bg-transparent max-h-60 placeholder:text-gray-500 border-none focus:ring-0 text-sm disabled:opacity-50 disabled:pointer-events-none resize-none"
           placeholder="Например, создай задачу сделать отчёт..."
           data-hs-textarea-auto-height='{
@@ -38,6 +62,8 @@ const isRunButtonDisabled = computed(() => {
           }'
           rows="1"
           v-model="message"
+          @keydown.enter.stop
+          ref="textareaRef"
         ></textarea>
       </div>
       <div class="flex shrink-0 items-center gap-x-2">
