@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import Options from '@/components/Options/Options.vue'
+import { MaybeRef, ref } from 'vue'
+import Options, { ItemStatus } from '@/components/Options/Options.vue'
 import WorkspaceModel from '@/models/WorkspaceModel'
 import BoardModel from '@/models/BoardModel'
 import { Nullable } from '@/types/utils'
@@ -12,6 +12,7 @@ defineProps<{
   item: WorkspaceModel | BoardModel | ChatModel
   type: 'board' | 'workspace' | 'chat'
   resetForm?: () => void
+  status: (id: MaybeRef<string | null>) => ItemStatus
   selected?: boolean
 }>()
 
@@ -41,12 +42,13 @@ defineEmits<{
         favorite: true,
         archive: true,
       }"
+      :status
       :item
       class="absolute right-2.5"
       :resetForm="resetForm"
-      group_name="sidebar-item"
-      :hover_class="selected ? 'lg:hover:bg-blue-200' : 'lg:hover:bg-gray-200'"
-      :edit_type="type"
+      groupName="sidebar-item"
+      :hoverClass="selected ? 'lg:hover:bg-blue-200' : 'lg:hover:bg-gray-200'"
+      :editType="type"
       ref="optionsRef"
     >
       <template v-for="(value, key) in $slots" #[key]="slotProps">

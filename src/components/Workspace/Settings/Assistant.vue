@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, toRef, watch } from 'vue'
-import { useSettingDataStore } from '@stores/settingData'
+import { computed, onMounted, ref, watch } from 'vue'
 import { AiConfirmationTypeEnum } from '@/enums/AiConfirmationTypeEnum'
 import { HSSelect, HSStaticMethods, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
+import { useSetting } from '@/composables/settings/queries/useSettings'
+import { useUpdateSetting } from '@/composables/settings/mutations/useUpdateSetting'
 
-const SETTING_STORE = useSettingDataStore()
-SETTING_STORE.loadSetting()
+const { data: setting, isPending: isSettingLoading } = useSetting()
 
-const setting = toRef(SETTING_STORE, 'setting')
-const isSettingLoading = computed(() => SETTING_STORE.isSettingLoading)
+const { mutate: updateSetting, isPending: isSettingUpdating } = useUpdateSetting()
+
 const settingModel = ref({ ...setting.value })
 const validationErrors = ref({
   aiName: '',
@@ -87,16 +87,19 @@ function validateSetting(): boolean {
   return isValid
 }
 
-async function handleSaveSetting() {
-  if (isSettingUpdating.value || !validateSetting()) {
+function handleSaveSetting() {
+  if (isSettingUpdating.value || !validateSetting() || !setting.value) {
     return
   }
 
-  await SETTING_STORE.updateSetting({
-    aiName: settingModel.value.aiName,
-    aiConfirmationType: settingModel.value.aiConfirmationType,
-    aiDefaultCategory: settingModel.value.aiDefaultCategory,
-    aiDefaultBoard: settingModel.value.aiDefaultBoard,
+  updateSetting({
+    payload: {
+      id: setting.value.id,
+      aiName: settingModel.value.aiName,
+      aiConfirmationType: settingModel.value.aiConfirmationType,
+      aiDefaultCategory: settingModel.value.aiDefaultCategory,
+      aiDefaultBoard: settingModel.value.aiDefaultBoard,
+    },
   })
 }
 
@@ -123,10 +126,6 @@ const hasSomethingChanged = computed(() => {
     settingModel.value.aiDefaultCategory !== setting.value.aiDefaultCategory ||
     settingModel.value.aiDefaultBoard !== setting.value.aiDefaultBoard
   )
-})
-
-const isSettingUpdating = computed(() => {
-  return SETTING_STORE.isSettingUpdating
 })
 
 const isButtonDisabled = computed(() => {

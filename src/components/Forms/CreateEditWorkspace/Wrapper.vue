@@ -5,11 +5,12 @@ import Body from '@components/Forms/CreateEditWorkspace/Body.vue'
 import { HSDropdown } from 'preline'
 import { computed, onMounted, ref } from 'vue'
 import { workspaceValidation } from '@helpers/workspaceValidation'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { toast } from 'vue-sonner'
 import { WorkspaceValidationErrors } from '@interfaces/WorkspaceValidationErrors'
 import WorkspaceModel from '@/models/WorkspaceModel'
 import { Nullable } from '@/types/utils'
+import { useCreateWorkspace } from '@/composables/workspaces/mutations/useCreateWorkspace'
+import { useUpdateWorkspace } from '@/composables/workspaces/mutations/useUpdateWorkspace'
 
 const dropdown = ref<Nullable<HTMLElement>>(null)
 const dropdownMenu = ref<Nullable<HTMLElement>>(null)
@@ -19,7 +20,8 @@ const validationErrors = ref<WorkspaceValidationErrors>({
   name: { isValid: true, errorMessage: '' },
 })
 
-const WORKSPACE_STORE = useWorkspaceDataStore()
+const { mutateAsync: createWorkspaceMutation, isPending: isCreating } = useCreateWorkspace()
+const { mutateAsync: updateWorkspaceMutation, isPending: isUpdating } = useUpdateWorkspace()
 
 const name = ref('')
 const color = ref<AvailableColors>(AvailableColors.BLUE)
@@ -53,14 +55,17 @@ async function createWorkspace() {
     return
   }
 
-  const result = await WORKSPACE_STORE.addWorkspace(workspace)
+  await createWorkspaceMutation(
+    { payload: workspace },
+    {
+      onSuccess: (result) => {
+        closeDropdown()
+        emit('workspaceCreated', result.data[0])
 
-  if (result !== false && typeof result === 'object' && result !== null) {
-    closeDropdown()
-    emit('workspaceCreated', result as WorkspaceModel)
-
-    resetForm()
-  }
+        resetForm()
+      },
+    },
+  )
 }
 
 async function editWorkspace() {
@@ -82,13 +87,16 @@ async function editWorkspace() {
     return
   }
 
-  const result = await WORKSPACE_STORE.updateWorkspace(workspace)
+  await updateWorkspaceMutation(
+    { payload: workspace },
+    {
+      onSuccess: (result) => {
+        closeDropdown()
 
-  if (result !== false) {
-    closeDropdown()
-
-    emit('workspaceEdited', result)
-  }
+        emit('workspaceEdited', result.data[0])
+      },
+    },
+  )
 }
 
 function closeDropdown() {
@@ -124,16 +132,6 @@ function handleSubmit() {
     editWorkspace()
   }
 }
-
-const getIsLoading = computed(() => {
-  if (props.mode === 'create') {
-    return WORKSPACE_STORE.isAddingWorkspace
-  } else if (props.item) {
-    return WORKSPACE_STORE.isWorkspaceEditing(props.item.id)
-  } else {
-    return false
-  }
-})
 
 const isFormChanged = computed(() => {
   if (props.item) {
@@ -193,7 +191,7 @@ onMounted(() => {
     >
       <Body
         :id="generateUUID()"
-        :isLoading="getIsLoading"
+        :isLoading="isCreating || isUpdating"
         :isFormChanged="isFormChanged"
         @resetErrors="resetErrors"
         @submit="handleSubmit"
@@ -209,7 +207,7 @@ onMounted(() => {
   <Body
     v-else
     :id="generateUUID()"
-    :isLoading="getIsLoading"
+    :isLoading="isCreating || isUpdating"
     :isFormChanged="isFormChanged"
     @resetErrors="resetErrors"
     @submit="handleSubmit"

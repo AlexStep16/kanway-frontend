@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import ColorButtons from '@/components/Buttons/ColorButtons.vue'
+import { AvailableColors } from '@/enums/AvailableColors'
 
 defineProps<{
-  color: string
+  color: AvailableColors
 }>()
 
 defineEmits<{
-  (e: 'update:color', color: string): void
+  (e: 'update:color', color: AvailableColors): void
 }>()
 </script>
 

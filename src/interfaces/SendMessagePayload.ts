@@ -1,7 +1,7 @@
 export interface SendMessagePayload {
   message: string
-  boardId: string
   workspaceId: string
   timezone: string
+  boardId?: string
   threadId?: string
 }

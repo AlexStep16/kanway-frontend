@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useUIStore } from '@stores/ui'
-import { useTaskDataStore } from '@stores/taskData'
-import { useCategoryDataStore } from '@stores/categoryData'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
-import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useBoardStore } from '@/stores/board'
+import { useWorkspaceStore } from '@/stores/workspace'
 import { X } from 'lucide-vue-next'
+import { useGlobalSearch } from '@/composables/useGlobalSearch'
+import { storeToRefs } from 'pinia'
+import { onClickOutside } from '@vueuse/core'
 
 defineProps<{
   isAlwaysVisible?: boolean
@@ -17,11 +18,12 @@ const emit = defineEmits<{
   (e: 'input', value: string): void
 }>()
 
-const UI_STORE = useUIStore()
-const TASK_STORE = useTaskDataStore()
-const CATEGORY_STORE = useCategoryDataStore()
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+const uiStore = useUIStore()
+const boardStore = useBoardStore()
+const workspaceStore = useWorkspaceStore()
+
+const { activeBoardId } = storeToRefs(boardStore)
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 const searchBoxRef = ref<Nullable<HTMLElement>>(null)
 const searchDropdownRef = ref<Nullable<HTMLElement>>(null)
@@ -30,72 +32,30 @@ const searchModel = ref('')
 const preventAutofill = ref(true)
 const isDropdownHidden = ref(true)
 
-watch(searchModel, (newVal) => {
-  if (newVal.length === 0) {
-    isDropdownHidden.value = true
-  } else {
-    isDropdownHidden.value = false
-  }
+const { tasks, categories, boards, workspaces } = useGlobalSearch(
+  searchModel,
+  activeBoardId,
+  activeWorkspaceId,
+)
 
+watch(searchModel, (newVal) => {
+  isDropdownHidden.value = newVal.length === 0
   emit('input', newVal)
 })
 
-function getPlaceholder() {
-  if (UI_STORE.currentTab === Tabs.Archive) {
-    return 'Поиск в архиве...'
-  } else if (UI_STORE.currentTab === Tabs.Board) {
-    return 'Поиск на доске...'
-  } else {
-    return 'Поиск...'
-  }
-}
+const searchPlaceholder = computed(() => {
+  if (uiStore.currentTab === Tabs.Archive) return 'Поиск в архиве...'
+  if (uiStore.currentTab === Tabs.Board) return 'Поиск на доске...'
+  return 'Поиск...'
+})
 
 function clearSearch() {
   searchModel.value = ''
-
   searchInputRef.value?.focus()
 }
 
-const boardTasksByName = computed(() => {
-  return TASK_STORE.getActiveBoardTasksByName(searchModel.value)
-})
-
-const archivedTasksByName = computed(() => {
-  return TASK_STORE.getArchivedTasksByName(searchModel.value)
-})
-
-const archivedBoardsByName = computed(() => {
-  return BOARD_STORE.getArchivedBoardsByName(searchModel.value)
-})
-
-const archivedWorkspacesByName = computed(() => {
-  return WORKSPACE_STORE.getArchivedWorkspacesByName(searchModel.value)
-})
-
-const getTasks = computed(() => {
-  return UI_STORE.currentTab === Tabs.Board ? boardTasksByName.value : archivedTasksByName.value
-})
-
-const boardCategoriesByName = computed(() => {
-  return CATEGORY_STORE.getActiveBoardCategoriesByName(searchModel.value)
-})
-
-const archivedCategoriesByName = computed(() => {
-  return CATEGORY_STORE.getArchivedCategoriesByName(searchModel.value)
-})
-
-const getCategories = computed(() => {
-  return UI_STORE.currentTab === Tabs.Board
-    ? boardCategoriesByName.value
-    : archivedCategoriesByName.value
-})
-
-const getBoards = computed(() => {
-  return UI_STORE.currentTab === Tabs.Archive ? archivedBoardsByName.value : []
-})
-
-const getWorkspaces = computed(() => {
-  return UI_STORE.currentTab === Tabs.Archive ? archivedWorkspacesByName.value : []
+onClickOutside(searchBoxRef, () => {
+  isDropdownHidden.value = true
 })
 
 onMounted(() => {
@@ -135,7 +95,7 @@ onMounted(() => {
           autocomplete="off"
           role="combobox"
           aria-expanded="false"
-          :placeholder="getPlaceholder()"
+          :placeholder="searchPlaceholder"
           v-model="searchModel"
           :disabled="preventAutofill"
           ref="searchInputRef"
@@ -174,36 +134,36 @@ onMounted(() => {
             'px-4': !isAlwaysVisible,
           }"
           v-if="
-            getTasks.length === 0 &&
-            getCategories.length === 0 &&
-            getBoards.length === 0 &&
-            getWorkspaces.length === 0
+            tasks.length === 0 &&
+            categories.length === 0 &&
+            boards.length === 0 &&
+            workspaces.length === 0
           "
         >
           Ничего не найдено...
         </div>
-        <div tabindex="1" v-if="getTasks.length > 0">
+        <div tabindex="1" v-if="tasks.length > 0">
           <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Задачи</div>
           <button
-            v-for="task in getTasks"
+            v-for="task in tasks"
             :key="task.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="TASK_STORE.openTaskToEdit(task)"
+            @click="uiStore.openTaskToEdit(task.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="task.name">{{ task.name }}</span>
-            <span class="ms-auto text-xs text-gray-400">{{ task.categoryName }}</span>
+            <span class="ms-auto text-xs text-gray-400">{{ task.category.name }}</span>
           </button>
         </div>
 
-        <div tabindex="2" v-if="getCategories.length > 0">
+        <div tabindex="2" v-if="categories.length > 0">
           <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Категории</div>
           <button
-            v-for="category in getCategories"
+            v-for="category in categories"
             :key="category.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="CATEGORY_STORE.openCategoryToEdit(category)"
+            @click="uiStore.openCategoryToEdit(category.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="category.name">{{
               category.name
@@ -211,27 +171,27 @@ onMounted(() => {
           </button>
         </div>
 
-        <div tabindex="3" v-if="getBoards.length > 0">
+        <div tabindex="3" v-if="boards.length > 0">
           <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Доски</div>
           <button
-            v-for="board in getBoards"
+            v-for="board in boards"
             :key="board.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="BOARD_STORE.openBoardToEdit(board)"
+            @click="uiStore.openBoardToEdit(board.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="board.name">{{ board.name }}</span>
           </button>
         </div>
 
-        <div tabindex="4" v-if="getWorkspaces.length > 0">
+        <div tabindex="4" v-if="workspaces.length > 0">
           <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Пространства</div>
           <button
-            v-for="workspace in getWorkspaces"
+            v-for="workspace in workspaces"
             :key="workspace.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="WORKSPACE_STORE.openWorkspaceToEdit(workspace)"
+            @click="uiStore.openWorkspaceToEdit(workspace.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="workspace.name">{{
               workspace.name

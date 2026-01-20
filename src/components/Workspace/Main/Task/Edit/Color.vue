@@ -20,7 +20,6 @@ const emit = defineEmits<{
     color: Nullable<(typeof TASK_COLORS)[number]>,
     colorName: Nullable<(typeof COLOR_NAMES)[number]>,
   ): void
-  (e: 'clearColor'): void
 }>()
 
 const getColorName = (colorName?: Nullable<(typeof COLOR_NAMES)[number]>) => {
@@ -43,7 +42,7 @@ function setColor(color: (typeof TASK_COLORS)[number]) {
 }
 
 function clearColor() {
-  emit('clearColor')
+  emit('setColor', null, null)
 
   closeColorDropdown()
 }

@@ -63,6 +63,6 @@
 </template>
 
 <script lang="ts" setup>
-const path = import.meta.env.VITE_USER_NODE_ENV === 'production' ? '/' : '/src/'
+const path = import.meta.env.DEV === false ? '/' : '/src/'
 const hostUrl = import.meta.env.VITE_HOST_URL || 'https://kanbar.ru'
 </script>

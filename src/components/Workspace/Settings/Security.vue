@@ -1,118 +1,113 @@
 <script setup lang="ts">
-import { HSOverlay, HSStrongPassword, ICollectionItem } from 'preline'
-import { computed, onMounted, ref, toRef } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { HSOverlay, HSStrongPassword } from 'preline'
+import { useUpdatePassword } from '@/composables/auth/useUpdatePassword'
+import { useDeleteUser } from '@/composables/auth/useDeleteUser'
 import Spinner from '@components/Loader/Spinner.vue'
-import { useAuthStore } from '@stores/auth'
 import DeleteUserModal from '@components/Modals/DeleteUserModal.vue'
 
-const AUTH_STORE = useAuthStore()
-
-const oldPassword = ref('')
+// --- State ---
+const currentPassword = ref('')
 const newPassword = ref('')
 const newPasswordAgain = ref('')
-const newPasswordRef = ref<HTMLInputElement | null>(null)
+const passwordRules = ref<string[]>([])
 
-const passwordUpdateError = toRef(AUTH_STORE, 'passwordUpdateError')
-const isPasswordUpdating = toRef(AUTH_STORE, 'isPasswordUpdating')
-const isUserDeleting = toRef(AUTH_STORE, 'isUserDeleting')
-
+// Refs для DOM
+const newPasswordInputRef = ref<HTMLInputElement | null>(null)
 const strongPasswordRef = ref<HTMLElement | null>(null)
-const strongPasswordInstance = ref<HSStrongPassword | null>(null)
-const passwordRules = ref<Array<string>>([])
-
 const deleteModalRef = ref<HTMLElement | null>(null)
 
-const checkRulesExistence = computed((): boolean => {
-  const areAllRequiredRulesPresent = ['min-length', 'lowercase', 'uppercase', 'numbers']
+// --- Mutations ---
+const {
+  mutate: updateUserPassword,
+  isPending: isPasswordUpdating,
+  error: passwordError, // Используем встроенную обработку ошибок
+  reset: resetPasswordMutation,
+} = useUpdatePassword()
 
-  for (const rule of areAllRequiredRulesPresent) {
-    if (!passwordRules.value.includes(rule)) {
-      return false
-    }
-  }
+const { mutate: deleteAccount, isPending: isUserDeleting } = useDeleteUser()
 
-  return true
+// --- Validation Logic ---
+
+const arePasswordsMatching = computed(
+  () => newPassword.value === newPasswordAgain.value && newPassword.value.length > 0,
+)
+
+const isStrongEnough = computed(() => {
+  const required = ['min-length', 'lowercase', 'uppercase', 'numbers']
+  return required.every((rule) => passwordRules.value.includes(rule))
 })
 
-async function handleSavePassword() {
-  if (isSavePasswordDisabled.value || isPasswordUpdating.value) return
+const isSavePasswordDisabled = computed(
+  () =>
+    !currentPassword.value ||
+    !newPassword.value ||
+    !arePasswordsMatching.value ||
+    !isStrongEnough.value ||
+    isPasswordUpdating.value,
+)
 
-  const result = await AUTH_STORE.updateUserPassword(oldPassword.value, newPassword.value)
+// Извлекаем ошибки из TanStack Query error (предполагаем формат API)
+const serverErrors = computed(() => {
+  if (!passwordError.value) return null
 
-  if (result) {
-    oldPassword.value = ''
-    newPassword.value = ''
-    if (newPasswordRef.value != null) {
-      newPasswordRef.value.value = ''
-      newPasswordRef.value.dispatchEvent(new Event('input'))
-    }
-    newPasswordAgain.value = ''
+  const parsedError = JSON.parse(passwordError.value.message)
 
-    resetPasswordUpdateError()
+  return {
+    newPassword: parsedError.newPassword,
+    oldPassword: parsedError.oldPassword,
   }
+})
+
+// --- Handlers ---
+
+function handleSavePassword() {
+  if (isSavePasswordDisabled.value) return
+
+  updateUserPassword(
+    { password: newPassword.value, currentPassword: currentPassword.value },
+    {
+      onSuccess: () => {
+        // Очистка формы
+        currentPassword.value = ''
+        newPassword.value = ''
+        newPasswordAgain.value = ''
+
+        if (newPasswordInputRef.value) {
+          newPasswordInputRef.value.dispatchEvent(new Event('input'))
+        }
+        resetPasswordMutation()
+      },
+    },
+  )
 }
 
 function showDeleteUserModal() {
   if (deleteModalRef.value) {
-    const { element } = HSOverlay.getInstance(
-      deleteModalRef.value,
-      true,
-    ) as ICollectionItem<HSOverlay>
-
-    element.open()
+    const instance = HSOverlay.getInstance(deleteModalRef.value, true) as any
+    instance?.element?.open()
   }
 }
 
-async function handleDeleteAccount() {
-  if (isUserDeleting.value) return
+const handleDeleteAccount = () => deleteAccount()
 
-  await AUTH_STORE.deleteAccount()
-}
-
-const isSavePasswordDisabled = computed(() => {
-  return (
-    oldPassword.value.length === 0 ||
-    newPassword.value.length === 0 ||
-    newPasswordAgain.value.length === 0 ||
-    !checkRulesExistence.value ||
-    !arePasswordsMatching.value
-  )
+// Сброс ошибок при начале ввода
+watch([currentPassword, newPassword], () => {
+  if (passwordError.value) resetPasswordMutation()
 })
 
-const arePasswordsMatching = computed((): boolean => {
-  return newPassword.value === newPasswordAgain.value && newPassword.value.length > 0
-})
-
-const getOldPasswordError = computed(() => {
-  return passwordUpdateError.value !== null ? passwordUpdateError.value.oldPassword : ''
-})
-
-const getNewPasswordError = computed(() => {
-  return passwordUpdateError.value !== null ? passwordUpdateError.value.newPassword : ''
-})
-
-function resetPasswordUpdateError() {
-  AUTH_STORE.resetPasswordUpdateError()
-}
-
-function connectDeleteModalRef(el: HTMLElement) {
-  deleteModalRef.value = el
-}
+// --- Lifecycle ---
 
 onMounted(() => {
+  // Инициализация всех компонентов Preline
   window.HSStaticMethods.autoInit()
 
+  // Слушаем изменение сложности пароля
   if (strongPasswordRef.value) {
-    const { element } = HSStrongPassword.getInstance(
-      strongPasswordRef.value,
-      true,
-    ) as ICollectionItem<HSStrongPassword>
-
-    element.on('change', ({ rules }: { rules: Set<string> }) => {
+    const instance = HSStrongPassword.getInstance(strongPasswordRef.value, true) as any
+    instance?.element?.on('change', ({ rules }: { rules: Set<string> }) => {
       passwordRules.value = Array.from(rules)
     })
-
-    strongPasswordInstance.value = element
   }
 })
 </script>
@@ -133,12 +128,9 @@ onMounted(() => {
                 type="password"
                 id="settings-old-password"
                 class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                :class="{
-                  'ring-1 ring-red-500!': getOldPasswordError && getOldPasswordError.length > 0,
-                }"
+                :class="{ 'ring-1 ring-red-500': serverErrors?.oldPassword }"
                 placeholder="Текущий пароль"
-                v-model="oldPassword"
-                @input="resetPasswordUpdateError"
+                v-model="currentPassword"
               />
               <button
                 type="button"
@@ -177,12 +169,9 @@ onMounted(() => {
               </button>
             </div>
 
-            <span
-              v-if="getOldPasswordError && getOldPasswordError.length > 0"
-              class="text-red-500 text-xs"
-            >
-              {{ getOldPasswordError }}
-            </span>
+            <p v-if="serverErrors?.oldPassword" class="text-red-500 text-xs mt-1">
+              {{ serverErrors.oldPassword }}
+            </p>
           </div>
           <div class="flex flex-col gap-y-1">
             <div class="flex">
@@ -193,11 +182,7 @@ onMounted(() => {
                       type="password"
                       id="settings-new-password"
                       class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      :class="{
-                        'ring-1 ring-red-500!':
-                          getNewPasswordError && getNewPasswordError.length > 0,
-                      }"
-                      @input="resetPasswordUpdateError"
+                      :class="{ 'ring-1 ring-red-500': serverErrors?.newPassword }"
                       placeholder="Новый пароль"
                       ref="newPasswordRef"
                       v-model="newPassword"
@@ -253,11 +238,8 @@ onMounted(() => {
                     </button>
                   </div>
 
-                  <span
-                    v-if="getNewPasswordError && getNewPasswordError.length > 0"
-                    class="text-red-500 text-xs"
-                  >
-                    {{ getNewPasswordError }}
+                  <span v-if="serverErrors?.newPassword" class="text-red-500 text-xs">
+                    {{ serverErrors.newPassword }}
                   </span>
                 </div>
                 <div
@@ -412,6 +394,13 @@ onMounted(() => {
   </div>
 
   <Teleport to="body">
-    <DeleteUserModal @connectRef="connectDeleteModalRef" @confirm="handleDeleteAccount" />
+    <DeleteUserModal
+      @connectRef="
+        (el: HTMLElement) => {
+          deleteModalRef = el
+        }
+      "
+      @confirm="handleDeleteAccount"
+    />
   </Teleport>
 </template>

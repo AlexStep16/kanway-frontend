@@ -1,16 +1,23 @@
 import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
+import { TASK_COLORS } from '@/constants/TASK_COLORS'
 import { OptionalNullable } from '@/types/utils'
 import { ITask } from '@interfaces/domain/ITask'
 
 export class TaskModel implements ITask {
   public id: string
   public name: string
-  public workspaceId: string
-  public workspaceName: string
-  public boardId: string
-  public boardName: string
-  public categoryId: string
-  public categoryName: string
+  public workspace: {
+    id: string
+    name: string
+  }
+  public board: {
+    id: string
+    name: string
+  }
+  public category: {
+    id: string
+    name: string
+  }
   public isDeleted: boolean
   public isDeletedExternal: boolean
   public order: number
@@ -22,7 +29,7 @@ export class TaskModel implements ITask {
   public dueDate?: OptionalNullable<string>
   public dueHours?: OptionalNullable<number>
   public dueMinutes?: OptionalNullable<number>
-  public color?: OptionalNullable<string>
+  public color?: OptionalNullable<(typeof TASK_COLORS)[number]>
   public colorName?: OptionalNullable<(typeof COLOR_NAMES)[number]>
   public createdAt: Date
   public updatedAt: Date
@@ -30,12 +37,9 @@ export class TaskModel implements ITask {
   constructor(props: ITask) {
     this.id = props.id
     this.name = props.name
-    this.workspaceId = props.workspaceId
-    this.workspaceName = props.workspaceName
-    this.boardId = props.boardId
-    this.boardName = props.boardName
-    this.categoryId = props.categoryId
-    this.categoryName = props.categoryName
+    this.workspace = props.workspace
+    this.board = props.board
+    this.category = props.category
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal
     this.order = props.order

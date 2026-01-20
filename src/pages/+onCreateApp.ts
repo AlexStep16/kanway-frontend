@@ -14,6 +14,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import calendar from 'dayjs/plugin/calendar'
 import updateLocale from 'dayjs/plugin/updateLocale'
 import { plugin as VueInputAutowidth } from 'vue-input-autowidth'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 
 // Import global styles
 import 'vanilla-calendar-pro/styles/index.css'
@@ -57,5 +58,6 @@ function onCreateApp(pageContext: PageContext) {
     if (pageContext.pinia) app.use(pageContext.pinia)
     app.use(VueInputAutowidth)
     app.use(VueTheMask as any)
+    app.use(VueQueryPlugin)
   }
 }

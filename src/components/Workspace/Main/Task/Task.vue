@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ITaskState } from '@stores/interfaces/ITaskState'
-import { useTaskDataStore } from '@stores/taskData'
+import { computed, ref } from 'vue'
 import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
-import { computed, nextTick, ref, watch } from 'vue'
-import { getTimeInReadableFormat } from '@utils/date'
-import Spinner from '@/components/Loader/Spinner.vue'
-import { getTimeStatus } from '@/helpers/getTimeStatus'
-import { TimeStatus } from '@/enums/TimeStatus'
 
-const emit = defineEmits<{
-  (e: 'updateTask', payload: { id: string; isCompleted: boolean }): void
-  (e: 'connectInputEditRef', el: HTMLInputElement): void
-}>()
+import { ITaskState } from '@stores/interfaces/ITaskState'
+import { TimeStatus } from '@/enums/TimeStatus'
+import { getTimeInReadableFormat } from '@utils/date'
+import { getTimeStatus } from '@/helpers/getTimeStatus'
+
+import Spinner from '@/components/Loader/Spinner.vue'
+import { useUIStore } from '@/stores/ui'
+import { useUpdateTask } from '@/composables/tasks/mutations/useUpdateTask'
+import { useArchiveTask } from '@/composables/tasks/mutations/useArchiveTask'
+import { useCloneTask } from '@/composables/tasks/mutations/useCloneTask'
+import { useTaskMutationStatus } from '@/composables/tasks/mutations/useTaskMutationStatus'
 
 const props = defineProps<{
   task: ITaskState
@@ -23,170 +24,145 @@ const props = defineProps<{
   taskClasses?: string
 }>()
 
-const isChecked = ref(true)
+const uiStore = useUIStore()
+
+// --- Mutations ---
+const { mutate: updateTask } = useUpdateTask()
+const { mutate: archiveTask } = useArchiveTask()
+const { mutate: cloneTask } = useCloneTask()
+const status = useTaskMutationStatus(computed(() => props.task.id))
+
+// --- Local State ---
+const isSelected = ref(false)
 const dragStartTime = ref<number>(0)
-const dragEndTime = ref<number>(0)
-const inputAddRef = ref<HTMLInputElement | null>(null)
 
-const TASK_STORE = useTaskDataStore()
-
-watch(inputAddRef, (newVal) => {
-  if (newVal) emit('connectInputEditRef', newVal)
-})
-
+// --- Logic ---
 function toggleTaskCompletion() {
-  TASK_STORE.updateTask(
-    { id: props.task.id, isCompleted: !props.task.isCompleted },
-    props.task.boardId,
-    true,
-  )
+  updateTask({
+    payload: {
+      id: props.task.id,
+      isCompleted: !props.task.isCompleted,
+    },
+    boardId: props.task.board.id,
+  })
 }
 
-function edit(task: ITaskState) {
-  if (task.isNew) return
+function handleEdit() {
+  const clickDuration = Date.now() - dragStartTime.value
+  if (clickDuration > 250) return
 
-  dragEndTime.value = Date.now()
+  uiStore.openTaskToEdit(props.task.id)
+}
 
-  if (dragEndTime.value - dragStartTime.value > 700) {
-    return
+function handleCopy() {
+  cloneTask({ id: props.task.id })
+}
+
+function handleArchive() {
+  archiveTask({ task: props.task })
+}
+
+// --- Computed Styles ---
+const timeStatus = computed(() =>
+  getTimeStatus(
+    props.task.dueDate!,
+    props.task.isCompleted,
+    props.task.dueHours,
+    props.task.dueMinutes,
+  ),
+)
+
+const dateBadgeClasses = computed(() => {
+  switch (timeStatus.value) {
+    case TimeStatus.EXPIRED:
+      return 'bg-red-100 text-red-500'
+    case TimeStatus.EXPIRING:
+      return 'bg-yellow-100 text-yellow-600'
+    case TimeStatus.COMPLETED:
+      return 'bg-green-100 text-green-600'
+    default:
+      return 'bg-gray-100 text-gray-500'
   }
-
-  TASK_STORE.openTaskToEdit(task)
-}
-
-function copyTask(task: ITaskState) {
-  TASK_STORE.cloneTask(task)
-}
-
-function archiveTask(task: ITaskState) {
-  TASK_STORE.archiveTask(task)
-}
-
-async function createOrSplice(task: ITaskState, target: HTMLInputElement, isEnterKey = false) {
-  if (isTaskAdding.value) return
-
-  TASK_STORE.createOrSplice(task, target)
-
-  if (isEnterKey) {
-    nextTick(() => {
-      TASK_STORE.addTaskToStore(task.categoryId) // nexttick to wait current new task is reinit itself ref
-    })
-  }
-}
-
-function startDragging() {
-  dragStartTime.value = Date.now()
-}
-
-const isCopyAvailable = computed(() => {
-  return props.hasCopy && !props.task.isNew && !props.task.isDeleted
 })
 
-const isDeleteAvailable = computed(() => {
-  return props.hasDelete && !props.task.isNew && !props.task.isDeleted
-})
+const isCopyAvailable = computed(() => props.hasCopy && !props.task.isDeleted)
+const isDeleteAvailable = computed(() => props.hasDelete && !props.task.isDeleted)
 
-const isTaskAdding = computed(() => {
-  return TASK_STORE.isTaskAdding(props.task.id)
-})
-
-const isTaskCopying = computed(() => {
-  return TASK_STORE.isTaskCloning(props.task.id)
-})
-
-const isTaskArchiving = computed(() => {
-  return TASK_STORE.isTaskArchiving(props.task.id)
-})
+const readableDate = computed(() =>
+  props.task.dueDate
+    ? getTimeInReadableFormat(props.task.dueDate, props.task.dueHours, props.task.dueMinutes)
+    : '',
+)
 </script>
 
 <template>
   <div
-    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
-    :class="{
-      'border border-gray-200': hasBorder,
-      'shadow-sm': !hasBorder,
-      [taskClasses || '']: !!taskClasses,
-      undraggable: task.isNew,
-    }"
-    @mousedown="startDragging"
-    @click="edit(task)"
+    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md max-w-75 w-full bg-white transition-all duration-200 overflow-hidden select-none"
+    :class="[hasBorder ? 'border border-gray-200' : 'shadow-sm', taskClasses]"
+    @mousedown="dragStartTime = Date.now()"
+    @click="handleEdit"
   >
-    <div class="h-3 w-full" v-if="task.color" :style="{ backgroundColor: task.color }" />
-    <div class="flex gap-x-2 p-3 relative" v-if="task.isNew">
-      <div class="flex items-center" v-if="isTaskAdding">
-        <Spinner class="size-3.5 text-gray-600" />
-      </div>
-      <input
-        type="text"
-        class="text-gray-800 w-full text-sm border-none ring-0 p-0"
-        @blur="createOrSplice(task, $event.target as HTMLInputElement)"
-        @keydown.enter="createOrSplice(task, $event.target as HTMLInputElement, true)"
-        :disabled="isTaskAdding"
-        ref="inputAddRef"
-        placeholder="Название задачи"
-      />
-    </div>
-    <div class="flex flex-col gap-y-2 p-3 group/task relative" v-else>
-      <!-- Info -->
-      <div class="flex items-center gap-x-2" v-if="showInfo">
-        <div class="flex items-center gap-x-1 text-gray-500">
-          <Layers class="size-3" /><span class="text-xs">{{
-            task.categoryName ?? 'Без категории'
+    <!-- Task Color Line -->
+    <div v-if="task.color" class="h-1.5 w-full" :style="{ backgroundColor: task.color }" />
+
+    <div class="flex flex-col gap-y-2 p-3 group/task relative">
+      <!-- Board/Category Info -->
+      <div v-if="showInfo" class="flex items-center gap-x-3 mb-1">
+        <div class="flex items-center gap-x-1 text-gray-400">
+          <Layers class="size-3" />
+          <span class="text-[10px] font-medium uppercase tracking-wider">{{
+            task.category.name
           }}</span>
         </div>
-        <div class="flex items-center gap-x-1 text-gray-500">
-          <SquareKanban class="size-3" /><span class="text-xs">{{
-            task.boardName ?? 'Без доски'
+        <div class="flex items-center gap-x-1 text-gray-400">
+          <SquareKanban class="size-3" />
+          <span class="text-[10px] font-medium uppercase tracking-wider">{{
+            task.board.name
           }}</span>
         </div>
       </div>
 
+      <!-- Main Row: Checkbox + Name -->
       <div class="flex items-start justify-between gap-x-2">
         <div
-          class="flex items-center pr-14 pointer-fine:pr-0 gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform pointer-fine:-translate-x-6 group-hover/task:translate-x-0 transition-all duration-100"
-          :class="{ 'translate-x-0!': task.isCompleted }"
+          class="flex items-center gap-x-2 shrink-1 overflow-hidden min-w-0 transition-all duration-200"
+          :class="[
+            task.isCompleted
+              ? 'translate-x-0'
+              : 'pointer-fine:-translate-x-7 group-hover/task:translate-x-0',
+          ]"
         >
+          <!-- Completion Checkbox -->
           <div
-            class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
-            :class="{ 'opacity-100! pointer-events-auto!': task.isCompleted }"
+            class="size-5 flex shrink-0 items-center justify-center transition-opacity"
+            :class="[task.isCompleted ? 'opacity-100' : 'opacity-0 group-hover/task:opacity-100']"
           >
-            <div class="size-5 flex items-center justify-center">
-              <label
-                class="flex items-center cursor-pointer relative transition-all select-none"
-                @click.stop
+            <label class="relative flex items-center cursor-pointer" @click.stop>
+              <input
+                type="checkbox"
+                :checked="task.isCompleted"
+                @change="toggleTaskCompletion"
+                class="peer size-4.5 rounded-full border-gray-300 checked:bg-green-600 focus:ring-0 cursor-pointer transition-all"
+              />
+              <span
+                class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
               >
-                <input
-                  type="checkbox"
-                  class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
-                  :checked="task.isCompleted"
-                  id="check-custom-style"
-                  @change="toggleTaskCompletion"
-                />
-                <span
-                  class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="size-3"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-width="1"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </span>
-              </label>
-            </div>
+                <svg class="size-3" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </span>
+            </label>
           </div>
+
           <span
-            class="text-sm overflow-hidden break-words"
+            class="text-sm leading-tight break-words"
             :class="{
-              'text-gray-300 decoration-1 line-through': task.isCompleted,
+              'text-gray-400 line-through': task.isCompleted,
+              'text-gray-800': !task.isCompleted,
             }"
           >
             {{ task.name }}
@@ -195,14 +171,14 @@ const isTaskArchiving = computed(() => {
 
         <div
           class="flex items-center cursor-pointer relative transition-all"
-          @click.stop="isChecked = !isChecked"
+          @click.stop="isSelected = !isSelected"
           v-if="hasCheckbox"
         >
           <input
             type="checkbox"
             class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-blue-500 checked:border-blue-600"
             id="payment-method-card-2"
-            v-model="isChecked"
+            v-model="isSelected"
           />
           <span
             class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -224,72 +200,61 @@ const isTaskArchiving = computed(() => {
           </span>
         </div>
 
+        <!-- Right Side Actions (Copy/Archive) -->
         <div
-          class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"
-          :class="{
-            'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto!':
-              isCopyAvailable || isDeleteAvailable,
-          }"
+          class="flex items-center absolute right-1 top-2 opacity-0 group-hover/task:opacity-100 transition-opacity bg-white/80 backdrop-blur-xs rounded-full shadow-sm"
+          @click.stop
         >
           <button
-            type="button"
-            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-            title="Копировать"
-            @click.stop="copyTask(task)"
             v-if="isCopyAvailable"
+            @click="handleCopy"
+            class="p-1.5 text-gray-400 hover:text-blue-500 rounded-full transition-colors"
+            :disabled="status.isCloning?.value"
           >
-            <Spinner v-if="isTaskCopying" class="size-4" />
-            <Copy v-else class="size-4" />
+            <Spinner v-if="status.isCloning?.value" class="size-3.5" />
+            <Copy v-else class="size-3.5" />
           </button>
+
           <button
-            type="button"
-            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-            title="Архивировать"
             v-if="isDeleteAvailable"
-            @click.stop="archiveTask(task)"
+            @click="handleArchive"
+            class="p-1.5 text-gray-400 hover:text-red-500 rounded-full transition-colors"
+            :disabled="status.isArchiving?.value"
           >
-            <Spinner v-if="isTaskArchiving" class="size-4" />
-            <Archive v-else class="size-4" />
+            <Spinner v-if="status.isArchiving?.value" class="size-3.5" />
+            <Archive v-else class="size-3.5" />
           </button>
         </div>
       </div>
 
-      <!-- Описание -->
-      <div class="flex items-center text-xs text-gray-500 gap-1" v-if="task.description">
+      <!-- Description Indicator -->
+      <div v-if="task.description" class="flex items-center text-[11px] text-gray-400 gap-1 mt-0.5">
         <TextAlignStart class="size-3" />
-        <span class="decoration-1 hover:underline">Есть описание</span>
+        <span>С описанием</span>
       </div>
 
-      <!-- Теги -->
-      <div class="flex flex-wrap text-xs text-gray-500 gap-1" v-if="task.tags && task.tags.length">
-        {{ task.tags.map((t) => '#' + t).join(' ') }}
+      <!-- Tags -->
+      <div v-if="task.tags?.length" class="flex flex-wrap gap-1 mt-1">
+        <span
+          v-for="tag in task.tags"
+          :key="tag"
+          class="text-[10px] px-1.5 py-0.5 bg-gray-50 text-gray-500 rounded border border-gray-100"
+        >
+          #{{ tag }}
+        </span>
       </div>
 
-      <!-- Дата выполнения -->
+      <!-- Due Date Badge -->
       <div
         v-if="task.dueDate"
-        class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm py-1 px-2"
-        :class="{
-          'bg-red-100 text-red-400':
-            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
-            TimeStatus.EXPIRED,
-          'bg-yellow-100 text-yellow-500':
-            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
-            TimeStatus.EXPIRING,
-          'bg-gray-100 text-gray-500':
-            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
-            TimeStatus.PROGRESS,
-          'bg-green-100 text-green-500':
-            getTimeStatus(task.dueDate, task.isCompleted, task.dueHours, task.dueMinutes) ===
-            TimeStatus.COMPLETED,
-        }"
+        class="inline-flex items-center self-start gap-x-1.5 text-[11px] font-medium rounded-md py-1 px-2 mt-1 transition-colors"
+        :class="dateBadgeClasses"
       >
-        <Clock class="size-4" />
-        <span v-if="task.dueDate">{{
-          getTimeInReadableFormat(task.dueDate, task.dueHours, task.dueMinutes)
-        }}</span>
+        <Clock class="size-3.5" />
+        <span>{{ readableDate }}</span>
       </div>
 
+      <!-- Extra content slot -->
       <slot />
     </div>
   </div>

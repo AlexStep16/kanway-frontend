@@ -9,11 +9,10 @@ import {
   patchWorkspaceApi,
   getArchivedWorkspacesApi,
   recoverWorkspaceApi,
+  getWorkspaceApi,
 } from '@api/workspaces'
-import { useBoardDataStore } from '@stores/boardData'
-import { useCategoryDataStore } from '@stores/categoryData'
-import { useTaskDataStore } from '@stores/taskData'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
+import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 
 export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
   return new WorkspaceModel({
@@ -28,6 +27,12 @@ export async function fetchWorkspaces() {
   const workspaces = await getWorkspacesApi()
 
   return workspaces.map(transformWorkspace)
+}
+
+export async function fetchWorkspace(id: string) {
+  const workspaces = await getWorkspaceApi(id)
+
+  return workspaces.map(transformWorkspace)[0]
 }
 
 export async function fetchArchivedWorkspaces() {
@@ -48,7 +53,7 @@ export async function createWorkspace(
 }
 
 export async function saveWorkspace(
-  payload: Partial<WorkspaceModel> & { id: string },
+  payload: ISingleUpdate<Partial<IWorkspace>>,
 ): Promise<IResponseWithLog<IWorkspace[]>> {
   const saveResult = await patchWorkspaceApi(payload.id, payload)
 
@@ -67,10 +72,6 @@ export async function archiveWorkspace(
 ): Promise<IResponseWithLog<IWorkspace[]>> {
   const archiveResult = await archiveWorkspaceApi(workspaceId)
 
-  useBoardDataStore().integrateBoards(archiveResult.data.boards)
-  useCategoryDataStore().integrateCategories(archiveResult.data.categories)
-  useTaskDataStore().integrateTasks(archiveResult.data.tasks)
-
   return {
     data: archiveResult.data.workspaces.map(transformWorkspace),
     logId: archiveResult.logId,
@@ -82,10 +83,6 @@ export async function recoverWorkspace(
 ): Promise<IResponseWithLog<IWorkspace[]>> {
   const recoverResult = await recoverWorkspaceApi(workspaceId)
 
-  useBoardDataStore().integrateBoards(recoverResult.data.boards)
-  useCategoryDataStore().integrateCategories(recoverResult.data.categories)
-  useTaskDataStore().integrateTasks(recoverResult.data.tasks)
-
   return {
     data: recoverResult.data.workspaces.map(transformWorkspace),
     logId: recoverResult.logId,
@@ -94,10 +91,6 @@ export async function recoverWorkspace(
 
 export async function cloneWorkspace(workspaceId: string): Promise<IResponseWithLog<IWorkspace[]>> {
   const cloneResult = await cloneWorkspaceApi(workspaceId)
-
-  useBoardDataStore().integrateBoards(cloneResult.data.boards)
-  useCategoryDataStore().integrateCategories(cloneResult.data.categories)
-  useTaskDataStore().integrateTasks(cloneResult.data.tasks)
 
   return {
     data: cloneResult.data.workspaces.map(transformWorkspace),

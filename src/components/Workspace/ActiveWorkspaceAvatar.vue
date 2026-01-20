@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useWorkspace } from '@/composables/workspaces/queries/useWorkspace'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { storeToRefs } from 'pinia'
+
+const workspaceStore = useWorkspaceStore()
+
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
+
+const { data: activeWorkspace } = useWorkspace(activeWorkspaceId)
 
 defineProps<{
   size?: string
 }>()
-
-const WORKSPACE_STORE = useWorkspaceDataStore()
 </script>
 
 <template>
   <div
     class="shrink-0 rounded-md flex items-center justify-center font-semibold text-white"
     :class="'size-' + (size || 7)"
-    :style="{ backgroundColor: WORKSPACE_STORE.activeWorkspace?.color || '#3B82F6' }"
+    :style="{ backgroundColor: activeWorkspace?.color || '#3B82F6' }"
   >
-    {{ WORKSPACE_STORE.getFirstLetterOfActiveWorkspace }}
+    {{ activeWorkspace?.name.charAt(0).toUpperCase() }}
   </div>
 </template>

@@ -7,6 +7,7 @@ import {
   approveToolCallApi,
   retryApi,
   stopAgentApi,
+  getChatApi,
 } from '@api/chats'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import ChatModel from '@/models/ChatModel'
@@ -23,30 +24,36 @@ export function transformChat(raw: IChat): ChatModel {
   })
 }
 
-export async function sendMessage(workspaceId: string, payload: SendMessagePayload) {
-  const result = sendMessageApi(workspaceId, payload)
+export async function sendMessage(payload: SendMessagePayload) {
+  const result = await sendMessageApi(payload)
 
   return result
 }
 
-export async function retryAgent(data: RetryAgentPayload, workspaceId: string) {
-  const result = await retryApi(data, workspaceId)
+export async function retryAgent(data: RetryAgentPayload) {
+  const result = await retryApi(data)
 
   return result
 }
 
-export async function fetchChats(workspaceId: string) {
+export async function fetchChats(workspaceId?: string) {
   const chats = await getChatsApi(workspaceId)
 
   return chats.map(transformChat).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
 }
 
-export async function removeChat(chatId: string, workspaceId: string) {
-  await deleteChatApi(chatId, workspaceId)
+export async function fetchChat(id: string) {
+  const chat = await getChatApi(id)
+
+  return chat.map(transformChat)[0]
 }
 
-export async function approveToolCall(data: ApproveToolCall, workspaceId: string) {
-  const result = await approveToolCallApi(data, workspaceId)
+export async function removeChat(id: string) {
+  await deleteChatApi(id)
+}
+
+export async function approveToolCall(data: ApproveToolCall) {
+  const result = await approveToolCallApi(data)
 
   return {
     jobId: result.jobId,
@@ -54,11 +61,8 @@ export async function approveToolCall(data: ApproveToolCall, workspaceId: string
   }
 }
 
-export async function cloneChat(
-  chatId: string,
-  workspaceId: string,
-): Promise<IResponseWithLog<IChat>> {
-  const cloneResult = await cloneChatApi(chatId, workspaceId)
+export async function cloneChat(id: string): Promise<IResponseWithLog<IChat>> {
+  const cloneResult = await cloneChatApi(id)
 
   return {
     data: transformChat(cloneResult.data),
@@ -66,6 +70,6 @@ export async function cloneChat(
   }
 }
 
-export async function stopAgent(data: StopAgentPayload, workspaceId: string) {
-  return await stopAgentApi(data, workspaceId)
+export async function stopAgent(data: StopAgentPayload) {
+  return await stopAgentApi(data)
 }

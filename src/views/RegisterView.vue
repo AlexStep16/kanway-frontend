@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { Nullable } from '@/types/utils'
+import { useRegister } from '@/composables/auth/useRegister'
 
-const AUTH_STORE = useAuthStore()
-
-const { registerError } = storeToRefs(AUTH_STORE)
+const { mutate: register, error: registerError } = useRegister()
 
 const email = ref('')
 const password = ref('')
@@ -29,17 +26,21 @@ const errorMessage = computed(() => {
   return ''
 })
 
-async function register() {
+async function handleRegister() {
   validateForm()
 
   if (errors.value.email || errors.value.password || errors.value.confirmPassword) {
     return
   }
 
-  const success = await AUTH_STORE.handleRegister({ email: email.value, password: password.value })
-
-  if (success) {
-  }
+  register(
+    { email: email.value, password: password.value },
+    {
+      onSuccess: () => {
+        // Handle successful registration, e.g., redirect to dashboard
+      },
+    },
+  )
 }
 
 function validateForm() {
@@ -63,8 +64,6 @@ function resetErrors() {
   errors.value.email = null
   errors.value.password = null
   errors.value.confirmPassword = null
-
-  AUTH_STORE.registerError = null
 }
 
 onMounted(() => {
@@ -136,7 +135,7 @@ onMounted(() => {
           </div>
 
           <!-- Form -->
-          <form @submit.prevent="register">
+          <form @submit.prevent="handleRegister" novalidate>
             <div class="grid gap-y-4">
               <!-- Form Group -->
               <div>

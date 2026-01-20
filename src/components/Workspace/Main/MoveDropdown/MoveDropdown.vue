@@ -1,338 +1,92 @@
 <script setup lang="ts">
-import { useCategoryDataStore } from '@stores/categoryData'
-import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { computed, onMounted, ref, watch } from 'vue'
-import { HSDropdown, HSSelect, HSStaticMethods, ICollectionItem } from 'preline'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { HSDropdown, HSSelect, HSStaticMethods } from 'preline'
 import MoveDropdownButton from '@components/Workspace/Main/MoveDropdown/MoveDropdownButton.vue'
-import { ITaskState } from '@stores/interfaces/ITaskState'
-import { ICategoryState } from '@stores/interfaces/ICategoryState'
-import { Nullable } from '@/types/utils'
-import { IBoard } from '@interfaces/domain/IBoard'
-
-enum EntityType {
-  Task = 0,
-  Category = 1,
-  Board = 2,
-}
+import { EntityType } from '@/enums/EntityType'
+import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
+import { useBoards } from '@/composables/boards/queries/useBoards'
+import { useCategories } from '@/composables/categories/queries/useCategories'
 
 const props = defineProps<{
-  entity: ITaskState | ICategoryState | IBoard
+  entity: any // ITaskState | ICategoryState | IBoard
   type: EntityType
 }>()
 
-const emit = defineEmits<{
-  (e: 'moveTask', entityId: string, newParentId: string): void
-  (e: 'moveCategory', entityId: string, newParentId: string): void
-  (e: 'moveBoard', entityId: string, newParentId: string): void
-}>()
+const emit = defineEmits(['move'])
 
-const CATEGORY_STORE = useCategoryDataStore()
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+// --- STATE ---
+const selectedWorkspaceId = ref(props.entity.workspace?.id)
+const selectedBoardId = ref(props.entity.board?.id || null)
+const selectedCategoryId = ref(props.entity.category?.id || null)
 
-const workspaceSelectRef = ref<Nullable<HTMLElement>>(null)
-const workspaceSelectInstance = ref<Nullable<HSSelect>>(null)
-const boardSelectRef = ref<Nullable<HTMLElement>>(null)
-const boardSelectInstance = ref<Nullable<HSSelect>>(null)
-const categorySelectRef = ref<Nullable<HTMLElement>>(null)
-const categorySelectInstance = ref<Nullable<HSSelect>>(null)
-const moveRef = ref<Nullable<HTMLElement>>(null)
-const moveInstance = ref<Nullable<HSDropdown>>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
 
-const getCurrentCategory = computed(() => {
-  return CATEGORY_STORE.getCategoryById((props.entity as ITaskState).categoryId)
-})
+// --- QUERIES ---
+const { data: workspaces = [] } = useWorkspaces()
+const { data: boards = [], isFetching: isBoardsLoading } = useBoards(selectedWorkspaceId)
+const { data: categories = [], isFetching: isCategoriesLoading } = useCategories(selectedBoardId)
 
-const getCurrentBoard = computed(() => {
-  return BOARD_STORE.getBoardById((props.entity as ICategoryState).boardId)
-})
+const reinitSelects = () => {
+  nextTick(() => {
+    HSSelect.autoInit()
 
-const getCurrentWorkspace = computed(() => {
-  return WORKSPACE_STORE.getWorkspaceById((props.entity as IBoard).workspaceId)
-})
-
-const selectedWorkspace = ref<string>(getCurrentWorkspace.value?.id || '')
-const selectedBoard = ref<Nullable<string>>(getCurrentBoard.value?.id || null)
-const selectedCategory = ref<Nullable<string>>(getCurrentCategory.value?.id || null)
-
-const getBoards = computed(() => {
-  return BOARD_STORE.getBoardsByWorkspaceId(selectedWorkspace.value || '')
-})
-
-const getWorkspaces = computed(() => {
-  return WORKSPACE_STORE.getWorkspaces
-})
-
-const getCategories = computed(() => {
-  if (!selectedBoard.value) return []
-
-  return CATEGORY_STORE.getCategoriesByBoardId(selectedBoard.value)
-})
-
-function fillWorkspaceOptions() {
-  if (!workspaceSelectInstance.value) return
-
-  for (const workspace of getWorkspaces.value) {
-    workspaceSelectInstance.value.addOption({
-      title: workspace.name,
-      val: workspace.id,
+    const selects = dropdownRef.value?.querySelectorAll('[data-hs-select]')
+    selects?.forEach((el) => {
+      const instance = HSSelect.getInstance(el as HTMLElement, true) as any
+      if (instance && instance.element) {
+        instance.element.on('change', (val: string) => {
+          if (el.id.includes('workspace')) selectedWorkspaceId.value = val
+          if (el.id.includes('board')) selectedBoardId.value = val
+          if (el.id.includes('category')) selectedCategoryId.value = val
+        })
+      }
     })
-  }
+  })
 }
 
-function fillBoardOptions() {
-  if (!boardSelectInstance.value) return
+watch([workspaces, boards, categories], reinitSelects)
 
-  for (const board of getBoards.value) {
-    boardSelectInstance.value.addOption({
-      title: board.name,
-      val: board.id,
-    })
+watch(selectedWorkspaceId, (newId, oldId) => {
+  if (newId !== oldId) {
+    selectedBoardId.value = null
+    selectedCategoryId.value = null
   }
+})
 
-  if (getBoards.value.length > 0) {
-    const defaultValue = selectedBoard.value || getBoards.value[0].id
-
-    boardSelectInstance.value.setValue(defaultValue)
-    selectedBoard.value = defaultValue
+watch(selectedBoardId, (newId, oldId) => {
+  if (newId !== oldId) {
+    selectedCategoryId.value = null
   }
-}
+})
 
-function fillCategoryOptions() {
-  if (!categorySelectInstance.value) return
+function handleMove() {
+  emit('move', {
+    id: props.entity.id,
+    newCategoryId: selectedCategoryId.value,
+    newBoardId: selectedBoardId.value,
+    newWorkspaceId: selectedWorkspaceId.value,
+  })
 
-  for (const category of getCategories.value) {
-    categorySelectInstance.value.addOption({
-      title: category.name || 'Без категории',
-      val: category.id,
-    })
-  }
-
-  if (getCategories.value.length > 0) {
-    const defaultValue = selectedCategory.value || getCategories.value[0].id
-
-    categorySelectInstance.value.setValue(defaultValue)
-    selectedCategory.value = defaultValue
-  }
-}
-
-function removeCurrentCategoryOptions() {
-  if (!categorySelectInstance.value) return
-
-  const options = (categorySelectInstance.value as any).selectOptions
-
-  for (const option of options) {
-    categorySelectInstance.value.removeOption(option.val)
-  }
-}
-
-function removeCurrentBoardOptions() {
-  if (!boardSelectInstance.value) return
-
-  const options = (boardSelectInstance.value as any).selectOptions
-
-  for (const option of options) {
-    boardSelectInstance.value.removeOption(option.val)
-  }
-}
-
-function moveTask() {
-  if (!selectedCategory.value) return
-
-  emit('moveTask', props.entity.id, selectedCategory.value)
-
-  if (moveInstance.value) {
-    moveInstance.value.close()
-  }
-}
-
-function moveCategory() {
-  if (!selectedBoard.value) return
-
-  emit('moveCategory', props.entity.id, selectedBoard.value)
-
-  if (moveInstance.value) {
-    moveInstance.value.close()
-  }
-}
-
-function moveBoard() {
-  if (!selectedWorkspace.value) return
-
-  emit('moveBoard', props.entity.id, selectedWorkspace.value)
-
-  if (moveInstance.value) {
-    moveInstance.value.close()
-  }
+  const instance = HSDropdown.getInstance(dropdownRef.value!, true) as any
+  if (instance) instance.element.close()
 }
 
 const isMoveDisabled = computed(() => {
   if (props.type === EntityType.Board)
-    return (
-      !selectedWorkspace.value || selectedWorkspace.value === (props.entity as IBoard).workspaceId
-    )
-  if (props.type === EntityType.Category)
-    return !selectedBoard.value || selectedBoard.value === (props.entity as ICategoryState).boardId
-  else if (props.type === EntityType.Task)
-    return (
-      !selectedCategory.value || selectedCategory.value === (props.entity as ITaskState).categoryId
-    )
-  else return true
+    return selectedWorkspaceId.value === props.entity.workspace.id
+  if (props.type === EntityType.Category) return selectedBoardId.value === props.entity.board.id
+  return selectedCategoryId.value === props.entity.category.id
 })
-
-watch(
-  () => BOARD_STORE.areBoardsLoading(selectedWorkspace.value || ''),
-  (val: boolean) => {
-    if (val) {
-      const toggle = moveRef.value?.querySelector('button .board-select-loader') as HTMLElement
-
-      if (toggle) {
-        toggle.style.display = 'block'
-      }
-    } else {
-      const toggle = moveRef.value?.querySelector('button .board-select-loader') as HTMLElement
-
-      if (toggle) {
-        toggle.style.display = 'none'
-      }
-    }
-  },
-)
-
-watch(
-  () => CATEGORY_STORE.areCategoriesLoading(selectedBoard.value || ''),
-  (val: boolean) => {
-    if (val) {
-      const toggle = moveRef.value?.querySelector('button .category-select-loader') as HTMLElement
-
-      if (toggle) {
-        toggle.style.display = 'block'
-      }
-    } else {
-      const toggle = moveRef.value?.querySelector('button .category-select-loader') as HTMLElement
-
-      if (toggle) {
-        toggle.style.display = 'none'
-      }
-    }
-  },
-)
-
-function move() {
-  if (props.type === EntityType.Task) {
-    moveTask()
-  } else if (props.type === EntityType.Category) {
-    moveCategory()
-  } else if (props.type === EntityType.Board) {
-    moveBoard()
-  }
-}
 
 const getButtonTitle = computed(() => {
-  if (props.type === EntityType.Task) {
-    const task = props.entity as ITaskState
-
-    return task.categoryName ? task.categoryName : 'Без категории'
-  } else if (props.type === EntityType.Category) {
-    const category = props.entity as ICategoryState
-
-    return category.boardName ? category.boardName : 'Без доски'
-  } else {
-    const board = props.entity as IBoard
-
-    return board.workspaceName ? board.workspaceName : 'Без пространства'
-  }
+  if (props.type === EntityType.Task) return props.entity.category.name || 'Без категории'
+  if (props.type === EntityType.Category) return props.entity.board.name || 'Без доски'
+  return props.entity.workspace.name || 'Без пространства'
 })
-
-const isCategoryShown = computed(() => {
-  return props.type === EntityType.Task
-})
-
-const isBoardShown = computed(() => {
-  return props.type === EntityType.Category || props.type === EntityType.Task
-})
-
-function initCategorySelector() {
-  if (!categorySelectRef.value) return
-
-  categorySelectInstance.value = HSSelect.getInstance(categorySelectRef.value) as HSSelect
-
-  fillCategoryOptions()
-
-  categorySelectInstance.value.setValue(getCurrentCategory.value?.id || '')
-
-  categorySelectInstance.value.on('change', (val: string) => {
-    selectedCategory.value = val
-  })
-
-  selectedCategory.value = getCurrentCategory.value?.id || ''
-}
-
-function initBoardSelector() {
-  if (!boardSelectRef.value) return
-
-  boardSelectInstance.value = HSSelect.getInstance(boardSelectRef.value) as HSSelect
-
-  fillBoardOptions()
-
-  boardSelectInstance.value.setValue(getCurrentBoard.value?.id || '')
-
-  boardSelectInstance.value.on('change', async (val: string) => {
-    removeCurrentCategoryOptions()
-
-    selectedBoard.value = val
-    selectedCategory.value = null
-
-    await CATEGORY_STORE.loadCategories(val, selectedWorkspace.value)
-
-    fillCategoryOptions()
-  })
-
-  selectedBoard.value = getCurrentBoard.value?.id || ''
-}
-
-function initWorkspaceSelector() {
-  if (!workspaceSelectRef.value) return
-
-  workspaceSelectInstance.value = HSSelect.getInstance(workspaceSelectRef.value) as HSSelect
-
-  fillWorkspaceOptions()
-
-  workspaceSelectInstance.value.setValue(getCurrentWorkspace.value?.id || '')
-
-  workspaceSelectInstance.value.on('change', async (val: string) => {
-    removeCurrentCategoryOptions()
-    removeCurrentBoardOptions()
-
-    selectedWorkspace.value = val
-    selectedBoard.value = null
-    selectedCategory.value = null
-
-    await BOARD_STORE.loadBoards(val)
-
-    fillBoardOptions()
-  })
-
-  selectedWorkspace.value = getCurrentWorkspace.value?.id || ''
-}
 
 onMounted(() => {
   HSStaticMethods.autoInit()
-
-  initWorkspaceSelector()
-  if (isBoardShown.value) {
-    initBoardSelector()
-  }
-  if (isCategoryShown.value) {
-    initCategorySelector()
-  }
-
-  if (moveRef.value) {
-    const { element } = HSDropdown.getInstance(moveRef.value, true) as ICollectionItem<HSDropdown>
-
-    moveInstance.value = element
-  }
+  reinitSelects()
 })
 </script>
 
@@ -353,7 +107,9 @@ onMounted(() => {
           <span class="text-xs text-gray-400">Пространство</span>
 
           <select
-            ref="workspaceSelectRef"
+            :id="`select-workspace-${entity.id}`"
+            v-model="selectedWorkspaceId"
+            :key="`ws-${workspaces.length}`"
             data-hs-select='{
                       "placeholder": "Нет пространств...",
                       "toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
@@ -364,12 +120,20 @@ onMounted(() => {
                       "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
                     }'
             class="hidden"
-          ></select>
+            :disabled="workspaces.length === 0"
+          >
+            <option v-for="ws in workspaces" :key="ws.id" :value="ws.id">{{ ws.name }}</option>
+          </select>
         </div>
 
-        <div class="flex flex-col gap-y-0.5 flex-grow-1" v-if="isBoardShown">
+        <div class="flex flex-col gap-y-0.5 flex-grow-1" v-if="type !== EntityType.Board">
           <span class="text-xs text-gray-400">Доска</span>
-
+          <div
+            v-if="isBoardsLoading"
+            class="absolute inset-0 bg-white/60 z-10 flex items-center justify-center"
+          >
+            <div class="w-full h-8 bg-gray-100 animate-pulse rounded-lg"></div>
+          </div>
           <select
             ref="boardSelectRef"
             data-hs-select='{
@@ -382,13 +146,21 @@ onMounted(() => {
                       "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
                     }'
             class="hidden"
+            :disabled="boards.length === 0"
           ></select>
         </div>
 
-        <div class="flex flex-col gap-y-0.5 flex-grow-1" v-if="isCategoryShown">
+        <div class="flex flex-col gap-y-0.5 flex-grow-1" v-if="type === EntityType.Task">
           <span class="text-xs text-gray-400">Категория</span>
+
+          <div v-if="isCategoriesLoading" class="absolute inset-0 bg-white/60 z-10">
+            <div class="w-full h-8 bg-gray-100 animate-pulse rounded-lg"></div>
+          </div>
+
           <select
-            ref="categorySelectRef"
+            :id="`select-category-${entity.id}`"
+            v-model="selectedCategoryId"
+            :key="`cat-${selectedBoardId}-${categories.length}`"
             data-hs-select='{
                       "placeholder": "Нет категорий...",
                       "toggleTag": "<button class=\"overflow-hidden\" type=\"button\" aria-expanded=\"false\"><div style=\"display: none;\" class=\"category-select-loader size-full absolute left-0 top-0 z-100 bg-white\"><div class=\"size-full animate-pulse bg-gray-300\"></div></div></button>",
@@ -399,14 +171,16 @@ onMounted(() => {
                       "extraMarkup": "<div class=\"absolute top-1/2 end-3 -translate-y-1/2\"><svg class=\"shrink-0 size-3.5 text-gray-500 \" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg></div>"
                     }'
             class="hidden"
-            :disabled="getCategories.length === 0"
-          ></select>
+            :disabled="categories.length === 0"
+          >
+            <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+          </select>
         </div>
 
         <button
-          class="self-start rounded-md text-xs px-2.5 py-1.5 bg-blue-500 hover:opacity-90 transition-opacity text-white duration-100 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
-          :disabled="isMoveDisabled"
-          @click="move"
+          class="w-full rounded-md text-xs py-2 bg-blue-500 text-white disabled:opacity-50"
+          :disabled="isMoveDisabled || isBoardsLoading || isCategoriesLoading"
+          @click="handleMove"
         >
           Переместить
         </button>

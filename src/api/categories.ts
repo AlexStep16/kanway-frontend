@@ -4,11 +4,21 @@ import { ICategory } from '@interfaces/domain/ICategory'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import { ICategoriesWithChildrenResponse } from '@/interfaces/ICategoriesWithChildrenResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
+import { ICategoryCreateApiPayload } from '@/interfaces/ICategoryCreateApiPayload'
 
-export async function getCategoriesApi(workspaceId: string, boardId: string) {
+export async function getCategoriesApi(boardId?: string) {
+  const queryParams = boardId ? `?boardId=${boardId}` : ''
+
   return await apiCall<ICategory[]>({
     method: 'GET',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories`,
+    url: `/categories${queryParams}`,
+  })
+}
+
+export async function getCategoryApi(id: string) {
+  return await apiCall<ICategory[]>({
+    method: 'GET',
+    url: `/categories/${id}`,
   })
 }
 
@@ -19,67 +29,54 @@ export async function getArchivedCategoriesApi() {
   })
 }
 
-export async function postCategoryApi(
-  payload: Partial<ICategory>,
-  workspaceId: string,
-  boardId: string,
-) {
+export async function postCategoryApi(payload: ICategoryCreateApiPayload) {
   return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories`,
+    url: `/categories`,
     data: payload,
   })
 }
 
-export async function patchCategoryApi(
-  workspaceId: string,
-  boardId: string,
-  categoryId: string,
-  payload: Partial<ICategory>,
-) {
+export async function patchCategoryApi(payload: ISingleUpdate<ICategory>) {
   return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}`,
+    url: `/categories/${payload.id}`,
     data: payload,
   })
 }
 
-export async function bulkUpdateCategoriesApi(
-  workspaceId: string,
-  boardId: string,
-  payload: ISingleUpdate<ICategory>[],
-) {
+export async function bulkUpdateCategoriesApi(payload: ISingleUpdate<ICategory>[]) {
   return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/bulk`,
+    url: `/categories/bulk`,
     data: payload,
   })
 }
 
-export async function deleteCategoryApi(categoryId: string, workspaceId: string, boardId: string) {
+export async function deleteCategoryApi(id: string) {
   return await apiCall<void>({
     method: 'DELETE',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}`,
+    url: `/categories/${id}`,
   })
 }
 
-export async function archiveCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
+export async function archiveCategoryApi(id: string) {
   return await apiCall<IResponseWithLog<ICategoriesWithChildrenResponse>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/archive`,
+    url: `/categories/${id}/archive`,
   })
 }
 
-export async function recoverCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
+export async function recoverCategoryApi(id: string) {
   return await apiCall<IResponseWithLog<ICategoriesWithChildrenResponse>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/recover`,
+    url: `/categories/${id}/recover`,
   })
 }
 
-export async function cloneCategoryApi(categoryId: string, boardId: string, workspaceId: string) {
+export async function cloneCategoryApi(id: string) {
   return await apiCall<IResponseWithLog<IClonedCategoryResult>>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/categories/${categoryId}/clone`,
+    url: `/categories/${id}/clone`,
   })
 }

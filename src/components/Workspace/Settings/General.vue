@@ -2,17 +2,20 @@
 import { Camera, Lock } from 'lucide-vue-next'
 import dayjs from 'dayjs'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
-import { computed, onMounted, ref, toRef } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@stores/auth'
 import { toast } from 'vue-sonner'
 import { HSSelect, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
+import { storeToRefs } from 'pinia'
+import { useUpdateUser } from '@/composables/auth/useUpdateUser'
 
-const AUTH_STORE = useAuthStore()
+const authStore = useAuthStore()
 
-const user = toRef(AUTH_STORE, 'user')
-const isUserTimezoneUpdating = toRef(AUTH_STORE, 'isUserTimezoneUpdating')
-const isUsernameUpdating = toRef(AUTH_STORE, 'isUsernameUpdating')
+const { user } = storeToRefs(authStore)
+
+const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUser()
+const { mutate: updateUserTimezone, isPending: isUserTimezoneUpdating } = useUpdateUser()
 
 const username = ref(user.value?.username ?? '')
 const usernameHasErrors = ref(false)
@@ -57,28 +60,38 @@ function validateUsername(name: string): boolean {
   return isValid
 }
 
-async function handleSaveUsername() {
+function handleSaveUsername() {
+  if (!user.value) return
+
   const isUsernameValid = validateUsername(username.value)
 
   if (!isUsernameValid) usernameHasErrors.value = true
   else usernameHasErrors.value = false
 
   if (username.value && haveChanges.value && isUsernameValid) {
-    const result = await AUTH_STORE.updateUsername(username.value)
-
-    if (result) {
-      toast.success('Имя успешно обновлено')
-    }
+    updateUsername(
+      { id: user.value?.id, username: username.value },
+      {
+        onSuccess: () => {
+          toast.success('Имя успешно обновлено')
+        },
+      },
+    )
   }
 }
 
 async function handleChangeTimezone(timezone: string) {
-  if (timezone && timezone !== getUserTimezone.value) {
-    const result = await AUTH_STORE.updateUserTimezone(timezone)
+  if (!user.value) return
 
-    if (result) {
-      toast.success('Часовой пояс успешно обновлен')
-    }
+  if (timezone && timezone !== getUserTimezone.value) {
+    updateUserTimezone(
+      { id: user.value.id, timezone },
+      {
+        onSuccess: () => {
+          toast.success('Часовой пояс успешно обновлен')
+        },
+      },
+    )
   }
 }
 

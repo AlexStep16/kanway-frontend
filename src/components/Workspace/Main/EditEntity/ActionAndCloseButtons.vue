@@ -4,8 +4,8 @@ import Spinner from '@components/Loader/Spinner.vue'
 
 defineProps<{
   editableEntity: T
-  isEntityCopying: boolean
-  isEntityArchiving: boolean
+  isEntityCopying?: boolean
+  isEntityArchiving?: boolean
 }>()
 
 defineEmits<{

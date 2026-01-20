@@ -6,16 +6,26 @@ import Sparkles from '@assets/sparkles.svg?component'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { Nullable } from '@/types/utils'
 import { HSTextareaAutoHeight } from 'preline'
-
-const message = ref<string>('')
-const textareaRef = ref<Nullable<HTMLTextAreaElement>>(null)
+import { storeToRefs } from 'pinia'
+import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
+import { useChatMessageStore } from '@/stores/chatMessage'
+import { useChat } from '@/composables/chat/queries/useChat'
 
 const emit = defineEmits<{
   (e: 'send', message: string): void
 }>()
 
-const AGENT_STATUS_STORE = useAgentStatusStore()
-const CHAT_STORE = useChatStore()
+const message = ref<string>('')
+const textareaRef = ref<Nullable<HTMLTextAreaElement>>(null)
+
+const agentStatusStore = useAgentStatusStore()
+const chatStore = useChatStore()
+const chatMessageStore = useChatMessageStore()
+
+const { activeChatId } = storeToRefs(chatStore)
+const { data: chat } = useChat(activeChatId)
+const { isLastMessageFromHuman } = storeToRefs(chatMessageStore)
+const { mutate: stopAgent } = useStopAgent()
 
 function sendChatMessage() {
   emit('send', message.value.trim())
@@ -36,10 +46,19 @@ function reInitializeTextarea() {
   }
 }
 
+function handleStopAgent() {
+  if (chat.value) {
+    stopAgent({
+      chatId: chat.value.id,
+      threadId: chat.value.threadId,
+    })
+  }
+}
+
 const isRunButtonDisabled = computed(() => {
   return (
-    AGENT_STATUS_STORE.isSSEActive() ||
-    (CHAT_STORE.isLastMessageFromHuman === false && message.value.trim() === '')
+    agentStatusStore.isSSEActive() ||
+    (isLastMessageFromHuman.value === false && message.value.trim() === '')
   )
 })
 
@@ -70,7 +89,7 @@ onMounted(() => {
         <button
           type="button"
           class="flex items-center justify-center text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:pointer-events-none hover:bg-gray-200 transition-colors duration-100 size-8 rounded-md"
-          :disabled="AGENT_STATUS_STORE.isSSEActive()"
+          :disabled="agentStatusStore.isSSEActive()"
         >
           <Mic class="size-5" />
         </button>
@@ -78,7 +97,7 @@ onMounted(() => {
           type="button"
           class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
           :disabled="isRunButtonDisabled"
-          v-if="!AGENT_STATUS_STORE.isSSEActive()"
+          v-if="!agentStatusStore.isSSEActive()"
           @click="sendChatMessage()"
         >
           <span class="hidden sm:inline">Выполнить</span>
@@ -89,10 +108,10 @@ onMounted(() => {
           type="button"
           class="text-white bg-blue-500 px-3 text-xs min-w-20 font-medium hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity duration-100 rounded-md inline-flex items-center gap-x-2 h-8"
           v-else
-          @click="CHAT_STORE.stopAgent()"
+          @click="handleStopAgent()"
         >
           <Square class="size-3.5" fill="#FFFFFF" />
-          <span>{{ AGENT_STATUS_STORE.formattedTime }}</span>
+          <span>{{ agentStatusStore.formattedTime }}</span>
         </button>
       </div>
     </div>

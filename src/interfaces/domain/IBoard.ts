@@ -1,10 +1,14 @@
 export interface IBoard {
   id: string
   name: string
-  workspaceId: string
-  workspaceName: string
+  workspace: {
+    id: string
+    name: string
+  }
   userId: string
   isFavorite: boolean
+  categoriesCount: number
+  tasksCount: number
   order: number
   isDeleted: boolean
   isDeletedExternal: boolean

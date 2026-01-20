@@ -10,7 +10,7 @@ import Payments from '@components/Workspace/Settings/Payments.vue'
 import { SettingTabs } from '@/enums/SettingTabs'
 import { onMounted, ref } from 'vue'
 
-const UI_STORE = useUIStore()
+const uiStore = useUIStore()
 
 const currentTab = ref(SettingTabs.GENERAL)
 
@@ -24,7 +24,7 @@ onMounted(() => {
     id="hs-settings"
     :ref="
       (el) => {
-        if (el) UI_STORE.settingsModalRef = el as HTMLElement
+        if (el) uiStore.settingsModalRef = el as HTMLElement
       }
     "
     class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
@@ -44,7 +44,7 @@ onMounted(() => {
           <button
             class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"
             type="button"
-            @click="UI_STORE.closeSettingsModal()"
+            @click="uiStore.closeSettingsModal()"
           >
             <X class="size-5" />
           </button>

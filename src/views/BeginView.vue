@@ -2,14 +2,16 @@
 import { navigate } from 'vike/client/router'
 import { LogOut, Camera } from 'lucide-vue-next'
 import ColorButtons from '@/components/Buttons/ColorButtons.vue'
-import { computed, nextTick, onMounted, ref, toRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { HSAccordion } from 'preline'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { AvailableColors } from '@enums/AvailableColors'
 import { Nullable } from '@/types/utils'
-import { useWorkspaceDataStore } from '@/stores/workspaceData'
 import SubmitButton from '@/components/Forms/BasicCreateEditForm/SubmitButton.vue'
 import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+import { useCreateWorkspace } from '@/composables/workspaces/mutations/useCreateWorkspace'
+import { useUpdateUser } from '@/composables/auth/useUpdateUser'
 
 enum Tab {
   WORKSPACE = 0,
@@ -17,13 +19,13 @@ enum Tab {
   AVATAR = 2,
 }
 
-const WORKSPACE_STORE = useWorkspaceDataStore()
-const AUTH_STORE = useAuthStore()
+const authStore = useAuthStore()
 
-const user = toRef(AUTH_STORE, 'user')
-const isAddingWorkspace = toRef(WORKSPACE_STORE, 'isAddingWorkspace')
-const isUsernameUpdating = toRef(AUTH_STORE, 'isUsernameUpdating')
-const isUserAvatarColorUpdating = toRef(AUTH_STORE, 'isUserAvatarColorUpdating')
+const { user } = storeToRefs(authStore)
+
+const { mutate: createWorkspace, isPending: isAddingWorkspace } = useCreateWorkspace()
+const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUser()
+const { mutate: updateAvatarColor, isPending: isUserAvatarColorUpdating } = useUpdateUser()
 
 const validationErrors = ref({
   workspaceName: '',
@@ -124,39 +126,60 @@ function updateProgressLabel() {
   })
 }
 
-async function createWorkspace() {
+async function handleCreateWorkspace() {
   if (!validateWorkspaceName(workspaceName.value)) {
     return
   }
 
-  const newWorkspace = await WORKSPACE_STORE.addWorkspace({
-    name: workspaceName.value,
-    color: workspaceColor.value,
-  })
-
-  if (newWorkspace) currentTab.value = Tab.USER
+  createWorkspace(
+    {
+      payload: { name: workspaceName.value, color: workspaceColor.value },
+    },
+    {
+      onSuccess: () => {
+        currentTab.value = Tab.USER
+      },
+    },
+  )
 }
 
-async function updateUsername() {
+async function handleUpdateUsername() {
   if (!validateUsername(username.value)) {
     return
   }
 
-  const isUpdated = await AUTH_STORE.updateUsername(username.value)
-
-  if (isUpdated) currentTab.value = Tab.AVATAR
+  updateUsername(
+    {
+      id: user.value!.id,
+      username: username.value,
+    },
+    {
+      onSuccess: () => {
+        currentTab.value = Tab.AVATAR
+      },
+    },
+  )
 }
 
-async function updateAvatarColor() {
+async function handleUpdateAvatarColor() {
   if (avatarColor.value === oldAvatarColor.value) return
 
-  await AUTH_STORE.updateAvatarColor(avatarColor.value)
+  updateAvatarColor(
+    {
+      id: user.value!.id,
+      avatarColor: avatarColor.value,
+    },
+    {
+      onSuccess: () => {
+        oldAvatarColor.value = avatarColor.value
+      },
+    },
+  )
 
   // Optionally, you can navigate to another page or show a success message here
 }
 
 watch(getCurrentProgress, () => updateProgressLabel(), { immediate: true })
-watch(avatarColor, (newColor: AvailableColors) => AUTH_STORE.updateAvatarColorInStore(newColor))
 
 onMounted(() => {
   window.HSStaticMethods.autoInit()
@@ -265,7 +288,7 @@ onMounted(() => {
                 :isFormChanged="workspaceName.length > 0"
                 :customClass="'text-sm'"
                 text="Создать"
-                @submit="createWorkspace"
+                @submit="handleCreateWorkspace"
               ></SubmitButton>
             </div>
 
@@ -302,7 +325,7 @@ onMounted(() => {
                 :isFormChanged="username.length > 0"
                 :customClass="'text-sm'"
                 text="Сохранить"
-                @submit="updateUsername"
+                @submit="handleUpdateUsername"
               ></SubmitButton>
             </div>
 
@@ -335,7 +358,7 @@ onMounted(() => {
                 :isFormChanged="true"
                 :customClass="'text-sm'"
                 text="Сохранить"
-                @submit="updateAvatarColor"
+                @submit="handleUpdateAvatarColor"
               ></SubmitButton>
             </div>
           </div>

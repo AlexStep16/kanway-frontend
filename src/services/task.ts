@@ -10,12 +10,28 @@ import {
   bulkUpdateTasksApi,
   getArchivedTasksApi,
   recoverTaskApi,
+  getTaskApi,
 } from '@api/tasks'
 import dayjs from 'dayjs'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { useAuthStore } from '@stores/auth'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
+import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
+import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
+import { pickClean } from '@/utils/pickClean'
+
+const BASE_TASK_FIELDS: (keyof ITask)[] = [
+  'name',
+  'description',
+  'dueDate',
+  'dueHours',
+  'dueMinutes',
+  'color',
+  'tags',
+  'isCompleted',
+  'order',
+]
 
 export function transformTask(raw: ITask): ITaskState {
   const AUTH_STORE = useAuthStore()
@@ -43,10 +59,16 @@ export function transformTask(raw: ITask): ITaskState {
   }
 }
 
-export async function fetchTasks(workspaceId: string, boardId: string) {
-  const tasks = await getTasksApi(workspaceId, boardId)
+export async function fetchTasks(boardId?: string, categoryId?: string) {
+  const tasks = await getTasksApi(boardId, categoryId)
 
   return tasks.map(transformTask)
+}
+
+export async function fetchTask(id: string) {
+  const tasks = await getTaskApi(id)
+
+  return tasks.map(transformTask)[0]
 }
 
 export async function fetchArchivedTasks() {
@@ -56,11 +78,22 @@ export async function fetchArchivedTasks() {
 }
 
 export async function createTask(
-  payload: Partial<TaskModel>,
+  payload: Partial<ITask>,
   boardId: string,
   workspaceId: string,
 ): Promise<IResponseWithLog<ITask[]>> {
-  const newTask = await postTaskApi(payload, workspaceId, boardId)
+  const cleanedTaskFields = pickClean(payload, BASE_TASK_FIELDS)
+
+  const apiPayload: ITaskCreateApiPayload = {
+    ...cleanedTaskFields,
+
+    name: payload.name || 'Новая задача',
+    categoryId: payload.category?.id || '',
+    boardId: payload.board?.id || boardId,
+    workspaceId: payload.workspace?.id || workspaceId,
+  }
+
+  const newTask = await postTaskApi(apiPayload)
 
   return {
     data: newTask.data.map(transformTask),
@@ -68,12 +101,17 @@ export async function createTask(
   }
 }
 
-export async function saveTask(
-  workspaceId: string,
-  boardId: string,
-  payload: ISingleUpdate<TaskModel>,
-): Promise<IResponseWithLog<ITask[]>> {
-  const saveResult = await patchTaskApi(workspaceId, boardId, payload.id, payload)
+export async function saveTask(payload: ISingleUpdate<ITask>): Promise<IResponseWithLog<ITask[]>> {
+  const cleanedTaskFields = pickClean(payload, BASE_TASK_FIELDS)
+  const apiPayload: ITaskEditApiPayload = {
+    ...cleanedTaskFields,
+    id: payload.id,
+    categoryId: payload.category?.id,
+    boardId: payload.board?.id,
+    workspaceId: payload.workspace?.id,
+  }
+
+  const saveResult = await patchTaskApi(apiPayload)
 
   return {
     data: saveResult.data.map(transformTask),
@@ -82,11 +120,17 @@ export async function saveTask(
 }
 
 export async function saveTasks(
-  workspaceId: string,
-  boardId: string,
-  payload: ISingleUpdate<TaskModel>[],
+  payload: ISingleUpdate<ITask>[],
 ): Promise<IResponseWithLog<ITask[]>> {
-  const saveResult = await bulkUpdateTasksApi(workspaceId, boardId, payload)
+  const cleanedPayload: ITaskEditApiPayload[] = payload.map((item) => ({
+    ...pickClean(item, ['id', ...BASE_TASK_FIELDS]),
+    id: item.id,
+    categoryId: item.category?.id,
+    boardId: item.board?.id,
+    workspaceId: item.workspace?.id,
+  }))
+
+  const saveResult = await bulkUpdateTasksApi(cleanedPayload)
 
   return {
     data: saveResult.data.map(transformTask),
@@ -94,16 +138,12 @@ export async function saveTasks(
   }
 }
 
-export async function removeTask(taskId: string, workspaceId: string, boardId: string) {
-  await deleteTaskApi(workspaceId, boardId, taskId)
+export async function removeTask(id: string) {
+  await deleteTaskApi(id)
 }
 
-export async function archiveTask(
-  taskId: string,
-  workspaceId: string,
-  boardId: string,
-): Promise<IResponseWithLog<ITask[]>> {
-  const archiveResult = await archiveTaskApi(workspaceId, boardId, taskId)
+export async function archiveTask(id: string): Promise<IResponseWithLog<ITask[]>> {
+  const archiveResult = await archiveTaskApi(id)
 
   return {
     data: archiveResult.data.tasks.map(transformTask),
@@ -111,12 +151,8 @@ export async function archiveTask(
   }
 }
 
-export async function recoverTask(
-  taskId: string,
-  workspaceId: string,
-  boardId: string,
-): Promise<IResponseWithLog<ITask[]>> {
-  const recoverResult = await recoverTaskApi(workspaceId, boardId, taskId)
+export async function recoverTask(id: string): Promise<IResponseWithLog<ITask[]>> {
+  const recoverResult = await recoverTaskApi(id)
 
   return {
     data: recoverResult.data.tasks.map(transformTask),
@@ -124,12 +160,8 @@ export async function recoverTask(
   }
 }
 
-export async function cloneTask(
-  taskId: string,
-  workspaceId: string,
-  boardId: string,
-): Promise<IResponseWithLog<ITask[]>> {
-  const cloneResult = await cloneTaskApi(workspaceId, boardId, taskId)
+export async function cloneTask(id: string): Promise<IResponseWithLog<ITask[]>> {
+  const cloneResult = await cloneTaskApi(id)
 
   return {
     data: cloneResult.data.map(transformTask),

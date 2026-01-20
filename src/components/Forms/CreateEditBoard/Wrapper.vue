@@ -4,26 +4,31 @@ import Body from '@components/Forms/CreateEditBoard/Body.vue'
 import { HSDropdown } from 'preline'
 import { computed, onMounted, ref } from 'vue'
 import { boardValidation } from '@helpers/boardValidation'
-import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { toast } from 'vue-sonner'
 import { BoardValidationErrors } from '@interfaces/BoardValidationErrors'
 import type BoardModel from '@/models/BoardModel'
 import { Nullable } from '@/types/utils'
-import { IWorkspace } from '@/interfaces/domain/IWorkspace'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { useCreateBoard } from '@/composables/boards/mutations/useCreateBoard'
+import { useUpdateBoard } from '@/composables/boards/mutations/useUpdateBoard'
+import { storeToRefs } from 'pinia'
+import { IBoard } from '@/interfaces/domain/IBoard'
+import { onClickOutside } from '@vueuse/core'
 
 const dropdown = ref<Nullable<HTMLElement>>(null)
 const dropdownMenu = ref<Nullable<HTMLElement>>(null)
 const dropdownInstance = ref<Nullable<HSDropdown>>(null)
 
+const { mutateAsync: createBoardMutation, isPending: isCreating } = useCreateBoard()
+const { mutateAsync: updateBoardMutation, isPending: isUpdating } = useUpdateBoard()
+
 const validationErrors = ref<BoardValidationErrors>({
   name: { isValid: true, errorMessage: '' },
 })
 
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+const WORKSPACE_STORE = useWorkspaceStore()
 
-const activeWorkspace = ref<Nullable<IWorkspace>>(WORKSPACE_STORE.getActiveWorkspace)
+const { activeWorkspaceId } = storeToRefs(WORKSPACE_STORE)
 
 const name = ref('')
 const isFormChanged = computed(() => {
@@ -43,8 +48,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'boardCreated', board: BoardModel): void
-  (e: 'boardEdited', board: BoardModel): void
+  (e: 'boardCreated', board: IBoard): void
+  (e: 'boardEdited', board: IBoard): void
 }>()
 
 function resetForm() {
@@ -59,22 +64,12 @@ function resetForm() {
   resetErrors()
 }
 
-const getIsLoading = computed(() => {
-  if (props.mode === 'create') {
-    return BOARD_STORE.isAddingBoard
-  } else if (props.item) {
-    return BOARD_STORE.isBoardEditing(props.item.id)
-  } else {
-    return false
-  }
-})
-
 defineExpose({
   resetForm,
 })
 
 async function createBoard() {
-  if (validationErrors.value.name.isValid === false || !activeWorkspace.value) return
+  if (validationErrors.value.name.isValid === false || !activeWorkspaceId.value) return
 
   const board = {
     name: name.value,
@@ -88,20 +83,23 @@ async function createBoard() {
     return
   }
 
-  const result = await BOARD_STORE.addBoardToWorkspace(board, activeWorkspace.value.id)
+  await createBoardMutation(
+    { payload: board, workspaceId: activeWorkspaceId.value },
+    {
+      onSuccess: (result) => {
+        closeDropdown()
+        emit('boardCreated', result.data[0])
 
-  if (result !== false && typeof result === 'object' && result !== null) {
-    closeDropdown()
-    emit('boardCreated', result as BoardModel)
-
-    resetForm()
-  }
+        resetForm()
+      },
+    },
+  )
 }
 
 async function editBoard() {
   if (props.item == null) return
-
   if (validationErrors.value.name.isValid === false) return
+  if (!activeWorkspaceId.value) return
 
   const board = {
     ...props.item,
@@ -116,13 +114,16 @@ async function editBoard() {
     return
   }
 
-  const result = await BOARD_STORE.updateBoard(board, board.workspaceId)
+  await updateBoardMutation(
+    { payload: board, workspaceId: activeWorkspaceId.value },
+    {
+      onSuccess: (result) => {
+        closeDropdown()
 
-  if (result !== false) {
-    closeDropdown()
-
-    emit('boardEdited', result)
-  }
+        emit('boardEdited', result.data[0])
+      },
+    },
+  )
 }
 
 function closeDropdown() {
@@ -145,6 +146,10 @@ function handleSubmit() {
   }
 }
 
+onClickOutside(dropdownMenu, () => {
+  dropdownInstance.value?.close()
+})
+
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
 
@@ -157,18 +162,6 @@ onMounted(() => {
 
     if (dropdownInstance.value) {
       dropdownInstance.value.on('close', resetForm)
-
-      document.addEventListener('mousedown', (e: any) => {
-        if (
-          dropdownInstance.value &&
-          dropdownMenu.value &&
-          !dropdownMenu.value.contains(e.target)
-        ) {
-          if (dropdownInstance.value) {
-            dropdownInstance.value.close()
-          }
-        }
-      })
     }
   }
 })
@@ -192,7 +185,7 @@ onMounted(() => {
     >
       <Body
         :id="generateUUID()"
-        :isLoading="getIsLoading"
+        :isLoading="isCreating || isUpdating"
         :isFormChanged="isFormChanged"
         @resetErrors="resetErrors"
         @submit="handleSubmit"
@@ -207,7 +200,7 @@ onMounted(() => {
   <Body
     v-else
     :id="generateUUID()"
-    :isLoading="getIsLoading"
+    :isLoading="isCreating || isUpdating"
     :isFormChanged="isFormChanged"
     @resetErrors="resetErrors"
     @submit="handleSubmit"

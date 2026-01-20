@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AvatarImage from '@/components/Workspace/AvatarImage.vue'
-import { useAuthStore } from '@stores/auth'
+import { useUpdateAvatar } from '@/composables/auth/useUpdateAvatar'
 import { ref } from 'vue'
 
 defineProps<{
@@ -9,7 +9,7 @@ defineProps<{
   imageClasses?: string
 }>()
 
-const AUTH_STORE = useAuthStore()
+const { mutate: updateAvatar } = useUpdateAvatar()
 
 const avatarRef = ref<HTMLInputElement | null>(null)
 
@@ -22,7 +22,11 @@ async function handleFileChange(event: Event) {
   const file = target.files ? target.files[0] : null
 
   if (file) {
-    await AUTH_STORE.updateAvatar(file)
+    const formData = new FormData()
+
+    formData.append('avatar', file)
+
+    updateAvatar({ data: formData })
   }
 }
 </script>

@@ -1,33 +1,31 @@
 <script setup lang="ts">
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
 import { useAuthStore } from '@stores/auth'
-import { useBoardDataStore } from '@stores/boardData'
-import { useSettingDataStore } from '@stores/settingData'
 import dayjs from 'dayjs'
-import { computed, onMounted, toRef } from 'vue'
+import { computed, onMounted } from 'vue'
 import CurrentSubscriptionButton from './Buttons/CurrentSubscriptionButton.vue'
+import { storeToRefs } from 'pinia'
+import { useBoardsCount } from '@/composables/boards/queries/useBoardsCount'
+import { useSubscriptions } from '@/composables/subscriptions/queries/useSubscriptions'
+import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
 
-const AUTH_STORE = useAuthStore()
-const SETTING_STORE = useSettingDataStore()
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+const authStore = useAuthStore()
 
-const user = toRef(AUTH_STORE, 'user')
-const boardsCount = toRef(BOARD_STORE, 'boardsCount')
-const isBoardsCountLoading = toRef(BOARD_STORE, 'isLoadingBoardsCount')
-const isSubscriptionsLoading = computed(() => SETTING_STORE.isSubscriptionsLoading)
-const isLoadingBoardsCount = computed(() => BOARD_STORE.isLoadingBoardsCount)
+const { user } = storeToRefs(authStore)
 
-SETTING_STORE.loadSubscriptions()
-BOARD_STORE.loadBoardsCount()
+const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount()
+const { data: subscriptions, isPending: isSubscriptionsLoading } = useSubscriptions()
+const { data: workspaces } = useWorkspaces()
 
 const currentSubscription = computed(() => {
   if (!user.value) {
     return null
   }
 
-  return SETTING_STORE.getSubscriptionById(user.value.subscriptionId)
+  return (
+    subscriptions.value.find((subscription) => subscription.id === user.value?.subscriptionId) ||
+    null
+  )
 })
 
 const isBasicSubscription = computed(() => {
@@ -96,7 +94,7 @@ const getRemainingWorkspaces = computed(() => {
     return -1
   }
 
-  return Math.max(0, maxWorkspaces - WORKSPACE_STORE.workspaces.length)
+  return Math.max(0, maxWorkspaces - workspaces.value.length)
 })
 
 const getRemainingMessages = computed(() => {
@@ -209,7 +207,7 @@ onMounted(() => {
 
       <div
         class="bg-gray-300 animate-pulse w-full max-w-70 h-19 rounded-md"
-        v-if="isLoadingBoardsCount"
+        v-if="isBoardsCountLoading"
       ></div>
       <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70" v-else>
         <div class="flex items-start justify-between p-3">

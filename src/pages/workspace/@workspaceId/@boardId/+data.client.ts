@@ -1,25 +1,27 @@
 import type { PageContextClient } from 'vike/types'
 import { workspacesErrorRedirect } from '@helpers/workspacesErrorRedirect'
 import { redirectToWorkspace } from '@helpers/workspaceRoute'
-import { useAuthStore } from '@stores/auth'
-import { getMe } from '@services/auth'
+import { useAuthStore } from '@/stores/auth'
+import { useMe } from '@/composables/auth/useMe'
 
 export { data }
 
 const data = async (pageContext: PageContextClient) => {
   try {
-    const user = await getMe()
+    const { data: user, isSuccess, error } = useMe()
 
-    const AUTH_STORE = useAuthStore(pageContext.pinia)
+    if (isSuccess.value) {
+      const AUTH_STORE = useAuthStore(pageContext.pinia)
 
-    AUTH_STORE.setUser(user)
+      AUTH_STORE.setUser(user.value!)
 
-    await redirectToWorkspace(pageContext)
+      await redirectToWorkspace(pageContext)
 
-    return {
-      boardId: pageContext.routeParams.boardId,
-      workspaceId: pageContext.routeParams.workspaceId,
-      user,
+      return {
+        user,
+      }
+    } else {
+      workspacesErrorRedirect(pageContext, error.value!)
     }
   } catch (e) {
     workspacesErrorRedirect(pageContext, e)

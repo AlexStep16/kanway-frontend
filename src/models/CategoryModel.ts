@@ -1,16 +1,22 @@
+import { OptionalNullable } from '@/types/utils'
 import { ICategory } from '@interfaces/domain/ICategory'
 
 export default class CategoryModel implements ICategory {
   public id: string
   public name: string
-  public workspaceId: string
-  public workspaceName: string
-  public boardId: string
-  public boardName: string
+  public workspace: {
+    id: string
+    name: string
+  }
+  public board: {
+    id: string
+    name: string
+  }
+  public tasksCount: number
   public order: number
   public isDeleted: boolean
   public isDeletedExternal: boolean
-  public deletedTime?: Date
+  public deletedTime?: OptionalNullable<Date>
   public userId: string
   public createdAt: Date
   public updatedAt: Date
@@ -18,10 +24,9 @@ export default class CategoryModel implements ICategory {
   constructor(props: ICategory) {
     this.id = props.id
     this.name = props.name
-    this.workspaceId = props.workspaceId
-    this.workspaceName = props.workspaceName
-    this.boardId = props.boardId
-    this.boardName = props.boardName
+    this.workspace = props.workspace
+    this.board = props.board
+    this.tasksCount = props.tasksCount
     this.order = props.order
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal

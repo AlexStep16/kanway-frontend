@@ -4,12 +4,16 @@ import type { HSOverlay } from 'preline'
 import { computed, nextTick, ref, watch } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
-import { useBoardDataStore } from '@stores/boardData'
-import { useTaskDataStore } from '@stores/taskData'
-import { useCategoryDataStore } from '@stores/categoryData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
+import { useBoardStore } from '@stores/board'
 
 export const useUIStore = defineStore('ui', () => {
+  const boardStore = useBoardStore()
+
+  const editableTaskId = ref<Nullable<string>>(null)
+  const editableCategoryId = ref<Nullable<string>>(null)
+  const editableBoardId = ref<Nullable<string>>(null)
+  const editableWorkspaceId = ref<Nullable<string>>(null)
+
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
   const editTaskModalHSInstance = ref<Nullable<HSOverlay>>(null)
 
@@ -34,11 +38,6 @@ export const useUIStore = defineStore('ui', () => {
 
   const modalStack = ref<string[]>([])
   const modalInstances = ref(new Map<string, HSOverlay>())
-
-  const WORKSPACE_STORE = useWorkspaceDataStore()
-  const BOARD_STORE = useBoardDataStore()
-  const TASK_STORE = useTaskDataStore()
-  const CATEGORY_STORE = useCategoryDataStore()
 
   const isSidebarOpen = ref(true)
   const isChatModalOpen = ref(false)
@@ -139,7 +138,7 @@ export const useUIStore = defineStore('ui', () => {
     if (editTaskModalHSInstance.value) {
       editTaskModalHSInstance.value.close()
 
-      TASK_STORE.clearTaskToEdit()
+      clearTaskToEdit()
 
       removeFromModalStack('editTaskModal')
     }
@@ -160,7 +159,7 @@ export const useUIStore = defineStore('ui', () => {
     if (editCategoryModalHSInstance.value) {
       editCategoryModalHSInstance.value.close()
 
-      CATEGORY_STORE.clearCategoryToEdit()
+      clearCategoryToEdit()
 
       removeFromModalStack('editCategoryModal')
     }
@@ -181,7 +180,7 @@ export const useUIStore = defineStore('ui', () => {
     if (editBoardModalHSInstance.value) {
       editBoardModalHSInstance.value.close()
 
-      BOARD_STORE.clearBoardToEdit()
+      clearBoardToEdit()
 
       removeFromModalStack('editBoardModal')
     }
@@ -203,7 +202,7 @@ export const useUIStore = defineStore('ui', () => {
     if (editWorkspaceModalHSInstance.value) {
       editWorkspaceModalHSInstance.value.close()
 
-      WORKSPACE_STORE.clearWorkspaceToEdit()
+      clearWorkspaceToEdit()
 
       removeFromModalStack('editWorkspaceModal')
     }
@@ -257,29 +256,55 @@ export const useUIStore = defineStore('ui', () => {
     isSidebarOpen.value = false
   }
 
-  function selectArchive() {
-    TASK_STORE.loadArchivedTasks()
-    CATEGORY_STORE.loadArchivedCategories()
-    BOARD_STORE.loadArchivedBoards()
-    WORKSPACE_STORE.loadArchivedWorkspaces()
+  function clearTaskToEdit() {
+    editableTaskId.value = null
+  }
 
+  function openTaskToEdit(taskId: string) {
+    editableTaskId.value = taskId
+
+    openEditTaskModal()
+  }
+
+  function clearCategoryToEdit() {
+    editableCategoryId.value = null
+  }
+
+  function openCategoryToEdit(categoryId: string) {
+    editableCategoryId.value = categoryId
+
+    openEditCategoryModal()
+  }
+
+  function clearBoardToEdit() {
+    editableBoardId.value = null
+  }
+
+  function openBoardToEdit(boardId: string) {
+    editableBoardId.value = boardId
+
+    openEditBoardModal()
+  }
+
+  function clearWorkspaceToEdit() {
+    editableWorkspaceId.value = null
+  }
+
+  function openWorkspaceToEdit(workspaceId: string) {
+    editableWorkspaceId.value = workspaceId
+
+    openEditWorkspaceModal()
+  }
+
+  function selectArchive() {
     currentTab.value = Tabs.Archive
 
-    BOARD_STORE.resetBoardSelection()
+    boardStore.resetBoardSelection()
   }
 
   function selectBoard() {
     currentTab.value = Tabs.Board
   }
-
-  const isArchiveLoading = computed(() => {
-    return (
-      TASK_STORE.isArchivedTasksLoading ||
-      CATEGORY_STORE.isArchivedCategoriesLoading ||
-      BOARD_STORE.isArchivedBoardsLoading ||
-      WORKSPACE_STORE.isArchivedWorkspacesLoading
-    )
-  })
 
   function $reset() {
     //...
@@ -306,8 +331,12 @@ export const useUIStore = defineStore('ui', () => {
     sidebarRef,
     modalStack,
     isModalOnTop,
-    isArchiveLoading,
     isChatModalOpen,
+
+    editableBoardId,
+    editableCategoryId,
+    editableTaskId,
+    editableWorkspaceId,
 
     // Actions
     openEditTaskModal,
@@ -328,6 +357,14 @@ export const useUIStore = defineStore('ui', () => {
     selectBoard,
     addToModalStack,
     removeFromModalStack,
+    openTaskToEdit,
+    clearTaskToEdit,
+    openCategoryToEdit,
+    clearCategoryToEdit,
+    openBoardToEdit,
+    clearBoardToEdit,
+    openWorkspaceToEdit,
+    clearWorkspaceToEdit,
     $reset,
   }
 })

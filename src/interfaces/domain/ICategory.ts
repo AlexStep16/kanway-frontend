@@ -1,15 +1,22 @@
+import { OptionalNullable } from '@/types/utils'
+
 export interface ICategory {
   id: string
   name: string
-  workspaceId: string
-  workspaceName: string
-  boardId: string
-  boardName: string
+  workspace: {
+    id: string
+    name: string
+  }
+  board: {
+    id: string
+    name: string
+  }
+  tasksCount: number
   userId: string
   order: number
   isDeleted: boolean
   isDeletedExternal: boolean
-  deletedTime?: Date
+  deletedTime?: OptionalNullable<Date>
   createdAt: Date
   updatedAt: Date
 }

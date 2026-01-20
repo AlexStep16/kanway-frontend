@@ -8,55 +8,64 @@ import { IChatMessage } from '@interfaces/domain/IChatMessage'
 import { RetryAgentPayload } from '@interfaces/RetryAgentPayload'
 import { StopAgentPayload } from '@interfaces/StopAgentPayload'
 
-export async function getChatsApi(workspaceId: string) {
+export async function getChatsApi(workspaceId?: string) {
+  const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
+
   return await apiCall<IChat[]>({
     method: 'GET',
-    url: `/workspaces/${workspaceId}/chats`,
+    url: `/chats${queryParams}`,
   })
 }
 
-export async function sendMessageApi(workspaceId: string, data: SendMessagePayload) {
+export async function getChatApi(id: string) {
+  return await apiCall<IChat[]>({
+    method: 'GET',
+    url: `/chats/${id}`,
+  })
+}
+
+export async function sendMessageApi(data: SendMessagePayload) {
   return await apiCall<SendMessageResponse>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/chats/send`,
+    url: `/chats/send`,
     data,
   })
 }
 
-export async function retryApi(data: RetryAgentPayload, workspaceId: string) {
+export async function retryApi(data: RetryAgentPayload) {
   return await apiCall<{ jobId: string }>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/chats/retry`,
+    url: `/chats/retry`,
     data,
   })
 }
 
-export async function deleteChatApi(chatId: string, workspaceId: string) {
+export async function deleteChatApi(id: string) {
   return await apiCall<void>({
     method: 'DELETE',
-    url: `/workspaces/${workspaceId}/chats/${chatId}`,
+    url: `/chats/${id}`,
   })
 }
 
-export async function cloneChatApi(chatId: string, workspaceId: string) {
+export async function cloneChatApi(id: string) {
   return await apiCall<IResponseWithLog<IChat>>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/chats/${chatId}/clone`,
+    url: `/chats/${id}/clone`,
   })
 }
 
-export async function approveToolCallApi(data: ApproveToolCall, workspaceId: string) {
+export async function approveToolCallApi(data: ApproveToolCall) {
   return await apiCall<{ jobId: string | null; chatMessage: IChatMessage }>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/chats/tools/approve`,
+    url: `/chats/tools/approve`,
     data,
   })
 }
 
-export async function stopAgentApi(data: StopAgentPayload, workspaceId: string) {
+export async function stopAgentApi(data: StopAgentPayload) {
   return await apiCall<void>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/chats/${data.jobId}/stop`,
+    url: `/chats/${data.jobId}/stop`,
     data: { chatId: data.chatId, threadId: data.threadId },
   })
 }

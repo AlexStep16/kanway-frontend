@@ -2,9 +2,9 @@ import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
 import { AgentProgress } from '@/interfaces/AgentProgress'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useChatMessageStore } from '@stores/chatMessages'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { useRootStore } from '@stores/root'
+import { useChatMessageStore } from '@/stores/chatMessage'
+import { queryClient } from '@/plugins/queryClient'
+import { useWorkspaceStore } from '@stores/workspace'
 
 export interface Event {
   status: 'progress' | 'completed' | 'failed'
@@ -14,9 +14,8 @@ export interface Event {
 //type AgentStatusErrorType = Nullable<BackendError | HttpError>
 
 export const useAgentStatusStore = defineStore('agentStatus', () => {
-  const CHAT_MESSAGE_STORE = useChatMessageStore()
-  const WORKSPACE_STORE = useWorkspaceDataStore()
-  const ROOT_STORE = useRootStore()
+  const chatMessageStore = useChatMessageStore()
+  const workspaceStore = useWorkspaceStore()
 
   const activeJobId = ref<string | null>(null)
   const currentActivity = ref<string | null>(null)
@@ -60,7 +59,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   const eventSource = ref<EventSource | null>(null)
 
   function connectSSE(jobId: string) {
-    if (!WORKSPACE_STORE.activeWorkspace) return
+    if (!workspaceStore.activeWorkspaceId) return
     if (eventSource.value) eventSource.value.close()
 
     currentActivity.value = 'Думаю'
@@ -69,7 +68,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
     eventSource.value = new EventSource(
       import.meta.env.VITE_SERVER_BASE_URL +
-        `/workspaces/${WORKSPACE_STORE.activeWorkspace.id}/chats/stream/${jobId}/status`,
+        `/workspaces/${workspaceStore.activeWorkspaceId}/chats/stream/${jobId}/status`,
       {
         withCredentials: true,
       },
@@ -101,11 +100,9 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     } else if (data.role === AgentRolesEnum.ASSISTANT_CHUNK) {
       assistantStream.value += data.content
     } else if (data.role === AgentRolesEnum.NEW_MESSAGE) {
-      CHAT_MESSAGE_STORE.addChatMessages([data.message])
+      chatMessageStore.addChatMessages([data.message])
     } else if (data.role === AgentRolesEnum.INTEGRATION) {
-      const integration = data.integration
-
-      ROOT_STORE.integrateEntities(integration)
+      queryClient.invalidateQueries()
     }
   }
 

@@ -28,6 +28,19 @@
 /* Defaults hover styles on all devices */
 @custom-variant hover (&:hover);
 
+.custom-scrollbar {
+  @apply overflow-x-auto;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray-300;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
 .animation-grow {
   animation: grow 0.3s ease-in-out forwards;
 }

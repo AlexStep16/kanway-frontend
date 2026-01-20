@@ -25,7 +25,7 @@ export async function fetchSetting(): Promise<SettingModel> {
   return transformSetting(setting)
 }
 
-export async function updateSetting(payload: Partial<ISetting>): Promise<ISetting> {
+export async function saveSetting(payload: Partial<ISetting>): Promise<ISetting> {
   const updatedSetting = await patchSettingApi(payload)
 
   return transformSetting(updatedSetting[0])

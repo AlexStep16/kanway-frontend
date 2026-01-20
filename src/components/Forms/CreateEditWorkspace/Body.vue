@@ -3,11 +3,12 @@ import Title from '@components/Forms/BasicCreateEditForm/Title.vue'
 import Color from '@components/Forms/BasicCreateEditForm/Color.vue'
 import SubmitButton from '@components/Forms/BasicCreateEditForm/SubmitButton.vue'
 import { WorkspaceValidationErrors } from '@interfaces/WorkspaceValidationErrors'
+import { AvailableColors } from '@/enums/AvailableColors'
 
 defineProps<{
   id: string
   name: string
-  color: string
+  color: AvailableColors
   errors: WorkspaceValidationErrors
   mode: 'create' | 'edit'
   isLoading: boolean
@@ -18,7 +19,7 @@ defineProps<{
 defineEmits<{
   (e: 'submit'): void
   (e: 'update:name', name: string): void
-  (e: 'update:color', color: string): void
+  (e: 'update:color', color: AvailableColors): void
   (e: 'resetErrors'): void
 }>()
 </script>

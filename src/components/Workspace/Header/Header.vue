@@ -10,15 +10,18 @@ import { computed } from 'vue'
 import TitleBoardSkeleton from '@components/Workspace/Header/TitleBoardSkeleton.vue'
 import SearchSkeleton from '@components/Workspace/Header/SearchSkeleton.vue'
 import FilterSkeleton from '@components/Workspace/Header/FilterSkeleton.vue'
-import { useBoardDataStore } from '@/stores/boardData'
-import { useWorkspaceDataStore } from '@/stores/workspaceData'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { storeToRefs } from 'pinia'
+import { useBoards } from '@/composables/boards/queries/useBoards'
+import { useArchivedBoards } from '@/composables/boards/queries/useArchivedBoards'
+import { useArchivedWorkspaces } from '@/composables/workspaces/queries/useArchivedWorkspaces'
+import { useArchivedCategories } from '@/composables/categories/queries/useArchivedCategories'
+import { useArchivedTasks } from '@/composables/tasks/queries/useArchivedTasks'
 
 const UI_STORE = useUIStore()
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+const WORKSPACE_STORE = useWorkspaceStore()
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
-const isArchiveLoading = computed(() => UI_STORE.isArchiveLoading)
+const { activeWorkspaceId } = storeToRefs(WORKSPACE_STORE)
 
 const isArchiveTab = computed(() => {
   return UI_STORE.currentTab === Tabs.Archive
@@ -26,6 +29,21 @@ const isArchiveTab = computed(() => {
 
 const isBoardTab = computed(() => {
   return UI_STORE.currentTab === Tabs.Board
+})
+
+const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId, isBoardTab)
+const { isPending: isArchivedBoardsLoading } = useArchivedBoards(isArchiveTab)
+const { isPending: isArchivedWorkspacesLoading } = useArchivedWorkspaces(isArchiveTab)
+const { isPending: isArchivedCategoriesLoading } = useArchivedCategories(isArchiveTab)
+const { isPending: isArchivedTasksLoading } = useArchivedTasks(isArchiveTab)
+
+const isArchiveLoading = computed(() => {
+  return (
+    isArchivedBoardsLoading.value ||
+    isArchivedWorkspacesLoading.value ||
+    isArchivedCategoriesLoading.value ||
+    isArchivedTasksLoading.value
+  )
 })
 </script>
 
@@ -43,20 +61,24 @@ const isBoardTab = computed(() => {
       <PanelLeftOpen class="size-4" />
     </button>
 
-    <TitleBoardSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')" />
-    <TitleBoard v-else-if="isBoardTab" />
-    <TitleArchive v-else-if="isArchiveTab" />
+    <template v-if="isBoardTab">
+      <TitleBoardSkeleton v-if="isBoardsLoading" />
+      <TitleBoard v-else />
+    </template>
+    <template v-else-if="isArchiveTab">
+      <TitleArchive v-if="!isArchiveLoading" />
+    </template>
 
     <div class="flex shrink-0 ms-auto items-stretch gap-x-3">
       <SearchSkeleton
-        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '') || isArchiveLoading"
+        v-if="(isBoardsLoading && isBoardTab) || (isArchiveLoading && isArchiveTab)"
       />
       <Search v-else />
 
-      <FilterSkeleton
-        v-if="isBoardTab && BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
-      />
-      <Filter v-else-if="isBoardTab" />
+      <template v-if="isBoardTab">
+        <FilterSkeleton v-if="isBoardsLoading" />
+        <Filter v-else />
+      </template>
     </div>
   </div>
   <!-- End Header -->

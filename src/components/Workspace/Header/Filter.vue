@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { useTaskDataStore } from '@/stores/taskData'
+import { useTaskTags } from '@/composables/tasks/useTaskTags'
+import { useBoardStore } from '@/stores/board'
+import { useTaskFilterStore } from '@/stores/taskFilters'
 import { ListFilter } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
 import { computed, onMounted, toRef } from 'vue'
 
-const TASK_STORE = useTaskDataStore()
+const taskFiltersStore = useTaskFilterStore()
+const boardStore = useBoardStore()
 
-const filters = toRef(TASK_STORE.taskFilters)
-
+const filters = toRef(taskFiltersStore.filters)
 const isFilterActive = computed(() => {
-  return TASK_STORE.isFilterActive
+  return taskFiltersStore.isFilterActive
 })
+
+const boardId = storeToRefs(boardStore).activeBoardId
+
+const { tags } = useTaskTags(boardId)
 
 onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
@@ -146,7 +153,7 @@ onMounted(() => {
         <ul class="flex gap-x-1 px-1 flex-wrap" v-if="filters.tags.length > 0">
           <li
             class="inline-flex items-center gap-x-2 text-sm font-medium bg-white text-gray-800"
-            v-for="tag in TASK_STORE.getTasksTags"
+            v-for="tag in tags"
             :key="tag"
           >
             <label
@@ -170,7 +177,7 @@ onMounted(() => {
 
         <button
           class="inline-flex self-start mb-2 mt-3 text-custom-sm text-gray-400 hover:text-gray-600 transition-colors duration-100 focus:outline-hidden text-left px-2.5"
-          @click="TASK_STORE.clearFilters"
+          @click="taskFiltersStore.clearFilters"
         >
           Сбросить всё
         </button>

@@ -2,14 +2,16 @@ import LoginCredentials from '@interfaces/LoginCredentials'
 import {
   loginApi,
   registerApi,
-  updateAvatarApi,
+  patchUserAvatarApi,
   patchUserApi,
   deleteUserApi,
   meApi,
+  patchUserPasswordApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
+import { UpdatePasswordVars } from '@/composables/auth/useUpdatePassword'
 
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({
@@ -41,11 +43,17 @@ export async function getMe(): Promise<UserModel> {
 }
 
 export async function updateAvatar(formData: FormData): Promise<string> {
-  return await updateAvatarApi(formData)
+  return await patchUserAvatarApi(formData)
 }
 
 export async function updateUser(payload: Partial<IUser>): Promise<IUser> {
   const updatedUser = await patchUserApi(payload)
+
+  return transformUser(updatedUser)
+}
+
+export async function updatePassword(payload: UpdatePasswordVars): Promise<IUser> {
+  const updatedUser = await patchUserPasswordApi(payload)
 
   return transformUser(updatedUser)
 }

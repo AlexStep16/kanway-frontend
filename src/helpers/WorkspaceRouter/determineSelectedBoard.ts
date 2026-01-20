@@ -1,13 +1,11 @@
 import { getParsedItemFromLocalStorage } from '@utils/getParsedItemFromLocalStorage'
 import BoardModel from '@/models/BoardModel'
 import WorkspaceModel from '@/models/WorkspaceModel'
-import { useBoardDataStore } from '@stores/boardData'
-import { PageContextClient } from 'vike/types'
 import { Nullable } from '@/types/utils'
 
 export async function determineSelectedBoard(
-  pageContext: PageContextClient,
-  selectedWorkspace: Nullable<WorkspaceModel>,
+  selectedWorkspace: WorkspaceModel,
+  boards: BoardModel[],
   params: Record<string, string>,
 ) {
   const parsedBoard: Nullable<BoardModel> =
@@ -15,15 +13,7 @@ export async function determineSelectedBoard(
   let selectedBoard: Nullable<BoardModel> = null
 
   if (selectedWorkspace && typeof selectedWorkspace === 'object') {
-    const BOARD_STORE = useBoardDataStore(pageContext.pinia)
-
-    const loadingBoardsResult = await BOARD_STORE.loadBoards(selectedWorkspace.id)
-
-    if (!loadingBoardsResult) {
-      throw BOARD_STORE.loadBoardsError
-    }
-
-    const boardsPayload = BOARD_STORE.boards
+    const boardsPayload = boards || []
 
     if (boardsPayload.length > 0) {
       const boardInWorkspace = params.boardId

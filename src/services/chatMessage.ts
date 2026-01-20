@@ -10,8 +10,8 @@ export function transformChatMessage(raw: IChatMessage): ChatMessageModel {
   })
 }
 
-export async function fetchChatMessages(workspaceId: string, chatId: string) {
-  const chatMessages = await getChatMessagesApi(workspaceId, chatId)
+export async function fetchChatMessages(chatId: string) {
+  const chatMessages = await getChatMessagesApi(chatId)
 
   return chatMessages.map(transformChatMessage)
 }

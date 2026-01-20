@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
 import { Mic } from 'lucide-vue-next'
 import { HSTextareaAutoHeight } from 'preline'
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { Nullable } from '@/types/utils'
-import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { useChatStore } from '@stores/chat'
+
+import { useBoardStore } from '@/stores/board'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { useSendMessage } from '@/composables/chat/mutations/useSendMessage'
+
 import Spinner from '@components/Loader/Spinner.vue'
 import Sparkles from '@assets/sparkles.svg?component'
 
@@ -15,103 +17,162 @@ defineProps<{
   noInputMargin?: boolean
 }>()
 
-const waveScale = ref(1)
-const textareaRef = ref<Nullable<HTMLTextAreaElement>>(null)
+const boardStore = useBoardStore()
+const workspaceStore = useWorkspaceStore()
+const { activeBoardId } = storeToRefs(boardStore)
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
+
 const aiInput = ref('')
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
-const CHAT_STORE = useChatStore()
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const isRecording = ref(false) // Для управления состоянием микрофона
 
-async function startChat() {
-  if (!WORKSPACE_STORE.activeWorkspace || !BOARD_STORE.activeBoard) return
+const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
 
-  const startResult = await CHAT_STORE.startChat(WORKSPACE_STORE.activeWorkspace.id, aiInput.value)
+// --- Logic ---
 
-  if (startResult !== false) {
-    aiInput.value = ''
+const handleSendMessage = () => {
+  if (!aiInput.value.trim() || isMessageSending.value) return
 
-    nextTick(() => {
-      reInitializeTextarea()
-    })
+  sendMessage(
+    {
+      payload: {
+        message: aiInput.value,
+        boardId: activeBoardId.value,
+        workspaceId: activeWorkspaceId.value,
+      },
+    },
+    {
+      onSuccess: () => {
+        aiInput.value = ''
+        // После очистки текста сбрасываем высоту
+        nextTick(() => reInitializeTextarea())
+      },
+    },
+  )
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    handleSendMessage()
   }
 }
 
+// Переинициализация высоты (Preline)
 function reInitializeTextarea() {
-  if (textareaRef.value && textareaRef.value instanceof HTMLTextAreaElement) {
-    const { element } = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
-
-    element?.destroy()
-    element?.init()
+  if (textareaRef.value) {
+    const instance = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
+    if (instance?.element) {
+      instance.element.destroy()
+      instance.element.init()
+    }
   }
 }
 
-setInterval(() => {
-  waveScale.value = 1 + Math.random() * 0.5
-}, 200)
-
-const isChatStarting = computed(() => CHAT_STORE.isChatStarting)
+// --- Lifecycle ---
 
 onMounted(() => {
+  // Инициализация Preline
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
-
   window.addEventListener('resize', reInitializeTextarea)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', reInitializeTextarea)
 })
 </script>
 
 <template>
   <div
-    class="w-full relative p-2 rounded-md bg-white"
-    :class="{
-      'bg-gray-100!': theme === 'dark',
-      'border border-gray-200': theme === 'light' || !theme,
-      ' mb-3 mt-1.5': !noInputMargin,
-    }"
+    class="w-full relative p-2 rounded-lg transition-all duration-200"
+    :class="[
+      theme === 'dark' ? 'bg-gray-800' : 'bg-white border border-gray-200',
+      !noInputMargin ? 'mb-3 mt-1.5' : '',
+      isMessageSending ? 'opacity-70 pointer-events-none' : '',
+    ]"
   >
-    <div class="flex gap-x-1 items-end">
-      <div class="w-full min-h-8 flex items-center">
+    <div class="flex gap-x-2 items-end">
+      <!-- Textarea Area -->
+      <div class="w-full min-h-9 flex items-center">
         <textarea
           ref="textareaRef"
-          class="block p-0 w-full ps-1 max-h-60 text-gray-700 bg-transparent placeholder:text-gray-500 border-none focus:ring-0 text-sm disabled:opacity-50 disabled:pointer-events-none resize-none"
-          :placeholder="placeholder ? placeholder : 'Напишите что вы хотите сделать...'"
-          data-hs-textarea-auto-height='{
-            "defaultHeight": "auto"
-          }'
-          rows="1"
           v-model="aiInput"
+          class="block p-0 w-full ps-1 max-h-60 text-sm bg-transparent border-none focus:ring-0 resize-none overflow-y-auto"
+          :class="
+            theme === 'dark'
+              ? 'text-white placeholder:text-gray-400'
+              : 'text-gray-700 placeholder:text-gray-500'
+          "
+          :placeholder="placeholder || 'Напишите, что вы хотите сделать...'"
+          rows="1"
+          data-hs-textarea-auto-height='{"defaultHeight": "auto"}'
+          @keydown="handleKeyDown"
         ></textarea>
       </div>
-      <div class="flex shrink-0 items-center gap-x-2">
+
+      <!-- Actions Area -->
+      <div class="flex shrink-0 items-center gap-x-1.5">
+        <!-- Voice Input (Simple) -->
         <button
+          v-if="!isRecording"
           type="button"
-          class="flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100 size-8 rounded-md"
+          @click="isRecording = true"
+          class="flex items-center justify-center size-8 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
+          title="Голосовой ввод"
         >
-          <Mic class="size-5" />
+          <Mic class="size-4.5" />
         </button>
+
+        <!-- Voice Input (Active with CSS Animation) -->
         <button
+          v-else
           type="button"
-          class="flex items-center justify-center text-white size-8 rounded-md relative"
+          @click="isRecording = false"
+          class="flex items-center justify-center size-8 rounded-md relative text-white"
         >
-          <div
-            class="size-8 z-1 rounded-full absolute bg-red-500 transition-all duration-200 opacity-40"
-            :style="{ transform: `scale(${waveScale})` }"
-          ></div>
-
-          <div class="size-8 z-2 rounded-full absolute bg-red-400"></div>
-
-          <Mic class="size-5 z-3" />
+          <span class="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-40"></span>
+          <span class="absolute inset-0 rounded-full bg-red-500 z-1"></span>
+          <Mic class="size-4.5 z-2" />
         </button>
-        <button
-          class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 transition-opacity duration-100 rounded-md relative h-8"
-          @click="startChat"
-        >
-          <div class="inline-flex items-center gap-x-2">
-            Начать чат
 
-            <Sparkles class="size-4" v-if="!isChatStarting" />
-            <Spinner class="size-4" v-else />
-          </div>
+        <!-- Submit Button -->
+        <button
+          class="relative h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all flex items-center gap-x-2 disabled:bg-gray-300"
+          :disabled="!aiInput.trim() || isMessageSending"
+          @click="handleSendMessage"
+        >
+          <span v-if="!isMessageSending" class="flex items-center gap-x-2">
+            Отправить
+            <Sparkles class="size-3.5" />
+          </span>
+          <span v-else class="flex items-center gap-x-2">
+            Думаю...
+            <Spinner class="size-3.5" />
+          </span>
         </button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.animate-ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+textarea::-webkit-scrollbar {
+  width: 4px;
+}
+textarea::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+</style>

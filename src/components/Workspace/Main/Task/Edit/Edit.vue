@@ -1,39 +1,119 @@
 <script setup lang="ts">
-import { useTaskDataStore } from '@/stores/taskData'
-import { useUIStore } from '@/stores/ui'
+import { ref, watch, nextTick } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useDebounceFn } from '@vueuse/core'
 import { HSStaticMethods } from 'preline'
-import { ref, watch, nextTick, computed } from 'vue'
+import { Layers } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
+
+import { useUIStore } from '@/stores/ui'
+import { useTask } from '@/composables/tasks/queries/useTask'
+import { useUpdateTask } from '@/composables/tasks/mutations/useUpdateTask'
+import { useArchiveTask } from '@/composables/tasks/mutations/useArchiveTask'
+import { useCloneTask } from '@/composables/tasks/mutations/useCloneTask'
+import { useMoveTask } from '@/composables/tasks/mutations/useMoveTask'
+import { useTaskMutationStatus } from '@/composables/tasks/mutations/useTaskMutationStatus'
+
+// Компоненты
+import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
 import MoveDropdown from '@components/Workspace/Main/MoveDropdown/MoveDropdown.vue'
 import MoveDropdownButton from '@components/Workspace/Main/MoveDropdown/MoveDropdownButton.vue'
-import Date from '@components/Workspace/Main/Task/Edit/Date.vue'
+import DateComponent from '@components/Workspace/Main/Task/Edit/Date.vue'
 import Tags from '@components/Workspace/Main/Task/Edit/Tags.vue'
 import Color from '@components/Workspace/Main/Task/Edit/Color.vue'
-import { toast } from 'vue-sonner'
-import { TaskModel } from '@models/TaskModel'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { TASK_COLORS } from '@/constants/TASK_COLORS'
-import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
 import { Nullable } from '@/types/utils'
-import { ITaskState } from '@stores/interfaces/ITaskState'
-import { Layers } from 'lucide-vue-next'
+import { EntityType } from '@/enums/EntityType'
 
-import _ from 'lodash'
-import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
+const uiStore = useUIStore()
+const { editableTaskId } = storeToRefs(uiStore)
 
-const UI_STORE = useUIStore()
-const TASK_STORE = useTaskDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
+// --- Queries ---
+const { data: task } = useTask(editableTaskId)
+const status = useTaskMutationStatus(editableTaskId)
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
+// --- Local State (только для текста) ---
+const localName = ref('')
+const localDescription = ref('')
+const textareaNameRef = ref<HTMLTextAreaElement | null>(null)
+const textareaDescRef = ref<HTMLTextAreaElement | null>(null)
+const dateRef = ref<any>(null)
 
-const textareaNameAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
-const textareaDescriptionAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
-const editableTask = ref<Nullable<TaskModel>>(null)
-const dateComponentRef = ref<Nullable<typeof Date>>(null)
-const taskUpdatesCounter = ref(0)
+// --- Mutations ---
+const { mutate: updateTask } = useUpdateTask()
+const { mutate: archiveTask } = useArchiveTask()
+const { mutate: cloneTask } = useCloneTask()
+const { mutate: moveTask } = useMoveTask()
 
-const updateNameTimeout = ref<Nullable<number>>(null)
-const updateDescriptionTimeout = ref<Nullable<number>>(null)
+// Универсальная функция для частичного обновления задачи
+const patchTask = (fields: Record<string, any>) => {
+  if (!task.value) return
+  updateTask({
+    payload: { id: task.value.id, ...fields },
+    boardId: task.value.board.id,
+  })
+}
+
+// --- Debounced Text Inputs ---
+const debouncedUpdate = useDebounceFn(() => {
+  if (!task.value) return
+
+  patchTask({
+    name: localName.value,
+    description: localDescription.value,
+  })
+}, 500)
+
+// --- Handlers ---
+const toggleCompleted = () => {
+  if (!task.value) return
+  patchTask({ isCompleted: !task.value.isCompleted })
+}
+
+const handleSetColor = (color: string | null, colorName: string | null) => {
+  patchTask({ color, colorName })
+}
+
+const handleAddTag = (tag: string) => {
+  if (!task.value) return
+  if (task.value.tags.includes(tag)) return toast.info('Тег уже существует')
+  patchTask({ tags: [...task.value.tags, tag] })
+}
+
+const handleRemoveTag = (index: number) => {
+  if (!task.value) return
+  const newTags = [...task.value.tags]
+  newTags.splice(index, 1)
+  patchTask({ tags: newTags })
+}
+
+const handleChangeTime = (time: string) => {
+  if (!time) return patchTask({ dueHours: null, dueMinutes: null })
+  const [hours, minutes] = time.split(':').map(Number)
+  patchTask({ dueHours: hours, dueMinutes: minutes })
+}
+
+const handleChangeDate = (date: string | null) => patchTask({ dueDate: date })
+
+const handleMoveTask = (data: any) => {
+  if (!task.value) return
+  moveTask({
+    payload: task.value,
+    oldCategoryId: task.value.category.id,
+    newCategoryId: data.newCategoryId,
+    oldBoardId: task.value.board.id,
+    newBoardId: data.newBoardId,
+    oldWorkspaceId: task.value.workspace.id,
+    newWorkspaceId: data.newWorkspaceId,
+  })
+}
+
+// Синхронизация при открытии новой задачи
+watch(editableTaskId, (newId) => {
+  if (!newId) {
+    localName.value = ''
+    localDescription.value = ''
+  }
+})
 
 function initializeTextarea(textarea: Nullable<HTMLTextAreaElement>) {
   if (textarea) {
@@ -41,233 +121,26 @@ function initializeTextarea(textarea: Nullable<HTMLTextAreaElement>) {
   }
 }
 
-function initializeDate() {
-  if (dateComponentRef.value && editableTask.value) {
-    dateComponentRef.value.initializeDate()
-  }
-}
-
-function handleChangeTime(time: string) {
-  if (!editableTask.value) return
-
-  if (time === '') {
-    editableTask.value.dueHours = null
-    editableTask.value.dueMinutes = null
-    return
-  }
-
-  const [hours, minutes] = time.split(':').map((part) => parseInt(part, 10))
-
-  editableTask.value.dueHours = hours
-  editableTask.value.dueMinutes = minutes
-
-  updateTask({
-    dueDate: editableTask.value.dueDate,
-    dueHours: editableTask.value.dueHours,
-    dueMinutes: editableTask.value.dueMinutes,
-  })
-}
-
-function handleChangeDate(date: string) {
-  if (!editableTask.value) return
-
-  editableTask.value.dueDate = date
-
-  updateTask({
-    dueDate: editableTask.value.dueDate,
-  })
-}
-
-function handleClearTime() {
-  if (!editableTask.value) return
-
-  editableTask.value.dueHours = null
-  editableTask.value.dueMinutes = null
-
-  updateTask({
-    dueDate: editableTask.value.dueDate,
-    dueHours: editableTask.value.dueHours,
-    dueMinutes: editableTask.value.dueMinutes,
-  })
-}
-
-function handleClearDue() {
-  if (!editableTask.value) return
-
-  editableTask.value.dueDate = null
-  editableTask.value.dueHours = null
-  editableTask.value.dueMinutes = null
-
-  updateTask({
-    dueDate: editableTask.value.dueDate,
-    dueHours: editableTask.value.dueHours,
-    dueMinutes: editableTask.value.dueMinutes,
-  })
-}
-
-function handleRemoveTag(index: number) {
-  if (!editableTask.value) return
-
-  editableTask.value.tags.splice(index, 1)
-
-  updateTask({
-    tags: editableTask.value.tags,
-  })
-}
-
-function handleAddTag(tag: string) {
-  if (!editableTask.value) return
-
-  if (!editableTask.value.tags.includes(tag)) {
-    editableTask.value.tags.push(tag)
-
-    updateTask({
-      tags: editableTask.value.tags,
-    })
-  } else {
-    toast.info('Этот тег уже существует.')
-  }
-}
-
-function handleSetColor(
-  color: Nullable<(typeof TASK_COLORS)[number]>,
-  colorName: Nullable<(typeof COLOR_NAMES)[number]>,
-) {
-  if (!editableTask.value) return
-
-  editableTask.value.colorName = colorName
-  editableTask.value.color = color
-
-  updateTask({
-    colorName: editableTask.value.colorName,
-    color: editableTask.value.color,
-  })
-}
-
-function handleClearColor() {
-  if (!editableTask.value) return
-
-  editableTask.value.colorName = null
-  editableTask.value.color = null
-
-  updateTask({
-    colorName: editableTask.value.colorName,
-    color: editableTask.value.color,
-  })
-}
-
-function handleMoveTask(taskId: string, newCategoryId: string) {
-  if (!activeWorkspace.value) return
-
-  TASK_STORE.moveTask(taskId, newCategoryId, activeWorkspace.value.id)
-}
-
-function updateTask(payload: Partial<TaskModel>) {
-  if (!editableTask.value) return
-
-  TASK_STORE.updateTask(
-    {
-      id: editableTask.value.id,
-      ...payload,
-    },
-    editableTask.value.boardId,
-    true,
-  )
-}
-
-function nameInput() {
-  if (updateNameTimeout.value) {
-    clearTimeout(updateNameTimeout.value)
-  }
-
-  updateNameTimeout.value = window.setTimeout(() => {
-    if (!editableTask.value || !editableTask.value.name) return
-
-    updateTask({
-      name: editableTask.value.name,
-    })
-
-    updateNameTimeout.value = null
-  }, 500)
-}
-
-function descriptionInput() {
-  if (updateDescriptionTimeout.value) {
-    clearTimeout(updateDescriptionTimeout.value)
-  }
-
-  updateDescriptionTimeout.value = window.setTimeout(() => {
-    if (!editableTask.value || !editableTask.value.description) return
-
-    updateTask({
-      description: editableTask.value.description,
-    })
-
-    updateDescriptionTimeout.value = null
-  }, 500)
-}
-
-async function copyTask(task: ITaskState) {
-  await TASK_STORE.cloneTask(task)
-
-  UI_STORE.closeEditTaskModal()
-}
-
-async function archiveTask(task: ITaskState) {
-  await TASK_STORE.archiveTask(task)
-
-  UI_STORE.closeEditTaskModal()
-}
-
-const isTaskCopying = computed(() => {
-  if (!editableTask.value) return false
-
-  return TASK_STORE.isTaskCloning(editableTask.value.id)
-})
-
-const isTaskArchiving = computed(() => {
-  if (!editableTask.value) return false
-
-  return TASK_STORE.isTaskArchiving(editableTask.value.id)
-})
-
 watch(
-  () => editableTask.value?.isCompleted,
-  (val) => {
-    if (val === undefined || !editableTask.value) return
+  task,
+  (newVal, oldVal) => {
+    if (!newVal) return
 
-    updateTask({
-      isCompleted: val,
-    })
-  },
-)
+    if (newVal.id !== oldVal?.id || (!localName.value && !localDescription.value)) {
+      localName.value = newVal.name
+      localDescription.value = newVal.description || ''
 
-watch(
-  () => TASK_STORE.taskToEdit,
-  (newTask) => {
-    if (newTask && newTask.id === editableTask.value?.id) return
-
-    const shouldInitialize = newTask && !editableTask.value
-    taskUpdatesCounter.value += 1
-
-    if (newTask) {
-      editableTask.value = _.cloneDeep(newTask)
-    } else {
-      editableTask.value = null
-    }
-
-    nextTick(() => {
-      if (shouldInitialize) {
+      nextTick(() => {
         HSStaticMethods.autoInit()
 
-        initializeDate()
-      }
+        initializeTextarea(textareaNameRef.value)
+        initializeTextarea(textareaDescRef.value)
 
-      initializeTextarea(textareaNameAutoHeight.value)
-      initializeTextarea(textareaDescriptionAutoHeight.value)
-    })
+        dateRef.value?.initializeDate()
+      })
+    }
   },
-  { deep: true, immediate: true },
+  { immediate: true },
 )
 </script>
 
@@ -276,141 +149,104 @@ watch(
     id="hs-task-edit"
     :ref="
       (el) => {
-        if (el) UI_STORE.editTaskModalRef = el as HTMLElement
+        if (el) uiStore.editTaskModalRef = el as HTMLElement
       }
     "
-    class="hs-overlay [--overlay-backdrop:static] hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-90 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
-    role="dialog"
-    tabindex="-1"
-    aria-labelledby="hs-task-edit-label"
+    class="hs-overlay [--overlay-backdrop:static] hidden fixed z-90 size-full top-0 start-0 overflow-y-auto pointer-events-none"
   >
     <div class="size-full flex items-center justify-center p-2 sm:p-4">
+      <!-- Работаем напрямую с task из Query -->
       <div
-        class="flex flex-col w-full max-w-xl bg-white rounded-md pointer-events-auto"
-        v-if="editableTask"
+        v-if="task"
+        class="flex flex-col w-full max-w-xl bg-white rounded-md pointer-events-auto shadow-xl"
       >
         <!-- Header -->
         <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-gray-200">
-          <div class="flex items-center gap-x-1 min-w-0">
+          <div class="flex items-center gap-x-1">
+            <!-- Кнопка статуса -->
             <button
               type="button"
-              class="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-gray-100 transition-colors duration-100 text-gray-500 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
-              :class="{
-                'bg-green-100 text-green-600 hover:bg-green-200': editableTask.isCompleted,
-                'hover:bg-gray-200': !editableTask.isCompleted,
-              }"
-              @click.capture="editableTask.isCompleted = !editableTask.isCompleted"
+              @click="toggleCompleted"
+              class="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg transition-colors"
+              :class="
+                task.isCompleted ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+              "
             >
-              <div class="inline-flex items-center size-4">
-                <label
-                  class="flex items-center cursor-pointer relative transition-all"
-                  @click.prevent
-                >
-                  <input
-                    v-model="editableTask.isCompleted"
-                    type="checkbox"
-                    class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
-                    id="check-custom-style"
-                  />
-                  <span
-                    class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="size-3"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      stroke="currentColor"
-                      stroke-width="1"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </span>
-                </label>
+              <div class="size-4.5 relative">
+                <input
+                  type="checkbox"
+                  :checked="task.isCompleted"
+                  class="peer size-4.5 rounded-full border-gray-300 checked:bg-green-600 focus:ring-0 cursor-pointer"
+                  @click.stop
+                />
               </div>
-              {{ editableTask.isCompleted ? 'Выполнено' : 'Выполняется' }}
+              {{ task.isCompleted ? 'Выполнено' : 'Выполняется' }}
             </button>
 
+            <!-- Перемещение -->
             <MoveDropdown
-              :entity="editableTask"
-              :type="0"
+              v-if="!task.isDeleted"
+              :entity="task"
+              :key="task.id"
+              :type="EntityType.Task"
               @moveTask="handleMoveTask"
-              :key="taskUpdatesCounter"
-              v-if="!editableTask.isDeleted"
             >
               <Layers class="size-4 shrink-0" />
             </MoveDropdown>
 
-            <MoveDropdownButton :title="editableTask.categoryName" :disabled="true" v-else>
+            <MoveDropdownButton :title="task.category.name" :disabled="true" v-else>
               <Layers class="size-4 shrink-0" />
             </MoveDropdownButton>
           </div>
 
           <ActionAndCloseButtons
-            :editableEntity="editableTask"
-            :isEntityCopying="isTaskCopying"
-            :isEntityArchiving="isTaskArchiving"
-            @copy="copyTask"
-            @archive="archiveTask"
-            @close="UI_STORE.closeEditTaskModal()"
+            :editableEntity="task"
+            :isEntityCopying="status.isCloning?.value"
+            :isEntityArchiving="status.isArchiving?.value"
+            @copy="cloneTask({ id: task.id }, { onSuccess: () => uiStore.closeEditTaskModal() })"
+            @archive="archiveTask({ task }, { onSuccess: () => uiStore.closeEditTaskModal() })"
+            @close="uiStore.closeEditTaskModal()"
           />
         </div>
-        <!-- Header End -->
 
-        <div class="flex items-start px-4 pt-2">
-          <!-- Textarea -->
-          <div class="flex items-center w-full">
-            <textarea
-              class="p-0 block w-full text-black border-none focus:ring-0 text-lg disabled:opacity-50 disabled:pointer-events-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
-              placeholder="Имя задачи"
-              data-hs-textarea-auto-height
-              @input="nameInput"
-              ref="textareaNameAutoHeight"
-              rows="1"
-              v-model="editableTask.name"
-            ></textarea>
-          </div>
-          <!-- End Textarea -->
-        </div>
-
-        <!-- Description -->
-        <div class="px-4 pt-1">
-          <!-- Textarea -->
+        <!-- Inputs -->
+        <div class="px-4 pt-2">
           <textarea
-            class="p-0 block w-full border-none resize-none text-sm focus:outline-0 focus:ring-0 disabled:opacity-50 disabled:pointer-events-none"
-            placeholder="Описание задачи"
-            data-hs-textarea-auto-height
-            ref="textareaDescriptionAutoHeight"
-            rows="2"
-            v-model="editableTask.description"
-            @input="descriptionInput"
+            ref="textareaNameRef"
+            v-model="localName"
+            @input="debouncedUpdate"
+            class="p-0 block w-full text-black border-none focus:ring-0 text-lg resize-none"
+            placeholder="Имя задачи"
+            rows="1"
           ></textarea>
-          <!-- End Textarea -->
+
+          <textarea
+            ref="textareaDescRef"
+            v-model="localDescription"
+            @input="debouncedUpdate"
+            class="p-0 mt-1 block w-full border-none resize-none text-sm focus:ring-0 text-gray-600"
+            placeholder="Описание задачи"
+            rows="2"
+          ></textarea>
         </div>
 
-        <div class="flex flex-wrap text-custom-sm text-gray-500 space-x-1 px-4">
-          <span v-for="tag in editableTask.tags" :key="tag + editableTask.id">#{{ tag }}</span>
+        <!-- Tags Display -->
+        <div v-if="task.tags?.length" class="flex flex-wrap text-xs text-gray-500 gap-1 px-4 mt-2">
+          <span v-for="tag in task.tags" :key="tag">#{{ tag }}</span>
         </div>
-        <!-- Description End -->
 
-        <div
-          class="flex items-start flex-wrap gap-x-2 gap-y-1 px-4 pt-3 pb-4"
-          :class="{ 'pt-2': !editableTask.tags?.length }"
-        >
-          <Date
-            :task="editableTask"
+        <!-- Actions Footer -->
+        <div class="flex flex-wrap gap-2 px-4 pt-3 pb-4">
+          <DateComponent
+            ref="dateRef"
+            :task="task"
             @changeTime="handleChangeTime"
-            @clearTaskTime="handleClearTime"
-            @clearTaskDue="handleClearDue"
             @changeDate="handleChangeDate"
-            ref="dateComponentRef"
+            @clearTaskTime="patchTask({ dueHours: null, dueMinutes: null })"
+            @clearTaskDue="patchTask({ dueDate: null, dueHours: null, dueMinutes: null })"
           />
-          <Tags :task="editableTask" @removeTag="handleRemoveTag" @addTag="handleAddTag" />
-          <Color :task="editableTask" @setColor="handleSetColor" @clearColor="handleClearColor" />
+          <Tags :task="task" @addTag="handleAddTag" @removeTag="handleRemoveTag" />
+          <Color :task="task" @setColor="handleSetColor" />
         </div>
       </div>
     </div>

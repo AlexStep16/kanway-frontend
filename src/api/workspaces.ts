@@ -1,14 +1,21 @@
 import { apiCall } from '@/apiClient'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import { IBoard } from '@interfaces/domain/IBoard'
 import { IClonedWorkspaceResult } from '@interfaces/domain/IClonedWorkspaceResult'
 import { IWorkspacesWithChildrenResponse } from '@/interfaces/IWorkspacesWithChildrenResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
+import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 
 export async function getWorkspacesApi() {
   return await apiCall<IWorkspace[]>({
     method: 'GET',
     url: '/workspaces',
+  })
+}
+
+export async function getWorkspaceApi(id: string) {
+  return await apiCall<IWorkspace[]>({
+    method: 'GET',
+    url: `/workspaces/${id}`,
   })
 }
 
@@ -19,7 +26,7 @@ export async function getArchivedWorkspacesApi() {
   })
 }
 
-export async function postWorkspaceApi(payload: Partial<IBoard>) {
+export async function postWorkspaceApi(payload: Partial<IWorkspace>) {
   return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'POST',
     url: `/workspaces`,
@@ -27,7 +34,10 @@ export async function postWorkspaceApi(payload: Partial<IBoard>) {
   })
 }
 
-export async function patchWorkspaceApi(workspaceId: string, payload: Partial<IBoard>) {
+export async function patchWorkspaceApi(
+  workspaceId: string,
+  payload: ISingleUpdate<Partial<IWorkspace>>,
+) {
   return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}`,

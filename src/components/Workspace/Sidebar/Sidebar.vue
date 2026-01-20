@@ -18,10 +18,10 @@ import NumberBadge from '@components/Badges/NumberBadge.vue'
 import { useUIStore } from '@stores/ui'
 import CreateEditWorkspaceDropdown from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
 import CreateEditBoardDropdown from '@components/Forms/CreateEditBoard/Wrapper.vue'
-import { computed, onMounted, ref, toRef } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { HSDropdown } from 'preline'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { useBoardDataStore } from '@stores/boardData'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { useBoardStore } from '@/stores/board'
 import EditForm from '@components/Options/EditForm.vue'
 import WorkspaceEditWrapper from '@components/Forms/CreateEditWorkspace/Wrapper.vue'
 import BoardEditWrapper from '@components/Forms/CreateEditBoard/Wrapper.vue'
@@ -32,19 +32,35 @@ import AvatarImage from '@components/Workspace/AvatarImage.vue'
 import { useAuthStore } from '@stores/auth'
 import ActiveWorkspaceAvatar from '@components/Workspace/ActiveWorkspaceAvatar.vue'
 import { useChatStore } from '@/stores/chat'
+import { storeToRefs } from 'pinia'
+import { useChats } from '@/composables/chat/queries/useChats'
+import { useWorkspace } from '@/composables/workspaces/queries/useWorkspace'
+import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
+import { useBoards } from '@/composables/boards/queries/useBoards'
+import { useWorkspaceMutationStatus } from '@/composables/workspaces/mutations/useWorkspaceMutationStatus'
+import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
+import { useChatMutationStatus } from '@/composables/chat/mutations/useChatMutationStatus'
 
-const UI_STORE = useUIStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
-const BOARD_STORE = useBoardDataStore()
-const AUTH_STORE = useAuthStore()
-const CHAT_STORE = useChatStore()
+const uiStore = useUIStore()
+const workspaceStore = useWorkspaceStore()
+const boardStore = useBoardStore()
+const authStore = useAuthStore()
+const chatStore = useChatStore()
 
-const user = toRef(AUTH_STORE, 'user')
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
+const { activeBoardId } = storeToRefs(boardStore)
+const { activeChatId } = storeToRefs(chatStore)
 
-const activeWorkspace = computed(() => WORKSPACE_STORE.getActiveWorkspace)
+const { data: activeWorkspace } = useWorkspace(activeWorkspaceId)
+const { data: workspaces } = useWorkspaces()
+const { data: boards, isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
+
+const { user } = storeToRefs(authStore)
+
+const { data: chats } = useChats(activeWorkspaceId)
 
 if (window.innerWidth < 1280) {
-  UI_STORE.isSidebarOpen = false
+  uiStore.isSidebarOpen = false
 }
 
 const workspaceDropdown = ref<Nullable<HTMLElement>>(null)
@@ -54,12 +70,20 @@ const workspaceEditWrapperRef = ref<Nullable<InstanceType<typeof WorkspaceEditWr
 const boardEditWrapperRef = ref<Nullable<InstanceType<typeof BoardEditWrapper>>>(null)
 
 const getBoardCreateModalWidth = () => {
-  if (UI_STORE.createBoardButtonRef) {
-    const rect = UI_STORE.createBoardButtonRef.getBoundingClientRect()
+  if (uiStore.createBoardButtonRef) {
+    const rect = uiStore.createBoardButtonRef.getBoundingClientRect()
     return rect.width
   }
   return 0
 }
+
+const getFirstLetterOfWorkspace = computed(() => (workspaceId: string) => {
+  const workspace = workspaces.value.find((ws) => ws.id === workspaceId)
+
+  if (workspace) return workspace.name.charAt(0).toUpperCase()
+
+  return ''
+})
 
 function resetWorkspaceForm() {
   if (workspaceEditWrapperRef.value && workspaceEditWrapperRef.value.resetForm) {
@@ -74,7 +98,7 @@ function resetBoardForm() {
 }
 
 function selectWorkspace(workspace: any) {
-  WORKSPACE_STORE.selectWorkspace(workspace, true)
+  workspaceStore.selectWorkspace(workspace, true)
 
   if (workspaceDropdownInstance.value) workspaceDropdownInstance.value.close()
 }
@@ -84,9 +108,18 @@ function closeWorkspacesDropdown() {
     workspaceDropdownInstance.value.close()
   }
 }
+
 function isChatActive(chat: any) {
-  return CHAT_STORE.activeChatId === chat.id && UI_STORE.isChatModalOpen
+  return activeChatId.value === chat.id && uiStore.isChatModalOpen
 }
+
+const getFavoriteWorkspaces = computed(() => {
+  return workspaces.value.filter((ws) => ws.isFavorite)
+})
+
+const getFavoriteBoards = computed(() => {
+  return boards.value.filter((board) => board.isFavorite)
+})
 
 onMounted(() => {
   if (workspaceDropdown.value && workspaceDropdown.value instanceof HTMLElement) {
@@ -107,11 +140,11 @@ onMounted(() => {
     }
   }
 
-  if (UI_STORE.createBoardButtonRef) {
+  if (uiStore.createBoardButtonRef) {
     /*TIPS_STORE.addTip({
       title: 'Создание доски',
       description: `Чтобы создать новую доску, нажмите на соответствующую кнопку, которая находится в разделе <b>Доски</b>.`,
-      anchorElement: UI_STORE.createBoardButtonRef,
+      anchorElement: uiStore.createBoardButtonRef,
       buttonNextText: 'Понятно',
     })*/
   }
@@ -123,12 +156,12 @@ onMounted(() => {
   <div
     class="end-auto bg-gray-100 bottom-0 w-70 px-3 transition-all duration-300 transform h-full fixed top-0 start-0 z-60 block"
     :class="{
-      '-translate-x-full': !UI_STORE.isSidebarOpen,
-      'translate-x-0': UI_STORE.isSidebarOpen,
+      '-translate-x-full': !uiStore.isSidebarOpen,
+      'translate-x-0': uiStore.isSidebarOpen,
     }"
     :ref="
       (el: any) => {
-        UI_STORE.sidebarRef = el as HTMLElement
+        uiStore.sidebarRef = el as HTMLElement
       }
     "
     role="dialog"
@@ -184,9 +217,10 @@ onMounted(() => {
 
             <ul class="p-1 space-y-1">
               <SidebarItem
-                v-for="workspace in WORKSPACE_STORE.getWorkspaces"
+                v-for="workspace in workspaces"
                 :key="workspace.id"
                 :item="workspace"
+                :status="useWorkspaceMutationStatus"
                 :selected="workspace.id === activeWorkspace?.id ? true : false"
                 :resetForm="resetWorkspaceForm"
                 @select="selectWorkspace(workspace)"
@@ -197,7 +231,7 @@ onMounted(() => {
                     class="shrink-0 size-5 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
                     :style="{ backgroundColor: workspace.color || '#3B82F6' }"
                   >
-                    {{ WORKSPACE_STORE.getFirstLetterOfWorkspace(workspace) }}
+                    {{ getFirstLetterOfWorkspace(workspace.id) }}
                   </div>
                 </template>
 
@@ -230,7 +264,7 @@ onMounted(() => {
         <button
           type="button"
           class="inline-flex p-1.5 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors duration-100"
-          @click="UI_STORE.closeSidebar()"
+          @click="uiStore.closeSidebar()"
         >
           <PanelLeftClose class="size-4" />
         </button>
@@ -255,10 +289,8 @@ onMounted(() => {
               >
                 <SquareKanban class="size-4" />
                 Доски
-                <NumberBadgeSkeleton
-                  v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
-                />
-                <NumberBadge :number="BOARD_STORE.getActiveWorkspaceBoards.length" v-else />
+                <NumberBadgeSkeleton v-if="isBoardsLoading" />
+                <NumberBadge :number="boards?.length || 0" v-else />
 
                 <ChevronDown
                   class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
@@ -274,14 +306,15 @@ onMounted(() => {
                 role="region"
                 aria-labelledby="boards-accordion"
               >
-                <BoardsSkeleton v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')" />
+                <BoardsSkeleton v-if="isBoardsLoading" />
                 <ul class="my-1 relative ps-2.5 space-y-1" v-else>
                   <SidebarItem
-                    v-for="board in BOARD_STORE.getActiveWorkspaceBoards"
+                    v-for="board in boards"
                     :key="board.id"
                     :item="board"
-                    :selected="board === BOARD_STORE.activeBoard"
-                    @select="BOARD_STORE.selectBoard(board, true)"
+                    :status="useBoardMutationStatus"
+                    :selected="board.id === activeBoardId"
+                    @select="boardStore.selectBoard(board, true)"
                     :resetForm="resetBoardForm"
                     type="board"
                   >
@@ -306,7 +339,7 @@ onMounted(() => {
                   >
                     <ButtonCreate
                       id="hs-sidebar-board-create"
-                      @refEvent="UI_STORE.createBoardButtonRef = $event"
+                      @refEvent="uiStore.createBoardButtonRef = $event"
                     />
                   </CreateEditBoardDropdown>
                 </ul>
@@ -322,7 +355,7 @@ onMounted(() => {
               >
                 <MessagesSquare class="size-4" />
                 Чаты
-                <NumberBadge :number="CHAT_STORE.chats.length" />
+                <NumberBadge :number="chats?.length || 0" />
 
                 <ChevronDown
                   class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
@@ -340,10 +373,11 @@ onMounted(() => {
               >
                 <ul class="my-1 relative ps-2.5 space-y-1">
                   <SidebarItem
-                    v-for="chat in CHAT_STORE.chats"
+                    v-for="chat in chats"
                     :key="chat.id"
                     :item="chat"
-                    @select="CHAT_STORE.selectChat(chat, true)"
+                    :status="useChatMutationStatus"
+                    @select="chatStore.selectChat(chat.id, true)"
                     :selected="isChatActive(chat)"
                     type="chat"
                   />
@@ -387,15 +421,15 @@ onMounted(() => {
                       aria-controls="favorite-accordion-workspaces-sub-1"
                     >
                       Пространства
-                      <NumberBadge :number="WORKSPACE_STORE.getFavoriteWorkspaces.length" />
+                      <NumberBadge :number="getFavoriteWorkspaces.length" />
 
                       <ChevronDown
                         class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
-                        v-if="WORKSPACE_STORE.getFavoriteWorkspaces.length"
+                        v-if="getFavoriteWorkspaces.length"
                       />
                       <ChevronUp
                         class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
-                        v-if="WORKSPACE_STORE.getFavoriteWorkspaces.length"
+                        v-if="getFavoriteWorkspaces.length"
                       />
                     </button>
 
@@ -405,14 +439,12 @@ onMounted(() => {
                       role="region"
                       aria-labelledby="favorite-accordion-workspaces-sub-1"
                     >
-                      <ul
-                        class="pt-1 ps-2 space-y-1"
-                        v-if="WORKSPACE_STORE.getFavoriteWorkspaces.length"
-                      >
+                      <ul class="pt-1 ps-2 space-y-1" v-if="getFavoriteWorkspaces.length">
                         <SidebarItem
-                          v-for="workspace in WORKSPACE_STORE.getFavoriteWorkspaces"
+                          v-for="workspace in getFavoriteWorkspaces"
                           :key="workspace.id"
                           :item="workspace"
+                          :status="useWorkspaceMutationStatus"
                           :selected="workspace.id === activeWorkspace?.id ? true : false"
                           :resetForm="resetWorkspaceForm"
                           type="workspace"
@@ -422,7 +454,7 @@ onMounted(() => {
                               class="size-5 me-2.5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
                               :style="{ backgroundColor: workspace.color || '#3B82F6' }"
                             >
-                              {{ WORKSPACE_STORE.getFirstLetterOfWorkspace(workspace) }}
+                              {{ getFirstLetterOfWorkspace(workspace.id) }}
                             </div>
                           </template>
 
@@ -450,21 +482,16 @@ onMounted(() => {
                       aria-controls="favorite-accordion-boards-sub-1"
                     >
                       Доски
-                      <NumberBadgeSkeleton
-                        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
-                      />
-                      <NumberBadge
-                        :number="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
-                        v-else
-                      />
+                      <NumberBadgeSkeleton v-if="isBoardsLoading" />
+                      <NumberBadge :number="getFavoriteBoards.length" v-else />
 
                       <ChevronDown
                         class="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
-                        v-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
+                        v-if="getFavoriteBoards.length"
                       />
                       <ChevronUp
                         class="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
-                        v-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
+                        v-if="getFavoriteBoards.length"
                       />
                     </button>
 
@@ -474,18 +501,14 @@ onMounted(() => {
                       role="region"
                       aria-labelledby="favorite-accordion-boards-sub-1"
                     >
-                      <BoardsSkeleton
-                        v-if="BOARD_STORE.areBoardsLoading(activeWorkspace?.id || '')"
-                      />
-                      <ul
-                        class="pt-1 ps-2 space-y-1"
-                        v-else-if="BOARD_STORE.getActiveWorkspaceFavoriteBoards.length"
-                      >
+                      <BoardsSkeleton v-if="isBoardsLoading" />
+                      <ul class="pt-1 ps-2 space-y-1" v-else-if="getFavoriteBoards.length">
                         <SidebarItem
-                          v-for="board in BOARD_STORE.getActiveWorkspaceFavoriteBoards"
+                          v-for="board in getFavoriteBoards"
                           :key="board.id"
                           :item="board"
-                          :selected="board === BOARD_STORE.activeBoard"
+                          :status="useBoardMutationStatus"
+                          :selected="board.id === activeBoardId"
                           :resetForm="resetBoardForm"
                           type="board"
                         >
@@ -514,7 +537,7 @@ onMounted(() => {
               <button
                 type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
-                @click="UI_STORE.openSettingsModal()"
+                @click="uiStore.openSettingsModal()"
               >
                 <Settings class="size-4" />
                 Настройки
@@ -524,7 +547,7 @@ onMounted(() => {
               <button
                 type="button"
                 class="w-full flex items-center gap-x-2.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 transition-colors duration-100 focus:outline-hidden"
-                @click="UI_STORE.selectArchive"
+                @click="uiStore.selectArchive"
               >
                 <Archive class="size-4" />
 
@@ -631,9 +654,9 @@ onMounted(() => {
   <div
     class="fixed inset-0 transition duration bg-gray-900/50 lg:hidden z-50"
     :class="{
-      'opacity-100 visible': UI_STORE.isSidebarOpen,
-      'opacity-0 invisible': !UI_STORE.isSidebarOpen,
+      'opacity-100 visible': uiStore.isSidebarOpen,
+      'opacity-0 invisible': !uiStore.isSidebarOpen,
     }"
-    @click="UI_STORE.closeSidebar()"
+    @click="uiStore.closeSidebar()"
   ></div>
 </template>

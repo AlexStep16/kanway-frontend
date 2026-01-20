@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { Nullable } from '@/types/utils'
+import { useLogin } from '@/composables/auth/useLogin'
 
-const AUTH_STORE = useAuthStore()
-
-const { loginError } = storeToRefs(AUTH_STORE)
+const { mutate: login, error: loginError } = useLogin()
 
 const email = ref('')
 const password = ref('')
@@ -22,17 +19,21 @@ const errorMessage = computed(() => {
   return ''
 })
 
-async function login() {
+async function handleLogin() {
   validateForm()
 
   if (errors.value.email || errors.value.password) {
     return
   }
 
-  const success = await AUTH_STORE.handleLogin({ email: email.value, password: password.value })
-
-  if (success) {
-  }
+  login(
+    { email: email.value, password: password.value },
+    {
+      onSuccess: () => {
+        // Handle successful login, e.g., redirect to dashboard
+      },
+    },
+  )
 }
 
 function validateForm() {
@@ -47,8 +48,6 @@ function validateForm() {
 function resetErrors() {
   errors.value.email = null
   errors.value.password = null
-
-  AUTH_STORE.loginError = null
 }
 
 onMounted(() => {
@@ -120,7 +119,7 @@ onMounted(() => {
           </div>
 
           <!-- Form -->
-          <form @submit.prevent="login">
+          <form @submit.prevent="handleLogin" novalidate>
             <div class="grid gap-y-4">
               <!-- Form Group -->
               <div>

@@ -11,22 +11,77 @@ import { ref } from 'vue'
 import Task from '@components/Workspace/Main/Task/Task.vue'
 import EntityCard from '@/components/Workspace/Main/EntityCard.vue'
 import { useChatStore } from '@/stores/chat'
-import { useChatMessageStore } from '@/stores/chatMessages'
+import { useChatMessageStore } from '@/stores/chatMessage'
 import ColumnsView from '@/components/Workspace/Main/ColumnsView.vue'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import Spinner from '@components/Loader/Spinner.vue'
 import dayjs from 'dayjs'
+import { useSendMessage } from '@/composables/chat/mutations/useSendMessage'
+import { storeToRefs } from 'pinia'
+import { useChat } from '@/composables/chat/queries/useChat'
+import { useBoardStore } from '@/stores/board'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { useRetryAgent } from '@/composables/chat/mutations/useRetryAgent'
+import { useApproveTool } from '@/composables/chat/mutations/useApproveTool'
 
-const UI_STORE = useUIStore()
-const CHAT_STORE = useChatStore()
-const CHAT_MESSAGE_STORE = useChatMessageStore()
-const AGENT_STATUS_STORE = useAgentStatusStore()
+const uiStore = useUIStore()
+const chatStore = useChatStore()
+const chatMessageStore = useChatMessageStore()
+const agentStatusStore = useAgentStatusStore()
+const boardStore = useBoardStore()
+const workspaceStore = useWorkspaceStore()
+
+const { activeChatId } = storeToRefs(chatStore)
+const { activeBoardId } = storeToRefs(boardStore)
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
+
+const { data: chat } = useChat(activeChatId)
+
+const { mutate: retryAgent } = useRetryAgent()
+const { mutate: sendMessage } = useSendMessage()
+const { mutate: approveToolCall, isPending: isToolCallApproving } = useApproveTool()
 
 const chatRef = ref<HTMLElement | null>(null)
 const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
 
+function handleRetryAgent(messageId: string) {
+  retryAgent({
+    payload: {
+      chatId: activeChatId.value || '',
+      threadId: chat.value?.threadId || '',
+      chatMessageId: messageId,
+      boardId: activeBoardId.value || '',
+      workspaceId: activeWorkspaceId.value || '',
+    },
+  })
+}
+
+function handleApproveToolCall(
+  toolCallId: string,
+  chatMessageId: string,
+  decision: 'confirm' | 'cancel',
+) {
+  approveToolCall({
+    payload: {
+      toolCallId,
+      chatMessageId,
+      boardId: activeBoardId.value || '',
+      isConfirmed: decision === 'confirm',
+      isCancelled: decision === 'cancel',
+      workspaceId: activeWorkspaceId.value || '',
+    },
+  })
+}
+
 function send(message: string) {
-  CHAT_STORE.sendMessage(message)
+  sendMessage({
+    payload: {
+      message,
+      boardId: activeBoardId.value || '',
+      threadId: chat.value?.threadId || '',
+      workspaceId: activeWorkspaceId.value || '',
+    },
+  })
 }
 
 function isToolCallApproved(toolCall: any) {
@@ -58,7 +113,7 @@ const getFormattedDate = (date: Date) => {
     id="hs-chat"
     :ref="
       (el) => {
-        if (el) UI_STORE.chatModalRef = el as HTMLElement
+        if (el) uiStore.chatModalRef = el as HTMLElement
       }
     "
     class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
@@ -75,13 +130,13 @@ const getFormattedDate = (date: Date) => {
           <div class="flex items-center justify-center gap-x-2">
             <MessagesSquare class="size-4" />
             <h5 id="hs-task-edit-label" class="text-sm font-medium text-gray-800">
-              {{ CHAT_STORE.activeChat?.name }}
+              {{ chat?.name }}
             </h5>
           </div>
           <button
             class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"
             type="button"
-            @click="UI_STORE.closeChatModal()"
+            @click="uiStore.closeChatModal()"
           >
             <X class="size-5" />
           </button>
@@ -92,7 +147,7 @@ const getFormattedDate = (date: Date) => {
           class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
           ref="chatRef"
         >
-          <template v-for="message in CHAT_MESSAGE_STORE.currentChatMessages" :key="message.id">
+          <template v-for="message in chatMessageStore.currentChatMessages" :key="message.id">
             <UserBubble
               v-if="message.role === 'user'"
               :text="message.content"
@@ -102,7 +157,7 @@ const getFormattedDate = (date: Date) => {
               v-else-if="['assistant', 'error'].includes(message.role)"
               :date="getFormattedDate(message.createdAt)"
               :isError="message.role === 'error'"
-              @tryAgain="CHAT_STORE.retryAgent(message)"
+              @tryAgain="handleRetryAgent(message.id)"
             >
               <Assistant :text="message.content" />
             </AIBubble>
@@ -143,7 +198,7 @@ const getFormattedDate = (date: Date) => {
                           v-for="category in slotProps.data"
                           :key="category.id"
                           :name="category.name"
-                          :parentName="category.boardName"
+                          :parentName="category.board.name"
                           :showInfo="true"
                         />
                       </template>
@@ -153,7 +208,7 @@ const getFormattedDate = (date: Date) => {
                           v-for="board in slotProps.data"
                           :key="board.id"
                           :name="board.name"
-                          :parentName="board.workspaceName"
+                          :parentName="board.workspace.name"
                           :showInfo="true"
                         />
                       </template>
@@ -209,7 +264,7 @@ const getFormattedDate = (date: Date) => {
                           v-for="category in slotProps.data"
                           :key="category.id"
                           :name="category.name"
-                          :parentName="category.boardName"
+                          :parentName="category.board.name"
                           :showInfo="true"
                         /> </template
                     ></template>
@@ -223,33 +278,29 @@ const getFormattedDate = (date: Date) => {
                   <button
                     type="button"
                     class="flex items-center justify-center text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity duration-100 relative"
-                    @click="CHAT_STORE.approveToolCall(content.callId, message.id, 'confirm')"
+                    @click="handleApproveToolCall(content.callId, message.id, 'confirm')"
                   >
                     <div
                       class="flex items-center justify-center absolute"
-                      v-if="CHAT_STORE.isToolCallApproving(content.callId)"
+                      v-if="isToolCallApproving"
                     >
                       <Spinner class="size-4" />
                     </div>
-                    <span :class="{ 'opacity-0': CHAT_STORE.isToolCallApproving(content.callId) }">
-                      Подтвердить
-                    </span>
+                    <span :class="{ 'opacity-0': isToolCallApproving }"> Подтвердить </span>
                   </button>
 
                   <button
                     type="button"
                     class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 relative"
-                    @click="CHAT_STORE.approveToolCall(content.callId, message.id, 'cancel')"
+                    @click="handleApproveToolCall(content.callId, message.id, 'cancel')"
                   >
                     <div
                       class="flex items-center justify-center absolute"
-                      v-if="CHAT_STORE.isToolCallApproving(content.callId)"
+                      v-if="isToolCallApproving"
                     >
                       <Spinner class="size-4" />
                     </div>
-                    <span :class="{ 'opacity-0': CHAT_STORE.isToolCallApproving(content.callId) }">
-                      Отменить
-                    </span>
+                    <span :class="{ 'opacity-0': isToolCallApproving }"> Отменить </span>
                   </button>
                 </div>
 
@@ -267,17 +318,17 @@ const getFormattedDate = (date: Date) => {
 
           <AIBubble
             :hideBackground="true"
-            v-if="AGENT_STATUS_STORE.currentActivity && !AGENT_STATUS_STORE.assistantStream"
+            v-if="agentStatusStore.currentActivity && !agentStatusStore.assistantStream"
           >
-            <Status :currentToolStatus="AGENT_STATUS_STORE.currentActivity" />
+            <Status :currentToolStatus="agentStatusStore.currentActivity" />
           </AIBubble>
 
           <AIBubble
             :date="dayjs().calendar()"
             :fastQuestions="[]"
-            v-else-if="AGENT_STATUS_STORE.assistantStream"
+            v-else-if="agentStatusStore.assistantStream"
           >
-            <Assistant :text="AGENT_STATUS_STORE.assistantStream" />
+            <Assistant :text="agentStatusStore.assistantStream" />
           </AIBubble>
         </div>
 

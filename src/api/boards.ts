@@ -3,18 +3,31 @@ import { IClonedBoardResult } from '@interfaces/domain/IClonedBoardResult'
 import { IBoard } from '@interfaces/domain/IBoard'
 import { IBoardsWithChildrenResponse } from '@/interfaces/IBoardsWithChildrenResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
+import { IBoardCreateApiPayload } from '@/interfaces/IBoardCreateApiPayload'
+import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 
-export async function getBoardsApi(workspaceId: string) {
+export async function getBoardsApi(workspaceId?: string) {
+  const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
+
   return await apiCall<IBoard[]>({
     method: 'GET',
-    url: `/workspaces/${workspaceId}/boards`,
+    url: `/boards${queryParams}`,
   })
 }
 
-export async function getBoardsCountApi(workspaceId: string) {
+export async function getBoardApi(id: string) {
+  return await apiCall<IBoard[]>({
+    method: 'GET',
+    url: `/boards/${id}`,
+  })
+}
+
+export async function getBoardsCountApi(workspaceId?: string) {
+  const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
+
   return await apiCall<number>({
     method: 'GET',
-    url: `/workspaces/${workspaceId}/boards/count`,
+    url: `/boards/count${queryParams}`,
   })
 }
 
@@ -25,50 +38,46 @@ export async function getArchivedBoardsApi() {
   })
 }
 
-export async function postBoardApi(payload: Partial<IBoard>, workspaceId: string) {
+export async function postBoardApi(payload: IBoardCreateApiPayload) {
   return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/boards`,
+    url: `/boards`,
     data: payload,
   })
 }
 
-export async function patchBoardApi(
-  boardId: string,
-  workspaceId: string,
-  payload: Partial<IBoard>,
-) {
+export async function patchBoardApi(payload: ISingleUpdate<IBoard>) {
   return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}`,
+    url: `/boards/${payload.id}`,
     data: payload,
   })
 }
 
-export async function deleteBoardApi(boardId: string, workspaceId: string) {
+export async function deleteBoardApi(id: string) {
   return await apiCall<void>({
     method: 'DELETE',
-    url: `/workspaces/${workspaceId}/boards/${boardId}`,
+    url: `/boards/${id}`,
   })
 }
 
-export async function archiveBoardApi(boardId: string, workspaceId: string) {
+export async function archiveBoardApi(id: string) {
   return await apiCall<IResponseWithLog<IBoardsWithChildrenResponse>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/archive`,
+    url: `/boards/${id}/archive`,
   })
 }
 
-export async function recoverBoardApi(boardId: string, workspaceId: string) {
+export async function recoverBoardApi(id: string) {
   return await apiCall<IResponseWithLog<IBoardsWithChildrenResponse>>({
     method: 'PATCH',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/recover`,
+    url: `/boards/${id}/recover`,
   })
 }
 
-export async function cloneBoardApi(boardId: string, workspaceId: string) {
+export async function cloneBoardApi(id: string) {
   return await apiCall<IResponseWithLog<IClonedBoardResult>>({
     method: 'POST',
-    url: `/workspaces/${workspaceId}/boards/${boardId}/clone`,
+    url: `/boards/${id}/clone`,
   })
 }

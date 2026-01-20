@@ -1,80 +1,56 @@
 <script setup lang="ts">
 import { useUIStore } from '@stores/ui'
 import ActionAndCloseButtons from '@components/Workspace/Main/EditEntity/ActionAndCloseButtons.vue'
-import { computed, nextTick, toRef, watch } from 'vue'
+import { computed, nextTick, watch } from 'vue'
 import { ref } from 'vue'
 import { Nullable } from '@/types/utils'
 import { HSStaticMethods } from 'preline'
-import _ from 'lodash'
-import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import EntityCard from '@components/Workspace/Main/EntityCard.vue'
 import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
-import { useBoardDataStore } from '@stores/boardData'
-import { useWorkspaceDataStore } from '@stores/workspaceData'
-import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import MoveDropdownButton from '@components/Workspace/Main/MoveDropdown/MoveDropdownButton.vue'
-import { useAuthStore } from '@stores/auth'
-import { User } from 'lucide-vue-next'
 import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
+import { useWorkspace } from '@/composables/workspaces/queries/useWorkspace'
+import { storeToRefs } from 'pinia'
+import { useUpdateWorkspace } from '@/composables/workspaces/mutations/useUpdateWorkspace'
+import { useArchiveWorkspace } from '@/composables/workspaces/mutations/useArchiveWorkspace'
+import { useCloneWorkspace } from '@/composables/workspaces/mutations/useCloneWorkspace'
+import { useDebounceFn } from '@vueuse/core'
+import { useBoards } from '@/composables/boards/queries/useBoards'
+import { useArchivedBoards } from '@/composables/boards/queries/useArchivedBoards'
+import { useWorkspaceMutationStatus } from '@/composables/workspaces/mutations/useWorkspaceMutationStatus'
+import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
 
-const BOARD_STORE = useBoardDataStore()
-const WORKSPACE_STORE = useWorkspaceDataStore()
-const UI_STORE = useUIStore()
-const AUTH_STORE = useAuthStore()
+const uiStore = useUIStore()
 
-const user = toRef(AUTH_STORE, 'user')
+const { editableWorkspaceId } = storeToRefs(uiStore)
 
-const editableWorkspace = ref<Nullable<IWorkspace>>(null)
+const { data: editableWorkspace } = useWorkspace(editableWorkspaceId)
+const { data: actualBoards } = useBoards(editableWorkspaceId)
+const { data: archivedBoards } = useArchivedBoards(editableWorkspace.value?.isDeleted)
+
+const { mutate: updateWorkspace } = useUpdateWorkspace()
+const { mutate: archiveWorkspace } = useArchiveWorkspace()
+const { mutate: copyWorkspace } = useCloneWorkspace()
+
+const status = useWorkspaceMutationStatus(editableWorkspaceId)
+
+const localWorkspaceId = ref<string | null>(null)
+const name = ref<string>('')
+
 const textareaNameAutoHeight = ref<Nullable<HTMLTextAreaElement>>(null)
-const updateNameTimeout = ref<Nullable<number>>(null)
 const boardsContainerRef = ref<HTMLElement | null>(null)
 
-async function copyWorkspace(workspace: IWorkspace) {
-  await WORKSPACE_STORE.cloneWorkspace(workspace)
-
-  UI_STORE.closeEditWorkspaceModal()
-}
-
-async function archiveWorkspace(workspace: IWorkspace) {
-  await WORKSPACE_STORE.archiveWorkspace(workspace)
-
-  UI_STORE.closeEditWorkspaceModal()
-}
-
-function updateWorkspace(updatedFields: ISingleUpdate<IWorkspace>) {
-  if (!editableWorkspace.value) return
-
-  WORKSPACE_STORE.updateWorkspace(updatedFields, true)
-}
-
 function nameInput() {
-  if (updateNameTimeout.value) {
-    clearTimeout(updateNameTimeout.value)
-  }
+  if (!editableWorkspace.value || !editableWorkspace.value.name) return
 
-  updateNameTimeout.value = window.setTimeout(() => {
-    if (!editableWorkspace.value || !editableWorkspace.value.name) return
-
-    updateWorkspace({
+  updateWorkspace({
+    payload: {
       id: editableWorkspace.value.id,
       name: editableWorkspace.value.name,
-    })
-
-    updateNameTimeout.value = null
-  }, 500)
+    },
+  })
 }
 
-const isWorkspaceCopying = computed(() => {
-  if (!editableWorkspace.value) return false
-
-  return WORKSPACE_STORE.isWorkspaceCloning(editableWorkspace.value.id)
-})
-
-const isWorkspaceArchiving = computed(() => {
-  if (!editableWorkspace.value) return false
-
-  return WORKSPACE_STORE.isWorkspaceArchiving(editableWorkspace.value.id)
-})
+const debouncedNameInput = useDebounceFn(nameInput, 500)
 
 function initializeTextarea(textarea: Nullable<HTMLTextAreaElement>) {
   if (textarea) {
@@ -82,25 +58,47 @@ function initializeTextarea(textarea: Nullable<HTMLTextAreaElement>) {
   }
 }
 
-const getBoards = computed(() => {
-  if (!editableWorkspace.value) return []
+function handleCopyWorkspace() {
+  if (!editableWorkspace.value) return
 
-  if (editableWorkspace.value.isDeleted)
-    return BOARD_STORE.getAllBoardsByWorkspaceId(editableWorkspace.value.id)
-  return BOARD_STORE.getBoardsByWorkspaceId(editableWorkspace.value.id)
+  copyWorkspace({
+    id: editableWorkspace.value.id,
+  })
+}
+
+function handleArchiveWorkspace() {
+  if (!editableWorkspace.value) return
+
+  archiveWorkspace({
+    workspace: editableWorkspace.value,
+  })
+}
+
+const boards = computed(() => {
+  if (editableWorkspace.value?.isDeleted) {
+    return archivedBoards.value || []
+  } else {
+    return actualBoards.value || []
+  }
+})
+
+const getBoardStatus = computed(() => (id: string) => {
+  return useBoardMutationStatus(id)
 })
 
 watch(
-  () => WORKSPACE_STORE.workspaceToEdit,
+  () => editableWorkspace.value,
   (newWorkspace) => {
-    if (newWorkspace && newWorkspace.id === editableWorkspace.value?.id) return
+    if (newWorkspace && newWorkspace.id === localWorkspaceId.value) return
 
-    const shouldInitialize = newWorkspace && !editableWorkspace.value
+    const shouldInitialize = newWorkspace && !localWorkspaceId.value
 
     if (newWorkspace) {
-      editableWorkspace.value = _.cloneDeep(newWorkspace)
+      localWorkspaceId.value = newWorkspace.id
+      name.value = newWorkspace.name
     } else {
-      editableWorkspace.value = null
+      localWorkspaceId.value = null
+      name.value = ''
     }
 
     nextTick(() => {
@@ -111,7 +109,7 @@ watch(
       initializeTextarea(textareaNameAutoHeight.value)
     })
   },
-  { deep: true, immediate: true },
+  { immediate: true },
 )
 </script>
 
@@ -120,7 +118,7 @@ watch(
     id="hs-workspace-edit"
     :ref="
       (el) => {
-        if (el) UI_STORE.editWorkspaceModalRef = el as HTMLElement
+        if (el) uiStore.editWorkspaceModalRef = el as HTMLElement
       }
     "
     class="hs-overlay [--overlay-backdrop:static] hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-85 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
@@ -135,19 +133,13 @@ watch(
       >
         <!-- Header -->
         <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-gray-200">
-          <div class="flex items-center gap-x-1 min-w-0">
-            <MoveDropdownButton :title="user?.username || ''" :disabled="true">
-              <User class="size-4 shrink-0" />
-            </MoveDropdownButton>
-          </div>
-
           <ActionAndCloseButtons
             :editableEntity="editableWorkspace"
-            :isEntityCopying="isWorkspaceCopying"
-            :isEntityArchiving="isWorkspaceArchiving"
-            @copy="copyWorkspace"
-            @archive="archiveWorkspace"
-            @close="UI_STORE.closeEditWorkspaceModal()"
+            :isEntityCopying="status.isCloning?.value"
+            :isEntityArchiving="status.isArchiving?.value"
+            @copy="handleCopyWorkspace"
+            @archive="handleArchiveWorkspace"
+            @close="uiStore.closeEditWorkspaceModal()"
           />
         </div>
         <!-- Header End -->
@@ -159,7 +151,7 @@ watch(
               class="p-0 block w-full text-black border-none focus:ring-0 text-lg disabled:opacity-50 disabled:pointer-events-none resize-none overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
               placeholder="Имя пространства"
               data-hs-textarea-auto-height
-              @input="nameInput"
+              @input="debouncedNameInput"
               ref="textareaNameAutoHeight"
               rows="1"
               v-model="editableWorkspace.name"
@@ -169,14 +161,14 @@ watch(
         </div>
 
         <div class="flex flex-col gap-y-2 px-4 pb-4 mt-4 items-start overflow-hidden">
-          <TitleWithBadge title="Доски" :number="getBoards.length" />
+          <TitleWithBadge title="Доски" :number="boards.length" />
 
           <div
             class="flex gap-2 flex-wrap w-full min-h-0 pb-2 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
             ref="boardsContainerRef"
-            v-if="getBoards.length > 0"
+            v-if="boards.length > 0"
           >
-            <ColumnsView :items="getBoards" :containerRef="boardsContainerRef">
+            <ColumnsView :items="boards" :containerRef="boardsContainerRef">
               <template v-slot:default="slotProps">
                 <EntityCard
                   v-for="board in slotProps.data"
@@ -184,11 +176,11 @@ watch(
                   :name="board.name"
                   :isStatic="false"
                   :hasCopy="true"
-                  :isCopying="BOARD_STORE.isBoardCloning(board.id)"
+                  :isCopying="getBoardStatus(board.id).isCloning?.value"
                   :isDeleted="board.isDeleted"
                   :hasDelete="true"
-                  :isArchiving="BOARD_STORE.isBoardArchiving(board.id)"
-                  @click="BOARD_STORE.openBoardToEdit(board)"
+                  :isArchiving="getBoardStatus(board.id).isArchiving?.value"
+                  @click="uiStore.openBoardToEdit(board)"
                 />
               </template>
             </ColumnsView>
