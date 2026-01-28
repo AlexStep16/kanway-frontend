@@ -175,8 +175,6 @@ async function handleUpdateAvatarColor() {
       },
     },
   )
-
-  // Optionally, you can navigate to another page or show a success message here
 }
 
 watch(getCurrentProgress, () => updateProgressLabel(), { immediate: true })

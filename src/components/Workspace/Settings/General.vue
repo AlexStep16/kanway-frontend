@@ -2,13 +2,17 @@
 import { Camera, Lock } from 'lucide-vue-next'
 import dayjs from 'dayjs'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useAuthStore } from '@stores/auth'
 import { toast } from 'vue-sonner'
 import { HSSelect, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
 import { storeToRefs } from 'pinia'
 import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
+import ColorButtons from '@/components/Buttons/ColorButtons.vue'
+import { AvailableColors } from '@/enums/AvailableColors'
+import { Nullable } from '@/types/utils'
+import { useResetAvatar } from '@/composables/auth/mutations/useResetAvatar'
 
 const authStore = useAuthStore()
 
@@ -16,6 +20,10 @@ const { user } = storeToRefs(authStore)
 
 const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUser()
 const { mutate: updateUserTimezone, isPending: isUserTimezoneUpdating } = useUpdateUser()
+const { mutate: updateAvatarColor } = useUpdateUser()
+const { mutate: resetAvatar, isPending: isAvatarResetting } = useResetAvatar()
+
+const avatarColor = ref<Nullable<AvailableColors>>(null)
 
 const username = ref(user.value?.username ?? '')
 const usernameHasErrors = ref(false)
@@ -95,8 +103,31 @@ async function handleChangeTimezone(timezone: string) {
   }
 }
 
+async function handleUpdateAvatarColor(color: AvailableColors) {
+  if (color === avatarColor.value) return
+
+  updateAvatarColor({
+    id: user.value!.id,
+    avatarColor: color,
+  })
+}
+
+watch(
+  user,
+  (newValue) => {
+    if (newValue) {
+      avatarColor.value = newValue.avatarColor
+    }
+  },
+  { immediate: true },
+)
+
 const getUserTimezone = computed((): string => {
   return user.value?.timezone || dayjs.tz.guess()
+})
+
+const hasUserAvatar = computed((): boolean => {
+  return !!user.value?.avatarUrl
 })
 
 onMounted(() => {
@@ -124,9 +155,27 @@ onMounted(() => {
     <div class="flex flex-col items-start gap-y-3 max-w-80">
       <div class="flex flex-col gap-y-1 w-full">
         <label class="text-custom-sm font-medium text-gray-500">Аватар</label>
-        <Avatar class="size-13 sm:size-15" imageClasses="text-2xl sm:text-3xl">
+        <Avatar class="size-15 sm:size-17" imageClasses="text-2xl sm:text-3xl">
           <Camera class="size-5" />
         </Avatar>
+
+        <ColorButtons
+          :color="avatarColor"
+          @selectColor="handleUpdateAvatarColor"
+          class="mt-2"
+          :size="8"
+          v-if="!hasUserAvatar"
+        />
+
+        <button
+          class="py-2 px-3 text-xs text-white bg-red-400 hover:bg-red-500 transition-colors duration-100 rounded-md w-max mt-2"
+          type="button"
+          v-if="hasUserAvatar"
+          @click="resetAvatar()"
+        >
+          <Spinner v-if="isAvatarResetting" class="size-3" />
+          Удалить аватар
+        </button>
       </div>
 
       <div class="flex flex-col gap-y-1">

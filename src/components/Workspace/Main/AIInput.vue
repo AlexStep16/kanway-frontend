@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Mic } from 'lucide-vue-next'
 import { HSTextareaAutoHeight } from 'preline'
 
 import { useBoardStore } from '@/stores/board'
@@ -11,6 +10,7 @@ import { useSendMessage } from '@/composables/chat/mutations/useSendMessage'
 import Spinner from '@components/Loader/Spinner.vue'
 import Sparkles from '@assets/sparkles.svg?component'
 import { useChatStore } from '@/stores/chat'
+import MicButton from '@components/Workspace/Main/MicButton.vue'
 
 defineProps<{
   theme?: 'light' | 'dark'
@@ -26,11 +26,8 @@ const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 const aiInput = ref('')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const isRecording = ref(false) // Для управления состоянием микрофона
 
 const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
-
-// --- Logic ---
 
 const handleSendMessage = () => {
   if (!aiInput.value.trim() || isMessageSending.value) return
@@ -47,14 +44,13 @@ const handleSendMessage = () => {
     {
       onSuccess: () => {
         aiInput.value = ''
-        // После очистки текста сбрасываем высоту
+
         nextTick(() => reInitializeTextarea())
       },
     },
   )
 }
 
-// Переинициализация высоты (Preline)
 function reInitializeTextarea() {
   if (textareaRef.value) {
     const instance = HSTextareaAutoHeight.getInstance(textareaRef.value, true) as any
@@ -65,10 +61,7 @@ function reInitializeTextarea() {
   }
 }
 
-// --- Lifecycle ---
-
 onMounted(() => {
-  // Инициализация Preline
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
   window.addEventListener('resize', reInitializeTextarea)
 })
@@ -101,30 +94,26 @@ onUnmounted(() => {
         ></textarea>
       </div>
 
-      <!-- Actions Area -->
       <div class="flex shrink-0 items-center gap-x-2">
-        <!-- Voice Input (Simple) -->
-        <button
-          v-if="!isRecording"
-          type="button"
-          @click="isRecording = true"
-          class="flex items-center justify-center size-8 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
-          title="Голосовой ввод"
-        >
-          <Mic class="size-4.5" />
-        </button>
-
-        <!-- Voice Input (Active with CSS Animation) -->
-        <button
-          v-else
-          type="button"
-          @click="isRecording = false"
-          class="flex items-center justify-center size-8 rounded-md relative text-white"
-        >
-          <span class="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-40"></span>
-          <span class="absolute inset-0 rounded-full bg-red-500 z-1"></span>
-          <Mic class="size-4.5 z-2" />
-        </button>
+        <MicButton
+          :isWorkspace="true"
+          @deltaAdd="
+            (deltaText: string) => {
+              aiInput += deltaText
+            }
+          "
+          @transcriptionCompleted="
+            (finalText: string) => {
+              aiInput = finalText
+              handleSendMessage()
+            }
+          "
+          @clearInput="
+            () => {
+              aiInput = ''
+            }
+          "
+        ></MicButton>
 
         <button
           class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 transition-opacity duration-100 rounded-md relative h-8"
@@ -143,18 +132,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.animate-ping {
-  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@keyframes ping {
-  75%,
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
 textarea::-webkit-scrollbar {
   width: 4px;
 }

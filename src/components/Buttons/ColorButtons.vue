@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+import { Nullable } from '@/types/utils'
 import { AvailableColors } from '@enums/AvailableColors'
 
 defineProps<{
-  color: AvailableColors
+  color: Nullable<AvailableColors>
   size?: number
 }>()
 

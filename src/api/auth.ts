@@ -38,6 +38,13 @@ export async function patchUserAvatarApi(formData: FormData) {
   })
 }
 
+export async function resetAvatarApi() {
+  return await apiCall<void>({
+    method: 'DELETE',
+    url: '/me/avatar',
+  })
+}
+
 export async function patchUserApi(payload: Partial<IUser>) {
   return apiCall<IUser>({
     method: 'PATCH',

@@ -49,7 +49,7 @@ const isLastMessageFromHuman = computed(() => {
 })
 
 const { mutate: retryAgent } = useRetryAgent()
-const { mutate: sendMessage } = useSendMessage()
+const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
 
 function handleRetryAgent(messageId: string) {
   retryAgent({
@@ -65,6 +65,8 @@ function handleRetryAgent(messageId: string) {
 }
 
 function send(message: string) {
+  if (!message.trim() || isMessageSending.value) return
+
   sendMessage({
     payload: {
       message,

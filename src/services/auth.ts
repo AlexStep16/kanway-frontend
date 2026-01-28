@@ -7,6 +7,7 @@ import {
   deleteUserApi,
   meApi,
   patchUserPasswordApi,
+  resetAvatarApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
@@ -44,6 +45,10 @@ export async function getMe(): Promise<UserModel> {
 
 export async function updateAvatar(formData: FormData): Promise<string> {
   return await patchUserAvatarApi(formData)
+}
+
+export async function resetAvatar(): Promise<void> {
+  return await resetAvatarApi()
 }
 
 export async function updateUser(payload: Partial<IUser>): Promise<IUser> {

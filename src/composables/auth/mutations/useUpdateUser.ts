@@ -15,6 +15,7 @@ export function useUpdateUser() {
       requestQueueService.enqueue(payload.id, () => patchUserApi(payload)),
 
     onSuccess: (updatedUser) => {
+      console.log(updatedUser)
       authStore.setUser(updatedUser)
     },
   })
