@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { taskKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { cloneTask } from '@/services/task'
 import { useUndo } from '@/composables/useUndo'
@@ -11,14 +11,26 @@ export interface CloneTaskVars {
 
 export function useCloneTask() {
   const { mutate: undo } = useUndo()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'clone'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: ({ id }: CloneTaskVars) => {
       return requestQueueService.enqueue(id, () => cloneTask(id))
     },
 
     onSuccess: async (result) => {
+      const newTask = result.data[0]
+
+      if (newTask) {
+        queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(newTask.board.id) })
+        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newTask.board.id) })
+        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newTask.workspace.id) })
+      }
+
       toast.success('Задача скопирована', {
         action: {
           label: 'Отменить',

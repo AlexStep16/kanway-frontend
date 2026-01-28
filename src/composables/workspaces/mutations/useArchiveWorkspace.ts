@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { workspaceKeys } from '@/keys'
+import { boardKeys, taskKeys, categoryKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { archiveWorkspace } from '@/services/workspace'
 import { useUndo } from '@/composables/useUndo'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 interface ArchiveWorkspaceVars {
   workspace: IWorkspace
@@ -16,6 +17,9 @@ export function useArchiveWorkspace() {
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'archive'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists(), workspaceKeys.archived()],
+    },
     mutationFn: ({ workspace }: ArchiveWorkspaceVars) =>
       requestQueueService.enqueue(workspace.id, () => archiveWorkspace(workspace.id)),
 
@@ -42,6 +46,18 @@ export function useArchiveWorkspace() {
     },
 
     onSuccess: (result) => {
+      const workspaceId = result.data[0].id ?? null
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
+
+      const availableBoards = queryClient.getQueryData<IBoard[]>(boardKeys.byWorkspace(workspaceId))
+
+      if (availableBoards && availableBoards.length > 0) {
+        availableBoards.forEach((board) => {
+          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
+        })
+      }
+
       toast.success('Пространство архивировано', {
         action: {
           label: 'Отменить',

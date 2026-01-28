@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import { Nullable } from '@/types/utils'
-import { useRegister } from '@/composables/auth/useRegister'
+import { useRegister } from '@/composables/auth/mutations/useRegister'
 
 const { mutate: register, error: registerError } = useRegister()
 

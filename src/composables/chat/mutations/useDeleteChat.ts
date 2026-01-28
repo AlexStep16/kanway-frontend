@@ -7,7 +7,7 @@ import { removeChat } from '@/services/chat'
 
 interface DeleteChatVars {
   id: string
-  workspaceId: string
+  workspaceId: string | null
 }
 
 export function useDeleteChat() {
@@ -38,7 +38,9 @@ export function useDeleteChat() {
       }
     },
 
-    onSuccess: () => {
+    onSuccess: (result, { workspaceId }) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(workspaceId) })
+
       toast.success('Чат успешно удален')
     },
   })

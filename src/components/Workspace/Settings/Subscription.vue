@@ -14,8 +14,11 @@ const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
 
 const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount()
-const { data: subscriptions, isPending: isSubscriptionsLoading } = useSubscriptions()
-const { data: workspaces } = useWorkspaces()
+const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
+const { data: workspacesData } = useWorkspaces()
+
+const subscriptions = computed(() => subscriptionsData.value || [])
+const workspaces = computed(() => workspacesData.value || [])
 
 const currentSubscription = computed(() => {
   if (!user.value) {
@@ -81,7 +84,7 @@ const getRemainingBoards = computed(() => {
     return -1
   }
 
-  return Math.max(0, maxBoards - boardsCount.value)
+  return Math.max(0, maxBoards - (boardsCount.value ?? 0))
 })
 
 const getRemainingWorkspaces = computed(() => {

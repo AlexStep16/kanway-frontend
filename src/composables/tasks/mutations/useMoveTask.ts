@@ -4,7 +4,6 @@ import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { ITask } from '@/interfaces/domain/ITask'
 import { saveTask } from '@/services/task'
 import { requestQueueService } from '@/utils/RequestQueueService'
-import { patchCounter } from '@/utils/queries/patchCounter'
 import { toast } from 'vue-sonner'
 import { useUndo } from '@/composables/useUndo'
 
@@ -29,57 +28,24 @@ export function useMoveTask() {
       requestQueueService.enqueue(payload.id, () => saveTask(payload)),
     onSuccess: async (
       result,
-      {
-        payload,
-        oldCategoryId,
-        newCategoryId,
-        oldBoardId,
-        newBoardId,
-        oldWorkspaceId,
-        newWorkspaceId,
-      },
+      { oldBoardId, newBoardId, oldWorkspaceId, newWorkspaceId, payload },
     ) => {
-      if (payload.isDeleted) return
-
-      if (oldCategoryId !== newCategoryId) {
-        patchCounter(
-          queryClient,
-          categoryKeys.byBoard(oldBoardId),
-          oldCategoryId || '',
-          'tasksCount',
-          -1,
-        )
-
-        patchCounter(
-          queryClient,
-          categoryKeys.byBoard(newBoardId),
-          newCategoryId || '',
-          'tasksCount',
-          1,
-        )
-      }
+      queryClient.invalidateQueries({ queryKey: taskKeys.detailed(payload.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(oldBoardId) })
 
       if (oldBoardId !== newBoardId) {
-        patchCounter(
-          queryClient,
-          boardKeys.byWorkspace(oldWorkspaceId),
-          oldBoardId || '',
-          'tasksCount',
-          -1,
-        )
+        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(oldWorkspaceId) })
+        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
 
-        patchCounter(
-          queryClient,
-          boardKeys.byWorkspace(newWorkspaceId),
-          newBoardId || '',
-          'tasksCount',
-          1,
-        )
+        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(oldBoardId) })
+        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newBoardId) })
+
+        queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(oldBoardId) })
+        queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(newBoardId) })
       }
 
       if (oldWorkspaceId !== newWorkspaceId) {
-        patchCounter(queryClient, workspaceKeys.lists(), oldWorkspaceId || '', 'tasksCount', -1)
-        patchCounter(queryClient, workspaceKeys.lists(), newWorkspaceId || '', 'tasksCount', 1)
+        queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() })
       }
 
       toast.success('Задача успешно перемещена', {

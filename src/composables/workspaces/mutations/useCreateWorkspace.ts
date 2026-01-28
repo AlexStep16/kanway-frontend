@@ -16,6 +16,9 @@ export function useCreateWorkspace() {
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'create'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: async ({ payload }: CreateWorkspaceVars) => {
       if (!payload) {
         throw new Error('Недостаточно данных для создания пространства')
@@ -29,11 +32,11 @@ export function useCreateWorkspace() {
       const workspaces = queryClient.getQueryData<IWorkspace[]>(workspaceKeys.lists())
       const nextWorkspace = workspaces && workspaces.length > 0 ? workspaces[0] : null
 
-      if (nextWorkspace) WORKSPACE_STORE.selectWorkspace(nextWorkspace, true)
+      queryClient.setQueryData(workspaceKeys.lists(), (oldWorkspaces: IWorkspace[] | undefined) => {
+        return oldWorkspaces ? [...oldWorkspaces, ...result.data] : result.data
+      })
 
-      if (result.data.length === 0) {
-        return toast.error('Произошла ошибка при создании пространства')
-      }
+      if (nextWorkspace) WORKSPACE_STORE.selectWorkspace(nextWorkspace, true)
 
       toast.success('Пространство успешно создано', {
         action: {

@@ -8,7 +8,6 @@ export function useArchivedTasks(isEnabled: MaybeRef<boolean> = true) {
     queryKey: taskKeys.archived(),
     queryFn: () => fetchArchivedTasks(),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     enabled: isEnabled,
     staleTime: 1000 * 60 * 5,
   })

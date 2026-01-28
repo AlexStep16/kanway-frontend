@@ -8,7 +8,7 @@ import { HSStaticMethods } from 'preline'
 import EntityCard from '@components/Workspace/Main/EntityCard.vue'
 import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
 import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
-import { useWorkspace } from '@/composables/workspaces/queries/useWorkspace'
+import { useWorkspace } from '@/composables/workspaces/useWorkspace'
 import { storeToRefs } from 'pinia'
 import { useUpdateWorkspace } from '@/composables/workspaces/mutations/useUpdateWorkspace'
 import { useArchiveWorkspace } from '@/composables/workspaces/mutations/useArchiveWorkspace'
@@ -23,9 +23,11 @@ const uiStore = useUIStore()
 
 const { editableWorkspaceId } = storeToRefs(uiStore)
 
-const { data: editableWorkspace } = useWorkspace(editableWorkspaceId)
+const editableWorkspace = useWorkspace(editableWorkspaceId)
 const { data: actualBoards } = useBoards(editableWorkspaceId)
-const { data: archivedBoards } = useArchivedBoards(editableWorkspace.value?.isDeleted)
+const { data: archivedBoards } = useArchivedBoards(
+  computed(() => editableWorkspace.value?.isDeleted ?? false),
+)
 
 const { mutate: updateWorkspace } = useUpdateWorkspace()
 const { mutate: archiveWorkspace } = useArchiveWorkspace()
@@ -180,7 +182,7 @@ watch(
                   :isDeleted="board.isDeleted"
                   :hasDelete="true"
                   :isArchiving="getBoardStatus(board.id).isArchiving?.value"
-                  @click="uiStore.openBoardToEdit(board)"
+                  @click="uiStore.openBoardToEdit(board.id, board.workspace.id)"
                 />
               </template>
             </ColumnsView>

@@ -3,6 +3,7 @@ export interface ApproveToolCall {
   chatMessageId: string
   boardId: string
   isConfirmed: boolean
+  cancelledEntityIds: string[]
   isCancelled: boolean
   workspaceId: string
   timezone: string

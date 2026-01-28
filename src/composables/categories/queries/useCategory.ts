@@ -1,22 +1,29 @@
-import { useQuery } from '@tanstack/vue-query'
-import { computed, MaybeRef, toValue } from 'vue'
 import { categoryKeys } from '@/keys'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useCategory as useCategoryFunction } from '../useCategory'
+import { MaybeRef, toValue } from 'vue'
 import { fetchCategory } from '@/services/category'
-import { ICategoryState } from '@/stores/interfaces/ICategoryState'
-import { queryClient } from '@/plugins/queryClient'
 
-export function useCategory(id: MaybeRef<string | null>, isEnabled: MaybeRef<boolean> = true) {
+export function useCategory(id: MaybeRef<string>, boardId?: MaybeRef<string | null>) {
+  const queryClient = useQueryClient()
+
   return useQuery({
     queryKey: categoryKeys.detailed(id),
-    queryFn: () => fetchCategory(toValue(id)!),
-    enabled: computed(() => !!toValue(id) && toValue(isEnabled)),
-    placeholderData: (prev) => prev,
+    queryFn: () => fetchCategory(toValue(id)),
+    enabled: !!toValue(id),
+
     initialData: () => {
-      return queryClient
-        .getQueryData<ICategoryState[]>(categoryKeys.all)
-        ?.find((c) => c.id === toValue(id))
+      if (!boardId) return undefined
+
+      return useCategoryFunction(id, boardId).value ?? undefined
     },
-    initialDataUpdatedAt: () => queryClient.getQueryState(categoryKeys.all)?.dataUpdatedAt,
+
+    initialDataUpdatedAt: () => {
+      return boardId
+        ? queryClient.getQueryState(categoryKeys.byBoard(boardId))?.dataUpdatedAt
+        : undefined
+    },
+
     staleTime: 1000 * 60 * 5,
   })
 }

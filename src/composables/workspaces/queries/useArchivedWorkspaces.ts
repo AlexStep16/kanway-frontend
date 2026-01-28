@@ -8,7 +8,6 @@ export function useArchivedWorkspaces(isEnabled: MaybeRef<boolean> = true) {
     queryKey: workspaceKeys.archived(),
     queryFn: () => fetchArchivedWorkspaces(),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     enabled: isEnabled,
     staleTime: 1000 * 60 * 5,
   })

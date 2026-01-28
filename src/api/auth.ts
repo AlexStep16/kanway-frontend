@@ -2,7 +2,7 @@ import { apiCall } from '@/apiClient'
 import IUser from '@models/UserModel'
 import LoginCredentials from '@interfaces/LoginCredentials'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
-import { UpdatePasswordVars } from '@/composables/auth/useUpdatePassword'
+import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
 
 export async function loginApi(credentials: LoginCredentials) {
   return await apiCall<IUser>({

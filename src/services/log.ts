@@ -1,11 +1,6 @@
-import { IUndoResponse } from '@interfaces/IUndoResponse'
+import { IUndoResponse } from '@/interfaces/IUndoResponse'
 import { patchUndoApi } from '@api/log'
-import { IWorkspacesWithChildrenResponse } from '@interfaces/IWorkspacesWithChildrenResponse'
 
-export async function undoOperation(
-  id: string,
-): Promise<IUndoResponse<IWorkspacesWithChildrenResponse>> {
-  const response = await patchUndoApi(id)
-
-  return response
+export async function undoOperation(id: string): Promise<IUndoResponse> {
+  return await patchUndoApi(id)
 }

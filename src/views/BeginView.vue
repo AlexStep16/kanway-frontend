@@ -11,7 +11,7 @@ import SubmitButton from '@/components/Forms/BasicCreateEditForm/SubmitButton.vu
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useCreateWorkspace } from '@/composables/workspaces/mutations/useCreateWorkspace'
-import { useUpdateUser } from '@/composables/auth/useUpdateUser'
+import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
 
 enum Tab {
   WORKSPACE = 0,

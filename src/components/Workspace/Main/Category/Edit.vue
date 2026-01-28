@@ -16,13 +16,13 @@ import TitleWithBadgeSkeleton from '@components/Workspace/Main/TitleWithBadgeSke
 import { useUpdateCategory } from '@/composables/categories/mutations/useUpdateCategory'
 import { useArchiveCategory } from '@/composables/categories/mutations/useArchiveCategory'
 import { useCloneCategory } from '@/composables/categories/mutations/useCloneCategory'
-import { useCategory } from '@/composables/categories/queries/useCategory'
+import { useCategory } from '@/composables/categories/useCategory'
 import { storeToRefs } from 'pinia'
 import { useCategoryMutationStatus } from '@/composables/categories/mutations/useCategoryMutationStatus'
 import { useMoveCategory } from '@/composables/categories/mutations/useMoveCategory'
 import { useDebounceFn } from '@vueuse/core'
-import { useCategoryTasks } from '@/composables/tasks/queries/useCategoryTasks'
 import { EntityType } from '@/enums/EntityType'
+import { useTasks } from '@/composables/tasks/queries/useTasks'
 
 const uiStore = useUIStore()
 
@@ -31,13 +31,10 @@ const { mutate: archiveCategory } = useArchiveCategory()
 const { mutate: cloneCategory } = useCloneCategory()
 const { mutate: moveCategory } = useMoveCategory()
 
-const { editableCategoryId } = storeToRefs(uiStore)
+const { editableCategoryId, editableCategoryBoardId } = storeToRefs(uiStore)
 
-const { data: category } = useCategory(editableCategoryId)
-const { data: tasks, isPending: isTasksLoading } = useCategoryTasks(
-  computed(() => category.value?.board.id ?? null),
-  editableCategoryId,
-)
+const category = useCategory(editableCategoryId, editableCategoryBoardId)
+const { data: allTasks, isPending: isTasksLoading } = useTasks(editableCategoryBoardId)
 
 const status = useCategoryMutationStatus(editableCategoryId)
 
@@ -51,6 +48,7 @@ function nameInput() {
 
   updateCategory({
     payload: { id: category.value.id, name: name.value },
+    boardId: category.value.board.id,
   })
 }
 
@@ -76,7 +74,7 @@ function handleMoveCategory(data: { newBoardId: string; newWorkspaceId: string }
   })
 }
 
-function handleCopyCategory() {
+function handleCopy() {
   if (!category.value) return
 
   cloneCategory({
@@ -84,13 +82,17 @@ function handleCopyCategory() {
   })
 }
 
-function handleArchiveCategory() {
+function handleArchive() {
   if (!category.value) return
 
   archiveCategory({
     category: category.value,
   })
 }
+
+const tasks = computed(() => {
+  return (allTasks.value || []).filter((task) => task.category.id === category.value?.id)
+})
 
 watch(
   () => category.value,
@@ -158,8 +160,8 @@ watch(
             :editableEntity="category"
             :isEntityCopying="status.isCloning?.value"
             :isEntityArchiving="status.isArchiving?.value"
-            @copy="handleCopyCategory"
-            @archive="handleArchiveCategory"
+            @copy="handleCopy"
+            @archive="handleArchive"
             @close="uiStore.closeEditCategoryModal()"
           />
         </div>

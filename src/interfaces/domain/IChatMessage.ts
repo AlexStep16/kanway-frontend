@@ -4,7 +4,7 @@ export interface IChatMessage {
   id: string
   role: IChatMessageRoles
   content: any
-  listType?: string
+  listType?: 'workspace' | 'board' | 'category' | 'task'
   userId: string
   chatId: string
   threadId: string

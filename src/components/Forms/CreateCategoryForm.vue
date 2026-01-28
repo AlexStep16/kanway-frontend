@@ -1,23 +1,16 @@
 <script setup lang="ts">
 import { useCreateCategory } from '@/composables/categories/mutations/useCreateCategory'
-import { useBoardStore } from '@stores/board'
-import { useWorkspaceStore } from '@stores/workspace'
-import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
+import Spinner from '@components/Loader/Spinner.vue'
 
-defineProps<{
-  isFormShown: boolean
+const props = defineProps<{
+  boardId: string | null
+  workspaceId: string | null
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
-
-const boardStore = useBoardStore()
-const workspaceStore = useWorkspaceStore()
-
-const boardId = storeToRefs(boardStore).activeBoardId
-const workspaceId = storeToRefs(workspaceStore).activeWorkspaceId
 
 const { mutate: createCategory, isPending: isCategoryAdding } = useCreateCategory()
 
@@ -34,8 +27,8 @@ function create() {
       payload: {
         name: name.value.trim(),
       },
-      boardId: boardId.value,
-      workspaceId: workspaceId.value,
+      boardId: props.boardId,
+      workspaceId: props.workspaceId,
     },
     {
       onSuccess: () => {
@@ -57,8 +50,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-70 sm:w-75 group/category select-none"
-    v-if="isFormShown"
+    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-70 sm:w-75 group/category select-none undraggable"
   >
     <!-- Header -->
     <div class="flex w-full justify-between items-center">
@@ -72,12 +64,12 @@ onMounted(() => {
           <span class="font-semibold group-hover:text-gray-600 truncate">{{ name }}</span>
         </template>
 
-        <div class="grow-1" v-show="!isCategoryAdding">
+        <div class="grow-1" v-else>
           <input
             type="text"
             class="text-sm h-full font-semibold p-0 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 transition-colors duration-100"
-            :value="name"
-            @blur="$emit('close')"
+            v-model="name"
+            @blur="create"
             @keydown.enter="create"
             @keydown.esc="$emit('close')"
             :disabled="isCategoryAdding"

@@ -7,6 +7,7 @@ export function useLogin() {
   const authStore = useAuthStore()
 
   return useMutation({
+    mutationKey: ['user', 'login'],
     mutationFn: (credentials: LoginCredentials) => login(credentials),
     onSuccess: (user) => {
       authStore.setUser(user)

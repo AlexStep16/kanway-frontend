@@ -7,7 +7,6 @@ export function usePayments() {
     queryKey: paymentKeys.all,
     queryFn: () => fetchPayments(),
     placeholderData: (prev) => prev,
-    initialData: [],
     staleTime: 1000 * 60 * 5,
   })
 }

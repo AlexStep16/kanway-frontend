@@ -17,10 +17,39 @@ import Plan from '@components/MainPage/Control/Chat/Plan.vue'
 const activeTab = shallowRef<typeof Plan>(Plan)
 
 const tasks = ref([
-  { id: 1, name: 'Провести ревью кода PR #452', is_completed: false, tags: ['работа'] },
+  {
+    id: 1,
+    name: 'Провести ревью кода PR #452',
+    is_completed: false,
+    category: {
+      id: 1,
+      name: 'Срочное',
+    },
+    board: {
+      id: 1,
+      name: 'Разработка',
+    },
+    workspace: {
+      id: 1,
+      name: 'Команда разработки',
+    },
+    tags: ['работа'],
+  },
   {
     id: 2,
     name: 'Настроить автоматическое развертывание',
+    category: {
+      id: 1,
+      name: 'Срочное',
+    },
+    board: {
+      id: 1,
+      name: 'Разработка',
+    },
+    workspace: {
+      id: 1,
+      name: 'Команда разработки',
+    },
     tags: ['работа'],
     color: '#FFEEAA',
     is_completed: false,
@@ -29,6 +58,18 @@ const tasks = ref([
     id: 3,
     name: 'Подготовить документацию по новому API',
     color: '#EEAABB',
+    category: {
+      id: 1,
+      name: 'Срочное',
+    },
+    board: {
+      id: 1,
+      name: 'Разработка',
+    },
+    workspace: {
+      id: 1,
+      name: 'Команда разработки',
+    },
     due_date: '2025-09-15T14:14:00',
     is_completed: false,
     tags: ['работа'],
@@ -36,6 +77,18 @@ const tasks = ref([
   {
     id: 4,
     name: 'Обсудить метрики с командой маркетинга',
+    category: {
+      id: 1,
+      name: 'Срочное',
+    },
+    board: {
+      id: 1,
+      name: 'Разработка',
+    },
+    workspace: {
+      id: 1,
+      name: 'Команда разработки',
+    },
     due_date: '2025-09-16T14:14:00',
     is_completed: false,
     tags: ['работа'],

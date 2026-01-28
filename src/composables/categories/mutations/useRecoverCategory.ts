@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { categoryKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 import { recoverCategory } from '@/services/category'
@@ -16,6 +16,9 @@ export function useRecoverCategory() {
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'recover'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists(), categoryKeys.archived()],
+    },
     mutationFn: ({ category }: RecoverCategoryVars) =>
       requestQueueService.enqueue(category.id, () => recoverCategory(category.id)),
 
@@ -53,6 +56,13 @@ export function useRecoverCategory() {
       if (context?.prevBoard) {
         queryClient.setQueryData(context.actualCategoriesKey, context.prevBoard)
       }
+    },
+
+    onSettled: (result, error, { category }) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(category.workspace.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
     },
 
     onSuccess: (result) => {

@@ -14,6 +14,9 @@ export function useCloneWorkspace() {
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'clone'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: ({ id }: CloneWorkspaceVars) =>
       requestQueueService.enqueue(id, () => cloneWorkspace(id)),
 

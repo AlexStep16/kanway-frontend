@@ -37,8 +37,9 @@ export async function fetchBoards(workspaceId?: string) {
 
 export async function fetchBoard(id: string) {
   const boards = await getBoardApi(id)
+  const board = boards.length > 0 ? boards[0] : null
 
-  return boards.map(transformBoard)[0]
+  return board ? transformBoard(board) : null
 }
 
 export async function fetchBoardsCount(workspaceId?: string) {
@@ -98,7 +99,7 @@ export async function archiveBoard(id: string): Promise<IResponseWithLog<IBoard[
   const archiveResult = await archiveBoardApi(id)
 
   return {
-    data: archiveResult.data.boards.map(transformBoard),
+    data: archiveResult.data.map(transformBoard),
     logId: archiveResult.logId,
   }
 }
@@ -107,7 +108,7 @@ export async function recoverBoard(id: string): Promise<IResponseWithLog<IBoard[
   const recoverResult = await recoverBoardApi(id)
 
   return {
-    data: recoverResult.data.boards.map(transformBoard),
+    data: recoverResult.data.map(transformBoard),
     logId: recoverResult.logId,
   }
 }
@@ -116,7 +117,7 @@ export async function cloneBoard(id: string): Promise<IResponseWithLog<IBoard[]>
   const cloneResult = await cloneBoardApi(id)
 
   return {
-    data: cloneResult.data.boards.map(transformBoard),
+    data: cloneResult.data.map(transformBoard),
     logId: cloneResult.logId,
   }
 }

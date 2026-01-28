@@ -7,6 +7,6 @@ export function useSubscriptions() {
     queryKey: subscriptionKeys.all,
     queryFn: () => fetchSubscriptions(),
     placeholderData: (prev) => prev,
-    initialData: () => [],
+    staleTime: 1000 * 60 * 5,
   })
 }

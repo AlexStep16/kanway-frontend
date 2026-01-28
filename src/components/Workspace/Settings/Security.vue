@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { HSOverlay, HSStrongPassword } from 'preline'
-import { useUpdatePassword } from '@/composables/auth/useUpdatePassword'
-import { useDeleteUser } from '@/composables/auth/useDeleteUser'
+import { useUpdatePassword } from '@/composables/auth/mutations/useUpdatePassword'
+import { useDeleteUser } from '@/composables/auth/mutations/useDeleteUser'
 import Spinner from '@components/Loader/Spinner.vue'
 import DeleteUserModal from '@components/Modals/DeleteUserModal.vue'
 

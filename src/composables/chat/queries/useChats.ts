@@ -8,6 +8,6 @@ export function useChats(workspaceId: MaybeRef<string | null>) {
     queryKey: chatKeys.byWorkspace(workspaceId),
     queryFn: () => fetchChats(toValue(workspaceId)!),
     enabled: computed(() => !!toValue(workspaceId)),
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000,
   })
 }

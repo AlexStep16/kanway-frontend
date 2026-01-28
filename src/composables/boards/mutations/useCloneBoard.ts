@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { boardKeys } from '@/keys'
+import { boardKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { cloneBoard } from '@/services/board'
 import { useUndo } from '@/composables/useUndo'
@@ -11,12 +11,22 @@ interface CloneBoardVars {
 
 export function useCloneBoard() {
   const { mutate: undo } = useUndo()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...boardKeys.all, 'clone'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: ({ id }: CloneBoardVars) => requestQueueService.enqueue(id, () => cloneBoard(id)),
 
     onSuccess: async (result) => {
+      const newBoard = result.data[0]
+
+      if (newBoard) {
+        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newBoard.workspace.id) })
+      }
+
       toast.success('Доска скопирована', {
         action: {
           label: 'Отменить',

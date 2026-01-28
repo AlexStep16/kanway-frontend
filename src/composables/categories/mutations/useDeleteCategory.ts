@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { categoryKeys } from '@/keys' // Твои ключи кэша
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys' // Твои ключи кэша
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 import { removeCategory } from '@/services/category'
@@ -14,6 +14,9 @@ export function useDeleteCategory() {
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'delete'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists(), categoryKeys.archived()],
+    },
     mutationFn: ({ category }: DeleteCategoryVars) =>
       requestQueueService.enqueue(category.id, () => removeCategory(category.id)),
     onMutate: async ({ category }) => {
@@ -36,6 +39,17 @@ export function useDeleteCategory() {
       if (context?.previousCategories) {
         queryClient.setQueryData(context.categoryKey, context.previousCategories)
       }
+    },
+
+    onSettled: (data, error, { category }) => {
+      queryClient.invalidateQueries({
+        queryKey: categoryKeys.byBoard(category.board.id),
+      })
+      queryClient.invalidateQueries({
+        queryKey: boardKeys.byWorkspace(category.workspace.id),
+      })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
     },
 
     onSuccess: () => {

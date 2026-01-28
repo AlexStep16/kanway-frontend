@@ -10,8 +10,14 @@ export const useUIStore = defineStore('ui', () => {
   const boardStore = useBoardStore()
 
   const editableTaskId = ref<Nullable<string>>(null)
+  const editableTaskBoardId = ref<Nullable<string>>(null)
+
   const editableCategoryId = ref<Nullable<string>>(null)
+  const editableCategoryBoardId = ref<Nullable<string>>(null)
+
   const editableBoardId = ref<Nullable<string>>(null)
+  const editableBoardWorkspaceId = ref<Nullable<string>>(null)
+
   const editableWorkspaceId = ref<Nullable<string>>(null)
 
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
@@ -85,6 +91,22 @@ export const useUIStore = defineStore('ui', () => {
     editWorkspaceModalRef,
     (newVal) => {
       watchForBackdropClicks(newVal, 'workspace-edit', closeEditWorkspaceModal)
+    },
+    { once: true },
+  )
+
+  watch(
+    chatModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'chat', closeChatModal)
+    },
+    { once: true },
+  )
+
+  watch(
+    settingsModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'settings', closeSettingsModal)
     },
     { once: true },
   )
@@ -258,30 +280,36 @@ export const useUIStore = defineStore('ui', () => {
 
   function clearTaskToEdit() {
     editableTaskId.value = null
+    editableTaskBoardId.value = null
   }
 
-  function openTaskToEdit(taskId: string) {
+  function openTaskToEdit(taskId: string, boardId: string) {
     editableTaskId.value = taskId
+    editableTaskBoardId.value = boardId
 
     openEditTaskModal()
   }
 
   function clearCategoryToEdit() {
     editableCategoryId.value = null
+    editableCategoryBoardId.value = null
   }
 
-  function openCategoryToEdit(categoryId: string) {
+  function openCategoryToEdit(categoryId: string, boardId: string) {
     editableCategoryId.value = categoryId
+    editableCategoryBoardId.value = boardId
 
     openEditCategoryModal()
   }
 
   function clearBoardToEdit() {
     editableBoardId.value = null
+    editableBoardWorkspaceId.value = null
   }
 
-  function openBoardToEdit(boardId: string) {
+  function openBoardToEdit(boardId: string, workspaceId: string) {
     editableBoardId.value = boardId
+    editableBoardWorkspaceId.value = workspaceId
 
     openEditBoardModal()
   }
@@ -306,8 +334,8 @@ export const useUIStore = defineStore('ui', () => {
     currentTab.value = Tabs.Board
   }
 
-  function $reset() {
-    //...
+  function selectStart() {
+    currentTab.value = Tabs.Start
   }
 
   return {
@@ -334,8 +362,11 @@ export const useUIStore = defineStore('ui', () => {
     isChatModalOpen,
 
     editableBoardId,
+    editableBoardWorkspaceId,
     editableCategoryId,
+    editableCategoryBoardId,
     editableTaskId,
+    editableTaskBoardId,
     editableWorkspaceId,
 
     // Actions
@@ -355,6 +386,7 @@ export const useUIStore = defineStore('ui', () => {
     closeSidebar,
     selectArchive,
     selectBoard,
+    selectStart,
     addToModalStack,
     removeFromModalStack,
     openTaskToEdit,
@@ -365,6 +397,5 @@ export const useUIStore = defineStore('ui', () => {
     clearBoardToEdit,
     openWorkspaceToEdit,
     clearWorkspaceToEdit,
-    $reset,
   }
 })

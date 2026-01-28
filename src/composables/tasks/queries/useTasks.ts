@@ -9,7 +9,6 @@ export function useTasks(boardId: MaybeRef<string | null>, isEnabled: MaybeRef<b
     queryFn: () => fetchTasks(toValue(boardId)!),
     enabled: computed(() => !!toValue(boardId) && toValue(isEnabled)),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     staleTime: 1000 * 60 * 5,
   })
 }

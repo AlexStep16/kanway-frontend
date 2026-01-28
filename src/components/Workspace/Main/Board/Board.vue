@@ -25,7 +25,7 @@ const workspaceStore = useWorkspaceStore()
 const { activeBoardId } = storeToRefs(boardStore)
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
-const { data: categories } = useCategories(activeBoardId)
+const { data: categories, isPending: areCategoriesLoading } = useCategories(activeBoardId)
 const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
 
 const { mutate: updateManyCategories } = useUpdateManyCategories()
@@ -36,7 +36,9 @@ const isCategoryFormShown = ref(false)
 watch(
   () => categories.value,
   (newList) => {
-    localCategoryList.value = [...newList]
+    if (!newList) return
+
+    localCategoryList.value = [...newList].sort((a, b) => a.order - b.order)
   },
   { immediate: true },
 )
@@ -60,7 +62,6 @@ function handleSortChange() {
 
   <div class="size-full py-1.5 flex gap-3 overflow-y-hidden custom-scrollbar">
     <template v-if="!isBoardsLoading">
-      <!-- Категории -->
       <draggable
         v-model="localCategoryList"
         @change="handleSortChange"
@@ -72,22 +73,27 @@ function handleSortChange() {
         :delay-on-touch-only="true"
         ghost-class="ghost-class"
         drag-class="drag-class"
+        filter=".undraggable"
         :force-fallback="true"
         :fallback-tolerance="2"
+        v-if="localCategoryList.length > 0 && !areCategoriesLoading"
       >
         <template #item="{ element }">
-          <!-- element — это ICategoryState -->
           <Category :category="element" />
         </template>
       </draggable>
 
-      <!-- Форма создания -->
+      <template v-else-if="areCategoriesLoading">
+        <CategorySkeleton v-for="n in 3" :key="'skeleton' + n" />
+      </template>
+
       <CreateCategoryForm
-        :is-form-shown="isCategoryFormShown"
+        v-if="isCategoryFormShown"
         @close="isCategoryFormShown = false"
+        :boardId="activeBoardId"
+        :workspaceId="activeWorkspaceId"
       />
 
-      <!-- Кнопка добавления -->
       <div class="h-full flex items-center pr-10">
         <button
           type="button"
@@ -99,7 +105,6 @@ function handleSortChange() {
       </div>
     </template>
 
-    <!-- Скелетоны -->
     <template v-else>
       <CategorySkeleton v-for="n in 3" :key="'skeleton' + n" />
       <div class="h-full flex items-center">

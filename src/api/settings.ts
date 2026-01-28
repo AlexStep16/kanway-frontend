@@ -5,7 +5,7 @@ import { ISubscription } from '@interfaces/domain/ISubscription'
 import { ISetting } from '@interfaces/domain/ISetting'
 
 export async function getSettingApi() {
-  return await apiCall<ISetting>({
+  return await apiCall<ISetting[]>({
     method: 'GET',
     url: '/settings',
   })

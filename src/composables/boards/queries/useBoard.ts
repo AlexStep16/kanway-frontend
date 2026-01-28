@@ -1,20 +1,29 @@
-import { useQuery } from '@tanstack/vue-query'
-import { computed, MaybeRef, toValue } from 'vue'
 import { boardKeys } from '@/keys'
-import { fetchBoard } from '@services/board'
-import { IBoard } from '@/interfaces/domain/IBoard'
-import { queryClient } from '@/plugins/queryClient'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useBoard as useBoardFunction } from '../useBoard'
+import { MaybeRef, toValue } from 'vue'
+import { fetchBoard } from '@/services/board'
 
-export function useBoard(id: MaybeRef<string | null>, isEnabled: MaybeRef<boolean> = true) {
+export function useBoard(id: MaybeRef<string>, workspaceId?: MaybeRef<string | null>) {
+  const queryClient = useQueryClient()
+
   return useQuery({
     queryKey: boardKeys.detailed(id),
-    queryFn: () => fetchBoard(toValue(id)!),
-    enabled: computed(() => !!toValue(id) && toValue(isEnabled)),
-    placeholderData: (prev) => prev,
+    queryFn: () => fetchBoard(toValue(id)),
+    enabled: !!toValue(id),
+
     initialData: () => {
-      return queryClient.getQueryData<IBoard[]>(boardKeys.all)?.find((b) => b.id === toValue(id))
+      if (!workspaceId) return undefined
+
+      return useBoardFunction(id, workspaceId).value ?? undefined
     },
-    initialDataUpdatedAt: () => queryClient.getQueryState(boardKeys.all)?.dataUpdatedAt,
+
+    initialDataUpdatedAt: () => {
+      return workspaceId
+        ? queryClient.getQueryState(boardKeys.byWorkspace(workspaceId))?.dataUpdatedAt
+        : undefined
+    },
+
     staleTime: 1000 * 60 * 5,
   })
 }

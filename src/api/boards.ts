@@ -1,7 +1,5 @@
 import { apiCall } from '@/apiClient'
-import { IClonedBoardResult } from '@interfaces/domain/IClonedBoardResult'
 import { IBoard } from '@interfaces/domain/IBoard'
-import { IBoardsWithChildrenResponse } from '@/interfaces/IBoardsWithChildrenResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { IBoardCreateApiPayload } from '@/interfaces/IBoardCreateApiPayload'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
@@ -62,21 +60,21 @@ export async function deleteBoardApi(id: string) {
 }
 
 export async function archiveBoardApi(id: string) {
-  return await apiCall<IResponseWithLog<IBoardsWithChildrenResponse>>({
+  return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'PATCH',
     url: `/boards/${id}/archive`,
   })
 }
 
 export async function recoverBoardApi(id: string) {
-  return await apiCall<IResponseWithLog<IBoardsWithChildrenResponse>>({
+  return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'PATCH',
     url: `/boards/${id}/recover`,
   })
 }
 
 export async function cloneBoardApi(id: string) {
-  return await apiCall<IResponseWithLog<IClonedBoardResult>>({
+  return await apiCall<IResponseWithLog<IBoard[]>>({
     method: 'POST',
     url: `/boards/${id}/clone`,
   })

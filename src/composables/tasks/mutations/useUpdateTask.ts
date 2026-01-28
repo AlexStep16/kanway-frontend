@@ -35,6 +35,11 @@ export function useUpdateTask() {
       return { previousTasks, queryKey }
     },
 
+    onSettled: (data, error, { boardId, payload }) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.detailed(payload.id) })
+    },
+
     onError: (err, vars, context) => {
       if (context?.previousTasks) {
         queryClient.setQueryData(context.queryKey, context.previousTasks)

@@ -5,7 +5,7 @@ export default class ChatMessageModel implements IChatMessage {
   public id: string
   public role: IChatMessageRoles
   public content: any
-  public listType?: string
+  public listType?: 'workspace' | 'board' | 'category' | 'task'
   public userId: string
   public chatId: string
   public threadId: string

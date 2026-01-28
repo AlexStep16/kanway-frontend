@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ChevronLeft, ArrowRightLeft } from 'lucide-vue-next'
+import { MaybeRefOrGetter, toValue } from 'vue'
 
 // Упрощаем пропсы. Теперь это просто список целей.
 defineProps<{
   items?: Array<{ id: string; name: string }>
-  isProcessing: boolean
+  isProcessing: MaybeRefOrGetter<boolean>
   noItemsText?: string
 }>()
 
@@ -16,16 +17,16 @@ const emit = defineEmits<{
 
 <template>
   <div class="flex flex-col shrink-0 w-full p-1 min-w-60 max-w-70">
-    <!-- Заголовок с кнопкой Назад -->
-    <div class="flex items-center justify-center relative py-2 text-gray-700 px-2">
+    <div class="flex items-center justify-center relative py-2 text-gray-700 p-2">
       <button
         type="button"
-        class="absolute left-0 p-1 hover:bg-gray-200 transition-colors rounded-md"
+        class="flex items-center absolute left-0 gap-x-1 p-1 hover:bg-gray-200 transition-colors duration-100 rounded-md"
         @click="emit('close')"
       >
         <ChevronLeft class="size-5" />
       </button>
-      <span class="text-sm font-bold">Переместить в</span>
+
+      <span class="text-custom-sm font-bold">Переместить в</span>
     </div>
 
     <!-- Список элементов -->
@@ -34,8 +35,8 @@ const emit = defineEmits<{
         <button
           v-for="target in items"
           :key="target.id"
-          class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 group"
-          :disabled="isProcessing"
+          class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
+          :disabled="toValue(isProcessing)"
           @click="emit('select', target.id)"
         >
           <ArrowRightLeft class="size-4 text-gray-400 group-hover:text-blue-500" />

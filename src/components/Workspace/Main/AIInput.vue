@@ -10,6 +10,7 @@ import { useSendMessage } from '@/composables/chat/mutations/useSendMessage'
 
 import Spinner from '@components/Loader/Spinner.vue'
 import Sparkles from '@assets/sparkles.svg?component'
+import { useChatStore } from '@/stores/chat'
 
 defineProps<{
   theme?: 'light' | 'dark'
@@ -19,6 +20,7 @@ defineProps<{
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
+const chatStore = useChatStore()
 const { activeBoardId } = storeToRefs(boardStore)
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
@@ -40,6 +42,7 @@ const handleSendMessage = () => {
         boardId: activeBoardId.value,
         workspaceId: activeWorkspaceId.value,
       },
+      chatId: chatStore.activeChat?.id ?? '',
     },
     {
       onSuccess: () => {
@@ -49,13 +52,6 @@ const handleSendMessage = () => {
       },
     },
   )
-}
-
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault()
-    handleSendMessage()
-  }
 }
 
 // Переинициализация высоты (Preline)
@@ -84,34 +80,29 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="w-full relative p-2 rounded-lg transition-all duration-200"
-    :class="[
-      theme === 'dark' ? 'bg-gray-800' : 'bg-white border border-gray-200',
-      !noInputMargin ? 'mb-3 mt-1.5' : '',
-      isMessageSending ? 'opacity-70 pointer-events-none' : '',
-    ]"
+    class="w-full relative p-2 rounded-md bg-white"
+    :class="{
+      'bg-gray-100!': theme === 'dark',
+      'border border-gray-200': theme === 'light' || !theme,
+      ' mb-3 mt-1.5': !noInputMargin,
+    }"
   >
-    <div class="flex gap-x-2 items-end">
-      <!-- Textarea Area -->
-      <div class="w-full min-h-9 flex items-center">
+    <div class="flex gap-x-1 items-end">
+      <div class="w-full min-h-8 flex items-center">
         <textarea
           ref="textareaRef"
-          v-model="aiInput"
-          class="block p-0 w-full ps-1 max-h-60 text-sm bg-transparent border-none focus:ring-0 resize-none overflow-y-auto"
-          :class="
-            theme === 'dark'
-              ? 'text-white placeholder:text-gray-400'
-              : 'text-gray-700 placeholder:text-gray-500'
-          "
-          :placeholder="placeholder || 'Напишите, что вы хотите сделать...'"
+          class="block p-0 w-full ps-1 max-h-60 text-gray-700 bg-transparent placeholder:text-gray-500 border-none focus:ring-0 text-sm disabled:opacity-50 disabled:pointer-events-none resize-none"
+          :placeholder="placeholder ? placeholder : 'Напишите что вы хотите сделать...'"
+          data-hs-textarea-auto-height='{
+            "defaultHeight": "auto"
+          }'
           rows="1"
-          data-hs-textarea-auto-height='{"defaultHeight": "auto"}'
-          @keydown="handleKeyDown"
+          v-model="aiInput"
         ></textarea>
       </div>
 
       <!-- Actions Area -->
-      <div class="flex shrink-0 items-center gap-x-1.5">
+      <div class="flex shrink-0 items-center gap-x-2">
         <!-- Voice Input (Simple) -->
         <button
           v-if="!isRecording"
@@ -135,20 +126,16 @@ onUnmounted(() => {
           <Mic class="size-4.5 z-2" />
         </button>
 
-        <!-- Submit Button -->
         <button
-          class="relative h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all flex items-center gap-x-2 disabled:bg-gray-300"
-          :disabled="!aiInput.trim() || isMessageSending"
+          class="text-white bg-blue-500 px-3 text-xs font-medium hover:opacity-90 transition-opacity duration-100 rounded-md relative h-8"
           @click="handleSendMessage"
         >
-          <span v-if="!isMessageSending" class="flex items-center gap-x-2">
-            Отправить
-            <Sparkles class="size-3.5" />
-          </span>
-          <span v-else class="flex items-center gap-x-2">
-            Думаю...
-            <Spinner class="size-3.5" />
-          </span>
+          <div class="inline-flex items-center gap-x-2">
+            Начать чат
+
+            <Sparkles class="size-4" v-if="!isMessageSending" />
+            <Spinner class="size-4" v-else />
+          </div>
         </button>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, toValue } from 'vue'
 import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
 
 import { ITaskState } from '@stores/interfaces/ITaskState'
@@ -16,12 +16,14 @@ import { useTaskMutationStatus } from '@/composables/tasks/mutations/useTaskMuta
 
 const props = defineProps<{
   task: ITaskState
+  isSelected?: boolean
   hasBorder?: boolean
   hasCopy?: boolean
   hasDelete?: boolean
   hasCheckbox?: boolean
   showInfo?: boolean
   taskClasses?: string
+  isStatic?: boolean
 }>()
 
 const uiStore = useUIStore()
@@ -33,7 +35,6 @@ const { mutate: cloneTask } = useCloneTask()
 const status = useTaskMutationStatus(computed(() => props.task.id))
 
 // --- Local State ---
-const isSelected = ref(false)
 const dragStartTime = ref<number>(0)
 
 // --- Logic ---
@@ -47,11 +48,17 @@ function toggleTaskCompletion() {
   })
 }
 
+function startDragging() {
+  dragStartTime.value = Date.now()
+}
+
 function handleEdit() {
+  if (props.isStatic) return
+
   const clickDuration = Date.now() - dragStartTime.value
   if (clickDuration > 250) return
 
-  uiStore.openTaskToEdit(props.task.id)
+  uiStore.openTaskToEdit(props.task.id, props.task.board.id)
 }
 
 function handleCopy() {
@@ -97,72 +104,81 @@ const readableDate = computed(() =>
 
 <template>
   <div
-    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md max-w-75 w-full bg-white transition-all duration-200 overflow-hidden select-none"
-    :class="[hasBorder ? 'border border-gray-200' : 'shadow-sm', taskClasses]"
-    @mousedown="dragStartTime = Date.now()"
+    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
+    :class="{
+      'border border-gray-200': hasBorder,
+      'shadow-sm': !hasBorder,
+      [taskClasses || '']: !!taskClasses,
+    }"
+    @mousedown="startDragging"
     @click="handleEdit"
   >
-    <!-- Task Color Line -->
-    <div v-if="task.color" class="h-1.5 w-full" :style="{ backgroundColor: task.color }" />
-
+    <div class="h-3 w-full" v-if="task.color" :style="{ backgroundColor: task.color }" />
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
-      <!-- Board/Category Info -->
-      <div v-if="showInfo" class="flex items-center gap-x-3 mb-1">
-        <div class="flex items-center gap-x-1 text-gray-400">
-          <Layers class="size-3" />
-          <span class="text-[10px] font-medium uppercase tracking-wider">{{
-            task.category.name
+      <!-- Info -->
+      <div class="flex items-center gap-x-2" v-if="showInfo">
+        <div class="flex items-center gap-x-1 text-gray-500">
+          <Layers class="size-3" /><span class="text-xs">{{
+            task.category.name ?? 'Без категории'
           }}</span>
         </div>
-        <div class="flex items-center gap-x-1 text-gray-400">
-          <SquareKanban class="size-3" />
-          <span class="text-[10px] font-medium uppercase tracking-wider">{{
-            task.board.name
+        <div class="flex items-center gap-x-1 text-gray-500">
+          <SquareKanban class="size-3" /><span class="text-xs">{{
+            task.board.name ?? 'Без доски'
           }}</span>
         </div>
       </div>
 
-      <!-- Main Row: Checkbox + Name -->
       <div class="flex items-start justify-between gap-x-2">
         <div
-          class="flex items-center gap-x-2 shrink-1 overflow-hidden min-w-0 transition-all duration-200"
-          :class="[
-            task.isCompleted
-              ? 'translate-x-0'
-              : 'pointer-fine:-translate-x-7 group-hover/task:translate-x-0',
-          ]"
+          class="flex items-center pr-14 pointer-fine:pr-0 gap-x-1 shrink-1 overflow-hidden min-w-0 text-gray-800 transform pointer-fine:-translate-x-6 transition-all duration-100"
+          :class="{
+            'translate-x-0!': task.isCompleted,
+            ' group-hover/task:translate-x-0': !isStatic,
+          }"
         >
-          <!-- Completion Checkbox -->
           <div
-            class="size-5 flex shrink-0 items-center justify-center transition-opacity"
-            :class="[task.isCompleted ? 'opacity-100' : 'opacity-0 group-hover/task:opacity-100']"
+            class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
+            :class="{ 'opacity-100! pointer-events-auto!': task.isCompleted && !isStatic }"
           >
-            <label class="relative flex items-center cursor-pointer" @click.stop>
-              <input
-                type="checkbox"
-                :checked="task.isCompleted"
-                @change="toggleTaskCompletion"
-                class="peer size-4.5 rounded-full border-gray-300 checked:bg-green-600 focus:ring-0 cursor-pointer transition-all"
-              />
-              <span
-                class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            <div class="size-5 flex items-center justify-center">
+              <label
+                class="flex items-center cursor-pointer relative transition-all select-none"
+                @click.stop
+                v-if="!isStatic"
               >
-                <svg class="size-3" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </span>
-            </label>
+                <input
+                  type="checkbox"
+                  class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
+                  :checked="task.isCompleted"
+                  id="check-custom-style"
+                  @change="toggleTaskCompletion"
+                />
+                <span
+                  class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="size-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="1"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </span>
+              </label>
+            </div>
           </div>
-
           <span
-            class="text-sm leading-tight break-words"
+            class="text-sm overflow-hidden break-words"
             :class="{
-              'text-gray-400 line-through': task.isCompleted,
-              'text-gray-800': !task.isCompleted,
+              'text-gray-300 decoration-1 line-through': task.isCompleted,
             }"
           >
             {{ task.name }}
@@ -171,14 +187,14 @@ const readableDate = computed(() =>
 
         <div
           class="flex items-center cursor-pointer relative transition-all"
-          @click.stop="isSelected = !isSelected"
+          @click.stop="$emit('toggleSelect', task)"
           v-if="hasCheckbox"
         >
           <input
             type="checkbox"
             class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-blue-500 checked:border-blue-600"
             id="payment-method-card-2"
-            v-model="isSelected"
+            :checked="isSelected"
           />
           <span
             class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -200,61 +216,57 @@ const readableDate = computed(() =>
           </span>
         </div>
 
-        <!-- Right Side Actions (Copy/Archive) -->
         <div
-          class="flex items-center absolute right-1 top-2 opacity-0 group-hover/task:opacity-100 transition-opacity bg-white/80 backdrop-blur-xs rounded-full shadow-sm"
-          @click.stop
+          class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"
+          :class="{
+            'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto!':
+              isCopyAvailable || isDeleteAvailable,
+          }"
         >
           <button
+            type="button"
+            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+            title="Копировать"
+            @click.stop="handleCopy"
             v-if="isCopyAvailable"
-            @click="handleCopy"
-            class="p-1.5 text-gray-400 hover:text-blue-500 rounded-full transition-colors"
-            :disabled="status.isCloning?.value"
           >
-            <Spinner v-if="status.isCloning?.value" class="size-3.5" />
-            <Copy v-else class="size-3.5" />
+            <Spinner v-if="toValue(status.isCloning)" class="size-4" />
+            <Copy v-else class="size-4" />
           </button>
-
           <button
+            type="button"
+            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+            title="Архивировать"
             v-if="isDeleteAvailable"
-            @click="handleArchive"
-            class="p-1.5 text-gray-400 hover:text-red-500 rounded-full transition-colors"
-            :disabled="status.isArchiving?.value"
+            @click.stop="handleArchive"
           >
-            <Spinner v-if="status.isArchiving?.value" class="size-3.5" />
-            <Archive v-else class="size-3.5" />
+            <Spinner v-if="toValue(status.isArchiving)" class="size-4" />
+            <Archive v-else class="size-4" />
           </button>
         </div>
       </div>
 
-      <!-- Description Indicator -->
-      <div v-if="task.description" class="flex items-center text-[11px] text-gray-400 gap-1 mt-0.5">
+      <!-- Описание -->
+      <div class="flex items-center text-xs text-gray-500 gap-1" v-if="task.description">
         <TextAlignStart class="size-3" />
-        <span>С описанием</span>
+        <span class="decoration-1 hover:underline">Есть описание</span>
       </div>
 
-      <!-- Tags -->
-      <div v-if="task.tags?.length" class="flex flex-wrap gap-1 mt-1">
-        <span
-          v-for="tag in task.tags"
-          :key="tag"
-          class="text-[10px] px-1.5 py-0.5 bg-gray-50 text-gray-500 rounded border border-gray-100"
-        >
-          #{{ tag }}
-        </span>
+      <!-- Теги -->
+      <div class="flex flex-wrap text-xs text-gray-500 gap-1" v-if="task.tags && task.tags.length">
+        {{ task.tags.map((t) => '#' + t).join(' ') }}
       </div>
 
-      <!-- Due Date Badge -->
+      <!-- Дата выполнения -->
       <div
         v-if="task.dueDate"
-        class="inline-flex items-center self-start gap-x-1.5 text-[11px] font-medium rounded-md py-1 px-2 mt-1 transition-colors"
+        class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm py-1 px-2"
         :class="dateBadgeClasses"
       >
-        <Clock class="size-3.5" />
-        <span>{{ readableDate }}</span>
+        <Clock class="size-4" />
+        <span v-if="task.dueDate">{{ readableDate }}</span>
       </div>
 
-      <!-- Extra content slot -->
       <slot />
     </div>
   </div>

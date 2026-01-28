@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { Nullable } from '@/types/utils'
-import { useLogin } from '@/composables/auth/useLogin'
+import { useLogin } from '@/composables/auth/mutations/useLogin'
 
 const { mutate: login, error: loginError } = useLogin()
 

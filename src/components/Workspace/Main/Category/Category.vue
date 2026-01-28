@@ -3,8 +3,7 @@ import ButtonCreate from '@components/Buttons/ButtonCreate.vue'
 import Options from '@components/Options/Options.vue'
 import Task from '../Task/Task.vue'
 import { ListFilter, SquarePen } from 'lucide-vue-next'
-import { nextTick, ref, toValue, watch } from 'vue'
-import Spinner from '@/components/Loader/Spinner.vue'
+import { computed, nextTick, ref, toValue, watch } from 'vue'
 import { Nullable } from '@/types/utils'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import draggable from 'vuedraggable'
@@ -16,6 +15,14 @@ import { useUpdateCategory } from '@/composables/categories/mutations/useUpdateC
 import { useCategoryMutationStatus } from '@/composables/categories/mutations/useCategoryMutationStatus'
 import { useTaskFilterStore } from '@/stores/taskFilters'
 import CreateTaskForm from '@/components/Forms/CreateTaskForm.vue'
+import { EntityType } from '@/enums/EntityType'
+import TransferForm from '@/components/Options/TransferForm.vue'
+import { useBoards } from '@/composables/boards/queries/useBoards'
+import { useMoveCategory } from '@/composables/categories/mutations/useMoveCategory'
+import { useCloneCategory } from '@/composables/categories/mutations/useCloneCategory'
+import { useArchiveCategory } from '@/composables/categories/mutations/useArchiveCategory'
+import { useTasks } from '@/composables/tasks/queries/useTasks'
+import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
 
 const props = defineProps<{
   category: ICategoryState
@@ -23,12 +30,23 @@ const props = defineProps<{
 
 const taskFilterStore = useTaskFilterStore()
 
-const { tasks } = useVisibleTasks(props.category.board.id)
+const { isPending: areTasksLoading } = useTasks(props.category.board.id)
+
+const { tasks } = useVisibleTasks(
+  computed(() => props.category.board.id),
+  computed(() => props.category.id),
+)
+const { data: boardsData } = useBoards(computed(() => props.category.workspace.id))
 
 const { mutate: updateTasks } = useUpdateManyTasks()
 const { mutate: updateCategory } = useUpdateCategory()
+const { mutate: moveCategory } = useMoveCategory()
+const { mutate: cloneCategory } = useCloneCategory()
+const { mutate: archiveCategory } = useArchiveCategory()
 
-const { isBusy } = useCategoryMutationStatus(props.category.id)
+const boards = computed(() => boardsData.value || [])
+
+const status = useCategoryMutationStatus(props.category.id)
 
 const isInputVisible = ref(false)
 const inputEditRef = ref<Nullable<HTMLInputElement>>(null)
@@ -39,7 +57,7 @@ const isTaskAddFormShown = ref(false)
 watch(
   tasks,
   (newList) => {
-    localTaskList.value = _.cloneDeep(newList)
+    localTaskList.value = _.cloneDeep(newList).sort((a, b) => a.order - b.order)
   },
   { deep: true, immediate: true },
 )
@@ -73,7 +91,7 @@ function sortTasks() {
 }
 
 function showInput() {
-  if (toValue(isBusy)) return
+  if (toValue(status.isBusy)) return
 
   isInputVisible.value = true
 
@@ -94,11 +112,52 @@ function updateCategoryName(event: Event) {
         id: props.category.id,
         name: newName,
       },
+      boardId: props.category.board.id,
     })
   }
 
   isInputVisible.value = false
 }
+
+function handleMove(newBoardId: string) {
+  const board = boards.value.find((b) => b.id === newBoardId)
+
+  if (board) {
+    moveCategory({
+      payload: props.category,
+      oldBoardId: props.category.board.id,
+      newBoardId: board.id,
+      oldWorkspaceId: props.category.workspace.id,
+      newWorkspaceId: board.workspace.id,
+    })
+  }
+}
+
+function handleCopy() {
+  if (!props.category) return
+
+  cloneCategory({
+    id: props.category.id,
+  })
+}
+
+function handleArchive() {
+  if (!props.category) return
+
+  archiveCategory({
+    category: props.category,
+  })
+}
+
+function getRandomTasksNumber() {
+  const randomNumber = Math.floor(Math.random() * 4) + 1
+
+  return randomNumber
+}
+
+const otherBoards = computed(() => {
+  return boards.value.filter((board) => board.id !== props.category.board.id)
+})
 </script>
 
 <template>
@@ -118,9 +177,6 @@ function updateCategoryName(event: Event) {
           title="Применён фильтр"
         >
           <ListFilter class="size-4 text-blue-500" />
-        </div>
-        <div class="flex items-center justify-center" v-if="isBusy">
-          <Spinner class="size-3.5 text-gray-600" />
         </div>
         <span class="font-semibold group-hover:text-gray-600 truncate">{{ category.name }}</span>
         <SquarePen
@@ -145,24 +201,36 @@ function updateCategoryName(event: Event) {
 
       <Options
         :options="{
-          edit: false,
           copy: true,
           move: true,
-          favorite: false,
           archive: true,
         }"
-        :status="useCategoryMutationStatus"
+        :status="status"
         :item="category"
         :isAlwaysVisible="true"
+        :entityType="EntityType.Category"
         groupName="category"
         class="text-gray-600 undraggable"
-      />
+        @archive="handleArchive"
+        @copy="handleCopy"
+      >
+        <template #transfer-content="{ close }">
+          <TransferForm
+            :items="otherBoards"
+            :isProcessing="status.isBusy"
+            :isItemMoving="status.isMoving"
+            :noItemsText="'Нет других досок'"
+            @close="close"
+            @moveItem="handleMove"
+          />
+        </template>
+      </Options>
     </div>
 
     <!-- Tasks -->
     <div class="flex grow-1 flex-col min-h-0 gap-y-2 mb-3">
       <ButtonCreate
-        :disabled="isBusy"
+        :disabled="toValue(status.isBusy)"
         class="undraggable"
         text="Добавить задачу"
         @click="isTaskAddFormShown = true"
@@ -172,26 +240,38 @@ function updateCategoryName(event: Event) {
         :list="localTaskList"
         :delay="300"
         itemKey="id"
-        class="flex grow-1 flex-col pb-2 gap-y-2 overflow-y-auto overflow-x-hidden p-0.5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+        class="flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden px-0.5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+        :class="{
+          'grow-1 pb-2': !isTaskAddFormShown,
+          'grow-0': isTaskAddFormShown,
+        }"
         :delayOnTouchOnly="true"
         group="tasks"
         :animation="150"
         ghostClass="ghost-class"
         chosenClass="chosen-class"
         dragClass="drag-class"
+        filter=".undraggable"
         :forceFallback="true"
         :fallbackTolerance="2"
         :prevent-on-filter="false"
-        :disabled="isBusy"
+        :disabled="toValue(status.isBusy)"
+        v-if="!areTasksLoading"
       >
         <template #item="{ element }">
           <Task :key="element.id" :task="element" :hasCopy="true" :hasDelete="true" />
         </template>
       </draggable>
 
+      <template v-else>
+        <TaskSkeleton v-for="number in getRandomTasksNumber()" :key="number + '_skeleton_task'" />
+      </template>
+
       <CreateTaskForm
-        :isFormShown="isTaskAddFormShown"
+        v-if="isTaskAddFormShown"
         :categoryId="category.id"
+        :boardId="category.board.id"
+        :workspaceId="category.workspace.id"
         @close="isTaskAddFormShown = false"
       />
     </div>

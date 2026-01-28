@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AvatarImage from '@/components/Workspace/AvatarImage.vue'
-import { useUpdateAvatar } from '@/composables/auth/useUpdateAvatar'
+import { useUpdateAvatar } from '@/composables/auth/mutations/useUpdateAvatar'
 import { ref } from 'vue'
 
 defineProps<{

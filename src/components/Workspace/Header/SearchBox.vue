@@ -149,7 +149,7 @@ onMounted(() => {
             :key="task.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="uiStore.openTaskToEdit(task.id)"
+            @click="uiStore.openTaskToEdit(task.id, task.board.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="task.name">{{ task.name }}</span>
             <span class="ms-auto text-xs text-gray-400">{{ task.category.name }}</span>
@@ -163,11 +163,12 @@ onMounted(() => {
             :key="category.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="uiStore.openCategoryToEdit(category.id)"
+            @click="uiStore.openCategoryToEdit(category.id, category.board.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="category.name">{{
               category.name
             }}</span>
+            <span class="ms-auto text-xs text-gray-400">{{ category.board.name }}</span>
           </button>
         </div>
 
@@ -178,9 +179,10 @@ onMounted(() => {
             :key="board.id + '-search'"
             class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
             type="button"
-            @click="uiStore.openBoardToEdit(board.id)"
+            @click="uiStore.openBoardToEdit(board.id, board.workspace.id)"
           >
             <span class="text-sm text-gray-800 truncate" :title="board.name">{{ board.name }}</span>
+            <span class="ms-auto text-xs text-gray-400">{{ board.workspace.name }}</span>
           </button>
         </div>
 

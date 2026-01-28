@@ -9,7 +9,6 @@ export function useBoardsCount(isEnabled: MaybeRef<boolean> = true) {
     queryFn: () => fetchBoardsCount(),
     enabled: computed(() => toValue(isEnabled)),
     placeholderData: (prev) => prev,
-    initialData: () => 0,
     staleTime: 1000 * 60 * 5,
   })
 }

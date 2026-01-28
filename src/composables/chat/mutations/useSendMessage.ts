@@ -1,10 +1,10 @@
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { sendMessage as sendMessageApi } from '@services/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
-import { useChatMessageStore } from '@stores/chatMessage'
 import { useChatStore } from '@/stores/chat'
 import dayjs from 'dayjs'
-import { chatKeys } from '@/keys'
+import { chatKeys, chatMessageKeys } from '@/keys'
+import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 
 interface SendMessageVars {
   payload: {
@@ -13,12 +13,13 @@ interface SendMessageVars {
     workspaceId: string | null
     threadId?: string
   }
+  chatId: string
 }
 
 export function useSendMessage() {
   const agentStore = useAgentStatusStore()
-  const messageStore = useChatMessageStore()
   const chatStore = useChatStore()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'sendMessage'],
@@ -37,11 +38,17 @@ export function useSendMessage() {
       })
     },
 
-    onSuccess: (result) => {
-      messageStore.addChatMessages(result.chatMessages)
+    onSuccess: (result, { chatId }) => {
+      queryClient.setQueryData<IChatMessage[]>(
+        chatMessageKeys.byChat(chatId),
+        (oldChatMessages: IChatMessage[] | undefined) => {
+          return oldChatMessages ? [...oldChatMessages, ...result.chatMessages] : []
+        },
+      )
+      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(result.chat.workspaceId) })
 
-      if (!chatStore.activeChatId) {
-        chatStore.selectChat(result.chat.id, true)
+      if (!chatStore.activeChat || chatStore.activeChat.id !== result.chat.id) {
+        chatStore.selectChat(result.chat, true)
       }
 
       if (result.jobId) {

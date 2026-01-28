@@ -67,8 +67,9 @@ export async function fetchTasks(boardId?: string, categoryId?: string) {
 
 export async function fetchTask(id: string) {
   const tasks = await getTaskApi(id)
+  const task = tasks.length > 0 ? tasks[0] : null
 
-  return tasks.map(transformTask)[0]
+  return task ? transformTask(task) : null
 }
 
 export async function fetchArchivedTasks() {
@@ -79,6 +80,7 @@ export async function fetchArchivedTasks() {
 
 export async function createTask(
   payload: Partial<ITask>,
+  categoryId: string,
   boardId: string,
   workspaceId: string,
 ): Promise<IResponseWithLog<ITask[]>> {
@@ -88,7 +90,7 @@ export async function createTask(
     ...cleanedTaskFields,
 
     name: payload.name || 'Новая задача',
-    categoryId: payload.category?.id || '',
+    categoryId: payload.category?.id || categoryId,
     boardId: payload.board?.id || boardId,
     workspaceId: payload.workspace?.id || workspaceId,
   }
@@ -146,7 +148,7 @@ export async function archiveTask(id: string): Promise<IResponseWithLog<ITask[]>
   const archiveResult = await archiveTaskApi(id)
 
   return {
-    data: archiveResult.data.tasks.map(transformTask),
+    data: archiveResult.data.map(transformTask),
     logId: archiveResult.logId,
   }
 }
@@ -155,7 +157,7 @@ export async function recoverTask(id: string): Promise<IResponseWithLog<ITask[]>
   const recoverResult = await recoverTaskApi(id)
 
   return {
-    data: recoverResult.data.tasks.map(transformTask),
+    data: recoverResult.data.map(transformTask),
     logId: recoverResult.logId,
   }
 }

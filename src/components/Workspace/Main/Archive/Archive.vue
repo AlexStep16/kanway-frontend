@@ -26,10 +26,10 @@ import { useDeleteBoard } from '@/composables/boards/mutations/useDeleteBoard'
 import { useRecoverWorkspace } from '@/composables/workspaces/mutations/useRecoverWorkspace'
 import { useDeleteWorkspace } from '@/composables/workspaces/mutations/useDeleteWorkspace'
 
-const { data: tasks, isPending: isTasksLoading } = useArchivedTasks()
-const { data: categories, isPending: isCategoriesLoading } = useArchivedCategories()
-const { data: boards, isPending: isBoardsLoading } = useArchivedBoards()
-const { data: workspaces, isPending: isWorkspacesLoading } = useArchivedWorkspaces()
+const { data: tasksData, isPending: isTasksLoading } = useArchivedTasks()
+const { data: categoriesData, isPending: isCategoriesLoading } = useArchivedCategories()
+const { data: boardsData, isPending: isBoardsLoading } = useArchivedBoards()
+const { data: workspacesData, isPending: isWorkspacesLoading } = useArchivedWorkspaces()
 
 const { mutate: recoverTask } = useRecoverTask()
 const { mutate: deleteTask } = useDeleteTask()
@@ -50,7 +50,7 @@ const categoryContainerRef = ref<HTMLElement | null>(null)
 const boardContainerRef = ref<HTMLElement | null>(null)
 const workspaceContainerRef = ref<HTMLElement | null>(null)
 
-const isInitialLoading = computed(
+const isSomeLoading = computed(
   () =>
     isTasksLoading.value ||
     isCategoriesLoading.value ||
@@ -59,21 +59,25 @@ const isInitialLoading = computed(
 )
 
 const isArchiveEmpty = computed(() => {
-  if (isInitialLoading.value) return false
   return (
-    tasks.value.length === 0 &&
-    categories.value.length === 0 &&
-    boards.value.length === 0 &&
-    workspaces.value.length === 0
+    tasks.value?.length === 0 &&
+    categories.value?.length === 0 &&
+    boards.value?.length === 0 &&
+    workspaces.value?.length === 0
   )
 })
+
+const tasks = computed(() => tasksData.value || [])
+const categories = computed(() => categoriesData.value || [])
+const boards = computed(() => boardsData.value || [])
+const workspaces = computed(() => workspacesData.value || [])
 </script>
 <template>
   <Header :tab="Tabs.Archive" />
 
   <div
     class="size-full py-3 flex items-center justify-center gap-5 overflow-y-auto"
-    v-if="isArchiveEmpty"
+    v-if="!isSomeLoading && isArchiveEmpty"
   >
     <div class="flex flex-col items-center gap-y-2">
       <div class="text-gray-500"><Archive class="size-10" /></div>
@@ -93,29 +97,34 @@ const isArchiveEmpty = computed(() => {
       ref="tasksContainerRef"
       v-if="tasks.length > 0 || isTasksLoading"
     >
-      <TitleWithBadge title="Задачи" :number="tasks.length" v-if="!isTasksLoading">
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadge>
-      <TitleWithBadgeSkeleton v-else>
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadgeSkeleton>
+      <template v-if="!isTasksLoading">
+        <TitleWithBadge title="Задачи" :number="tasks.length">
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadge>
 
-      <ColumnsView :items="tasks" :containerRef="tasksContainerRef" v-if="!isTasksLoading">
-        <template v-slot:default="slotProps">
-          <Task
-            v-for="task in slotProps.data"
-            :key="task.id"
-            :task="task"
-            :hasBorder="true"
-            :showInfo="true"
-            taskClasses="self-start"
-          >
-            <RecoverButtons @recover="recoverTask({ task })" @delete="deleteTask({ task })" />
-          </Task>
-        </template>
-      </ColumnsView>
+        <ColumnsView :items="tasks" :containerRef="tasksContainerRef">
+          <template v-slot:default="slotProps">
+            <Task
+              v-for="task in slotProps.data"
+              :key="task.id"
+              :task="task"
+              :hasBorder="true"
+              :showInfo="true"
+              taskClasses="self-start"
+            >
+              <RecoverButtons @recover="recoverTask({ task })" @delete="deleteTask({ task })" />
+            </Task>
+          </template>
+        </ColumnsView>
+      </template>
 
-      <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`" v-else></TaskSkeleton>
+      <template v-else>
+        <TitleWithBadgeSkeleton>
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadgeSkeleton>
+
+        <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`"></TaskSkeleton>
+      </template>
     </div>
 
     <div
@@ -123,36 +132,41 @@ const isArchiveEmpty = computed(() => {
       ref="categoryContainerRef"
       v-if="categories.length > 0 || isCategoriesLoading"
     >
-      <TitleWithBadge title="Категории" :number="categories.length" v-if="!isCategoriesLoading">
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadge>
-      <TitleWithBadgeSkeleton v-else>
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadgeSkeleton>
+      <template v-if="!isCategoriesLoading">
+        <TitleWithBadge title="Категории" :number="categories.length">
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadge>
 
-      <ColumnsView
-        :items="categories"
-        :containerRef="categoryContainerRef"
-        v-if="!isCategoriesLoading"
-      >
-        <template v-slot:default="slotProps">
-          <EntityCard
-            v-for="category in slotProps.data"
-            :key="category.id"
-            :name="category.name"
-            :parentName="category.board.name"
-            :showInfo="true"
-            @click="uiStore.openCategoryToEdit(category.id)"
-          >
-            <RecoverButtons
-              @recover="recoverCategory({ category })"
-              @delete="deleteCategory({ category })"
-            />
-          </EntityCard>
-        </template>
-      </ColumnsView>
+        <ColumnsView
+          :items="categories"
+          :containerRef="categoryContainerRef"
+          v-if="!isCategoriesLoading"
+        >
+          <template v-slot:default="slotProps">
+            <EntityCard
+              v-for="category in slotProps.data"
+              :key="category.id"
+              :name="category.name"
+              :parentName="category.board.name"
+              :showInfo="true"
+              @click="uiStore.openCategoryToEdit(category.id, category.board.id)"
+            >
+              <RecoverButtons
+                @recover="recoverCategory({ category })"
+                @delete="deleteCategory({ category })"
+              />
+            </EntityCard>
+          </template>
+        </ColumnsView>
+      </template>
 
-      <TaskSkeleton v-for="i in 5" :key="`category-skeleton-${i}`" v-else></TaskSkeleton>
+      <template v-else>
+        <TitleWithBadgeSkeleton>
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadgeSkeleton>
+
+        <TaskSkeleton v-for="i in 5" :key="`category-skeleton-${i}`"></TaskSkeleton>
+      </template>
     </div>
 
     <div
@@ -160,29 +174,34 @@ const isArchiveEmpty = computed(() => {
       ref="boardContainerRef"
       v-if="boards.length > 0 || isBoardsLoading"
     >
-      <TitleWithBadge title="Доски" :number="boards.length" v-if="!isBoardsLoading">
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadge>
-      <TitleWithBadgeSkeleton v-else>
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadgeSkeleton>
+      <template v-if="!isBoardsLoading">
+        <TitleWithBadge title="Доски" :number="boards.length">
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadge>
 
-      <ColumnsView :items="boards" :containerRef="boardContainerRef" v-if="!isBoardsLoading">
-        <template v-slot:default="slotProps">
-          <EntityCard
-            v-for="board in slotProps.data"
-            :key="board.id"
-            :name="board.name"
-            :parentName="board.workspace.name"
-            :showInfo="true"
-            @click="uiStore.openBoardToEdit(board.id)"
-          >
-            <RecoverButtons @recover="recoverBoard({ board })" @delete="deleteBoard({ board })" />
-          </EntityCard>
-        </template>
-      </ColumnsView>
+        <ColumnsView :items="boards" :containerRef="boardContainerRef">
+          <template v-slot:default="slotProps">
+            <EntityCard
+              v-for="board in slotProps.data"
+              :key="board.id"
+              :name="board.name"
+              :parentName="board.workspace.name"
+              :showInfo="true"
+              @click="uiStore.openBoardToEdit(board.id, board.workspace.id)"
+            >
+              <RecoverButtons @recover="recoverBoard({ board })" @delete="deleteBoard({ board })" />
+            </EntityCard>
+          </template>
+        </ColumnsView>
+      </template>
 
-      <TaskSkeleton v-for="i in 5" :key="`board-skeleton-${i}`" v-else></TaskSkeleton>
+      <template v-else>
+        <TitleWithBadgeSkeleton>
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadgeSkeleton>
+
+        <TaskSkeleton v-for="i in 5" :key="`board-skeleton-${i}`"></TaskSkeleton>
+      </template>
     </div>
 
     <div
@@ -190,34 +209,43 @@ const isArchiveEmpty = computed(() => {
       ref="workspaceContainerRef"
       v-if="workspaces.length > 0 || isWorkspacesLoading"
     >
-      <TitleWithBadge title="Пространства" :number="workspaces.length" v-if="!isWorkspacesLoading">
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadge>
-      <TitleWithBadgeSkeleton v-else>
-        <div class="w-full h-[.5px] bg-gray-200"></div>
-      </TitleWithBadgeSkeleton>
+      <template v-if="!isWorkspacesLoading">
+        <TitleWithBadge
+          title="Пространства"
+          :number="workspaces.length"
+          v-if="!isWorkspacesLoading"
+        >
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadge>
 
-      <ColumnsView
-        :items="workspaces"
-        :containerRef="workspaceContainerRef"
-        v-if="!isWorkspacesLoading"
-      >
-        <template v-slot:default="slotProps">
-          <EntityCard
-            v-for="workspace in slotProps.data"
-            :key="workspace.id"
-            :name="workspace.name"
-            @click="uiStore.openWorkspaceToEdit(workspace.id)"
-          >
-            <RecoverButtons
-              @recover="recoverWorkspace({ workspace })"
-              @delete="deleteWorkspace({ workspace })"
-            />
-          </EntityCard>
-        </template>
-      </ColumnsView>
+        <ColumnsView
+          :items="workspaces"
+          :containerRef="workspaceContainerRef"
+          v-if="!isWorkspacesLoading"
+        >
+          <template v-slot:default="slotProps">
+            <EntityCard
+              v-for="workspace in slotProps.data"
+              :key="workspace.id"
+              :name="workspace.name"
+              @click="uiStore.openWorkspaceToEdit(workspace.id)"
+            >
+              <RecoverButtons
+                @recover="recoverWorkspace({ workspace })"
+                @delete="deleteWorkspace({ workspace })"
+              />
+            </EntityCard>
+          </template>
+        </ColumnsView>
+      </template>
 
-      <TaskSkeleton v-for="i in 5" :key="`workspace-skeleton-${i}`" v-else></TaskSkeleton>
+      <template v-else>
+        <TitleWithBadgeSkeleton>
+          <div class="w-full h-[.5px] bg-gray-200"></div>
+        </TitleWithBadgeSkeleton>
+
+        <TaskSkeleton v-for="i in 5" :key="`workspace-skeleton-${i}`"></TaskSkeleton>
+      </template>
     </div>
   </div>
 </template>

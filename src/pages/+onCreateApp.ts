@@ -25,6 +25,7 @@ import '../styles/style.css'
 import '../styles/spinner.css'
 import '../styles/transitions.css'
 import '../styles/fonts.css'
+import { queryClient } from '@/plugins/queryClient'
 
 function onCreateApp(pageContext: PageContext) {
   if (pageContext.isRenderingHead) {
@@ -58,6 +59,6 @@ function onCreateApp(pageContext: PageContext) {
     if (pageContext.pinia) app.use(pageContext.pinia)
     app.use(VueInputAutowidth)
     app.use(VueTheMask as any)
-    app.use(VueQueryPlugin)
+    app.use(VueQueryPlugin, { queryClient })
   }
 }

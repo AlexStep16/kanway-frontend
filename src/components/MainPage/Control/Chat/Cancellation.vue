@@ -5,6 +5,7 @@ import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
 import Status from '@components/Workspace/Main/Chat/Bubbles/Status.vue'
 import { onMounted } from 'vue'
+import dayjs from 'dayjs'
 
 onMounted(() => {
   if (window.HSStaticMethods) {
@@ -21,13 +22,17 @@ onMounted(() => {
     >
       <UserBubble
         text="Поменяй цвет всех задач с #работа на синий и перенеси их в категорию 'Срочное'."
+        :date="dayjs(new Date()).calendar() + ' в ' + dayjs(new Date()).format('HH:mm')"
       />
 
       <AIBubble date="18 ноября в 15:00">
         <Assistant text="Я успешно обновил задачи. Если тебе нужно что-то еще, просто скажи!" />
       </AIBubble>
 
-      <UserBubble text="Я передумал, верни всё как было." />
+      <UserBubble
+        text="Я передумал, верни всё как было."
+        :date="dayjs(new Date()).calendar() + ' в ' + dayjs(new Date()).format('HH:mm')"
+      />
 
       <AIBubble date="18 ноября в 15:00">
         <Status currentToolStatus="Отмена изменений..." />

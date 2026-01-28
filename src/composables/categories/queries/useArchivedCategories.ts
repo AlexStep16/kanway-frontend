@@ -8,7 +8,6 @@ export function useArchivedCategories(isEnabled: MaybeRef<boolean> = true) {
     queryKey: categoryKeys.archived(),
     queryFn: () => fetchArchivedCategories(),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     enabled: isEnabled,
     staleTime: 1000 * 60 * 5,
   })

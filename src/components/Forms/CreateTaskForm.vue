@@ -1,23 +1,17 @@
 <script setup lang="ts">
 import { useCreateTask } from '@/composables/tasks/mutations/useCreateTask'
-import { useBoardStore } from '@stores/board'
-import { useWorkspaceStore } from '@stores/workspace'
-import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
+import Spinner from '@components/Loader/Spinner.vue'
 
-defineProps<{
-  isFormShown: boolean
+const props = defineProps<{
+  categoryId: string
+  boardId: string
+  workspaceId: string
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
-
-const boardStore = useBoardStore()
-const workspaceStore = useWorkspaceStore()
-
-const boardId = storeToRefs(boardStore).activeBoardId
-const workspaceId = storeToRefs(workspaceStore).activeWorkspaceId
 
 const { mutate: createTask, isPending: isTaskAdding } = useCreateTask()
 
@@ -34,8 +28,9 @@ function create() {
       payload: {
         name: name.value.trim(),
       },
-      boardId: boardId.value,
-      workspaceId: workspaceId.value,
+      categoryId: props.categoryId,
+      boardId: props.boardId,
+      workspaceId: props.workspaceId,
     },
     {
       onSuccess: () => {
@@ -57,23 +52,29 @@ onMounted(() => {
 
 <template>
   <div
-    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
+    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden shadow-sm undraggable"
   >
-    <div class="h-3 w-full" />
     <div class="flex gap-x-2 p-3 relative">
-      <div class="flex items-center" v-if="isTaskAdding">
-        <Spinner class="size-3.5 text-gray-600" />
+      <div class="flex items-center gap-x-2 shrink-1 min-w-0 text-gray-800" v-if="isTaskAdding">
+        <div class="flex items-center justify-center">
+          <Spinner class="size-3.5 text-gray-600" />
+        </div>
+        <span class="text-sm overflow-hidden break-words">
+          {{ name }}
+        </span>
       </div>
+
       <input
         type="text"
-        class="text-sm h-full font-semibold p-0 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 transition-colors duration-100"
-        :value="name"
-        @blur="$emit('close')"
-        @keydown.enter="create"
+        class="text-gray-800 w-full text-sm border-none ring-0 p-0"
+        v-model="name"
+        @blur="create"
+        @keydown.enter="(event: any) => event.target?.blur()"
         @keydown.esc="$emit('close')"
         :disabled="isTaskAdding"
         ref="nameInputRef"
         placeholder="Название задачи"
+        v-else
       />
     </div>
   </div>

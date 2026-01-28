@@ -2,9 +2,12 @@ import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
 import { AgentProgress } from '@/interfaces/AgentProgress'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useChatMessageStore } from '@/stores/chatMessage'
+import { invalidateUndo } from '@/helpers/invalidateUndo'
 import { queryClient } from '@/plugins/queryClient'
-import { useWorkspaceStore } from '@stores/workspace'
+import { chatMessageKeys } from '@/keys'
+import { IChatMessage } from '@/interfaces/domain/IChatMessage'
+import { invalidateActions } from '@/helpers/invalidateActions'
+import { IActionResponse } from '@/interfaces/IActionResponse'
 
 export interface Event {
   status: 'progress' | 'completed' | 'failed'
@@ -14,9 +17,6 @@ export interface Event {
 //type AgentStatusErrorType = Nullable<BackendError | HttpError>
 
 export const useAgentStatusStore = defineStore('agentStatus', () => {
-  const chatMessageStore = useChatMessageStore()
-  const workspaceStore = useWorkspaceStore()
-
   const activeJobId = ref<string | null>(null)
   const currentActivity = ref<string | null>(null)
   const timeElapsed = ref(0)
@@ -59,7 +59,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   const eventSource = ref<EventSource | null>(null)
 
   function connectSSE(jobId: string) {
-    if (!workspaceStore.activeWorkspaceId) return
     if (eventSource.value) eventSource.value.close()
 
     currentActivity.value = 'Думаю'
@@ -67,8 +66,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     startTimer()
 
     eventSource.value = new EventSource(
-      import.meta.env.VITE_SERVER_BASE_URL +
-        `/workspaces/${workspaceStore.activeWorkspaceId}/chats/stream/${jobId}/status`,
+      import.meta.env.VITE_SERVER_BASE_URL + `/chats/stream/${jobId}/status`,
       {
         withCredentials: true,
       },
@@ -100,20 +98,30 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     } else if (data.role === AgentRolesEnum.ASSISTANT_CHUNK) {
       assistantStream.value += data.content
     } else if (data.role === AgentRolesEnum.NEW_MESSAGE) {
-      chatMessageStore.addChatMessages([data.message])
-    } else if (data.role === AgentRolesEnum.INTEGRATION) {
-      queryClient.invalidateQueries()
+      queryClient.setQueryData<IChatMessage[]>(
+        chatMessageKeys.byChat(data.message.chatId),
+        (oldChatMessages: IChatMessage[] | undefined) => {
+          return oldChatMessages ? [...oldChatMessages, data.message] : [data.message]
+        },
+      )
+
+      if (data.message.role === AgentRolesEnum.ACTIONS) {
+        invalidateActions(data.message.content as IActionResponse)
+      }
+    } else if (data.role === AgentRolesEnum.UNDO) {
+      invalidateUndo(data.undo)
     }
   }
 
-  function closeSSE() {
+  async function closeSSE() {
     if (eventSource.value) {
       eventSource.value.close()
       eventSource.value = null
     }
     activeJobId.value = null
-    assistantStream.value = ''
     currentActivity.value = null
+
+    assistantStream.value = ''
 
     stopTimer()
   }

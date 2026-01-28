@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/composables/workspaces/queries/useWorkspace'
+import { useWorkspace } from '@/composables/workspaces/useWorkspace'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { storeToRefs } from 'pinia'
 
@@ -7,7 +7,7 @@ const workspaceStore = useWorkspaceStore()
 
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
-const { data: activeWorkspace } = useWorkspace(activeWorkspaceId)
+const activeWorkspace = useWorkspace(activeWorkspaceId)
 
 defineProps<{
   size?: string

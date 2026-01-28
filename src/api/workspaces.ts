@@ -1,7 +1,5 @@
 import { apiCall } from '@/apiClient'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
-import { IClonedWorkspaceResult } from '@interfaces/domain/IClonedWorkspaceResult'
-import { IWorkspacesWithChildrenResponse } from '@/interfaces/IWorkspacesWithChildrenResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 
@@ -53,21 +51,21 @@ export async function deleteWorkspaceApi(workspaceId: string) {
 }
 
 export async function archiveWorkspaceApi(workspaceId: string) {
-  return await apiCall<IResponseWithLog<IWorkspacesWithChildrenResponse>>({
+  return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/archive`,
   })
 }
 
 export async function recoverWorkspaceApi(workspaceId: string) {
-  return await apiCall<IResponseWithLog<IWorkspacesWithChildrenResponse>>({
+  return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'PATCH',
     url: `/workspaces/${workspaceId}/recover`,
   })
 }
 
 export async function cloneWorkspaceApi(workspaceId: string) {
-  return await apiCall<IResponseWithLog<IClonedWorkspaceResult>>({
+  return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/clone`,
   })

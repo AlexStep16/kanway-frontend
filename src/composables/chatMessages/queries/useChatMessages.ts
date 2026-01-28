@@ -9,7 +9,6 @@ export function useChatMessages(chatId: MaybeRef<string | null>) {
     queryFn: () => fetchChatMessages(toValue(chatId)!),
     enabled: computed(() => !!toValue(chatId)),
     placeholderData: (prev) => prev,
-    staleTime: Infinity,
-    initialData: () => [],
+    staleTime: 5 * 60 * 1000,
   })
 }

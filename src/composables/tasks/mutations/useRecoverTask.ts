@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { taskKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { recoverTask } from '@/services/task'
@@ -16,6 +16,9 @@ export function useRecoverTask() {
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'recover'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists(), taskKeys.archived()],
+    },
     mutationFn: ({ task }: RecoverTaskVars) =>
       requestQueueService.enqueue(task.id, () => recoverTask(task.id)),
     onMutate: async ({ task }) => {
@@ -63,6 +66,13 @@ export function useRecoverTask() {
           },
         },
       })
+    },
+
+    onSettled: (result, error, { task }) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(task.workspace.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(task.board.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(task.board.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.detailed(task.id) })
     },
   })
 }

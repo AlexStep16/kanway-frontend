@@ -40,6 +40,8 @@ export function useDeletePaymentMethod() {
     },
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: paymentMethodKeys.all })
+
       toast.success('Способ оплаты успешно удален')
     },
   })

@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { boardKeys, workspaceKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
-import { patchCounter } from '@/utils/queries/patchCounter'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { createBoard } from '@/services/board'
 import { useBoardStore } from '@/stores/board'
@@ -18,6 +17,9 @@ export function useCreateBoard() {
 
   return useMutation({
     mutationKey: [...boardKeys.all, 'create'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: async ({ payload, workspaceId }: CreateBoardVars) => {
       if (!workspaceId) {
         throw new Error('Не выбрано пространство')
@@ -27,13 +29,20 @@ export function useCreateBoard() {
     },
 
     onSuccess: (result, { workspaceId }) => {
-      const BOARD_STORE = useBoardStore()
-      const boards = queryClient.getQueryData<IBoard[]>(boardKeys.byWorkspace(workspaceId))
-      const nextBoard = boards && boards.length > 0 ? boards[0] : null
+      const boardStore = useBoardStore()
 
-      if (nextBoard) BOARD_STORE.selectBoard(nextBoard, true)
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
 
-      patchCounter(queryClient, workspaceKeys.all, workspaceId!, 'boardsCount', 1)
+      queryClient.setQueryData(
+        boardKeys.byWorkspace(workspaceId),
+        (oldBoards: IBoard[] | undefined) => {
+          return oldBoards ? [...oldBoards, ...result.data] : result.data
+        },
+      )
+
+      if (result.data) {
+        boardStore.selectBoard(result.data[0], true)
+      }
 
       toast.success('Доска успешно создана', {
         action: {

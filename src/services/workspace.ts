@@ -31,8 +31,9 @@ export async function fetchWorkspaces() {
 
 export async function fetchWorkspace(id: string) {
   const workspaces = await getWorkspaceApi(id)
+  const workspace = workspaces.length > 0 ? workspaces[0] : null
 
-  return workspaces.map(transformWorkspace)[0]
+  return workspace ? transformWorkspace(workspace) : null
 }
 
 export async function fetchArchivedWorkspaces() {
@@ -73,7 +74,7 @@ export async function archiveWorkspace(
   const archiveResult = await archiveWorkspaceApi(workspaceId)
 
   return {
-    data: archiveResult.data.workspaces.map(transformWorkspace),
+    data: archiveResult.data.map(transformWorkspace),
     logId: archiveResult.logId,
   }
 }
@@ -84,7 +85,7 @@ export async function recoverWorkspace(
   const recoverResult = await recoverWorkspaceApi(workspaceId)
 
   return {
-    data: recoverResult.data.workspaces.map(transformWorkspace),
+    data: recoverResult.data.map(transformWorkspace),
     logId: recoverResult.logId,
   }
 }
@@ -93,7 +94,7 @@ export async function cloneWorkspace(workspaceId: string): Promise<IResponseWith
   const cloneResult = await cloneWorkspaceApi(workspaceId)
 
   return {
-    data: cloneResult.data.workspaces.map(transformWorkspace),
+    data: cloneResult.data.map(transformWorkspace),
     logId: cloneResult.logId,
   }
 }

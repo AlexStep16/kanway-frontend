@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { boardKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { archiveBoard } from '@/services/board'
@@ -16,6 +16,9 @@ export function useArchiveBoard() {
 
   return useMutation({
     mutationKey: [...boardKeys.all, 'archive'],
+    meta: {
+      keysToInvalidate: [boardKeys.archived(), workspaceKeys.lists()],
+    },
     mutationFn: ({ board }: ArchiveBoardVars) =>
       requestQueueService.enqueue(board.id, () => archiveBoard(board.id)),
 
@@ -50,6 +53,13 @@ export function useArchiveBoard() {
           },
         },
       })
+    },
+
+    onSettled: (data, error, { board }) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(board.workspace.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
+      queryClient.invalidateQueries({ queryKey: boardKeys.detailed(board.id) })
     },
   })
 }

@@ -8,8 +8,11 @@ import { Nullable } from '@/types/utils'
 import { HSTextareaAutoHeight } from 'preline'
 import { storeToRefs } from 'pinia'
 import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
-import { useChatMessageStore } from '@/stores/chatMessage'
 import { useChat } from '@/composables/chat/queries/useChat'
+
+const props = defineProps<{
+  isLastMessageFromHuman?: boolean
+}>()
 
 const emit = defineEmits<{
   (e: 'send', message: string): void
@@ -20,11 +23,13 @@ const textareaRef = ref<Nullable<HTMLTextAreaElement>>(null)
 
 const agentStatusStore = useAgentStatusStore()
 const chatStore = useChatStore()
-const chatMessageStore = useChatMessageStore()
 
-const { activeChatId } = storeToRefs(chatStore)
-const { data: chat } = useChat(activeChatId)
-const { isLastMessageFromHuman } = storeToRefs(chatMessageStore)
+const { activeChat } = storeToRefs(chatStore)
+
+const activeChatId = computed(() => activeChat.value?.id || null)
+const activeChatWorkspaceId = computed(() => activeChat.value?.workspaceId || null)
+
+const chat = useChat(activeChatId, activeChatWorkspaceId)
 const { mutate: stopAgent } = useStopAgent()
 
 function sendChatMessage() {
@@ -58,7 +63,7 @@ function handleStopAgent() {
 const isRunButtonDisabled = computed(() => {
   return (
     agentStatusStore.isSSEActive() ||
-    (isLastMessageFromHuman.value === false && message.value.trim() === '')
+    (props.isLastMessageFromHuman === false && message.value.trim() === '')
   )
 })
 

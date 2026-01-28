@@ -12,7 +12,6 @@ export function useCategories(
     queryFn: () => fetchCategories(toValue(boardId)!),
     enabled: computed(() => !!toValue(boardId) && toValue(isEnabled)),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     staleTime: 1000 * 60 * 5,
   })
 }

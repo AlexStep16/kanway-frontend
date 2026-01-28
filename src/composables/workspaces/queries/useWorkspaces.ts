@@ -9,7 +9,6 @@ export function useWorkspaces(isEnabled: MaybeRef<boolean> = true) {
     queryFn: () => fetchWorkspaces(),
     enabled: isEnabled,
     placeholderData: (prev) => prev,
-    initialData: () => [],
     staleTime: 1000 * 60 * 5,
   })
 }

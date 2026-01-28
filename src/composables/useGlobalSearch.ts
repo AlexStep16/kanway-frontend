@@ -16,15 +16,25 @@ export function useGlobalSearch(
   // 1. Подключаем нужные запросы
   const isLoadNeeded = computed(() => searchQuery.value.trim().length > 2)
 
-  const { data: archivedTasks } = useArchivedTasks(isLoadNeeded)
-  const { data: archivedCategories } = useArchivedCategories(isLoadNeeded)
-  const { data: archivedBoards } = useArchivedBoards(isLoadNeeded)
-  const { data: archivedWorkspaces } = useArchivedWorkspaces(isLoadNeeded)
+  const { data: archivedTasksData } = useArchivedTasks(isLoadNeeded)
+  const { data: archivedCategoriesData } = useArchivedCategories(isLoadNeeded)
+  const { data: archivedBoardsData } = useArchivedBoards(isLoadNeeded)
+  const { data: archivedWorkspacesData } = useArchivedWorkspaces(isLoadNeeded)
 
-  const { data: tasks } = useTasks(boardId, workspaceId, isLoadNeeded)
-  const { data: categories } = useCategories(boardId, workspaceId, isLoadNeeded)
-  const { data: boards } = useBoards(workspaceId, isLoadNeeded)
-  const { data: workspaces } = useWorkspaces(isLoadNeeded)
+  const { data: tasksData } = useTasks(boardId, isLoadNeeded)
+  const { data: categoriesData } = useCategories(boardId, isLoadNeeded)
+  const { data: boardsData } = useBoards(workspaceId, isLoadNeeded)
+  const { data: workspacesData } = useWorkspaces(isLoadNeeded)
+
+  const archivedTasks = computed(() => archivedTasksData.value || [])
+  const archivedCategories = computed(() => archivedCategoriesData.value || [])
+  const archivedBoards = computed(() => archivedBoardsData.value || [])
+  const archivedWorkspaces = computed(() => archivedWorkspacesData.value || [])
+
+  const tasks = computed(() => tasksData.value || [])
+  const categories = computed(() => categoriesData.value || [])
+  const boards = computed(() => boardsData.value || [])
+  const workspaces = computed(() => workspacesData.value || [])
 
   // Вспомогательная функция для фильтрации по имени
   const filterByName = <T extends { name: string }>(list: T[] | undefined) => {

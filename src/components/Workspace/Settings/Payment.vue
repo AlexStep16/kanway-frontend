@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUpdateUser } from '@/composables/auth/useUpdateUser'
+import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
 import { useDeletePaymentMethod } from '@/composables/paymentMethods/mutations/useDeletePaymentMethod'
 import { IPaymentMethod } from '@/interfaces/domain/IPaymentMethod'
 import Spinner from '@/components/Loader/Spinner.vue'

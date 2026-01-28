@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { workspaceKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { saveWorkspace } from '@/services/workspace'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 interface UpdateWorkspaceVars {
   payload: ISingleUpdate<IWorkspace>
@@ -14,6 +15,9 @@ export function useUpdateWorkspace() {
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'update'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: ({ payload }: UpdateWorkspaceVars) =>
       requestQueueService.enqueue(payload.id, () => saveWorkspace(payload)),
 
@@ -32,6 +36,22 @@ export function useUpdateWorkspace() {
       }
 
       return { previousWorkspaces, queryKey }
+    },
+
+    onSuccess: (result) => {
+      const newWorkspaceId = result.data[0].id ?? null
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
+
+      const availableBoards = queryClient.getQueryData<IBoard[]>(
+        boardKeys.byWorkspace(newWorkspaceId),
+      )
+
+      if (availableBoards && availableBoards.length > 0) {
+        availableBoards.forEach((board) => {
+          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
+        })
+      }
     },
 
     onError: (err, vars, context) => {

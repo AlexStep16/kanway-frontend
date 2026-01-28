@@ -1,8 +1,8 @@
-import { chatKeys } from '@/keys'
+import { IChatMessage } from '@/interfaces/domain/IChatMessage'
+import { chatKeys, chatMessageKeys } from '@/keys'
 import { retryAgent } from '@/services/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
-import { useChatMessageStore } from '@stores/chatMessage'
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 
 interface RetryAgentVars {
@@ -13,11 +13,12 @@ interface RetryAgentVars {
     boardId: string
     workspaceId: string
   }
+  chatId: string
 }
 
 export function useRetryAgent() {
   const agentStore = useAgentStatusStore()
-  const chatMessageStore = useChatMessageStore()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveTool'],
@@ -31,8 +32,15 @@ export function useRetryAgent() {
         timezone: dayjs.tz.guess(),
       }),
 
-    onSuccess: (result, vars) => {
-      chatMessageStore.removeChatMessageFromStore(vars.payload.chatMessageId)
+    onSuccess: (result, { chatId, payload }) => {
+      queryClient.setQueryData<IChatMessage[]>(
+        chatMessageKeys.byChat(chatId),
+        (oldChatMessages: IChatMessage[] | undefined) => {
+          return oldChatMessages
+            ? oldChatMessages.filter((c) => c.id !== payload.chatMessageId)
+            : []
+        },
+      )
 
       agentStore.connectSSE(result.jobId)
     },

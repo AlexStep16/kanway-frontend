@@ -6,16 +6,18 @@ import { determineSelectedWorkspace } from '@helpers/WorkspaceRouter/determineSe
 import BoardModel from '@/models/BoardModel'
 import { determineSelectedBoard } from '@helpers/WorkspaceRouter/determineSelectedBoard'
 import { Nullable } from '@/types/utils'
-import { useBoards } from '@/composables/boards/queries/useBoards'
-import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
+import { fetchWorkspaces } from '@/services/workspace'
+import { queryClient } from '@/plugins/queryClient'
+import { workspaceKeys } from '@/keys'
 
 export async function redirectToWorkspace(pageContext: PageContextClient) {
   try {
     const params = pageContext.routeParams
 
-    const { data: workspaces } = useWorkspaces()
-
-    const workspacesPayload = workspaces.value
+    const workspacesPayload = await queryClient.fetchQuery({
+      queryKey: workspaceKeys.lists(),
+      queryFn: fetchWorkspaces,
+    })
 
     if (workspacesPayload.length === 0) {
       throw redirect('/begin')
@@ -31,14 +33,11 @@ export async function redirectToWorkspace(pageContext: PageContextClient) {
       workspaceInWorkspaces,
       workspacesPayload,
     )
-
-    let selectedBoard: Nullable<BoardModel> = null
-
-    if (selectedWorkspace) {
-      const { data: boards } = useBoards(selectedWorkspace.id)
-
-      selectedBoard = await determineSelectedBoard(selectedWorkspace, boards.value || [], params)
-    }
+    const selectedBoard: Nullable<BoardModel> = await determineSelectedBoard(
+      pageContext,
+      selectedWorkspace,
+      params,
+    )
 
     const router = new WorkspaceRouteHandler(selectedBoard, selectedWorkspace)
 

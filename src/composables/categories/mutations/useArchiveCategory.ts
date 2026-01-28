@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { categoryKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 import { archiveCategory } from '@/services/category'
@@ -16,6 +16,9 @@ export function useArchiveCategory() {
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'archive'],
+    meta: {
+      keysToInvalidate: [categoryKeys.archived(), workspaceKeys.lists()],
+    },
     mutationFn: ({ category }: ArchiveCategoryVars) =>
       requestQueueService.enqueue(category.id, () => archiveCategory(category.id)),
     onMutate: async ({ category }) => {
@@ -49,6 +52,13 @@ export function useArchiveCategory() {
           },
         },
       })
+    },
+
+    onSettled: (data, error, { category }) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(category.workspace.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
     },
   })
 }

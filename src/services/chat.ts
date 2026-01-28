@@ -43,9 +43,10 @@ export async function fetchChats(workspaceId?: string) {
 }
 
 export async function fetchChat(id: string) {
-  const chat = await getChatApi(id)
+  const chats = await getChatApi(id)
+  const chat = chats.length > 0 ? chats[0] : null
 
-  return chat.map(transformChat)[0]
+  return chat ? transformChat(chat) : null
 }
 
 export async function removeChat(id: string) {

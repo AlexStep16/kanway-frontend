@@ -14,11 +14,18 @@ export const queryClient = new QueryClient({
     onError: handleError,
   }),
   mutationCache: new MutationCache({
-    onSuccess: (_data, _variables, _context, mutation) => {
-      const mutationKey = mutation.options.mutationKey
+    onSettled: (_data, _error, _variables, _context, mutation) => {
+      const mutationMeta = mutation.options.meta
 
-      if (mutationKey) {
-        queryClient.invalidateQueries({ queryKey: mutationKey })
+      if (mutationMeta) {
+        const keysToInvalidate: Array<string[]> =
+          (mutationMeta.keysToInvalidate as Array<string[]> | undefined) || []
+
+        for (const key of keysToInvalidate) {
+          queryClient.invalidateQueries({
+            queryKey: key,
+          })
+        }
       }
     },
     onError: handleError,

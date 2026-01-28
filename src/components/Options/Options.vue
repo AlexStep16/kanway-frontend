@@ -7,25 +7,34 @@ import {
   StarOff,
   Archive,
   Pen,
+  Trash,
 } from 'lucide-vue-next'
-import { ref, computed, onMounted, MaybeRef, MaybeRefOrGetter } from 'vue'
+import { ref, computed, onMounted, MaybeRefOrGetter, toValue } from 'vue'
 import Spinner from '@components/Loader/Spinner.vue'
-import { HSDropdown } from 'preline'
+import { HSDropdown, ICollectionItem } from 'preline'
 import { onClickOutside } from '@vueuse/core'
 
 export interface ItemStatus {
-  isArchiving: MaybeRefOrGetter
-  isMoving: MaybeRefOrGetter
-  isCloning: MaybeRefOrGetter
-  isFavoriteLoading?: MaybeRefOrGetter
-  isUpdating: MaybeRefOrGetter
-  isBusy: MaybeRefOrGetter
+  isArchiving: MaybeRefOrGetter<boolean>
+  isMoving: MaybeRefOrGetter<boolean>
+  isCloning: MaybeRefOrGetter<boolean>
+  isFavoritePending?: MaybeRefOrGetter<boolean>
+  isDeleting: MaybeRefOrGetter<boolean>
+  isUpdating: MaybeRefOrGetter<boolean>
+  isBusy: MaybeRefOrGetter<boolean>
 }
 
 const props = defineProps<{
   item: { id: string; name: string; isFavorite?: boolean }
-  options: { edit?: boolean; copy?: boolean; move?: boolean; favorite?: boolean; archive?: boolean }
-  status: (id: MaybeRef<string | null>) => ItemStatus
+  options: {
+    edit?: boolean
+    copy?: boolean
+    move?: boolean
+    favorite?: boolean
+    archive?: boolean
+    delete?: boolean
+  }
+  status: ItemStatus
   groupName: string
   hoverClass?: string
   isAlwaysVisible?: boolean
@@ -33,11 +42,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'edit'): void
   (e: 'copy'): void
-  (e: 'move'): void
   (e: 'favorite'): void
   (e: 'archive'): void
+  (e: 'delete'): void
 }>()
 
 const showEdit = ref(false)
@@ -53,10 +61,7 @@ const closeDropdown = () => {
 }
 
 const isItemFavorite = computed(() => {
-  if ('isFavorite' in props.item) {
-    return props.item.isFavorite
-  }
-  return false
+  return !!props.item.isFavorite
 })
 
 const resetInternalState = () => {
@@ -73,7 +78,9 @@ onMounted(() => {
   if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
 
   if (dropdown.value) {
-    dropdownInstance.value = HSDropdown.getInstance(dropdown.value, true) as HSDropdown
+    const { element } = HSDropdown.getInstance(dropdown.value, true) as ICollectionItem<HSDropdown>
+
+    if (element) dropdownInstance.value = element
 
     if (dropdownInstance.value) {
       dropdownInstance.value.on('close', () => {
@@ -83,9 +90,23 @@ onMounted(() => {
   }
 })
 
-const getStatusObject = computed(() => {
-  return props.status(props.item.id)
-})
+function handleArchive() {
+  emit('archive')
+
+  closeDropdown()
+}
+
+function handleDelete() {
+  emit('delete')
+
+  closeDropdown()
+}
+
+function handleCopy() {
+  emit('copy')
+
+  closeDropdown()
+}
 
 defineExpose({ closeDropdown })
 
@@ -97,112 +118,172 @@ const visibilityClasses = computed(() =>
 </script>
 
 <template>
-  <div :id="'dropdown-' + item.id" class="hs-dropdown inline-flex" ref="dropdown">
+  <div
+    :id="'hs-dropdown-' + item.id"
+    class="hs-dropdown [--auto-close:false] inline-flex"
+    ref="dropdown"
+  >
     <button
+      :id="'hs-dropdown-button-' + item.id"
       type="button"
-      class="p-1 transition-colors rounded-full hs-dropdown-open:bg-blue-200"
-      :class="[hoverClass || 'hover:bg-gray-200', visibilityClasses]"
+      class="p-1 transition-colors duration-100 rounded-full focus:opacity-100 focus:outline-hidden hs-dropdown-open:opacity-100 hs-dropdown-open:bg-blue-200 hs-dropdown-open:text-blue-500"
+      :class="[hoverClass, visibilityClasses]"
     >
       <EllipsisVertical class="size-4" />
     </button>
 
-    <div class="hs-dropdown-menu hidden min-w-60 bg-white shadow-md rounded-lg p-1">
-      <!-- ГЛАВНОЕ МЕНЮ -->
-      <div v-show="!showEdit && !showTransfer" class="space-y-0.5">
-        <!-- Кнопка Редактировать -->
-        <button
-          v-if="options.edit"
-          @click="showEdit = true"
-          :disabled="getStatusObject.isBusy"
-          class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-        >
-          <Pen class="size-4" /> Редактировать
-        </button>
-
-        <!-- Кнопка Копировать -->
-        <button
-          v-if="options.copy"
-          @click="emit('copy')"
-          :disabled="getStatusObject.isBusy"
-          class="relative w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-        >
-          <div
-            v-if="getStatusObject.isCloning"
-            class="absolute inset-0 flex items-center gap-2 bg-white"
+    <div
+      class="hs-dropdown-menu transition-[opacity,margin] z-10 duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
+      role="menu"
+      ref="dropdownMenu"
+      aria-orientation="vertical"
+      :aria-labelledby="'hs-dropdown-button-' + item.id"
+    >
+      <div class="flex overflow-hidden">
+        <div class="p-1 space-y-0.5 shrink-0 w-full" v-show="!showEdit && !showTransfer">
+          <button
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
+            @click="showEdit = true"
+            v-if="options.edit"
+            :disabled="toValue(status.isBusy)"
           >
-            <Spinner class="size-4" /> Копирование...
-          </div>
-          <Copy class="size-4" /> Копировать
-        </button>
+            <Pen class="size-4" />
 
-        <!-- Кнопка Переместить -->
-        <button
-          v-if="options.move"
-          @click="showTransfer = true"
-          :disabled="getStatusObject.isBusy"
-          class="relative w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-        >
-          <div
-            v-if="getStatusObject.isMoving"
-            class="absolute inset-0 flex items-center gap-2 bg-white"
+            Редактировать
+          </button>
+          <button
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
+            v-if="options.copy"
+            :disabled="toValue(status.isBusy)"
+            @click="handleCopy"
           >
-            <Spinner class="size-4" /> Перемещение...
-          </div>
-          <MoveHorizontal class="size-4" /> Переместить
-        </button>
+            <div
+              class="absolute size-full flex items-center gap-x-2"
+              v-if="toValue(status.isCloning)"
+            >
+              <Spinner class="size-4" />
 
-        <button
-          class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
-          v-if="options.favorite"
-          :disabled="getStatusObject.isBusy"
-          @click="emit('favorite')"
-        >
-          <div
-            class="absolute size-full flex items-center gap-x-2"
-            v-if="getStatusObject.isFavoriteLoading"
+              Копирование...
+            </div>
+            <div
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': toValue(status.isCloning) }"
+            >
+              <Copy class="size-4" />
+
+              Копировать
+            </div>
+          </button>
+          <button
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
+            @click="showTransfer = true"
+            v-if="options.move"
+            :disabled="toValue(status.isBusy)"
           >
-            <Spinner class="size-4" />
+            <div
+              class="absolute size-full flex items-center gap-x-2"
+              v-if="toValue(status.isMoving)"
+            >
+              <Spinner class="size-4" />
 
-            <span v-if="!isItemFavorite">Добавление...</span>
-            <span v-if="isItemFavorite">Удаление...</span>
-          </div>
-          <div
-            class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
-            :class="{ 'opacity-0!': getStatusObject.isFavoriteLoading }"
+              Перемещение...
+            </div>
+            <div
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': toValue(status.isMoving) }"
+            >
+              <MoveHorizontal class="size-4" />
+
+              Переместить
+            </div>
+          </button>
+          <button
+            class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 disabled:opacity-70 disabled:pointer-events-none"
+            v-if="options.favorite"
+            :disabled="toValue(status.isBusy)"
+            @click="$emit('favorite')"
           >
-            <Star class="size-4" v-if="!isItemFavorite" />
-            <StarOff class="size-4" v-if="isItemFavorite" />
+            <div
+              class="absolute size-full flex items-center gap-x-2"
+              v-if="toValue(status.isFavoritePending)"
+            >
+              <Spinner class="size-4" />
 
-            <span v-if="!isItemFavorite">В избранное</span>
-            <span v-if="isItemFavorite">Удалить из избранного</span>
-          </div>
-        </button>
+              <span v-if="!isItemFavorite">Добавление...</span>
+              <span v-if="isItemFavorite">Удаление...</span>
+            </div>
+            <div
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': toValue(status.isFavoritePending) }"
+            >
+              <Star class="size-4" v-if="!isItemFavorite" />
+              <StarOff class="size-4" v-if="isItemFavorite" />
 
-        <!-- Кнопка В архив -->
-        <button
-          v-if="options.archive"
-          @click="emit('archive')"
-          :disabled="getStatusObject.isBusy"
-          class="relative w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-        >
-          <div
-            v-if="getStatusObject.isArchiving"
-            class="absolute inset-0 flex items-center gap-2 bg-white"
+              <span v-if="!isItemFavorite">В избранное</span>
+              <span v-if="isItemFavorite">Удалить из избранного</span>
+            </div>
+          </button>
+          <button
+            class="w-full flex items-center py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
+            v-if="options.archive"
+            :disabled="toValue(status.isBusy)"
+            @click="handleArchive"
           >
-            <Spinner class="size-4" /> Архивирование...
-          </div>
-          <Archive class="size-4" /> В архив
-        </button>
-      </div>
+            <div
+              class="absolute size-full flex items-center gap-x-2"
+              v-if="toValue(status.isArchiving)"
+            >
+              <Spinner class="size-4" />
 
-      <!-- СЛОТ ДЛЯ РЕДАКТИРОВАНИЯ -->
-      <div v-if="showEdit">
-        <slot name="edit-content" :close="() => (showEdit = false)" />
-      </div>
+              Архивирование...
+            </div>
+            <div
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': toValue(status.isArchiving) }"
+            >
+              <Archive class="size-4" />
 
-      <!-- ФОРМА ПЕРЕНОСА (теперь она может быть просто слотом или вызываться родителем) -->
-      <div v-if="showTransfer">
-        <slot name="transfer-content" :close="() => (showTransfer = false)" />
+              В архив
+            </div>
+          </button>
+          <button
+            class="w-full flex items-center py-2 px-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-100 focus:outline-hidden focus:bg-gray-100 group disabled:pointer-events-none"
+            v-if="options.delete"
+            :disabled="toValue(status.isBusy)"
+            @click="handleDelete()"
+          >
+            <div
+              class="absolute size-full flex items-center gap-x-2"
+              v-if="toValue(status.isDeleting)"
+            >
+              <Spinner class="size-4" />
+
+              Удаление...
+            </div>
+            <div
+              class="flex items-center text-left gap-x-2 group-disabled:opacity-70"
+              :class="{ 'opacity-0!': toValue(status.isDeleting) }"
+            >
+              <Trash class="size-4" />
+
+              Удалить
+            </div>
+          </button>
+        </div>
+
+        <!-- СЛОТ ДЛЯ РЕДАКТИРОВАНИЯ -->
+        <div v-if="showEdit">
+          <slot
+            name="edit-content"
+            :close="() => (showEdit = false)"
+            :closeDropdown="closeDropdown"
+          />
+        </div>
+
+        <!-- ФОРМА ПЕРЕНОСА (теперь она может быть просто слотом или вызываться родителем) -->
+        <div v-if="showTransfer">
+          <slot name="transfer-content" :close="() => (showTransfer = false)" />
+        </div>
       </div>
     </div>
   </div>

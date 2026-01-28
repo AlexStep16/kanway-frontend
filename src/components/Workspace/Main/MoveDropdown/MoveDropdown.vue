@@ -22,9 +22,13 @@ const selectedCategoryId = ref(props.entity.category?.id || null)
 const dropdownRef = ref<HTMLElement | null>(null)
 
 // --- QUERIES ---
-const { data: workspaces = [] } = useWorkspaces()
-const { data: boards = [], isFetching: isBoardsLoading } = useBoards(selectedWorkspaceId)
-const { data: categories = [], isFetching: isCategoriesLoading } = useCategories(selectedBoardId)
+const { data: workspacesData } = useWorkspaces()
+const { data: boardsData, isFetching: isBoardsLoading } = useBoards(selectedWorkspaceId)
+const { data: categoriesData, isFetching: isCategoriesLoading } = useCategories(selectedBoardId)
+
+const workspaces = computed(() => workspacesData.value || [])
+const boards = computed(() => boardsData.value || [])
+const categories = computed(() => categoriesData.value || [])
 
 const reinitSelects = () => {
   nextTick(() => {

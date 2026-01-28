@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { boardKeys, categoryKeys, workspaceKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
-import { patchCounter } from '@/utils/queries/patchCounter'
 import { ICategory } from '@/interfaces/domain/ICategory'
 import { createCategory } from '@/services/category'
 import { useUndo } from '@/composables/useUndo'
@@ -18,6 +17,9 @@ export function useCreateCategory() {
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'create'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: async ({ payload, boardId, workspaceId }: CreateCategoryVars) => {
       if (!workspaceId) {
         throw new Error('Не выбрано пространство')
@@ -30,13 +32,16 @@ export function useCreateCategory() {
       return createCategory(payload, boardId, workspaceId)
     },
 
-    onSuccess: async (result, { boardId, workspaceId }) => {
-      patchCounter(queryClient, boardKeys.byWorkspace(workspaceId), boardId!, 'categoriesCount', 1)
-      patchCounter(queryClient, workspaceKeys.all, workspaceId!, 'categoriesCount', 1)
+    onSuccess: async (result, { workspaceId, boardId }) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
 
-      if (result.data.length === 0) {
-        return toast.error('Произошла ошибка при создании категории')
-      }
+      queryClient.setQueryData(
+        categoryKeys.byBoard(boardId),
+        (oldCategories: ICategory[] | undefined) => {
+          return oldCategories ? [...oldCategories, ...result.data] : result.data
+        },
+      )
 
       toast.success('Категория успешно создана', {
         action: {

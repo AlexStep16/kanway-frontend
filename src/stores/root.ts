@@ -4,12 +4,17 @@ import { useBoardStore } from '@stores/board'
 import WorkspaceModel from '@/models/WorkspaceModel'
 import { useData } from 'vike-vue/useData'
 import { Nullable } from '@/types/utils'
-import { useBoards } from '@/composables/boards/queries/useBoards'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
+import { fetchBoards } from '@/services/board'
+import { queryClient } from '@/plugins/queryClient'
+import { boardKeys } from '@/keys'
+import { computed } from 'vue'
+import { useUIStore } from './ui'
 
 export const useRootStore = defineStore('root', () => {
-  const WORKSPACE_STORE = useWorkspaceStore()
-  const BOARD_STORE = useBoardStore()
+  const workspaceStore = useWorkspaceStore()
+  const boardStore = useBoardStore()
+  const uiStore = useUIStore()
 
   async function updateWorkspaceFromRoute() {
     let selectedWorkspace: Nullable<WorkspaceModel> = null
@@ -18,7 +23,9 @@ export const useRootStore = defineStore('root', () => {
     const workspaceId = params.workspaceId
     const boardId = params.boardId
 
-    const { data: workspaces } = useWorkspaces()
+    const { data: workspacesData } = useWorkspaces()
+
+    const workspaces = computed(() => workspacesData.value || [])
 
     if (typeof workspaceId === 'string' && workspaceId) {
       selectedWorkspace =
@@ -30,17 +37,20 @@ export const useRootStore = defineStore('root', () => {
     }
 
     if (selectedWorkspace) {
-      await WORKSPACE_STORE.selectWorkspace(selectedWorkspace, false, false)
+      await workspaceStore.selectWorkspace(selectedWorkspace, false, false)
     } else {
       return
     }
 
     let selectedBoard: any = null
 
-    const { data: boards } = useBoards(selectedWorkspace.id)
+    const boards = await queryClient.fetchQuery({
+      queryKey: boardKeys.lists(),
+      queryFn: () => fetchBoards(selectedWorkspace.id),
+    })
 
     const workspaceBoards = selectedWorkspace
-      ? boards.value.filter((board) => board.workspace.id === selectedWorkspace.id)
+      ? boards.filter((board) => board.workspace.id === selectedWorkspace.id)
       : []
 
     if (typeof boardId === 'string' && !['archive', 'settings'].includes(boardId)) {
@@ -52,9 +62,10 @@ export const useRootStore = defineStore('root', () => {
     }
 
     if (selectedBoard) {
-      await BOARD_STORE.selectBoard(selectedBoard)
+      await boardStore.selectBoard(selectedBoard)
     } else {
-      BOARD_STORE.resetBoardSelection()
+      boardStore.resetBoardSelection()
+      uiStore.selectStart()
 
       setTimeout(() => {
         if (selectedWorkspace) {

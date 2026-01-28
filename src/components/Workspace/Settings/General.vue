@@ -8,7 +8,7 @@ import { toast } from 'vue-sonner'
 import { HSSelect, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
 import { storeToRefs } from 'pinia'
-import { useUpdateUser } from '@/composables/auth/useUpdateUser'
+import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
 
 const authStore = useAuthStore()
 

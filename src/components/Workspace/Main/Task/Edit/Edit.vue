@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDebounceFn } from '@vueuse/core'
 import { HSStaticMethods } from 'preline'
@@ -7,7 +7,7 @@ import { Layers } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
 import { useUIStore } from '@/stores/ui'
-import { useTask } from '@/composables/tasks/queries/useTask'
+import { useTask } from '@/composables/tasks/useTask'
 import { useUpdateTask } from '@/composables/tasks/mutations/useUpdateTask'
 import { useArchiveTask } from '@/composables/tasks/mutations/useArchiveTask'
 import { useCloneTask } from '@/composables/tasks/mutations/useCloneTask'
@@ -25,10 +25,10 @@ import { Nullable } from '@/types/utils'
 import { EntityType } from '@/enums/EntityType'
 
 const uiStore = useUIStore()
-const { editableTaskId } = storeToRefs(uiStore)
+const { editableTaskId, editableTaskBoardId } = storeToRefs(uiStore)
 
 // --- Queries ---
-const { data: task } = useTask(editableTaskId)
+const task = useTask(editableTaskId, editableTaskBoardId)
 const status = useTaskMutationStatus(editableTaskId)
 
 // --- Local State (только для текста) ---
@@ -47,15 +47,22 @@ const { mutate: moveTask } = useMoveTask()
 // Универсальная функция для частичного обновления задачи
 const patchTask = (fields: Record<string, any>) => {
   if (!task.value) return
+
   updateTask({
     payload: { id: task.value.id, ...fields },
     boardId: task.value.board.id,
   })
 }
 
+const textFieldsChanged = computed(() => {
+  if (!task.value) return false
+
+  return task.value.name !== localName.value || task.value.description !== localDescription.value
+})
+
 // --- Debounced Text Inputs ---
 const debouncedUpdate = useDebounceFn(() => {
-  if (!task.value) return
+  if (!task.value || !textFieldsChanged.value) return
 
   patchTask({
     name: localName.value,

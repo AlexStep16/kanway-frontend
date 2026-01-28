@@ -1,6 +1,5 @@
 import { apiCall } from '@/apiClient'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
-import { ITasksResponse } from '@/interfaces/ITasksResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ITask } from '@interfaces/domain/ITask'
 import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
@@ -65,14 +64,14 @@ export async function deleteTaskApi(id: string) {
 }
 
 export async function archiveTaskApi(id: string) {
-  return await apiCall<IResponseWithLog<ITasksResponse>>({
+  return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'PATCH',
     url: `/tasks/${id}/archive`,
   })
 }
 
 export async function recoverTaskApi(id: string) {
-  return await apiCall<IResponseWithLog<ITasksResponse>>({
+  return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'PATCH',
     url: `/tasks/${id}/recover`,
   })

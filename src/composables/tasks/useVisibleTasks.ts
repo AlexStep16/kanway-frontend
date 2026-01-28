@@ -1,17 +1,24 @@
-import { computed, MaybeRef } from 'vue'
-import { useTasks } from './queries/useTasks'
+import { computed, MaybeRef, toValue } from 'vue'
 import { useTaskFilterStore } from '@/stores/taskFilters'
 import dayjs from 'dayjs'
+import { useTasks } from './queries/useTasks'
 
-export function useVisibleTasks(boardId: MaybeRef<string | null>) {
-  const { data: allTasks } = useTasks(boardId)
+export function useVisibleTasks(
+  boardId: MaybeRef<string | null>,
+  categoryId: MaybeRef<string | null>,
+) {
+  const { data: tasks } = useTasks(boardId)
+
+  const categoryTasks = computed(
+    () => tasks.value?.filter((t) => t.category.id === toValue(categoryId)) || [],
+  )
 
   const filterStore = useTaskFilterStore()
 
   const filteredTasks = computed(() => {
-    if (!allTasks.value) return []
+    if (!categoryTasks.value) return []
 
-    let result = allTasks.value.filter((t) => !t.isDeleted)
+    let result = categoryTasks.value.filter((t) => !t.isDeleted)
 
     const f = filterStore.filters
 
@@ -99,10 +106,10 @@ export function useVisibleTasks(boardId: MaybeRef<string | null>) {
   }
 
   const availableTags = computed(() => {
-    if (!allTasks.value) return []
+    if (!categoryTasks.value) return []
 
     const tags = new Set<string>()
-    allTasks.value.forEach((t) => t.tags?.forEach((tag) => tags.add(tag)))
+    categoryTasks.value.forEach((t) => t.tags?.forEach((tag) => tags.add(tag)))
     return Array.from(tags)
   })
 

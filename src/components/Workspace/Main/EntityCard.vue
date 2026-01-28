@@ -4,9 +4,11 @@ import Spinner from '@components/Loader/Spinner.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{
+  id: string
   name: string
   isStatic?: boolean
   hasCopy?: boolean
+  isSelected?: boolean
   isCopying?: boolean
   hasDelete?: boolean
   isDeleted?: boolean
@@ -21,6 +23,10 @@ const isCopyAvailable = computed(() => {
 
 const isDeleteAvailable = computed(() => {
   return props.hasDelete && !props.isDeleted
+})
+
+const isSelectedEnabled = computed(() => {
+  return typeof props.isSelected === 'boolean'
 })
 </script>
 
@@ -37,9 +43,39 @@ const isDeleteAvailable = computed(() => {
       </div>
     </div>
     <div class="flex items-center min-w-0 pr-14 pointer-fine:pr-0">
-      <span class="text-gray-800 text-sm overflow-hidden shrink-1 break-words truncate">{{
+      <span class="text-gray-800 text-sm overflow-hidden shrink-1 grow-1 break-words truncate">{{
         name
       }}</span>
+      <div
+        class="flex items-center cursor-pointer relative transition-all"
+        @click.stop="$emit('toggle-select', id)"
+        v-if="isSelectedEnabled"
+      >
+        <input
+          type="checkbox"
+          class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-blue-500 checked:border-blue-600"
+          id="payment-method-card-2"
+          :checked="isSelected"
+        />
+        <span
+          class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-3"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-width="1"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </span>
+      </div>
       <div
         class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"
         :class="{

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { boardKeys, categoryKeys, workspaceKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { saveCategories } from '@/services/category'
@@ -62,6 +62,20 @@ export function useUpdateManyCategories() {
       }
 
       return { snapshots }
+    },
+
+    onSettled: (result) => {
+      if (!result) return
+
+      const updatedCategories = result.data
+
+      if (updatedCategories) {
+        updatedCategories.forEach((category) => {
+          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
+          queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
+        })
+      }
     },
 
     onError: (err, vars, context) => {

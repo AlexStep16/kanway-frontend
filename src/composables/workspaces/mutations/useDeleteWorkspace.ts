@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { workspaceKeys } from '@/keys' // Твои ключи кэша
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys' // Твои ключи кэша
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { removeWorkspace } from '@services/workspace'
 import { useWorkspaceStore } from '@/stores/workspace'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 interface DeleteWorkspaceVars {
   workspace: IWorkspace
@@ -15,6 +16,9 @@ export function useDeleteWorkspace() {
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'delete'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists(), workspaceKeys.archived()],
+    },
     mutationFn: ({ workspace }: DeleteWorkspaceVars) =>
       requestQueueService.enqueue(workspace.id, () => removeWorkspace(workspace.id)),
 
@@ -42,6 +46,19 @@ export function useDeleteWorkspace() {
 
     onSuccess: (data, variables) => {
       const WORKSPACE_STORE = useWorkspaceStore()
+
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(variables.workspace.id) })
+
+      const availableBoards = queryClient.getQueryData<IBoard[]>(
+        boardKeys.byWorkspace(variables.workspace.id),
+      )
+
+      if (availableBoards && availableBoards.length > 0) {
+        availableBoards.forEach((board) => {
+          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
+        })
+      }
 
       if (WORKSPACE_STORE.activeWorkspaceId === variables.workspace.id) {
         const workspaces = queryClient.getQueryData<IWorkspace[]>(workspaceKeys.lists())

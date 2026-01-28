@@ -1,25 +1,29 @@
 <script setup lang="ts">
 import { SquarePen, SquareKanban } from 'lucide-vue-next'
 import { useBoardStore } from '@/stores/board'
-import { computed, nextTick, ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import Spinner from '@/components/Loader/Spinner.vue'
 import { Nullable } from '@/types/utils'
 import { storeToRefs } from 'pinia'
 import { useUpdateBoard } from '@/composables/boards/mutations/useUpdateBoard'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
-import { useBoard } from '@/composables/boards/queries/useBoard'
+import { useBoard } from '@/composables/boards/useBoard'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 const isInputVisible = ref(false)
 const inputRef = ref<Nullable<HTMLInputElement>>(null)
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
 
+const name = ref('')
+
 const { activeBoardId } = storeToRefs(boardStore)
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 const { mutate: updateBoard } = useUpdateBoard()
-const { data: board } = useBoard(activeBoardId)
+const board = useBoard(activeBoardId, activeWorkspaceId)
+
 const { isBusy } = useBoardMutationStatus(activeBoardId)
 
 function showInput() {
@@ -48,9 +52,19 @@ function updateBoardName(event: Event) {
   isInputVisible.value = false
 }
 
-const boardName = computed(() => {
-  return board.value?.name || 'Без названия'
-})
+function resetForm() {
+  isInputVisible.value = false
+
+  name.value = board.value?.name || 'Без названия'
+}
+
+watch(
+  board,
+  (newBoard: IBoard | null) => {
+    name.value = newBoard?.name || 'Без названия'
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -68,7 +82,7 @@ const boardName = computed(() => {
       @click="showInput"
       v-show="!isInputVisible"
     >
-      {{ boardName }}
+      {{ name }}
       <SquarePen
         class="size-4 text-gray-400 group-hover:text-gray-500 transition-colors duration-100"
       />
@@ -77,10 +91,10 @@ const boardName = computed(() => {
     <input
       type="text"
       class="text-lg h-9 rounded-sm font-semibold px-2 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-2 focus:bg-gray-100 hover:bg-gray-100 transition-colors duration-100"
-      :value="boardName"
+      v-model="name"
       @keydown.enter="updateBoardName"
-      @keydown.esc="isInputVisible = false"
-      @blur="isInputVisible = false"
+      @keydown.esc="resetForm"
+      @blur="resetForm"
       v-autowidth
       ref="inputRef"
       v-show="isInputVisible"

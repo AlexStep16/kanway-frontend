@@ -11,7 +11,7 @@ import {
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
-import { UpdatePasswordVars } from '@/composables/auth/useUpdatePassword'
+import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
 
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({

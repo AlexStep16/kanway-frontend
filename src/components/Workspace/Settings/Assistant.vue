@@ -24,6 +24,10 @@ const selectTypeRef = ref<HTMLElement | null>(null)
 watch(
   setting,
   (newSetting) => {
+    if (!newSetting) {
+      return
+    }
+
     Object.assign(settingModel.value, newSetting)
     HSStaticMethods.autoInit()
 

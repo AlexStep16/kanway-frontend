@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { workspaceKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { recoverWorkspace } from '@services/workspace'
 import { useUndo } from '@/composables/useUndo'
+import { IBoard } from '@/interfaces/domain/IBoard'
 
 interface RecoverWorkspaceVars {
   workspace: IWorkspace
@@ -16,6 +17,9 @@ export function useRecoverWorkspace() {
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'recover'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists(), workspaceKeys.archived()],
+    },
     mutationFn: ({ workspace }: RecoverWorkspaceVars) =>
       requestQueueService.enqueue(workspace.id, () => recoverWorkspace(workspace.id)),
 
@@ -56,6 +60,20 @@ export function useRecoverWorkspace() {
     },
 
     onSuccess: (result) => {
+      const newWorkspaceId = result.data[0].id ?? null
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
+
+      const availableBoards = queryClient.getQueryData<IBoard[]>(
+        boardKeys.byWorkspace(newWorkspaceId),
+      )
+
+      if (availableBoards && availableBoards.length > 0) {
+        availableBoards.forEach((board) => {
+          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
+        })
+      }
+
       toast.success('Пространство восстановлено', {
         action: {
           label: 'Отменить',

@@ -12,7 +12,6 @@ export function useBoards(
     queryFn: () => fetchBoards(toValue(workspaceId)!),
     enabled: computed(() => !!toValue(workspaceId) && toValue(isEnabled)),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     staleTime: 1000 * 60 * 5,
   })
 }

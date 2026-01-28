@@ -8,7 +8,6 @@ export function useArchivedBoards(isEnabled: MaybeRef<boolean> = true) {
     queryKey: boardKeys.archived(),
     queryFn: () => fetchArchivedBoards(),
     placeholderData: (prev) => prev,
-    initialData: () => [],
     enabled: isEnabled,
     staleTime: 1000 * 60 * 5,
   })

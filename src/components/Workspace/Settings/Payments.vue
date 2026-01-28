@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuthStore } from '@stores/auth'
 import { PaymentStatusEnum } from '@/enums/PaymentStatusEnum'
 import dayjs from 'dayjs'
@@ -12,8 +12,11 @@ const authStore = useAuthStore()
 
 const { user } = storeToRefs(authStore)
 
-const { data: payments, isPending: isPaymentsLoading } = usePayments()
-const { data: paymentMethods, isPending: isPaymentMethodsLoading } = usePaymentMethods()
+const { data: paymentsData, isPending: isPaymentsLoading } = usePayments()
+const { data: paymentMethodsData, isPending: isPaymentMethodsLoading } = usePaymentMethods()
+
+const payments = computed(() => paymentsData.value || [])
+const paymentMethods = computed(() => paymentMethodsData.value || [])
 
 function getPaymentStatusName(status: PaymentStatusEnum): string {
   switch (status) {

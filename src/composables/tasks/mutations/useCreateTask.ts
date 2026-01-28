@@ -4,11 +4,11 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ITask } from '@interfaces/domain/ITask'
 import { createTask } from '@services/task'
 import { queryClient } from '@/plugins/queryClient'
-import { patchCounter } from '@/utils/queries/patchCounter'
 import { useUndo } from '@/composables/useUndo'
 
 export interface CreateTaskVars {
   payload: Partial<ITask>
+  categoryId: string
   boardId: string | null
   workspaceId: string | null
 }
@@ -18,7 +18,10 @@ export function useCreateTask() {
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'create'],
-    mutationFn: async ({ payload, boardId, workspaceId }: CreateTaskVars) => {
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
+    mutationFn: async ({ payload, categoryId, boardId, workspaceId }: CreateTaskVars) => {
       if (!workspaceId) {
         throw new Error('Не выбрано пространство')
       }
@@ -27,23 +30,21 @@ export function useCreateTask() {
         throw new Error('Не выбрана доска')
       }
 
-      return createTask(payload, boardId, workspaceId)
+      if (!categoryId) {
+        throw new Error('Не выбрана категория')
+      }
+
+      return createTask(payload, categoryId, boardId, workspaceId)
     },
 
-    onSuccess: async (result, { boardId, workspaceId, payload }) => {
-      patchCounter(
-        queryClient,
-        categoryKeys.byBoard(boardId),
-        payload.category?.id || '',
-        'tasksCount',
-        1,
-      )
-      patchCounter(queryClient, boardKeys.byWorkspace(workspaceId), boardId!, 'tasksCount', 1)
-      patchCounter(queryClient, workspaceKeys.all, workspaceId!, 'tasksCount', 1)
+    onSuccess: async (result, { boardId, workspaceId }) => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
 
-      if (result.data.length === 0) {
-        return toast.error('Произошла ошибка при создании задачи')
-      }
+      queryClient.setQueryData(taskKeys.byBoard(boardId), (oldTasks: ITask[] | undefined) => {
+        return oldTasks ? [...oldTasks, ...result.data] : result.data
+      })
 
       toast.success('Задача успешно создана', {
         action: {

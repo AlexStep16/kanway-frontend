@@ -4,10 +4,10 @@ export enum AgentRolesEnum {
   TOOLS_EXECUTION = 'tools_execution',
   HISTORY_RETRIEVING = 'history_retrieving',
   SYNTHESIZE_START = 'synthesize_start',
-  INTEGRATION = 'integration',
+  UNDO = 'undo',
+  ACTIONS = 'actions',
   PREVIEW = 'preview',
   ASSISTANT_CHUNK = 'assistant_chunk',
   ASSISTANT_FINAL = 'assistant',
   NEW_MESSAGE = 'new_message',
-  LIST_ENTITIES = 'list_entities',
 }

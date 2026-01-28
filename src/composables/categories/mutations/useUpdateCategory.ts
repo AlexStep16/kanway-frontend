@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { categoryKeys } from '@/keys'
+import { categoryKeys, taskKeys } from '@/keys'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategory } from '@/interfaces/domain/ICategory'
@@ -8,7 +8,7 @@ import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 
 interface UpdateCategoryVars {
   payload: ISingleUpdate<ICategory>
-  boardId?: string
+  boardId: string | null
 }
 
 export function useUpdateCategory() {
@@ -34,6 +34,12 @@ export function useUpdateCategory() {
       }
 
       return { previousCategories, queryKey }
+    },
+
+    onSettled: (data, error, { boardId, payload }) => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(payload.id) })
     },
 
     onError: (err, vars, context) => {

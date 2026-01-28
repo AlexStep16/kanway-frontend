@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, watch, ref } from 'vue'
+import { nextTick, watch, ref, computed } from 'vue'
 import { HSStaticMethods } from 'preline'
 import { useDebounceFn } from '@vueuse/core' // Рекомендую установить @vueuse/core
 
@@ -21,31 +21,34 @@ import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
 import ActiveWorkspaceAvatar from '@components/Workspace/ActiveWorkspaceAvatar.vue'
 import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
 import { storeToRefs } from 'pinia'
-import { useBoard } from '@/composables/boards/queries/useBoard'
+import { useBoard } from '@/composables/boards/useBoard'
 import { EntityType } from '@/enums/EntityType'
 
 const uiStore = useUIStore()
 
-const boardId = storeToRefs(uiStore).editableBoardId
+const { editableBoardId, editableBoardWorkspaceId } = storeToRefs(uiStore)
 
-const { data: board } = useBoard(boardId)
-const { data: categories } = useCategories(boardId)
+const board = useBoard(editableBoardId, editableBoardWorkspaceId)
 
+const { data: categoriesData } = useCategories(editableBoardId)
 const { mutate: updateBoard } = useUpdateBoard()
 const { mutate: cloneBoard } = useCloneBoard()
 const { mutate: archiveBoard } = useArchiveBoard()
 
-const status = useBoardMutationStatus(boardId)
+const categories = computed(() => categoriesData.value || [])
+
+const status = useBoardMutationStatus(editableBoardId)
 const categoriesContainerRef = ref<HTMLElement | null>(null)
 
 const localName = ref('')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
 const debouncedSave = useDebounceFn((name: string) => {
-  if (!boardId.value) return
+  if (!editableBoardId.value || !board.value) return
+
   updateBoard({
-    payload: { id: boardId.value, name },
-    workspaceId: board.value?.workspace?.id,
+    payload: { id: editableBoardId.value, name },
+    workspaceId: board.value.workspace.id,
   })
 }, 500)
 
@@ -129,7 +132,7 @@ const handleClose = () => uiStore.closeEditBoardModal()
                   :isStatic="false"
                   :hasCopy="true"
                   :hasDelete="true"
-                  @click="uiStore.openCategoryToEdit(cat)"
+                  @click="uiStore.openCategoryToEdit(cat.id, cat.board.id)"
                 />
               </template>
             </ColumnsView>

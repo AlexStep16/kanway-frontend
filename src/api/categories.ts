@@ -1,8 +1,6 @@
 import { apiCall } from '@/apiClient'
-import { IClonedCategoryResult } from '@interfaces/domain/IClonedCategoryResult'
 import { ICategory } from '@interfaces/domain/ICategory'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
-import { ICategoriesWithChildrenResponse } from '@/interfaces/ICategoriesWithChildrenResponse'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ICategoryCreateApiPayload } from '@/interfaces/ICategoryCreateApiPayload'
 
@@ -61,21 +59,21 @@ export async function deleteCategoryApi(id: string) {
 }
 
 export async function archiveCategoryApi(id: string) {
-  return await apiCall<IResponseWithLog<ICategoriesWithChildrenResponse>>({
+  return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'PATCH',
     url: `/categories/${id}/archive`,
   })
 }
 
 export async function recoverCategoryApi(id: string) {
-  return await apiCall<IResponseWithLog<ICategoriesWithChildrenResponse>>({
+  return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'PATCH',
     url: `/categories/${id}/recover`,
   })
 }
 
 export async function cloneCategoryApi(id: string) {
-  return await apiCall<IResponseWithLog<IClonedCategoryResult>>({
+  return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'POST',
     url: `/categories/${id}/clone`,
   })

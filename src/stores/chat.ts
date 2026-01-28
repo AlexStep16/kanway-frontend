@@ -1,19 +1,20 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useUIStore } from '@stores/ui'
+import { IChat } from '@/interfaces/domain/IChat'
 
 export const useChatStore = defineStore('chat', () => {
-  const activeChatId = ref<string | null>(null)
+  const activeChat = ref<IChat | null>(null)
 
   const uiStore = useUIStore()
 
-  function selectChat(chatId: string, openModal = false) {
-    activeChatId.value = chatId
+  function selectChat(chat: IChat, openModal = false) {
+    activeChat.value = chat
 
     if (openModal) {
       uiStore.openChatModal()
     }
   }
 
-  return { activeChatId, selectChat }
+  return { activeChat, selectChat }
 })

@@ -20,15 +20,15 @@ export function transformSetting(raw: ISetting): SettingModel {
 }
 
 export async function fetchSetting(): Promise<SettingModel> {
-  const setting = await getSettingApi()
+  const settings = await getSettingApi()
 
-  return transformSetting(setting)
+  return transformSetting(settings[0])
 }
 
 export async function saveSetting(payload: Partial<ISetting>): Promise<ISetting> {
-  const updatedSetting = await patchSettingApi(payload)
+  const updatedSettings = await patchSettingApi(payload)
 
-  return transformSetting(updatedSetting[0])
+  return transformSetting(updatedSettings[0])
 }
 
 export async function fetchSubscriptions() {

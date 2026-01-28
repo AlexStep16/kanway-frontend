@@ -74,5 +74,19 @@ export function useUpdateManyTasks() {
         queryClient.setQueryData(workspaceKeys.lists(), context.snapshots.workspaces)
       }
     },
+
+    onSettled: (result) => {
+      if (!result) return
+
+      const updatedTasks = result.data
+
+      if (updatedTasks) {
+        updatedTasks.forEach((task) => {
+          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(task.board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(task.board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.detailed(task.id) })
+        })
+      }
+    },
   })
 }

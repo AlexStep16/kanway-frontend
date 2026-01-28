@@ -1,7 +1,8 @@
 import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
 import ChatMessageModel from '@/models/ChatMessageModel'
 import { ConfirmationData } from '@interfaces/ConfirmationData'
-import { IUndoResponse } from '@interfaces/IUndoResponse'
+import { IUndoResponse } from '@/interfaces/IUndoResponse'
+import { IActionResponse } from '@/interfaces/IActionResponse'
 
 export type AgentProgress =
   | {
@@ -20,8 +21,12 @@ export type AgentProgress =
       content: ConfirmationData[]
     }
   | {
-      role: AgentRolesEnum.INTEGRATION
-      integration: IUndoResponse<any>
+      role: AgentRolesEnum.UNDO
+      undo: IUndoResponse
+    }
+  | {
+      role: AgentRolesEnum.ACTIONS
+      actions: IActionResponse
     }
   | {
       role: AgentRolesEnum.TOOLS_EXECUTION
@@ -33,11 +38,4 @@ export type AgentProgress =
   | {
       role: AgentRolesEnum.NEW_MESSAGE
       message: ChatMessageModel
-    }
-  | {
-      role: AgentRolesEnum.LIST_ENTITIES
-      content: {
-        entities: any[]
-        type: string
-      }
     }

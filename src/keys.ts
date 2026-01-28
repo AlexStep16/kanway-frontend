@@ -4,7 +4,6 @@ export const taskKeys = {
   all: ['tasks'],
   lists: () => [...taskKeys.all, 'list'],
   byBoard: (boardId: MaybeRef<string | null>) => [...taskKeys.lists(), { boardId }],
-  byCategory: (categoryId: MaybeRef<string | null>) => [...taskKeys.lists(), { categoryId }],
   archived: () => [...taskKeys.all, 'archived'],
   detailed: (taskId: MaybeRef<string | null>) => [...taskKeys.all, 'detailed', { taskId }],
 }
@@ -59,7 +58,6 @@ export const paymentMethodKeys = {
 export const chatKeys = {
   all: ['chats'],
   byWorkspace: (workspaceId: MaybeRef<string | null>) => [...chatKeys.all, { workspaceId }],
-  detailed: (chatId: MaybeRef<string | null>) => [...chatKeys.all, 'detailed', { chatId }],
 }
 
 export const chatMessageKeys = {

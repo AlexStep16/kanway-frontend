@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { categoryKeys } from '@/keys'
+import { boardKeys, categoryKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { cloneCategory } from '@/services/category'
 import { useUndo } from '@/composables/useUndo'
@@ -11,13 +11,23 @@ interface CloneCategoryVars {
 
 export function useCloneCategory() {
   const { mutate: undo } = useUndo()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'clone'],
+    meta: {
+      keysToInvalidate: [workspaceKeys.lists()],
+    },
     mutationFn: ({ id }: CloneCategoryVars) =>
       requestQueueService.enqueue(id, () => cloneCategory(id)),
 
     onSuccess: async (result) => {
+      const newCategory = result.data[0]
+
+      if (newCategory) {
+        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newCategory.workspace.id) })
+      }
+
       toast.success('Категория скопирована', {
         action: {
           label: 'Отменить',

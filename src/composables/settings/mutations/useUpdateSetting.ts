@@ -22,21 +22,26 @@ export function useUpdateSetting() {
 
       await queryClient.cancelQueries({ queryKey })
 
-      const previousSettings = queryClient.getQueryData<ISetting[]>(queryKey)
+      const previousSetting = queryClient.getQueryData<ISetting>(queryKey)
 
-      if (previousSettings) {
-        queryClient.setQueryData<ISetting[]>(queryKey, (old) => {
-          if (!old) return []
-          return old.map((t) => (t.id === vars.payload.id ? { ...t, ...vars.payload } : t))
+      if (previousSetting) {
+        queryClient.setQueryData<ISetting>(queryKey, (old) => {
+          if (!old) return undefined
+
+          return { ...old, ...vars.payload }
         })
       }
 
-      return { previousSettings, queryKey }
+      return { previousSetting, queryKey }
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingKeys.all })
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousSettings) {
-        queryClient.setQueryData(context.queryKey, context.previousSettings)
+      if (context?.previousSetting) {
+        queryClient.setQueryData(context.queryKey, context.previousSetting)
       }
     },
   })

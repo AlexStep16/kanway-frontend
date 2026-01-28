@@ -43,8 +43,9 @@ export async function fetchCategories(boardId?: string) {
 
 export async function fetchCategory(id: string) {
   const categories = await getCategoryApi(id)
+  const category = categories.length > 0 ? categories[0] : null
 
-  return categories.map(transformCategory)[0]
+  return category ? transformCategory(category) : null
 }
 
 export async function fetchArchivedCategories() {
@@ -121,7 +122,7 @@ export async function archiveCategory(id: string): Promise<IResponseWithLog<ICat
   const archiveResult = await archiveCategoryApi(id)
 
   return {
-    data: archiveResult.data.categories.map(transformCategory),
+    data: archiveResult.data.map(transformCategory),
     logId: archiveResult.logId,
   }
 }
@@ -130,7 +131,7 @@ export async function recoverCategory(id: string): Promise<IResponseWithLog<ICat
   const recoverResult = await recoverCategoryApi(id)
 
   return {
-    data: recoverResult.data.categories.map(transformCategory),
+    data: recoverResult.data.map(transformCategory),
     logId: recoverResult.logId,
   }
 }
@@ -139,7 +140,7 @@ export async function cloneCategory(id: string) {
   const cloneResult = await cloneCategoryApi(id)
 
   return {
-    data: cloneResult.data.categories.map(transformCategory),
+    data: cloneResult.data.map(transformCategory),
     logId: cloneResult.logId,
   }
 }
