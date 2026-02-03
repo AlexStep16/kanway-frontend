@@ -5,20 +5,28 @@ import { computed, nextTick, ref, watch } from 'vue'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
 import { useBoardStore } from '@stores/board'
+import { ITaskState } from './interfaces/ITaskState'
+import { ICategoryState } from './interfaces/ICategoryState'
+import { IBoard } from '@/interfaces/domain/IBoard'
+import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 
 export const useUIStore = defineStore('ui', () => {
   const boardStore = useBoardStore()
 
   const editableTaskId = ref<Nullable<string>>(null)
   const editableTaskBoardId = ref<Nullable<string>>(null)
+  const isEditableTaskDeleted = ref<boolean>(false)
 
   const editableCategoryId = ref<Nullable<string>>(null)
   const editableCategoryBoardId = ref<Nullable<string>>(null)
+  const isEditableCategoryDeleted = ref<boolean>(false)
 
   const editableBoardId = ref<Nullable<string>>(null)
   const editableBoardWorkspaceId = ref<Nullable<string>>(null)
+  const isEditableBoardDeleted = ref<boolean>(false)
 
   const editableWorkspaceId = ref<Nullable<string>>(null)
+  const isEditableWorkspaceDeleted = ref<boolean>(false)
 
   const editTaskModalRef = ref<Nullable<HTMLElement>>(null)
   const editTaskModalHSInstance = ref<Nullable<HSOverlay>>(null)
@@ -281,11 +289,13 @@ export const useUIStore = defineStore('ui', () => {
   function clearTaskToEdit() {
     editableTaskId.value = null
     editableTaskBoardId.value = null
+    isEditableTaskDeleted.value = false
   }
 
-  function openTaskToEdit(taskId: string, boardId: string) {
-    editableTaskId.value = taskId
-    editableTaskBoardId.value = boardId
+  function openTaskToEdit(task: ITaskState) {
+    editableTaskId.value = task.id
+    editableTaskBoardId.value = task.board.id
+    isEditableTaskDeleted.value = task.isDeleted
 
     openEditTaskModal()
   }
@@ -293,11 +303,13 @@ export const useUIStore = defineStore('ui', () => {
   function clearCategoryToEdit() {
     editableCategoryId.value = null
     editableCategoryBoardId.value = null
+    isEditableCategoryDeleted.value = false
   }
 
-  function openCategoryToEdit(categoryId: string, boardId: string) {
-    editableCategoryId.value = categoryId
-    editableCategoryBoardId.value = boardId
+  function openCategoryToEdit(category: ICategoryState) {
+    editableCategoryId.value = category.id
+    editableCategoryBoardId.value = category.board.id
+    isEditableCategoryDeleted.value = category.isDeleted
 
     openEditCategoryModal()
   }
@@ -305,21 +317,25 @@ export const useUIStore = defineStore('ui', () => {
   function clearBoardToEdit() {
     editableBoardId.value = null
     editableBoardWorkspaceId.value = null
+    isEditableBoardDeleted.value = false
   }
 
-  function openBoardToEdit(boardId: string, workspaceId: string) {
-    editableBoardId.value = boardId
-    editableBoardWorkspaceId.value = workspaceId
+  function openBoardToEdit(board: IBoard) {
+    editableBoardId.value = board.id
+    editableBoardWorkspaceId.value = board.workspace.id
+    isEditableBoardDeleted.value = board.isDeleted
 
     openEditBoardModal()
   }
 
   function clearWorkspaceToEdit() {
     editableWorkspaceId.value = null
+    isEditableWorkspaceDeleted.value = false
   }
 
-  function openWorkspaceToEdit(workspaceId: string) {
-    editableWorkspaceId.value = workspaceId
+  function openWorkspaceToEdit(workspace: IWorkspace) {
+    editableWorkspaceId.value = workspace.id
+    isEditableWorkspaceDeleted.value = workspace.isDeleted
 
     openEditWorkspaceModal()
   }
@@ -363,11 +379,15 @@ export const useUIStore = defineStore('ui', () => {
 
     editableBoardId,
     editableBoardWorkspaceId,
+    isEditableBoardDeleted,
     editableCategoryId,
     editableCategoryBoardId,
+    isEditableCategoryDeleted,
     editableTaskId,
     editableTaskBoardId,
+    isEditableTaskDeleted,
     editableWorkspaceId,
+    isEditableWorkspaceDeleted,
 
     // Actions
     openEditTaskModal,

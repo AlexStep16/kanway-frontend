@@ -18,6 +18,7 @@ const { data: realCategory, isPending: isLoading } = useCategory(
   <EntityCard
     :id="realCategory.id || (realCategory as any).tempId"
     :name="realCategory.name"
+    :hasSelected="true"
     :isSelected="props.category.isSelected"
     :parentName="realCategory.board.name"
     :showInfo="true"

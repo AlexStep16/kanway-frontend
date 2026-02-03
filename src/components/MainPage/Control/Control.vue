@@ -4,16 +4,10 @@ import { onMounted } from 'vue'
 import Plan from '@components/MainPage/Control/Chat/Plan.vue'
 import Confirmation from '@components/MainPage/Control/Chat/Confirmation.vue'
 import Cancellation from '@components/MainPage/Control/Chat/Cancellation.vue'
+import { ITaskState } from '@/stores/interfaces/ITaskState'
 
 defineProps<{
-  tasks: Array<{
-    id: number
-    name: string
-    is_completed: boolean
-    due_date?: string
-    color?: string
-    tags?: string[]
-  }>
+  tasks: (ITaskState & { isSelected: boolean })[]
   activeTab: typeof Plan | typeof Confirmation | typeof Cancellation
 }>()
 

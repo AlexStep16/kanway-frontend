@@ -11,6 +11,7 @@ defineProps<{
   <EntityCard
     :id="category.tempId || category.id"
     :name="category.name"
+    :hasSelected="true"
     :isSelected="category.isSelected"
     :parentName="category.board.name"
     :isStatic="true"

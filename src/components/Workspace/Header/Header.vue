@@ -66,7 +66,7 @@ const isArchiveLoading = computed(() => {
       <TitleBoard v-else />
     </template>
     <template v-else-if="isArchiveTab">
-      <TitleArchive v-if="!isArchiveLoading" />
+      <TitleArchive />
     </template>
 
     <div class="flex shrink-0 ms-auto items-stretch gap-x-3">

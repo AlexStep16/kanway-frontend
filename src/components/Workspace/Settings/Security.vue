@@ -9,13 +9,12 @@ import DeleteUserModal from '@components/Modals/DeleteUserModal.vue'
 // --- State ---
 const currentPassword = ref('')
 const newPassword = ref('')
-const newPasswordAgain = ref('')
 const passwordRules = ref<string[]>([])
 
 // Refs для DOM
 const newPasswordInputRef = ref<HTMLInputElement | null>(null)
-const strongPasswordRef = ref<HTMLElement | null>(null)
 const deleteModalRef = ref<HTMLElement | null>(null)
+const strongPasswordRef = ref<HTMLElement | null>(null)
 
 // --- Mutations ---
 const {
@@ -29,12 +28,8 @@ const { mutate: deleteAccount, isPending: isUserDeleting } = useDeleteUser()
 
 // --- Validation Logic ---
 
-const arePasswordsMatching = computed(
-  () => newPassword.value === newPasswordAgain.value && newPassword.value.length > 0,
-)
-
 const isStrongEnough = computed(() => {
-  const required = ['min-length', 'lowercase', 'uppercase', 'numbers']
+  const required = ['min-length']
   return required.every((rule) => passwordRules.value.includes(rule))
 })
 
@@ -42,7 +37,6 @@ const isSavePasswordDisabled = computed(
   () =>
     !currentPassword.value ||
     !newPassword.value ||
-    !arePasswordsMatching.value ||
     !isStrongEnough.value ||
     isPasswordUpdating.value,
 )
@@ -71,7 +65,6 @@ function handleSavePassword() {
         // Очистка формы
         currentPassword.value = ''
         newPassword.value = ''
-        newPasswordAgain.value = ''
 
         if (newPasswordInputRef.value) {
           newPasswordInputRef.value.dispatchEvent(new Event('input'))
@@ -91,16 +84,8 @@ function showDeleteUserModal() {
 
 const handleDeleteAccount = () => deleteAccount()
 
-// Сброс ошибок при начале ввода
-watch([currentPassword, newPassword], () => {
+watch([newPassword], () => {
   if (passwordError.value) resetPasswordMutation()
-})
-
-// --- Lifecycle ---
-
-onMounted(() => {
-  // Инициализация всех компонентов Preline
-  window.HSStaticMethods.autoInit()
 
   // Слушаем изменение сложности пароля
   if (strongPasswordRef.value) {
@@ -109,6 +94,13 @@ onMounted(() => {
       passwordRules.value = Array.from(rules)
     })
   }
+})
+
+// --- Lifecycle ---
+
+onMounted(() => {
+  // Инициализация всех компонентов Preline
+  window.HSStaticMethods.autoInit()
 })
 </script>
 
@@ -180,7 +172,7 @@ onMounted(() => {
                   <div class="relative">
                     <input
                       type="password"
-                      id="settings-new-password"
+                      id="strong-password"
                       class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                       :class="{ 'ring-1 ring-red-500': serverErrors?.newPassword }"
                       placeholder="Новый пароль"
@@ -190,7 +182,7 @@ onMounted(() => {
                     <button
                       type="button"
                       data-hs-toggle-password='{
-                        "target": "#settings-new-password"
+                        "target": "#strong-password"
                       }'
                       class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
                     >
@@ -242,116 +234,8 @@ onMounted(() => {
                     {{ serverErrors.newPassword }}
                   </span>
                 </div>
-                <div
-                  id="settings-strong-password"
-                  v-show="newPassword.length > 0"
-                  data-hs-strong-password='{
-                    "target": "#settings-new-password",
-                    "hints": "#settings-strong-password-hints",
-                    "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-blue-500 opacity-50 mx-1"
-                  }'
-                  class="flex mt-2 -mx-1"
-                  ref="strongPasswordRef"
-                ></div>
               </div>
             </div>
-
-            <div id="settings-strong-password-hints" class="flex flex-col gap-y-2 mb-2">
-              <div class="flex items-center gap-x-1" v-show="newPassword.length > 0">
-                <span class="text-xs text-gray-700">Сложность: </span>
-                <span
-                  data-hs-strong-password-hints-weakness-text='["Нет", "Слабый", "Средний", "Сильный", "Очень Сильный", "Супер Сильный"]'
-                  class="text-xs font-semibold text-gray-700"
-                ></span>
-              </div>
-
-              <ul class="space-y-1 text-xs text-gray-500">
-                <li
-                  data-hs-strong-password-hints-rule-text="min-length"
-                  class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
-                >
-                  <span class="hidden" data-check="">•</span>
-                  <span data-uncheck="">•</span>
-                  <span>Минимальное количество символов - 6</span>
-                </li>
-                <li
-                  data-hs-strong-password-hints-rule-text="lowercase"
-                  class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
-                >
-                  <span class="hidden" data-check="">•</span>
-                  <span data-uncheck="">•</span>
-                  <span>Должен содержать строчные буквы</span>
-                </li>
-                <li
-                  data-hs-strong-password-hints-rule-text="uppercase"
-                  class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
-                >
-                  <span class="hidden" data-check="">•</span>
-                  <span data-uncheck="">•</span>
-                  <span>Должен содержать заглавные буквы</span>
-                </li>
-                <li
-                  data-hs-strong-password-hints-rule-text="numbers"
-                  class="hs-strong-password-active:text-teal-500 flex items-center gap-x-2"
-                >
-                  <span class="hidden" data-check="">•</span>
-                  <span data-uncheck="">•</span>
-                  <span>Должен содержать цифры</span>
-                </li>
-                <li
-                  class="flex items-center gap-x-2"
-                  :class="{ 'text-teal-500': arePasswordsMatching }"
-                >
-                  <span class="hidden" data-check="">•</span>
-                  <span data-uncheck="">•</span>
-                  <span>Пароли должны совпадать</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="relative">
-            <input
-              type="password"
-              id="settings-new-password-again"
-              class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Новый пароль ещё раз"
-              v-model="newPasswordAgain"
-            />
-            <button
-              type="button"
-              data-hs-toggle-password='{
-                "target": "#settings-new-password-again"
-              }'
-              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
-            >
-              <svg
-                class="shrink-0 size-4"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path class="hs-password-active:hidden" d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
-                <path
-                  class="hs-password-active:hidden"
-                  d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-                ></path>
-                <path
-                  class="hs-password-active:hidden"
-                  d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
-                ></path>
-                <line class="hs-password-active:hidden" x1="2" x2="22" y1="2" y2="22"></line>
-                <path
-                  class="hidden hs-password-active:block"
-                  d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
-                ></path>
-                <circle class="hidden hs-password-active:block" cx="12" cy="12" r="3"></circle>
-              </svg>
-            </button>
           </div>
         </div>
       </div>

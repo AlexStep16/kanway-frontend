@@ -10,6 +10,7 @@ defineProps<{
 <template>
   <EntityCard
     :id="board.tempId"
+    :hasSelected="true"
     :isSelected="board.isSelected"
     :name="board.name"
     :parentName="board.workspace.name"

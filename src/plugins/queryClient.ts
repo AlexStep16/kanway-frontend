@@ -2,8 +2,20 @@ import { HttpError } from '@/utils/errors'
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 
-function handleError(error: Error, queryOrMutation: any) {
-  if (queryOrMutation?.meta?.errorMessage === false) return
+function handleQueryError(error: Error) {
+  if (error instanceof HttpError && error.status === 401) return
+
+  toast.error(error.message)
+}
+
+function handleMutationError(
+  error: Error,
+  _variables: unknown,
+  _onMutateResult: unknown,
+  mutation: any,
+  context: any,
+) {
+  if (context?.meta?.errorMessage === false) return
   if (error instanceof HttpError && error.status === 401) return
 
   toast.error(error.message)
@@ -11,7 +23,7 @@ function handleError(error: Error, queryOrMutation: any) {
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: handleError,
+    onError: handleQueryError,
   }),
   mutationCache: new MutationCache({
     onSettled: (_data, _error, _variables, _context, mutation) => {
@@ -28,7 +40,7 @@ export const queryClient = new QueryClient({
         }
       }
     },
-    onError: handleError,
+    onError: handleMutationError,
   }),
   defaultOptions: {
     queries: {

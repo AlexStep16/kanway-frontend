@@ -12,7 +12,6 @@ import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
 import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
 import { SquareKanban } from 'lucide-vue-next'
 import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
-import TitleWithBadgeSkeleton from '@components/Workspace/Main/TitleWithBadgeSkeleton.vue'
 import { useUpdateCategory } from '@/composables/categories/mutations/useUpdateCategory'
 import { useArchiveCategory } from '@/composables/categories/mutations/useArchiveCategory'
 import { useCloneCategory } from '@/composables/categories/mutations/useCloneCategory'
@@ -23,6 +22,8 @@ import { useMoveCategory } from '@/composables/categories/mutations/useMoveCateg
 import { useDebounceFn } from '@vueuse/core'
 import { EntityType } from '@/enums/EntityType'
 import { useTasks } from '@/composables/tasks/queries/useTasks'
+import { useArchivedTasks } from '@/composables/tasks/queries/useArchivedTasks'
+import { useArchivedCategory } from '@/composables/categories/useArchivedCategory'
 
 const uiStore = useUIStore()
 
@@ -31,10 +32,25 @@ const { mutate: archiveCategory } = useArchiveCategory()
 const { mutate: cloneCategory } = useCloneCategory()
 const { mutate: moveCategory } = useMoveCategory()
 
-const { editableCategoryId, editableCategoryBoardId } = storeToRefs(uiStore)
+const { editableCategoryId, editableCategoryBoardId, isEditableCategoryDeleted } =
+  storeToRefs(uiStore)
 
-const category = useCategory(editableCategoryId, editableCategoryBoardId)
-const { data: allTasks, isPending: isTasksLoading } = useTasks(editableCategoryBoardId)
+const liveCategory = useCategory(
+  editableCategoryId,
+  editableCategoryBoardId,
+  computed(() => !isEditableCategoryDeleted.value),
+)
+const archivedCategory = useArchivedCategory(
+  editableCategoryId,
+  computed(() => isEditableCategoryDeleted.value),
+)
+
+const category = computed(() => {
+  return isEditableCategoryDeleted.value ? archivedCategory.value : liveCategory.value
+})
+
+const { data: tasksData, isPending: areTasksLoading } = useTasks(editableCategoryBoardId)
+const { data: archivedTasksData, isPending: areArchivedTasksLoading } = useArchivedTasks()
 
 const status = useCategoryMutationStatus(editableCategoryId)
 
@@ -91,7 +107,15 @@ function handleArchive() {
 }
 
 const tasks = computed(() => {
-  return (allTasks.value || []).filter((task) => task.category.id === category.value?.id)
+  if (category.value?.isDeleted) {
+    return archivedTasksData.value || []
+  } else {
+    return tasksData.value || []
+  }
+})
+
+const areCurrentTasksLoading = computed(() => {
+  return category.value?.isDeleted ? areArchivedTasksLoading.value : areTasksLoading.value
 })
 
 watch(
@@ -184,15 +208,22 @@ watch(
         </div>
 
         <div class="flex flex-col gap-y-2 px-4 pb-4 mt-4 items-start overflow-hidden">
-          <TitleWithBadge title="Задачи" :number="tasks.length" v-if="!isTasksLoading" />
-          <TitleWithBadgeSkeleton v-else />
+          <TitleWithBadge
+            title="Задачи"
+            :number="tasks.length"
+            :isLoading="areCurrentTasksLoading"
+          />
 
           <div
             class="flex gap-2 pb-2 flex-wrap w-full min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
             ref="tasksContainerRef"
             v-if="tasks.length > 0"
           >
-            <ColumnsView :items="tasks" :containerRef="tasksContainerRef" v-if="!isTasksLoading">
+            <ColumnsView
+              :items="tasks"
+              :containerRef="tasksContainerRef"
+              v-if="!areCurrentTasksLoading"
+            >
               <template v-slot:default="slotProps">
                 <Task
                   v-for="task in slotProps.data"

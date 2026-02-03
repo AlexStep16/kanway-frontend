@@ -18,6 +18,7 @@ export const useRootStore = defineStore('root', () => {
 
   async function updateWorkspaceFromRoute() {
     let selectedWorkspace: Nullable<WorkspaceModel> = null
+    let shouldNavigateToBoard = false
 
     const params = useData<{ boardId: string; workspaceId: string }>()
     const workspaceId = params.workspaceId
@@ -53,16 +54,17 @@ export const useRootStore = defineStore('root', () => {
       ? boards.filter((board) => board.workspace.id === selectedWorkspace.id)
       : []
 
-    if (typeof boardId === 'string' && !['archive', 'settings'].includes(boardId)) {
+    if (typeof boardId === 'string' && boardId) {
       selectedBoard = workspaceBoards.find((board: any) => board.id === boardId)
     }
 
     if (!selectedBoard && workspaceBoards.length > 0) {
       selectedBoard = workspaceBoards[0]
+      shouldNavigateToBoard = true
     }
 
     if (selectedBoard) {
-      await boardStore.selectBoard(selectedBoard)
+      await boardStore.selectBoard(selectedBoard, shouldNavigateToBoard)
     } else {
       boardStore.resetBoardSelection()
       uiStore.selectStart()

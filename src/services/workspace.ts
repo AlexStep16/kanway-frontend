@@ -10,6 +10,7 @@ import {
   getArchivedWorkspacesApi,
   recoverWorkspaceApi,
   getWorkspaceApi,
+  getWorkspacesCountApi,
 } from '@api/workspaces'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
@@ -27,6 +28,12 @@ export async function fetchWorkspaces() {
   const workspaces = await getWorkspacesApi()
 
   return workspaces.map(transformWorkspace)
+}
+
+export async function fetchWorkspacesCount() {
+  const count = await getWorkspacesCountApi()
+
+  return count
 }
 
 export async function fetchWorkspace(id: string) {

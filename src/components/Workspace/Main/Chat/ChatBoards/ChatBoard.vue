@@ -24,6 +24,7 @@ const realBoardExtended = computed(() => {
 <template>
   <EntityCard
     :id="realBoardExtended.id || (realBoardExtended as any).tempId"
+    :hasSelected="true"
     :isSelected="realBoardExtended.isSelected"
     :name="realBoardExtended.name"
     :parentName="realBoardExtended.workspace.name"

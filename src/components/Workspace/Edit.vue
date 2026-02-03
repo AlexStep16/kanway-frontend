@@ -18,14 +18,28 @@ import { useBoards } from '@/composables/boards/queries/useBoards'
 import { useArchivedBoards } from '@/composables/boards/queries/useArchivedBoards'
 import { useWorkspaceMutationStatus } from '@/composables/workspaces/mutations/useWorkspaceMutationStatus'
 import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
+import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import { useArchivedWorkspace } from '@/composables/workspaces/useArchivedWorkspace'
 
 const uiStore = useUIStore()
 
-const { editableWorkspaceId } = storeToRefs(uiStore)
+const { editableWorkspaceId, isEditableWorkspaceDeleted } = storeToRefs(uiStore)
 
-const editableWorkspace = useWorkspace(editableWorkspaceId)
-const { data: actualBoards } = useBoards(editableWorkspaceId)
-const { data: archivedBoards } = useArchivedBoards(
+const liveWorkspace = useWorkspace(
+  editableWorkspaceId,
+  computed(() => !isEditableWorkspaceDeleted.value),
+)
+const archivedWorkspace = useArchivedWorkspace(
+  editableWorkspaceId,
+  computed(() => isEditableWorkspaceDeleted.value),
+)
+
+const editableWorkspace = computed(() => {
+  return isEditableWorkspaceDeleted.value ? archivedWorkspace.value : liveWorkspace.value
+})
+
+const { data: actualBoards, isPending: areBoardsLoading } = useBoards(editableWorkspaceId)
+const { data: archivedBoards, isPending: areArchivedBoardsLoading } = useArchivedBoards(
   computed(() => editableWorkspace.value?.isDeleted ?? false),
 )
 
@@ -82,6 +96,12 @@ const boards = computed(() => {
   } else {
     return actualBoards.value || []
   }
+})
+
+const areCurrentBoardsLoading = computed(() => {
+  return editableWorkspace.value?.isDeleted
+    ? areArchivedBoardsLoading.value
+    : areBoardsLoading.value
 })
 
 const getBoardStatus = computed(() => (id: string) => {
@@ -163,17 +183,27 @@ watch(
         </div>
 
         <div class="flex flex-col gap-y-2 px-4 pb-4 mt-4 items-start overflow-hidden">
-          <TitleWithBadge title="Доски" :number="boards.length" />
+          <TitleWithBadge
+            title="Доски"
+            :number="boards.length"
+            :isLoading="areCurrentBoardsLoading"
+          />
 
           <div
             class="flex gap-2 flex-wrap w-full min-h-0 pb-2 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
             ref="boardsContainerRef"
             v-if="boards.length > 0"
           >
-            <ColumnsView :items="boards" :containerRef="boardsContainerRef">
+            <ColumnsView
+              :items="boards"
+              :containerRef="boardsContainerRef"
+              v-if="!areCurrentBoardsLoading"
+            >
               <template v-slot:default="slotProps">
                 <EntityCard
                   v-for="board in slotProps.data"
+                  :id="board.id"
+                  :hasSelected="false"
                   :key="board.id"
                   :name="board.name"
                   :isStatic="false"
@@ -182,10 +212,16 @@ watch(
                   :isDeleted="board.isDeleted"
                   :hasDelete="true"
                   :isArchiving="getBoardStatus(board.id).isArchiving?.value"
-                  @click="uiStore.openBoardToEdit(board.id, board.workspace.id)"
+                  @click="uiStore.openBoardToEdit(board)"
                 />
               </template>
             </ColumnsView>
+
+            <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`" v-else></TaskSkeleton>
+
+            <div v-if="boards.length === 0" class="text-center py-10 text-gray-400 text-sm">
+              Нет досок
+            </div>
           </div>
         </div>
       </div>

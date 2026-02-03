@@ -3,6 +3,7 @@ import type ApiResponse from '@/interfaces/ApiResponse'
 import { HttpError, BackendError } from '@utils/errors'
 import { ErrorsMessage } from './enums/ErrorsMessage'
 import { Nullable } from '@/types/utils'
+import { useAuthStore } from './stores/auth'
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_BASE_URL,
@@ -15,6 +16,14 @@ const axiosClient: AxiosInstance = axios.create({
 axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiResponse<any>>) => {
+    const authStore = useAuthStore()
+
+    if (error.response?.status === 401) {
+      authStore.logout()
+
+      return Promise.reject(new HttpError(ErrorsMessage.UNAUTHORIZED, 401))
+    }
+
     const responseData = error.response?.data
 
     if (responseData && responseData.error) {
@@ -29,7 +38,6 @@ axiosClient.interceptors.response.use(
 
     if (error.response) {
       status = error.response.status
-      // Дополнительная логика для 401, если нужно
     } else if (error.request) {
       message = ErrorsMessage.NETWORK_ERROR
       isNetworkError = true

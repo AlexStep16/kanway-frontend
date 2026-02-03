@@ -8,11 +8,20 @@ import {
   meApi,
   patchUserPasswordApi,
   resetAvatarApi,
+  sendVerificationEmailApi,
+  sendPasswordRecoveryEmailApi,
+  sendPasswordRecoveryEmailByTokenApi,
+  sendVerificationEmailByTokenApi,
+  passwordRecoveryApi,
+  confirmEmailApi,
+  validateTokenApi,
+  logoutApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
+import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({
@@ -29,6 +38,10 @@ export async function login(credentials: LoginCredentials) {
   const user = await loginApi(credentials)
 
   return transformUser(user)
+}
+
+export async function logout() {
+  return await logoutApi()
 }
 
 export async function register(credentials: RegisterCredentials) {
@@ -65,4 +78,32 @@ export async function updatePassword(payload: UpdatePasswordVars): Promise<IUser
 
 export async function deleteUser(): Promise<null> {
   return await deleteUserApi()
+}
+
+export async function sendVerificationEmail(): Promise<null> {
+  return await sendVerificationEmailApi()
+}
+
+export async function sendPasswordRecoveryEmailByToken(token: string): Promise<null> {
+  return await sendPasswordRecoveryEmailByTokenApi(token)
+}
+
+export async function sendVerificationEmailByToken(token: string): Promise<null> {
+  return await sendVerificationEmailByTokenApi(token)
+}
+
+export async function sendPasswordRecoveryEmail(email: string): Promise<null> {
+  return await sendPasswordRecoveryEmailApi(email)
+}
+
+export async function passwordRecovery(token: string, password: string): Promise<IUser> {
+  return await passwordRecoveryApi(token, password)
+}
+
+export async function confirmEmail(token: string): Promise<null> {
+  return await confirmEmailApi(token)
+}
+
+export async function validateToken(token: string, type: TokenTypesEnum): Promise<null> {
+  return await validateTokenApi(token, type)
 }

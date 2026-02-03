@@ -2,6 +2,7 @@ import { register } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
 import { useMutation } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
+import { navigate } from 'vike/client/router'
 
 export function useRegister() {
   const authStore = useAuthStore()
@@ -14,6 +15,7 @@ export function useRegister() {
       }),
     onSuccess: (user) => {
       authStore.setUser(user)
+      navigate('/workspace')
     },
   })
 }

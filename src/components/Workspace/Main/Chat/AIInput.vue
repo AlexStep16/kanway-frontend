@@ -13,6 +13,7 @@ import MicButton from '@components/Workspace/Main/MicButton.vue'
 
 const props = defineProps<{
   isLastMessageFromHuman?: boolean
+  isDisabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -94,6 +95,7 @@ onMounted(() => {
       <div class="flex shrink-0 items-center gap-x-2">
         <MicButton
           :isChat="true"
+          :isDisabled
           @deltaAdd="
             (deltaText: string) => {
               message += deltaText

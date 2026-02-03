@@ -6,16 +6,12 @@ export { data }
 
 const data = async (pageContext: PageContextClient) => {
   try {
-    const user = await getMe()
-
     const AUTH_STORE = useAuthStore(pageContext.pinia)
 
-    AUTH_STORE.setUser(user)
+    const user = await getMe()
 
-    return {
-      user,
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error)
+    AUTH_STORE.setUser(user)
+  } catch {
+    return
   }
 }

@@ -36,7 +36,6 @@ export async function redirectToWorkspace(pageContext: PageContextClient) {
     const selectedBoard: Nullable<BoardModel> = await determineSelectedBoard(
       pageContext,
       selectedWorkspace,
-      params,
     )
 
     const router = new WorkspaceRouteHandler(selectedBoard, selectedWorkspace)

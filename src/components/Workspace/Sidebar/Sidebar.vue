@@ -525,22 +525,23 @@ onMounted(() => {
             aria-labelledby="hs-sidebar-footer"
           >
             <div class="p-1">
-              <a
-                class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
-                href="#"
+              <button
+                type="button"
+                class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
+                @click="authStore.logout"
               >
                 <LogOut class="size-4" />
 
                 Выйти
-              </a>
-              <a
-                class="flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
-                href="#"
+              </button>
+              <button
+                type="button"
+                class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
               >
                 <MessageCircleQuestionMark class="size-4" />
 
                 Поддержка
-              </a>
+              </button>
             </div>
           </div>
           <!-- End Account Dropdown -->

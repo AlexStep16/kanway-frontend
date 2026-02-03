@@ -17,11 +17,8 @@ declare global {
     interface PageContext {
       // Type of pageContext.user
       user?: Nullable<UserModel>
-      hasErrorFetchingUser?: boolean
-      isSkipWorkspaceCheck?: boolean
       isHydration?: boolean
       pinia?: Pinia
-      shouldSkipLoader?: boolean
       workspaceId?: string
       boardId?: string
       token?: string

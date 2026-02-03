@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Clock, X } from 'lucide-vue-next'
 import { datepickerOptions } from '@helpers/datepickerOptions'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { HSDatepicker, HSDropdown, HSStaticMethods } from 'preline'
 import { TaskModel } from '@models/TaskModel'
 import { getTimeInReadableFormat } from '@utils/date'
@@ -229,7 +229,7 @@ onMounted(() => {
   }
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleDateOutsideClick)
   document.removeEventListener('mousedown', handleTimeOutsideClick)
 })

@@ -64,7 +64,7 @@ onMounted(() => {
           <span class="font-semibold group-hover:text-gray-600 truncate">{{ name }}</span>
         </template>
 
-        <div class="grow-1" v-else>
+        <div class="grow" v-else>
           <input
             type="text"
             class="text-sm h-full font-semibold p-0 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 transition-colors duration-100"

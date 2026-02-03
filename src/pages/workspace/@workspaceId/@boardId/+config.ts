@@ -1,4 +1,4 @@
 export const config = {
-  prerender: true,
-  ssr: false
-};
+  prerender: false,
+  ssr: false,
+}

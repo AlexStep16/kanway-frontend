@@ -30,10 +30,7 @@ export class WorkspaceRouteHandler {
       boardRoute = boardId
     }
 
-    if (
-      workspaceId === this.selectedWorkspace?.id &&
-      (boardId === this.selectedBoard?.id || ['archive', 'settings'].includes(boardId))
-    ) {
+    if (workspaceId === this.selectedWorkspace?.id && boardId === this.selectedBoard?.id) {
       return
     }
 

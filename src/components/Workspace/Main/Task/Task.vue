@@ -58,7 +58,7 @@ function handleEdit() {
   const clickDuration = Date.now() - dragStartTime.value
   if (clickDuration > 250) return
 
-  uiStore.openTaskToEdit(props.task.id, props.task.board.id)
+  uiStore.openTaskToEdit(props.task)
 }
 
 function handleCopy() {

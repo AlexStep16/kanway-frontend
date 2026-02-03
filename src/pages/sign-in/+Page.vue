@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import LoginView from '@views/LoginView.vue'
+import LoginView from '@views/Auth/LoginView.vue'
 </script>
 
 <template>

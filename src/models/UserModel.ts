@@ -10,6 +10,7 @@ export default class UserModel implements IUser {
   public role: string
   public avatarUrl?: string
   public timezone: string
+  public isConfirmed: boolean
   public subscriptionId: SubscriptionPlanEnum
   public subscriptionUntil?: Date
   public isSubscriptionActive?: boolean
@@ -28,6 +29,7 @@ export default class UserModel implements IUser {
     this.role = props.role
     this.avatarUrl = props.avatarUrl
     this.timezone = props.timezone
+    this.isConfirmed = props.isConfirmed
     this.subscriptionId = props.subscriptionId
     this.subscriptionUntil = props.subscriptionUntil
     this.isSubscriptionActive = props.isSubscriptionActive

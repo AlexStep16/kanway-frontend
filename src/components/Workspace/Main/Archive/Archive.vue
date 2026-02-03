@@ -10,7 +10,6 @@ import { Archive } from 'lucide-vue-next'
 
 import ColumnsView from '../ColumnsView.vue'
 import TitleWithBadge from '../TitleWithBadge.vue'
-import TitleWithBadgeSkeleton from '../TitleWithBadgeSkeleton.vue'
 import { useArchivedTasks } from '@/composables/tasks/queries/useArchivedTasks'
 import { useArchivedCategories } from '@/composables/categories/queries/useArchivedCategories'
 import { useArchivedBoards } from '@/composables/boards/queries/useArchivedBoards'
@@ -119,11 +118,20 @@ const workspaces = computed(() => workspacesData.value || [])
       </template>
 
       <template v-else>
-        <TitleWithBadgeSkeleton>
-          <div class="w-full h-[.5px] bg-gray-200"></div>
-        </TitleWithBadgeSkeleton>
+        <TitleWithBadge
+          title="Задачи"
+          :number="tasks.length"
+          :isLoading="isTasksLoading"
+        ></TitleWithBadge>
 
-        <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`"></TaskSkeleton>
+        <div class="flex gap-2">
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 3" :key="`task-skeleton-${i}`"></TaskSkeleton>
+          </div>
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 2" :key="`task-skeleton-${i}`"></TaskSkeleton>
+          </div>
+        </div>
       </template>
     </div>
 
@@ -145,11 +153,13 @@ const workspaces = computed(() => workspacesData.value || [])
           <template v-slot:default="slotProps">
             <EntityCard
               v-for="category in slotProps.data"
+              :id="category.id"
               :key="category.id"
               :name="category.name"
+              :hasSelected="false"
               :parentName="category.board.name"
               :showInfo="true"
-              @click="uiStore.openCategoryToEdit(category.id, category.board.id)"
+              @click="uiStore.openCategoryToEdit(category)"
             >
               <RecoverButtons
                 @recover="recoverCategory({ category })"
@@ -161,11 +171,20 @@ const workspaces = computed(() => workspacesData.value || [])
       </template>
 
       <template v-else>
-        <TitleWithBadgeSkeleton>
-          <div class="w-full h-[.5px] bg-gray-200"></div>
-        </TitleWithBadgeSkeleton>
+        <TitleWithBadge
+          title="Категории"
+          :number="categories.length"
+          :isLoading="isCategoriesLoading"
+        />
 
-        <TaskSkeleton v-for="i in 5" :key="`category-skeleton-${i}`"></TaskSkeleton>
+        <div class="flex gap-2">
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 3" :key="`category-skeleton-${i}`"></TaskSkeleton>
+          </div>
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 2" :key="`category-skeleton-${i}`"></TaskSkeleton>
+          </div>
+        </div>
       </template>
     </div>
 
@@ -184,10 +203,12 @@ const workspaces = computed(() => workspacesData.value || [])
             <EntityCard
               v-for="board in slotProps.data"
               :key="board.id"
+              :id="board.id"
               :name="board.name"
+              :hasSelected="false"
               :parentName="board.workspace.name"
               :showInfo="true"
-              @click="uiStore.openBoardToEdit(board.id, board.workspace.id)"
+              @click="uiStore.openBoardToEdit(board)"
             >
               <RecoverButtons @recover="recoverBoard({ board })" @delete="deleteBoard({ board })" />
             </EntityCard>
@@ -196,11 +217,16 @@ const workspaces = computed(() => workspacesData.value || [])
       </template>
 
       <template v-else>
-        <TitleWithBadgeSkeleton>
-          <div class="w-full h-[.5px] bg-gray-200"></div>
-        </TitleWithBadgeSkeleton>
+        <TitleWithBadge title="Доски" :number="boards.length" :isLoading="isBoardsLoading" />
 
-        <TaskSkeleton v-for="i in 5" :key="`board-skeleton-${i}`"></TaskSkeleton>
+        <div class="flex gap-2">
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 3" :key="`board-skeleton-${i}`"></TaskSkeleton>
+          </div>
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 2" :key="`board-skeleton-${i}`"></TaskSkeleton>
+          </div>
+        </div>
       </template>
     </div>
 
@@ -226,8 +252,10 @@ const workspaces = computed(() => workspacesData.value || [])
           <template v-slot:default="slotProps">
             <EntityCard
               v-for="workspace in slotProps.data"
+              :id="workspace.id"
               :key="workspace.id"
               :name="workspace.name"
+              :hasSelected="false"
               @click="uiStore.openWorkspaceToEdit(workspace.id)"
             >
               <RecoverButtons
@@ -240,11 +268,20 @@ const workspaces = computed(() => workspacesData.value || [])
       </template>
 
       <template v-else>
-        <TitleWithBadgeSkeleton>
-          <div class="w-full h-[.5px] bg-gray-200"></div>
-        </TitleWithBadgeSkeleton>
+        <TitleWithBadge
+          title="Пространства"
+          :number="workspaces.length"
+          :isLoading="isWorkspacesLoading"
+        />
 
-        <TaskSkeleton v-for="i in 5" :key="`workspace-skeleton-${i}`"></TaskSkeleton>
+        <div class="flex gap-2">
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 3" :key="`workspace-skeleton-${i}`"></TaskSkeleton>
+          </div>
+          <div class="flex flex-col gap-2" style="width: 250px">
+            <TaskSkeleton v-for="i in 2" :key="`workspace-skeleton-${i}`"></TaskSkeleton>
+          </div>
+        </div>
       </template>
     </div>
   </div>

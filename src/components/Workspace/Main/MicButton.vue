@@ -12,6 +12,7 @@ const emit = defineEmits<{
 const props = defineProps<{
   isChat?: boolean
   isWorkspace?: boolean
+  isDisabled?: boolean
 }>()
 
 // Логика для анимации громкости (остается без изменений)
@@ -70,6 +71,8 @@ function stopRecording() {
 }
 
 async function toggleRecording() {
+  if (props.isDisabled) return
+
   if (transcriptStore.isRecording) {
     stopRecording()
   } else {

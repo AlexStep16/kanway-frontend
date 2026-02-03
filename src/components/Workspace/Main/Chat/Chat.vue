@@ -8,7 +8,7 @@ import AIBubbleSkeleton from '@components/Workspace/Main/Chat/Bubbles/AIBubbleSk
 import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
 import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 import Status from '@components/Workspace/Main/Chat/Bubbles/Status.vue'
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import dayjs from 'dayjs'
@@ -22,6 +22,7 @@ import { useChatMessages } from '@/composables/chatMessages/queries/useChatMessa
 import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
 import ChatActions from './ChatActions.vue'
 import ChatPreview from './ChatPreview.vue'
+import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
@@ -38,6 +39,7 @@ const activeChatId = computed(() => activeChat.value?.id || null)
 const activeChatWorkspaceId = computed(() => activeChat.value?.workspaceId || null)
 
 const chat = useChat(activeChatId, activeChatWorkspaceId)
+
 const { data: messages, isPending: areMessagesLoading } = useChatMessages(activeChatId)
 
 const isLastMessageFromHuman = computed(() => {
@@ -49,6 +51,7 @@ const isLastMessageFromHuman = computed(() => {
 })
 
 const { mutate: retryAgent } = useRetryAgent()
+const { mutate: stopAgent } = useStopAgent()
 const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
 
 function handleRetryAgent(messageId: string) {
@@ -81,6 +84,25 @@ function send(message: string) {
 const getFormattedDate = (date: Date) => {
   return dayjs(date).calendar() + ' в ' + dayjs(date).format('HH:mm')
 }
+
+function stopActiveAgent() {
+  if (chat.value) {
+    stopAgent({
+      chatId: chat.value.id,
+      threadId: chat.value.threadId,
+    })
+  }
+}
+
+onMounted(() => {
+  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+  window.addEventListener('beforeunload', stopActiveAgent)
+})
+
+onBeforeUnmount(() => {
+  stopActiveAgent()
+  window.removeEventListener('beforeunload', stopActiveAgent)
+})
 </script>
 
 <template>

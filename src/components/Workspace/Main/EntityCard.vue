@@ -6,9 +6,10 @@ import { computed } from 'vue'
 const props = defineProps<{
   id: string
   name: string
+  hasSelected?: boolean
+  isSelected?: boolean
   isStatic?: boolean
   hasCopy?: boolean
-  isSelected?: boolean
   isCopying?: boolean
   hasDelete?: boolean
   isDeleted?: boolean
@@ -23,10 +24,6 @@ const isCopyAvailable = computed(() => {
 
 const isDeleteAvailable = computed(() => {
   return props.hasDelete && !props.isDeleted
-})
-
-const isSelectedEnabled = computed(() => {
-  return typeof props.isSelected === 'boolean'
 })
 </script>
 
@@ -49,7 +46,7 @@ const isSelectedEnabled = computed(() => {
       <div
         class="flex items-center cursor-pointer relative transition-all"
         @click.stop="$emit('toggle-select', id)"
-        v-if="isSelectedEnabled"
+        v-if="hasSelected"
       >
         <input
           type="checkbox"

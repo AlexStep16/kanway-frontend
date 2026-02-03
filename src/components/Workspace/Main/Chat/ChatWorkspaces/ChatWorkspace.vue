@@ -28,6 +28,7 @@ const realWorkspaceExtended = computed(() => {
 <template>
   <EntityCard
     :id="realWorkspaceExtended.id || (realWorkspaceExtended as any).tempId"
+    :hasSelected="true"
     :isSelected="realWorkspaceExtended.isSelected"
     :name="realWorkspaceExtended.name"
     v-if="realWorkspaceExtended && !isLoading"

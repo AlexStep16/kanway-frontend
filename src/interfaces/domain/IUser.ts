@@ -9,6 +9,7 @@ export interface IUser {
   role: string
   avatarUrl?: string
   timezone: string
+  isConfirmed: boolean
   subscriptionId: SubscriptionPlanEnum
   subscriptionUntil?: Date
   isSubscriptionActive?: boolean

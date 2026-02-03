@@ -18,15 +18,13 @@ export const useTaskFilterStore = defineStore('taskFilters', () => {
   })
 
   function clearFilters() {
-    filters.value = {
-      isCompleted: false,
-      isInProgress: false,
-      isExpired: false,
-      isDueToday: false,
-      isDueTomorrow: false,
-      isDueThisWeek: false,
-      tags: [],
-    }
+    filters.value.isCompleted = false
+    filters.value.isInProgress = false
+    filters.value.isExpired = false
+    filters.value.isDueToday = false
+    filters.value.isDueTomorrow = false
+    filters.value.isDueThisWeek = false
+    filters.value.tags = []
   }
 
   return { filters, isFilterActive, clearFilters }

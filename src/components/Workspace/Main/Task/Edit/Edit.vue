@@ -23,12 +23,26 @@ import Tags from '@components/Workspace/Main/Task/Edit/Tags.vue'
 import Color from '@components/Workspace/Main/Task/Edit/Color.vue'
 import { Nullable } from '@/types/utils'
 import { EntityType } from '@/enums/EntityType'
+import { useArchivedTask } from '@/composables/tasks/useArchivedTask'
 
 const uiStore = useUIStore()
-const { editableTaskId, editableTaskBoardId } = storeToRefs(uiStore)
+const { editableTaskId, editableTaskBoardId, isEditableTaskDeleted } = storeToRefs(uiStore)
 
 // --- Queries ---
-const task = useTask(editableTaskId, editableTaskBoardId)
+const liveTask = useTask(
+  editableTaskId,
+  editableTaskBoardId,
+  computed(() => !isEditableTaskDeleted.value),
+)
+const archivedTask = useArchivedTask(
+  editableTaskId,
+  computed(() => isEditableTaskDeleted.value),
+)
+
+const task = computed(() => {
+  return isEditableTaskDeleted.value ? archivedTask.value : liveTask.value
+})
+
 const status = useTaskMutationStatus(editableTaskId)
 
 // --- Local State (только для текста) ---

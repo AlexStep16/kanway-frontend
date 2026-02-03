@@ -13,85 +13,116 @@ import FAQ from '@components/MainPage/FAQ.vue'
 import Ready from '@components/MainPage/Ready.vue'
 import Footer from '@components/MainPage/Footer.vue'
 import Plan from '@components/MainPage/Control/Chat/Plan.vue'
+import { ITaskState } from '@/stores/interfaces/ITaskState'
 
 const activeTab = shallowRef<typeof Plan>(Plan)
 
-const tasks = ref([
+const tasks = ref<(ITaskState & { isSelected: boolean })[]>([
   {
-    id: 1,
+    id: '1',
     name: 'Провести ревью кода PR #452',
-    is_completed: false,
     category: {
-      id: 1,
+      id: '1',
       name: 'Срочное',
     },
     board: {
-      id: 1,
+      id: '1',
       name: 'Разработка',
     },
     workspace: {
-      id: 1,
+      id: '1',
       name: 'Команда разработки',
     },
     tags: ['работа'],
+    isDeleted: false,
+    isDeletedExternal: false,
+    order: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    dueDate: '2025-09-16T14:14:00',
+    userId: 'user-123',
+    isCompleted: false,
+    isSelected: true,
   },
   {
-    id: 2,
+    id: '2',
     name: 'Настроить автоматическое развертывание',
     category: {
-      id: 1,
+      id: '1',
       name: 'Срочное',
     },
     board: {
-      id: 1,
+      id: '1',
       name: 'Разработка',
     },
     workspace: {
-      id: 1,
+      id: '1',
       name: 'Команда разработки',
     },
     tags: ['работа'],
-    color: '#FFEEAA',
-    is_completed: false,
+    color: '#ffa2a2',
+    isDeleted: false,
+    isDeletedExternal: false,
+    order: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    dueDate: '2025-09-16T14:14:00',
+    userId: 'user-123',
+    isCompleted: false,
+    isSelected: true,
   },
   {
-    id: 3,
+    id: '3',
     name: 'Подготовить документацию по новому API',
-    color: '#EEAABB',
+    color: '#e7000b',
     category: {
-      id: 1,
+      id: '1',
       name: 'Срочное',
     },
     board: {
-      id: 1,
+      id: '1',
       name: 'Разработка',
     },
     workspace: {
-      id: 1,
+      id: '1',
       name: 'Команда разработки',
     },
-    due_date: '2025-09-15T14:14:00',
-    is_completed: false,
+    isDeleted: false,
+    isDeletedExternal: false,
+    order: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    dueDate: '2025-09-16T14:14:00',
+    userId: 'user-123',
+    isCompleted: false,
     tags: ['работа'],
+    isSelected: true,
   },
   {
-    id: 4,
+    id: '4',
     name: 'Обсудить метрики с командой маркетинга',
     category: {
-      id: 1,
+      id: '1',
       name: 'Срочное',
     },
     board: {
-      id: 1,
+      id: '1',
       name: 'Разработка',
     },
     workspace: {
-      id: 1,
+      id: '1',
       name: 'Команда разработки',
     },
-    due_date: '2025-09-16T14:14:00',
-    is_completed: false,
+    isDeleted: false,
+    isDeletedExternal: false,
+    order: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    dueDate: '2025-09-16T14:14:00',
+    userId: 'user-123',
+    isCompleted: false,
     tags: ['работа'],
+    isSelected: true,
   },
 ])
 

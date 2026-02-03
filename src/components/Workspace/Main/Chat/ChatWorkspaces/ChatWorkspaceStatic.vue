@@ -10,6 +10,7 @@ defineProps<{
 <template>
   <EntityCard
     :id="workspace.tempId || workspace.id"
+    :hasSelected="true"
     :isSelected="workspace.isSelected"
     :isStatic="true"
     :name="workspace.name"

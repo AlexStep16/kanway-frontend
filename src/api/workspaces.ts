@@ -17,6 +17,13 @@ export async function getWorkspaceApi(id: string) {
   })
 }
 
+export async function getWorkspacesCountApi() {
+  return await apiCall<number>({
+    method: 'GET',
+    url: `/workspaces/count`,
+  })
+}
+
 export async function getArchivedWorkspacesApi() {
   return await apiCall<IWorkspace[]>({
     method: 'GET',

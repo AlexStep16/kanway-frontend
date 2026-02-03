@@ -6,9 +6,10 @@ import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
 import Task from '@components/Workspace/Main/Task/Task.vue'
 import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
 import { onMounted, ref } from 'vue'
+import { ITaskState } from '@/stores/interfaces/ITaskState'
 
 defineProps<{
-  tasks: Array<Array<any>>
+  tasks: (ITaskState & { isSelected: boolean })[]
 }>()
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -43,7 +44,10 @@ onMounted(() => {
               :task="task"
               :hasBorder="true"
               :hasCheckbox="true"
+              :isSelected="task.isSelected"
               :showInfo="true"
+              :isStatic="true"
+              @toggleSelect="task.isSelected = !task.isSelected"
               taskClasses="self-start"
             ></Task>
           </template>
@@ -68,6 +72,6 @@ onMounted(() => {
     </div>
 
     <!-- Footer -->
-    <AIInput :no-input-margin="true" />
+    <AIInput :isDisabled="true" />
   </div>
 </template>

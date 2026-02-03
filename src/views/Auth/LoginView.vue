@@ -1,70 +1,35 @@
-<script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
-import { Nullable } from '@/types/utils'
-import { useRegister } from '@/composables/auth/mutations/useRegister'
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useLogin } from '@/composables/auth/mutations/useLogin'
 
-const { mutate: register, error: registerError } = useRegister()
+import { z } from 'zod'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const { mutate: login, isPending: isLogging } = useLogin()
 
-const errors = ref<{
-  email: Nullable<string>
-  password: Nullable<string>
-  confirmPassword: Nullable<string>
-}>({
-  email: null,
-  password: null,
-  confirmPassword: null,
+const schema = toTypedSchema(
+  z.object({
+    email: z.string().email('Неверный формат'),
+    password: z.string().min(1, 'Пожалуйста, введите пароль'),
+  }),
+)
+
+const { errors, handleSubmit, submitCount, defineField } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    email: '',
+    password: '',
+  },
 })
 
-const errorMessage = computed(() => {
-  if (registerError.value) {
-    return registerError.value.message || 'Произошла ошибка при регистрации.'
-  }
-  return ''
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
+
+const onSubmit = handleSubmit((values) => {
+  login({ email: values.email, password: values.password })
 })
-
-async function handleRegister() {
-  validateForm()
-
-  if (errors.value.email || errors.value.password || errors.value.confirmPassword) {
-    return
-  }
-
-  register(
-    { email: email.value, password: password.value },
-    {
-      onSuccess: () => {
-        // Handle successful registration, e.g., redirect to dashboard
-      },
-    },
-  )
-}
-
-function validateForm() {
-  resetErrors()
-
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailPattern.test(email.value)) {
-    errors.value.email = 'Пожалуйста, введите корректный Email'
-  }
-
-  if (password.value.length < 8) {
-    errors.value.password = 'Пароль должен содержать не менее 8 символов'
-  }
-
-  if (password.value !== confirmPassword.value) {
-    errors.value.confirmPassword = 'Пароли не совпадают'
-  }
-}
-
-function resetErrors() {
-  errors.value.email = null
-  errors.value.password = null
-  errors.value.confirmPassword = null
-}
 
 onMounted(() => {
   window.HSStaticMethods.autoInit()
@@ -90,14 +55,14 @@ onMounted(() => {
               ></path>
             </svg>
           </a>
-          <h1 class="block mt-4 text-2xl font-bold text-gray-800">Регистрация</h1>
+          <h1 class="block text-2xl mt-4 font-bold text-gray-800">Вход</h1>
           <p class="mt-2 text-sm text-gray-600">
-            Уже есть аккаунт?
+            Ещё нет аккаунта?
             <a
-              class="text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
-              href="sign-in"
+              class="text-blue-600 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
+              href="sign-up"
             >
-              Войти
+              Зарегистрироваться
             </a>
           </p>
         </div>
@@ -135,7 +100,7 @@ onMounted(() => {
           </div>
 
           <!-- Form -->
-          <form @submit.prevent="handleRegister" novalidate>
+          <form @submit.prevent="onSubmit" novalidate>
             <div class="grid gap-y-4">
               <!-- Form Group -->
               <div>
@@ -146,25 +111,9 @@ onMounted(() => {
                     id="email"
                     name="email"
                     class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    required
-                    aria-describedby="email-error"
-                    @input="resetErrors"
                     v-model="email"
+                    v-bind="emailAttrs"
                   />
-                  <div class="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
-                    <svg
-                      class="size-5 text-red-500"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      viewBox="0 0 16 16"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                      />
-                    </svg>
-                  </div>
                 </div>
                 <ul class="text-xs text-red-600 mt-2" id="email-error" v-if="errors.email">
                   <li class="list-disc list-inside">{{ errors.email }}</li>
@@ -174,122 +123,35 @@ onMounted(() => {
 
               <!-- Form Group -->
               <div>
-                <label for="password" class="block text-sm mb-2">Пароль</label>
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                  <label for="password" class="block text-sm mb-2">Пароль</label>
+                  <a
+                    class="inline-flex items-center gap-x-1 text-sm text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
+                    href="forgot-password"
+                    >Забыли пароль?</a
+                  >
+                </div>
                 <div class="relative">
                   <input
                     type="password"
                     id="password"
                     name="password"
                     class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    required
-                    aria-describedby="password-error"
-                    @input="resetErrors"
                     v-model="password"
+                    v-bind="passwordAttrs"
                   />
-                  <div class="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
-                    <svg
-                      class="size-5 text-red-500"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      viewBox="0 0 16 16"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <p class="hidden text-xs text-red-600 mt-2" id="password-error">
-                  Требуется минимум 8 символов
-                </p>
-              </div>
-              <!-- End Form Group -->
-
-              <!-- Form Group -->
-              <div>
-                <label for="confirm-password" class="block text-sm mb-2"
-                  >Подтверждение пароля</label
-                >
-                <div class="relative">
-                  <input
-                    type="password"
-                    id="confirm-password"
-                    name="confirm-password"
-                    class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    required
-                    aria-describedby="confirm-password-error"
-                    v-model="confirmPassword"
-                  />
-                  <div class="hidden absolute inset-y-0 end-0 pointer-events-none pe-3">
-                    <svg
-                      class="size-5 text-red-500"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      viewBox="0 0 16 16"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                      />
-                    </svg>
-                  </div>
                 </div>
                 <ul
                   class="text-xs text-red-600 mt-2"
                   id="password-error"
-                  v-if="errors.password || errors.confirmPassword"
+                  v-if="errors.password && submitCount > 0"
                 >
-                  <li class="list-disc list-inside" v-show="errors.password">
-                    {{ errors.password }}
-                  </li>
-                  <li class="list-disc list-inside" v-show="errors.confirmPassword">
-                    {{ errors.confirmPassword }}
-                  </li>
-                </ul>
-                <ul class="text-xs text-red-600 mt-2" id="login-error" v-if="errorMessage">
-                  <li
-                    class="list-disc list-inside"
-                    v-for="error in errorMessage.split('; ')"
-                    :key="error"
-                  >
-                    {{ error }}
-                  </li>
+                  <li class="list-disc list-inside">{{ errors.password }}</li>
                 </ul>
               </div>
               <!-- End Form Group -->
 
-              <!-- Checkbox -->
-              <div class="flex items-center">
-                <div class="flex">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    class="shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div class="ms-3 text-wrap">
-                  <label for="remember-me" class="text-sm"
-                    >Я принимаю
-                    <a
-                      class="text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
-                      href="#"
-                      >Правила и политику конфиденциальности</a
-                    ></label
-                  >
-                </div>
-              </div>
-              <!-- End Checkbox -->
-
-              <button
-                type="submit"
-                class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-500 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                Регистрация
-              </button>
+              <RegisterButton :isProcessing="isLogging" text="Войти" />
             </div>
           </form>
           <!-- End Form -->

@@ -23,19 +23,35 @@ import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
 import { storeToRefs } from 'pinia'
 import { useBoard } from '@/composables/boards/useBoard'
 import { EntityType } from '@/enums/EntityType'
+import { useArchivedCategories } from '@/composables/categories/queries/useArchivedCategories'
+import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import { useArchivedBoard } from '@/composables/boards/useArchivedBoard'
 
 const uiStore = useUIStore()
 
-const { editableBoardId, editableBoardWorkspaceId } = storeToRefs(uiStore)
+const { editableBoardId, editableBoardWorkspaceId, isEditableBoardDeleted } = storeToRefs(uiStore)
 
-const board = useBoard(editableBoardId, editableBoardWorkspaceId)
+const liveBoard = useBoard(
+  editableBoardId,
+  editableBoardWorkspaceId,
+  computed(() => !isEditableBoardDeleted.value),
+)
+const archivedBoard = useArchivedBoard(
+  editableBoardId,
+  computed(() => isEditableBoardDeleted.value),
+)
 
-const { data: categoriesData } = useCategories(editableBoardId)
+const board = computed(() => {
+  return isEditableBoardDeleted.value ? archivedBoard.value : liveBoard.value
+})
+
+const { data: categoriesData, isPending: areCategoriesLoading } = useCategories(editableBoardId)
+const { data: archivedCategoriesData, isPending: areArchivedCategoriesLoading } =
+  useArchivedCategories()
+
 const { mutate: updateBoard } = useUpdateBoard()
 const { mutate: cloneBoard } = useCloneBoard()
 const { mutate: archiveBoard } = useArchiveBoard()
-
-const categories = computed(() => categoriesData.value || [])
 
 const status = useBoardMutationStatus(editableBoardId)
 const categoriesContainerRef = ref<HTMLElement | null>(null)
@@ -60,6 +76,18 @@ function onNameInput() {
     textareaRef.value.style.height = textareaRef.value.scrollHeight + 'px'
   }
 }
+
+const categories = computed(() => {
+  if (board.value?.isDeleted) {
+    return archivedCategoriesData.value || []
+  } else {
+    return categoriesData.value || []
+  }
+})
+
+const areCurrentCategoriesLoading = computed(() => {
+  return board.value?.isDeleted ? areArchivedCategoriesLoading.value : areCategoriesLoading.value
+})
 
 watch(
   board,
@@ -120,25 +148,37 @@ const handleClose = () => uiStore.closeEditBoardModal()
 
         <!-- Categories List -->
         <div class="flex flex-col gap-y-2 px-4 pb-4 mt-6 overflow-hidden">
-          <TitleWithBadge title="Категории" :number="categories.length" />
+          <TitleWithBadge
+            title="Категории"
+            :number="categories.length"
+            :isLoading="areCurrentCategoriesLoading"
+          />
 
           <div class="overflow-y-auto flex-1 custom-scrollbar" ref="categoriesContainerRef">
-            <ColumnsView :items="categories" :containerRef="categoriesContainerRef">
+            <ColumnsView
+              :items="categories"
+              :containerRef="categoriesContainerRef"
+              v-if="!areCurrentCategoriesLoading"
+            >
               <template #default="{ data }">
                 <EntityCard
                   v-for="cat in data"
+                  :id="cat.id"
                   :key="cat.id"
                   :name="cat.name"
                   :isStatic="false"
                   :hasCopy="true"
                   :hasDelete="true"
-                  @click="uiStore.openCategoryToEdit(cat.id, cat.board.id)"
+                  :hasSelected="false"
+                  @click="uiStore.openCategoryToEdit(cat)"
                 />
               </template>
             </ColumnsView>
 
+            <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`" v-else></TaskSkeleton>
+
             <div v-if="categories.length === 0" class="text-center py-10 text-gray-400 text-sm">
-              На этой доске еще нет категорий
+              Нет категории
             </div>
           </div>
         </div>

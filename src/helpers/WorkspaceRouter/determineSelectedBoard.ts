@@ -8,25 +8,24 @@ import { fetchBoards } from '@/services/board'
 export async function determineSelectedBoard(
   pageContext: PageContextClient,
   selectedWorkspace: Nullable<WorkspaceModel>,
-  params: Record<string, string>,
 ) {
+  const params = pageContext.routeParams
   const parsedBoard: Nullable<BoardModel> =
     getParsedItemFromLocalStorage<BoardModel>('selectedBoard')
+
   let selectedBoard: Nullable<BoardModel> = null
 
-  if (selectedWorkspace && typeof selectedWorkspace === 'object') {
+  if (selectedWorkspace) {
     const loadingBoardsResult = await fetchBoards(selectedWorkspace.id)
 
-    const boardsPayload = loadingBoardsResult
-
-    if (boardsPayload.length > 0) {
+    if (loadingBoardsResult.length > 0) {
       const boardInWorkspace = params.boardId
-        ? boardsPayload.find((board: BoardModel) => board.id === params.boardId)
+        ? loadingBoardsResult.find((board: BoardModel) => board.id === params.boardId)
         : null
 
       if (parsedBoard && !boardInWorkspace) {
         selectedBoard =
-          boardsPayload.find((board: BoardModel) => board.id === parsedBoard.id) ?? null
+          loadingBoardsResult.find((board: BoardModel) => board.id === parsedBoard.id) ?? null
       }
 
       if (typeof params.boardId === 'string' && params.boardId.length > 0 && boardInWorkspace) {
@@ -34,5 +33,6 @@ export async function determineSelectedBoard(
       }
     }
   }
+
   return selectedBoard
 }

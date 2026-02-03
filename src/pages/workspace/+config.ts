@@ -1,7 +1,7 @@
-import Layout from "../../layouts/Layout.vue";
+import Layout from '../../layouts/Layout.vue'
 
 export const config = {
   Layout,
-  prerender: true,
-  ssr: false
-};
+  prerender: false,
+  ssr: false,
+}
