@@ -11,5 +11,5 @@ window._ = _
 window.$ = $
 window.jQuery = $
 window.DataTable = $.fn.dataTable
-window.noUiSlider = noUiSlider
+;(window as any).noUiSlider = noUiSlider
 window.VanillaCalendarPro = VanillaCalendarPro

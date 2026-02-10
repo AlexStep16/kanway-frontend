@@ -228,7 +228,10 @@ const otherBoards = computed(() => {
     </div>
 
     <!-- Tasks -->
-    <div class="flex grow-1 flex-col min-h-0 gap-y-2 mb-3">
+    <div
+      class="flex grow-1 flex-col min-h-0 gap-y-2 mb-3"
+      :class="{ 'gap-y-1!': localTaskList.length === 0 }"
+    >
       <ButtonCreate
         :disabled="toValue(status.isBusy)"
         class="undraggable"

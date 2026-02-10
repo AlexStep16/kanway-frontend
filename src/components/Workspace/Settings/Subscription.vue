@@ -3,19 +3,28 @@ import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
 import { useAuthStore } from '@stores/auth'
 import dayjs from 'dayjs'
 import { computed, onMounted } from 'vue'
-import CurrentSubscriptionButton from './Buttons/CurrentSubscriptionButton.vue'
 import { storeToRefs } from 'pinia'
 import { useBoardsCount } from '@/composables/boards/queries/useBoardsCount'
 import { useSubscriptions } from '@/composables/subscriptions/queries/useSubscriptions'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
+import { useCancelSubscription } from '@/composables/payments/mutations/useCancelSubscription'
+import Spinner from '@components/Loader/Spinner.vue'
+import { useResumeSubscription } from '@/composables/payments/mutations/useResumeSubscription'
+import { useDowngradeCancelSubscription } from '@/composables/payments/mutations/useDowngradeCancelSubscription'
+import PlanCards from '../Main/Subscription/PlanCards.vue'
 
 const authStore = useAuthStore()
 
 const { user } = storeToRefs(authStore)
 
 const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount()
-const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
+const { data: subscriptionsData } = useSubscriptions()
 const { data: workspacesData } = useWorkspaces()
+
+const { mutate: cancelSubscription, isPending: isCancelling } = useCancelSubscription()
+const { mutate: resumeSubscription, isPending: isResuming } = useResumeSubscription()
+const { mutate: downgradeCancelSubscription, isPending: isDowngradingCancel } =
+  useDowngradeCancelSubscription()
 
 const subscriptions = computed(() => subscriptionsData.value || [])
 const workspaces = computed(() => workspacesData.value || [])
@@ -39,39 +48,12 @@ const isBasicSubscription = computed(() => {
   return user.value.subscriptionId === SubscriptionPlanEnum.Basic
 })
 
-const isPremiumSubscription = computed(() => {
-  if (!user.value) {
-    return false
-  }
-
-  return user.value.subscriptionId === SubscriptionPlanEnum.Premium
-})
-
-const isBusinessSubscription = computed(() => {
-  if (!user.value) {
-    return false
-  }
-
-  return user.value.subscriptionId === SubscriptionPlanEnum.Business
-})
-
 const getSubscriptionUntil = computed(() => {
   if (!user.value || !user.value.subscriptionUntil) {
     return null
   }
 
   return dayjs(user.value.subscriptionUntil).format('DD.MM.YYYY')
-})
-
-const getNextPaymentDate = computed(() => {
-  if (!user.value?.subscriptionUntil || !currentSubscription.value?.interval) {
-    return null
-  }
-
-  return dayjs(user.value.subscriptionUntil)
-    .add(1, currentSubscription.value.interval)
-    .add(-1, 'day')
-    .format('DD.MM.YYYY')
 })
 
 const getRemainingBoards = computed(() => {
@@ -113,6 +95,26 @@ const getRemainingMessages = computed(() => {
   return Math.max(0, maxMessages - (user.value.generationsCount || 0))
 })
 
+function handleDowngradeCancelSubscription() {
+  downgradeCancelSubscription()
+}
+
+function getPlanText(id: SubscriptionPlanEnum | undefined | null) {
+  if (id === SubscriptionPlanEnum.Basic) {
+    return 'Базовую'
+  } else if (id === SubscriptionPlanEnum.Premium) {
+    return 'Премиум'
+  } else if (id === SubscriptionPlanEnum.Business) {
+    return 'Бизнес'
+  }
+
+  return ''
+}
+
+const isUserHasPending = computed(() => {
+  return typeof user.value?.pendingChangePlan === 'number'
+})
+
 onMounted(() => {
   window.HSStaticMethods.autoInit()
 })
@@ -147,9 +149,15 @@ onMounted(() => {
               <span class="text-sm font-medium text-gray-800">{{ currentSubscription.name }}</span>
               <span
                 class="absolute right-0 text-xs text-green-500 py-1.5 px-2.5 bg-green-100 rounded-full"
-                v-if="user?.isSubscriptionActive"
+                v-if="user?.isSubscriptionActive && !isUserHasPending"
               >
                 Активна
+              </span>
+              <span
+                class="absolute right-0 text-xs text-yellow-500 py-1.5 px-2.5 bg-yellow-100 rounded-full"
+                v-else-if="isUserHasPending"
+              >
+                Переход на {{ getPlanText(user!.pendingChangePlan) }}
               </span>
               <span
                 class="absolute right-0 text-xs text-red-500 py-1.5 px-2.5 bg-red-100 rounded-full"
@@ -166,23 +174,46 @@ onMounted(() => {
             </span>
             <div class="flex flex-col text-gray-400 text-xs items-start">
               <span v-if="getSubscriptionUntil">Активна до: {{ getSubscriptionUntil }}</span>
-              <span v-if="user?.isSubscriptionActive && getNextPaymentDate"
-                >Следующий платеж: {{ getNextPaymentDate }}</span
+              <span
+                v-if="user?.isSubscriptionActive && user?.subscriptionUntil && !isUserHasPending"
+                >Следующий платеж: {{ getSubscriptionUntil }}</span
               >
+              <span v-else-if="isUserHasPending"
+                >Переход на {{ getPlanText(user!.pendingChangePlan) }}:
+                {{ getSubscriptionUntil }}</span
+              >
+              <div class="flex gap-x-1" v-if="user?.isSubscriptionActive">
+                <button
+                  type="button"
+                  class="text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none"
+                  @click="cancelSubscription()"
+                  :disabled="isCancelling"
+                >
+                  <Spinner class="size-4 absolute" v-if="isCancelling" />
+                  <span :class="{ 'opacity-0': isCancelling }">Отменить</span>
+                </button>
+                <button
+                  type="button"
+                  class="text-xs text-blue-500 relative flex items-center justify-center rounded-md bg-blue-100 py-1.5 px-2.5 mt-2 hover:bg-blue-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none"
+                  v-if="isUserHasPending"
+                  @click="handleDowngradeCancelSubscription()"
+                  :disabled="isDowngradingCancel"
+                >
+                  <Spinner class="size-4 absolute" v-if="isDowngradingCancel" />
+                  <span :class="{ 'opacity-0': isDowngradingCancel }"
+                    >Остаться на {{ getPlanText(user!.subscriptionId) }}</span
+                  >
+                </button>
+              </div>
               <button
                 type="button"
-                class="text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-100"
-                v-if="user?.isSubscriptionActive"
-              >
-                Отменить
-              </button>
-
-              <button
-                type="button"
-                class="text-xs text-blue-500 rounded-md bg-blue-100 py-1.5 px-2.5 mt-2 hover:bg-blue-200 transition-colors duration-100"
+                class="text-xs text-blue-500 relative flex items-center justify-center rounded-md bg-blue-100 py-1.5 px-2.5 mt-2 hover:bg-blue-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none"
                 v-else
+                @click="resumeSubscription()"
+                :disabled="isResuming"
               >
-                Восстановить
+                <Spinner class="size-4 absolute" v-if="isResuming" />
+                <span :class="{ 'opacity-0': isResuming }">Восстановить</span>
               </button>
             </div>
           </div>
@@ -243,356 +274,6 @@ onMounted(() => {
       Доступные планы
     </h3>
 
-    <div class="grid gap-2 grid-cols-1 md:grid-cols-2 grid-flow-row auto-rows-max">
-      <template v-if="isSubscriptionsLoading">
-        <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
-        <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
-        <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
-      </template>
-      <template v-else>
-        <div class="rounded-md bg-white border border-gray-200 grow-1">
-          <div class="flex items-start justify-between p-3 size-full">
-            <div class="flex flex-col size-full gap-y-1">
-              <span class="text-sm font-medium text-gray-800">Базовая</span>
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
-              <div class="flex flex-col mt-1 gap-y-1 grow-1">
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">1 рабочее пространство</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">5 досок</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">20 сообщений в месяц</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно задач</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Обычная поддержка</span>
-                </div>
-              </div>
-
-              <CurrentSubscriptionButton v-if="isBasicSubscription" />
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-md bg-white border border-gray-200 grow-1">
-          <div class="flex items-start justify-between p-3 size-full">
-            <div class="flex flex-col size-full gap-y-1">
-              <span class="text-sm font-medium text-gray-800">Премиум</span>
-              <span class="text-sm text-gray-400">
-                <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
-                /месяц
-              </span>
-              <div class="flex flex-col mt-1 gap-y-1 grow-1">
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно пространств</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно досок</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">300 сообщений в месяц</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно задач</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Приоритетная поддержка</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                class="text-xs text-white p-2 w-full items-center gap-x-2 font-medium rounded-md mt-3 border border-transparent bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
-                v-if="!isPremiumSubscription"
-              >
-                Повысить до Премиум
-              </button>
-
-              <CurrentSubscriptionButton v-else />
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-md bg-white border border-gray-200 grow-1">
-          <div class="flex items-start justify-between p-3 size-full">
-            <div class="flex flex-col gap-y-1 size-full">
-              <span class="text-sm font-medium text-gray-800">Бизнес</span>
-              <span class="text-sm text-gray-400">
-                <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
-                /месяц
-              </span>
-              <div class="flex flex-col mt-1 gap-y-1 grow-1">
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно пространств</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно досок</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно сообщений в месяц</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Неограниченно задач</span>
-                </div>
-
-                <div class="flex gap-x-1 text-gray-500 items-center">
-                  <svg
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18px"
-                    height="18px"
-                    data-v-511ff0d3=""
-                  >
-                    <title data-v-511ff0d3=""></title>
-                    <path
-                      d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm4.71,7.71-5,5a1,1,0,0,1-1.42,0l-2-2a1,1,0,0,1,1.42-1.42L11,12.59l4.29-4.3a1,1,0,0,1,1.42,1.42Z"
-                      fill="#3b82f6"
-                      data-v-511ff0d3=""
-                    ></path>
-                  </svg>
-                  <span class="text-xs">Приоритетная поддержка</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                class="text-xs text-white p-2 w-full items-center gap-x-2 font-medium rounded-md mt-3 border border-transparent bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
-                v-if="!isBusinessSubscription"
-              >
-                Повысить до Бизнес
-              </button>
-
-              <CurrentSubscriptionButton v-else />
-            </div>
-          </div>
-        </div>
-      </template>
-    </div>
+    <PlanCards />
   </div>
 </template>

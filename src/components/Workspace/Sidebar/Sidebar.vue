@@ -11,7 +11,6 @@ import {
   Archive,
   LogOut,
   MessageCircleQuestionMark,
-  Gem,
   ChevronDown,
   ChevronUp,
   PanelLeftClose,
@@ -38,6 +37,7 @@ import { useChats } from '@/composables/chat/queries/useChats'
 import { useWorkspace } from '@/composables/workspaces/useWorkspace'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
 import { useBoards } from '@/composables/boards/queries/useBoards'
+import Subscription from './Subscription.vue'
 
 const uiStore = useUIStore()
 const workspaceStore = useWorkspaceStore()
@@ -229,9 +229,9 @@ onMounted(() => {
       <!-- End Header -->
 
       <!-- Body -->
-      <nav class="overflow-y-auto flex-1 py-3 flex flex-col">
+      <nav class="overflow-y-auto flex-1 py-3 flex flex-col gap-y-3">
         <div
-          class="hs-accordion-group min-h-0 grow-1 w-full flex flex-col justify-between"
+          class="hs-accordion-group min-h-0 grow-1 w-full flex flex-col gap-y-3 justify-between"
           data-hs-accordion-always-open
         >
           <ul
@@ -434,7 +434,7 @@ onMounted(() => {
             </li>
           </ul>
 
-          <ul class="pe-1 mt-1 flex flex-col gap-y-1 mb-3">
+          <ul class="pe-1 m-0 flex flex-col gap-y-1">
             <li>
               <button
                 type="button"
@@ -459,23 +459,7 @@ onMounted(() => {
           </ul>
         </div>
 
-        <div class="flex flex-col p-3 bg-gray-50 border border-gray-200 shadow-2xs rounded-md">
-          <div class="flex flex-auto flex-col justify-center items-center">
-            <h3 class="flex items-center gap-x-2 font-semibold text-gray-800">
-              <Gem class="size-4" />
-              Улучшить аккаунт
-            </h3>
-            <p class="text-xs text-center mt-2 text-gray-700">
-              Расширьте возможности с помощью премиум подписки
-            </p>
-            <button
-              type="button"
-              class="text-xs text-white py-2 mt-2 px-3 w-full items-center gap-x-2 font-medium rounded-md bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] disabled:opacity-50 disabled:pointer-events-none"
-            >
-              Повысить до Премиум
-            </button>
-          </div>
-        </div>
+        <Subscription v-if="!user?.subscriptionId" />
       </nav>
       <!-- End Body -->
 
@@ -537,6 +521,7 @@ onMounted(() => {
               <button
                 type="button"
                 class="w-full flex items-center gap-x-2 py-2 px-3 rounded-lg text-sm text-gray-700 transition-colors duration-100 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-100"
+                @click="uiStore.openSupportModal"
               >
                 <MessageCircleQuestionMark class="size-4" />
 

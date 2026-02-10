@@ -1,79 +1,62 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { HSOverlay, HSStrongPassword } from 'preline'
+import { computed, onMounted, ref } from 'vue'
+import { HSOverlay } from 'preline'
 import { useUpdatePassword } from '@/composables/auth/mutations/useUpdatePassword'
 import { useDeleteUser } from '@/composables/auth/mutations/useDeleteUser'
 import Spinner from '@components/Loader/Spinner.vue'
 import DeleteUserModal from '@components/Modals/DeleteUserModal.vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import { z } from 'zod'
+import { useForm } from 'vee-validate'
 
-// --- State ---
-const currentPassword = ref('')
-const newPassword = ref('')
-const passwordRules = ref<string[]>([])
-
-// Refs для DOM
-const newPasswordInputRef = ref<HTMLInputElement | null>(null)
+const passwordInputRef = ref<HTMLInputElement | null>(null)
 const deleteModalRef = ref<HTMLElement | null>(null)
-const strongPasswordRef = ref<HTMLElement | null>(null)
+
+const schema = toTypedSchema(
+  z.object({
+    currentPassword: z.string().min(1, 'Текущий пароль должен быть заполнен'),
+    password: z.string().min(10, 'Пароль должен содержать минимум 10 символов'),
+  }),
+)
+
+const { errors, handleSubmit, submitCount, defineField, resetForm } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    currentPassword: '',
+    password: '',
+  },
+})
+
+const [currentPassword, currentPasswordAttrs] = defineField('currentPassword')
+const [password, passwordAttrs] = defineField('password')
 
 // --- Mutations ---
-const {
-  mutate: updateUserPassword,
-  isPending: isPasswordUpdating,
-  error: passwordError, // Используем встроенную обработку ошибок
-  reset: resetPasswordMutation,
-} = useUpdatePassword()
+const { mutate: updateUserPassword, isPending: isPasswordUpdating } = useUpdatePassword()
 
 const { mutate: deleteAccount, isPending: isUserDeleting } = useDeleteUser()
 
-// --- Validation Logic ---
-
-const isStrongEnough = computed(() => {
-  const required = ['min-length']
-  return required.every((rule) => passwordRules.value.includes(rule))
-})
-
-const isSavePasswordDisabled = computed(
-  () =>
-    !currentPassword.value ||
-    !newPassword.value ||
-    !isStrongEnough.value ||
-    isPasswordUpdating.value,
-)
-
-// Извлекаем ошибки из TanStack Query error (предполагаем формат API)
-const serverErrors = computed(() => {
-  if (!passwordError.value) return null
-
-  const parsedError = JSON.parse(passwordError.value.message)
-
-  return {
-    newPassword: parsedError.newPassword,
-    oldPassword: parsedError.oldPassword,
-  }
-})
-
-// --- Handlers ---
-
-function handleSavePassword() {
+const handleSavePassword = handleSubmit((values) => {
   if (isSavePasswordDisabled.value) return
 
   updateUserPassword(
-    { password: newPassword.value, currentPassword: currentPassword.value },
+    { password: values.password, currentPassword: values.currentPassword },
     {
       onSuccess: () => {
-        // Очистка формы
         currentPassword.value = ''
-        newPassword.value = ''
+        password.value = ''
 
-        if (newPasswordInputRef.value) {
-          newPasswordInputRef.value.dispatchEvent(new Event('input'))
+        if (passwordInputRef.value) {
+          passwordInputRef.value.dispatchEvent(new Event('input'))
         }
-        resetPasswordMutation()
+        resetForm()
       },
     },
   )
-}
+})
+
+const isSavePasswordDisabled = computed(
+  () => !currentPassword.value || !password.value || isPasswordUpdating.value,
+)
 
 function showDeleteUserModal() {
   if (deleteModalRef.value) {
@@ -84,22 +67,7 @@ function showDeleteUserModal() {
 
 const handleDeleteAccount = () => deleteAccount()
 
-watch([newPassword], () => {
-  if (passwordError.value) resetPasswordMutation()
-
-  // Слушаем изменение сложности пароля
-  if (strongPasswordRef.value) {
-    const instance = HSStrongPassword.getInstance(strongPasswordRef.value, true) as any
-    instance?.element?.on('change', ({ rules }: { rules: Set<string> }) => {
-      passwordRules.value = Array.from(rules)
-    })
-  }
-})
-
-// --- Lifecycle ---
-
 onMounted(() => {
-  // Инициализация всех компонентов Preline
   window.HSStaticMethods.autoInit()
 })
 </script>
@@ -120,9 +88,10 @@ onMounted(() => {
                 type="password"
                 id="settings-old-password"
                 class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                :class="{ 'ring-1 ring-red-500': serverErrors?.oldPassword }"
+                :class="{ 'ring-1 ring-red-500': errors?.currentPassword && submitCount > 0 }"
                 placeholder="Текущий пароль"
                 v-model="currentPassword"
+                v-bind="currentPasswordAttrs"
               />
               <button
                 type="button"
@@ -161,8 +130,8 @@ onMounted(() => {
               </button>
             </div>
 
-            <p v-if="serverErrors?.oldPassword" class="text-red-500 text-xs mt-1">
-              {{ serverErrors.oldPassword }}
+            <p v-if="errors?.currentPassword && submitCount > 0" class="text-red-500 text-xs mt-1">
+              {{ errors.currentPassword }}
             </p>
           </div>
           <div class="flex flex-col gap-y-1">
@@ -174,10 +143,11 @@ onMounted(() => {
                       type="password"
                       id="strong-password"
                       class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'ring-1 ring-red-500': serverErrors?.newPassword }"
+                      :class="{ 'ring-1 ring-red-500': errors?.password && submitCount > 0 }"
                       placeholder="Новый пароль"
-                      ref="newPasswordRef"
-                      v-model="newPassword"
+                      ref="passwordRef"
+                      v-model="password"
+                      v-bind="passwordAttrs"
                     />
                     <button
                       type="button"
@@ -230,8 +200,8 @@ onMounted(() => {
                     </button>
                   </div>
 
-                  <span v-if="serverErrors?.newPassword" class="text-red-500 text-xs">
-                    {{ serverErrors.newPassword }}
+                  <span v-if="errors?.password && submitCount > 0" class="text-red-500 text-xs">
+                    {{ errors.password }}
                   </span>
                 </div>
               </div>

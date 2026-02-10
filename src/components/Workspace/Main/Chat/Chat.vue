@@ -116,7 +116,6 @@ onBeforeUnmount(() => {
     class="hs-overlay hs-overlay-open:opacity-100 hs-overlay-open:duration-500 hidden size-full fixed top-0 start-0 z-80 opacity-0 overflow-x-hidden transition-all overflow-y-auto pointer-events-none"
     role="dialog"
     tabindex="-1"
-    aria-labelledby="hs-chat-label"
   >
     <div class="size-full flex items-center justify-center p-2 sm:p-4">
       <div

@@ -18,6 +18,7 @@ export default class UserModel implements IUser {
   public avatarColor: AvailableColors
   public isTipsCompleted?: boolean
   public paymentMethodId?: string
+  public pendingChangePlan?: Nullable<SubscriptionPlanEnum>
   public yaId?: Nullable<string>
   public createdAt: Date
   public updatedAt: Date
@@ -36,6 +37,7 @@ export default class UserModel implements IUser {
     this.generationsCount = props.generationsCount
     this.avatarColor = props.avatarColor
     this.paymentMethodId = props.paymentMethodId
+    this.pendingChangePlan = props.pendingChangePlan
     this.yaId = props.yaId
     this.createdAt = props.createdAt
     this.updatedAt = props.updatedAt

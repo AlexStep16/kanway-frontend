@@ -70,7 +70,7 @@ onMounted(() => {
             class="text-sm h-full font-semibold p-0 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 transition-colors duration-100"
             v-model="name"
             @blur="create"
-            @keydown.enter="create"
+            @keydown.enter="(event: any) => event.target?.blur()"
             @keydown.esc="$emit('close')"
             :disabled="isCategoryAdding"
             ref="nameInputRef"

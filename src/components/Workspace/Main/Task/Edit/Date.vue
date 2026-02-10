@@ -279,7 +279,7 @@ onBeforeUnmount(() => {
     >
       <div class="p-2 flex flex-col">
         <div class="flex items-center gap-x-1">
-          <div class="flex flex-col gap-y-0.5 flex-grow-1">
+          <div class="flex flex-col gap-y-0.5 grow">
             <span class="text-xs text-gray-400">Дата</span>
             <div
               class="relative rounded-lg border border-gray-200 bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -358,7 +358,7 @@ onBeforeUnmount(() => {
           ref="hsDatepickerRef"
           :data-hs-datepicker="JSON.stringify(datepickerOptions)"
         ></div>
-        <div class="text-right pt-2 mb-1 mt-2 text-custom-sm border-t-1 border-gray-200">
+        <div class="text-right pt-2 mb-1 mt-2 text-custom-sm border-t border-gray-200">
           <button
             type="button"
             class="text-gray-400 hover:text-gray-600 transition-colors duration-100 focus:outline-hidden"

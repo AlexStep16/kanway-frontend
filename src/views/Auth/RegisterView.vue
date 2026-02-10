@@ -13,7 +13,7 @@ const schema = toTypedSchema(
   z.object({
     email: z.string().email('Неверный формат'),
     password: z.string().min(10, 'Пароль должен содержать минимум 10 символов'),
-    aggrement: z.boolean().refine((val) => val === true, {
+    agreement: z.boolean().refine((val) => val === true, {
       message: 'Необходимо согласие с политикой конфиденциальности',
     }),
   }),
@@ -24,13 +24,13 @@ const { errors, handleSubmit, submitCount, defineField } = useForm({
   initialValues: {
     email: '',
     password: '',
-    aggrement: false,
+    agreement: false,
   },
 })
 
 const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
-const [aggrement, aggrementAttrs] = defineField('aggrement')
+const [agreement, agreementAttrs] = defineField('agreement')
 
 const onSubmit = handleSubmit(
   (values) => {
@@ -38,7 +38,7 @@ const onSubmit = handleSubmit(
   },
   (values) => {
     if (values.errors.password) toast.error(values.errors.password)
-    if (values.errors.aggrement) toast.error(values.errors.aggrement)
+    if (values.errors.agreement) toast.error(values.errors.agreement)
   },
 )
 
@@ -223,10 +223,10 @@ onMounted(() => {
                     type="checkbox"
                     class="shrink-0 mt-0.5 border-gray-200 cursor-pointer rounded-sm text-blue-500 focus:ring-blue-500"
                     :class="{
-                      'border-red-400! bg-red-100': errors.aggrement,
+                      'border-red-400! bg-red-100': errors.agreement,
                     }"
-                    v-model="aggrement"
-                    v-bind="aggrementAttrs"
+                    v-model="agreement"
+                    v-bind="agreementAttrs"
                   />
                 </div>
                 <div class="ms-3 text-wrap">

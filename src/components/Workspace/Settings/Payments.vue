@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useAuthStore } from '@stores/auth'
-import { PaymentStatusEnum } from '@/enums/PaymentStatusEnum'
+import { PaymentStatusesEnum } from '@/enums/PaymentStatusesEnum'
 import dayjs from 'dayjs'
 import { usePayments } from '@/composables/payments/queries/usePayments'
 import { usePaymentMethods } from '@/composables/paymentMethods/queries/usePaymentMethods'
 import { storeToRefs } from 'pinia'
-import Payment from './Payment.vue'
+import PaymentMethod from './PaymentMethod.vue'
 
 const authStore = useAuthStore()
 
@@ -18,29 +18,26 @@ const { data: paymentMethodsData, isPending: isPaymentMethodsLoading } = usePaym
 const payments = computed(() => paymentsData.value || [])
 const paymentMethods = computed(() => paymentMethodsData.value || [])
 
-function getPaymentStatusName(status: PaymentStatusEnum): string {
+function getPaymentStatusName(status: PaymentStatusesEnum): string {
   switch (status) {
-    case PaymentStatusEnum.COMPLETED:
+    case PaymentStatusesEnum.succeeded:
       return 'Оплачено'
-    case PaymentStatusEnum.PENDING:
+    case PaymentStatusesEnum.pending:
       return 'В ожидании'
-    case PaymentStatusEnum.CANCELLED:
+    case PaymentStatusesEnum.canceled:
       return 'Отменен'
-    case PaymentStatusEnum.FAILED:
-      return 'Неудачно'
     default:
       return 'Неизвестно'
   }
 }
 
-function getPaymentStatusClasses(status: PaymentStatusEnum): string {
+function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
   switch (status) {
-    case PaymentStatusEnum.COMPLETED:
+    case PaymentStatusesEnum.succeeded:
       return 'bg-emerald-100 text-emerald-800'
-    case PaymentStatusEnum.PENDING:
+    case PaymentStatusesEnum.pending:
       return 'bg-yellow-100 text-yellow-800'
-    case PaymentStatusEnum.CANCELLED:
-    case PaymentStatusEnum.FAILED:
+    case PaymentStatusesEnum.canceled:
       return 'bg-red-100 text-red-800'
     default:
       return 'bg-gray-100 text-gray-800'
@@ -65,7 +62,7 @@ onMounted(() => {
       <div class="bg-gray-300 animate-pulse rounded-md h-19" v-if="isPaymentMethodsLoading"></div>
       <div class="bg-gray-300 animate-pulse rounded-md h-19" v-if="isPaymentMethodsLoading"></div>
 
-      <Payment
+      <PaymentMethod
         v-for="paymentMethod in paymentMethods"
         :key="paymentMethod.id"
         :paymentMethod

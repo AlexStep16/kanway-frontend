@@ -49,6 +49,7 @@ export const subscriptionKeys = {
 
 export const paymentKeys = {
   all: ['payments'],
+  list: () => [...paymentKeys.all, 'list'],
 }
 
 export const paymentMethodKeys = {

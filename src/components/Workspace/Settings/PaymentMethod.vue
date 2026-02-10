@@ -72,7 +72,7 @@ function handleDeletePaymentMethod(methodId: string) {
       <div class="flex justify-start items-start flex-col">
         <span class="text-sm font-medium text-gray-800">**** {{ paymentMethod.cardLast4 }}</span>
         <span class="text-xs text-gray-500"
-          >Действует до {{ paymentMethod.expiryMonth }}/{{ paymentMethod.expiryYear }}</span
+          >Действует до {{ paymentMethod.cardExpiryMonth }}/{{ paymentMethod.cardExpiryYear }}</span
         >
         <button
           type="button"

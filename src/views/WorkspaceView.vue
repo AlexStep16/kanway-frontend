@@ -21,6 +21,8 @@ import { storeToRefs } from 'pinia'
 import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
 import { useChat } from '@/composables/chat/queries/useChat'
 import { useRootStore } from '@/stores/root'
+import Support from '@/components/Workspace/Main/Support/Support.vue'
+import Plans from '@/components/Workspace/Main/Subscription/Plans.vue'
 
 const rootStore = useRootStore()
 const uiStore = useUIStore()
@@ -66,6 +68,18 @@ function initSettingsModal() {
   }
 }
 
+function initSupportModal() {
+  if (uiStore.supportModalRef) {
+    uiStore.supportModalHSInstance = new HSOverlay(uiStore.supportModalRef)
+  }
+}
+
+function initPlansModal() {
+  if (uiStore.plansModalRef) {
+    uiStore.plansModalHSInstance = new HSOverlay(uiStore.plansModalRef)
+  }
+}
+
 function initChatModal() {
   if (uiStore.chatModalRef) {
     uiStore.chatModalHSInstance = new HSOverlay(uiStore.chatModalRef)
@@ -95,6 +109,8 @@ onMounted(() => {
   initWorkspaceEditModal()
   initSettingsModal()
   initChatModal()
+  initSupportModal()
+  initPlansModal()
 
   rootStore.updateWorkspaceFromRoute()
 })
@@ -125,6 +141,8 @@ onMounted(() => {
       <Chat />
       <Tip />
       <MobileSearch />
+      <Support />
+      <Plans />
     </Teleport>
   </main>
 </template>

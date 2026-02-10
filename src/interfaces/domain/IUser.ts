@@ -17,6 +17,7 @@ export interface IUser {
   avatarColor: AvailableColors
   isTipsCompleted?: boolean
   paymentMethodId?: string
+  pendingChangePlan?: Nullable<SubscriptionPlanEnum>
   yaId?: Nullable<string>
   createdAt: Date
   updatedAt: Date

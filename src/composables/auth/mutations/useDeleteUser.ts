@@ -1,15 +1,16 @@
 import { deleteUser } from '@/services/auth'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useAuthStore } from '@/stores/auth'
+import { useMutation } from '@tanstack/vue-query'
 
 export function useDeleteUser() {
-  const queryClient = useQueryClient()
+  const authStore = useAuthStore()
 
   return useMutation({
     mutationKey: ['user', 'delete'],
     mutationFn: () => deleteUser(),
 
     onSuccess: () => {
-      queryClient.clear()
+      authStore.logout()
     },
   })
 }

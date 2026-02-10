@@ -45,6 +45,10 @@ export const useUIStore = defineStore('ui', () => {
   const settingsModalHSInstance = ref<Nullable<HSOverlay>>(null)
   const chatModalRef = ref<Nullable<HTMLElement>>(null)
   const chatModalHSInstance = ref<Nullable<HSOverlay>>(null)
+  const supportModalRef = ref<Nullable<HTMLElement>>(null)
+  const supportModalHSInstance = ref<Nullable<HSOverlay>>(null)
+  const plansModalRef = ref<Nullable<HTMLElement>>(null)
+  const plansModalHSInstance = ref<Nullable<HSOverlay>>(null)
   const tipRef = ref<Nullable<HTMLElement>>(null)
   const sidebarRef = ref<Nullable<HTMLElement>>(null)
 
@@ -55,6 +59,7 @@ export const useUIStore = defineStore('ui', () => {
 
   const isSidebarOpen = ref(true)
   const isChatModalOpen = ref(false)
+  const isSupportModalOpen = ref(false)
 
   function watchForBackdropClicks(
     newVal: Nullable<HTMLElement>,
@@ -119,6 +124,22 @@ export const useUIStore = defineStore('ui', () => {
     { once: true },
   )
 
+  watch(
+    supportModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'support', closeSupportModal)
+    },
+    { once: true },
+  )
+
+  watch(
+    plansModalRef,
+    (newVal) => {
+      watchForBackdropClicks(newVal, 'plans', closePlansModal)
+    },
+    { once: true },
+  )
+
   function addToModalStack(id: string) {
     modalStack.value.push(id)
 
@@ -151,6 +172,8 @@ export const useUIStore = defineStore('ui', () => {
     editWorkspaceModalHSInstance.value?.close()
     settingsModalHSInstance.value?.close()
     chatModalHSInstance.value?.close()
+    supportModalHSInstance.value?.close()
+    plansModalHSInstance.value?.close()
   }
 
   function openEditTaskModal() {
@@ -240,8 +263,6 @@ export const useUIStore = defineStore('ui', () => {
 
   function openSettingsModal() {
     if (settingsModalHSInstance.value) {
-      addToModalStack('settingsModal')
-
       modalInstances.value.set('settingsModal', settingsModalHSInstance.value)
 
       nextTick(() => {
@@ -253,8 +274,38 @@ export const useUIStore = defineStore('ui', () => {
   function closeSettingsModal() {
     if (settingsModalHSInstance.value) {
       settingsModalHSInstance.value.close()
+    }
+  }
 
-      removeFromModalStack('settingsModal')
+  function openSupportModal() {
+    if (supportModalHSInstance.value) {
+      modalInstances.value.set('supportModal', supportModalHSInstance.value)
+
+      nextTick(() => {
+        if (supportModalHSInstance.value) supportModalHSInstance.value.open()
+      })
+    }
+  }
+
+  function closeSupportModal() {
+    if (supportModalHSInstance.value) {
+      supportModalHSInstance.value.close()
+    }
+  }
+
+  function openPlansModal() {
+    if (plansModalHSInstance.value) {
+      modalInstances.value.set('plansModal', plansModalHSInstance.value)
+
+      nextTick(() => {
+        if (plansModalHSInstance.value) plansModalHSInstance.value.open()
+      })
+    }
+  }
+
+  function closePlansModal() {
+    if (plansModalHSInstance.value) {
+      plansModalHSInstance.value.close()
     }
   }
 
@@ -388,6 +439,11 @@ export const useUIStore = defineStore('ui', () => {
     isEditableTaskDeleted,
     editableWorkspaceId,
     isEditableWorkspaceDeleted,
+    supportModalRef,
+    supportModalHSInstance,
+    isSupportModalOpen,
+    plansModalRef,
+    plansModalHSInstance,
 
     // Actions
     openEditTaskModal,
@@ -417,5 +473,9 @@ export const useUIStore = defineStore('ui', () => {
     clearBoardToEdit,
     openWorkspaceToEdit,
     clearWorkspaceToEdit,
+    openSupportModal,
+    closeSupportModal,
+    openPlansModal,
+    closePlansModal,
   }
 })
