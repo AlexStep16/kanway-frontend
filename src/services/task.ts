@@ -104,9 +104,8 @@ export async function createTask(
 }
 
 export async function saveTask(payload: ISingleUpdate<ITask>): Promise<IResponseWithLog<ITask[]>> {
-  const cleanedTaskFields = pickClean(payload, BASE_TASK_FIELDS)
   const apiPayload: ITaskEditApiPayload = {
-    ...cleanedTaskFields,
+    ...payload,
     id: payload.id,
     categoryId: payload.category?.id,
     boardId: payload.board?.id,
@@ -125,7 +124,7 @@ export async function saveTasks(
   payload: ISingleUpdate<ITask>[],
 ): Promise<IResponseWithLog<ITask[]>> {
   const cleanedPayload: ITaskEditApiPayload[] = payload.map((item) => ({
-    ...pickClean(item, ['id', ...BASE_TASK_FIELDS]),
+    ...item,
     id: item.id,
     categoryId: item.category?.id,
     boardId: item.board?.id,

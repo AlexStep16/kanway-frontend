@@ -80,9 +80,8 @@ export async function createCategory(
 export async function saveCategory(
   payload: ISingleUpdate<CategoryModel>,
 ): Promise<IResponseWithLog<ICategory[]>> {
-  const cleanedCategoryFields = pickClean(payload, BASE_CATEGORY_FIELDS)
   const apiPayload: ICategoryEditApiPayload = {
-    ...cleanedCategoryFields,
+    ...payload,
     id: payload.id,
     workspaceId: payload.workspace?.id,
     boardId: payload.board?.id,
@@ -100,7 +99,7 @@ export async function saveCategories(
   payload: ISingleUpdate<CategoryModel>[],
 ): Promise<IResponseWithLog<ICategory[]>> {
   const cleanedPayload: ICategoryEditApiPayload[] = payload.map((item) => ({
-    ...pickClean(item, ['id', ...BASE_CATEGORY_FIELDS]),
+    ...item,
     id: item.id,
     workspaceId: item.workspace?.id,
     boardId: item.board?.id,

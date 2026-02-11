@@ -18,7 +18,7 @@ import { useTaskMutationStatus } from '@/composables/tasks/mutations/useTaskMuta
 import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
 import MoveDropdown from '@components/Workspace/Main/MoveDropdown/MoveDropdown.vue'
 import MoveDropdownButton from '@components/Workspace/Main/MoveDropdown/MoveDropdownButton.vue'
-import DateComponent from '@components/Workspace/Main/Task/Edit/Date.vue'
+import DateTime from '@components/Workspace/Main/Task/Edit/DateTime.vue'
 import Tags from '@components/Workspace/Main/Task/Edit/Tags.vue'
 import Color from '@components/Workspace/Main/Task/Edit/Color.vue'
 import { Nullable } from '@/types/utils'
@@ -258,13 +258,12 @@ watch(
 
         <!-- Actions Footer -->
         <div class="flex flex-wrap gap-2 px-4 pt-3 pb-4">
-          <DateComponent
-            ref="dateRef"
+          <DateTime
             :task="task"
-            @changeTime="handleChangeTime"
             @changeDate="handleChangeDate"
+            @clearTaskDue="patchTask({ dueHours: null, dueMinutes: null, dueDate: null })"
+            @changeTime="handleChangeTime"
             @clearTaskTime="patchTask({ dueHours: null, dueMinutes: null })"
-            @clearTaskDue="patchTask({ dueDate: null, dueHours: null, dueMinutes: null })"
           />
           <Tags :task="task" @addTag="handleAddTag" @removeTag="handleRemoveTag" />
           <Color :task="task" @setColor="handleSetColor" />

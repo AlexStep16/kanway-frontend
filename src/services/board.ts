@@ -76,9 +76,8 @@ export async function createBoard(
 }
 
 export async function saveBoard(payload: ISingleUpdate<BoardModel>) {
-  const cleanedBoardFields = pickClean(payload, BASE_BOARD_FIELDS)
   const apiPayload: IBoardEditApiPayload = {
-    ...cleanedBoardFields,
+    ...payload,
     id: payload.id,
     workspaceId: payload.workspace?.id,
   }

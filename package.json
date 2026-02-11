@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@internationalized/date": "^3.11.0",
     "@preline/overlay": "^3.2.3",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/vue-query": "^5.92.6",
@@ -37,6 +38,7 @@
     "p-queue": "^9.0.0",
     "pinia": "^3.0.3",
     "preline": "^3.2.3",
+    "reka-ui": "^2.8.0",
     "showdown": "^2.1.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.13",

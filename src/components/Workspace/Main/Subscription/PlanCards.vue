@@ -20,9 +20,9 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
     }"
   >
     <template v-if="isSubscriptionsLoading">
-      <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
-      <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
-      <div class="rounded-md bg-gray-300 grow-1 animate-pulse h-58"></div>
+      <div class="rounded-md bg-gray-300 grow animate-pulse h-58"></div>
+      <div class="rounded-md bg-gray-300 grow animate-pulse h-58"></div>
+      <div class="rounded-md bg-gray-300 grow animate-pulse h-58"></div>
     </template>
     <template v-else>
       <div
@@ -33,7 +33,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовая</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
-            <div class="flex flex-col mt-1 gap-y-1 grow-1">
+            <div class="flex flex-col mt-1 gap-y-1 grow">
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <BlueCheck class="size-4" />
                 <span class="text-xs">1 рабочее пространство</span>
@@ -76,7 +76,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
               /месяц
             </span>
-            <div class="flex flex-col mt-1 gap-y-1 grow-1">
+            <div class="flex flex-col mt-1 gap-y-1 grow">
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <BlueCheck class="size-4" />
                 <span class="text-xs">Неограниченно пространств</span>
@@ -119,7 +119,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
               /месяц
             </span>
-            <div class="flex flex-col mt-1 gap-y-1 grow-1">
+            <div class="flex flex-col mt-1 gap-y-1 grow">
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <BlueCheck class="size-4" />
                 <span class="text-xs">Неограниченно пространств</span>
