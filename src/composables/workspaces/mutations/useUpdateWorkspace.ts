@@ -38,6 +38,18 @@ export function useUpdateWorkspace() {
       return { previousWorkspaces, queryKey }
     },
 
+    onError: (err, vars, context) => {
+      if (context?.previousWorkspaces) {
+        const originalWorkspace = context.previousWorkspaces.find((w) => w.id === vars.payload.id)
+
+        if (originalWorkspace) {
+          queryClient.setQueryData<IWorkspace[]>(context.queryKey, (current) => {
+            return current?.map((w) => (w.id === vars.payload.id ? originalWorkspace : w)) ?? []
+          })
+        }
+      }
+    },
+
     onSuccess: (result) => {
       const newWorkspaceId = result.data[0].id ?? null
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
@@ -51,12 +63,6 @@ export function useUpdateWorkspace() {
           queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
           queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
         })
-      }
-    },
-
-    onError: (err, vars, context) => {
-      if (context?.previousWorkspaces) {
-        queryClient.setQueryData(context.queryKey, context.previousWorkspaces)
       }
     },
   })

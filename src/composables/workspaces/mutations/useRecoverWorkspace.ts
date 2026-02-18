@@ -31,7 +31,7 @@ export function useRecoverWorkspace() {
       await queryClient.cancelQueries({ queryKey: archivedWorkspacesKey })
 
       const prevArchived = queryClient.getQueryData<IWorkspace[]>(archivedWorkspacesKey)
-      const prevWorkspace = queryClient.getQueryData<IWorkspace[]>(actualWorkspacesKey)
+      const prevWorkspaces = queryClient.getQueryData<IWorkspace[]>(actualWorkspacesKey)
 
       if (prevArchived) {
         queryClient.setQueryData<IWorkspace[]>(archivedWorkspacesKey, (old) =>
@@ -39,23 +39,31 @@ export function useRecoverWorkspace() {
         )
       }
 
-      if (prevWorkspace) {
-        queryClient.setQueryData<IWorkspace[]>(actualWorkspacesKey, (old) => {
-          if (!old) return []
-
-          return [...old, { ...workspace, isDeleted: false }]
-        })
+      if (prevWorkspaces) {
+        queryClient.setQueryData<IWorkspace[]>(actualWorkspacesKey, (old) =>
+          old ? [...old, { ...workspace, isDeleted: false }] : [{ ...workspace, isDeleted: false }],
+        )
       }
 
-      return { prevArchived, prevWorkspace, archivedWorkspacesKey, actualWorkspacesKey }
+      return { prevArchived, prevWorkspaces, archivedWorkspacesKey, actualWorkspacesKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.prevArchived) {
-        queryClient.setQueryData(context.archivedWorkspacesKey, context.prevArchived)
+      if (context?.actualWorkspacesKey) {
+        queryClient.setQueryData<IWorkspace[]>(context.actualWorkspacesKey, (current) => {
+          return current?.filter((w) => w.id !== vars.workspace.id) || []
+        })
       }
-      if (context?.prevWorkspace) {
-        queryClient.setQueryData(context.actualWorkspacesKey, context.prevWorkspace)
+
+      if (context?.prevArchived) {
+        const workspaceToRestore = context.prevArchived.find((w) => w.id === vars.workspace.id)
+
+        if (workspaceToRestore) {
+          queryClient.setQueryData<IWorkspace[]>(context.archivedWorkspacesKey, (current) => {
+            if (current?.some((w) => w.id === vars.workspace.id)) return current
+            return [workspaceToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

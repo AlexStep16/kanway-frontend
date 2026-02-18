@@ -40,6 +40,8 @@ export const useUIStore = defineStore('ui', () => {
   const editWorkspaceModalRef = ref<Nullable<HTMLElement>>(null)
   const editWorkspaceModalHSInstance = ref<Nullable<HSOverlay>>(null)
 
+  const isWorkspaceDialogOpen = ref(false)
+
   const createBoardButtonRef = ref<Nullable<HTMLElement>>(null)
   const settingsModalRef = ref<Nullable<HTMLElement>>(null)
   const settingsModalHSInstance = ref<Nullable<HSOverlay>>(null)
@@ -174,6 +176,14 @@ export const useUIStore = defineStore('ui', () => {
     chatModalHSInstance.value?.close()
     supportModalHSInstance.value?.close()
     plansModalHSInstance.value?.close()
+  }
+
+  function openWorkspaceDialog() {
+    isWorkspaceDialogOpen.value = true
+  }
+
+  function closeWorkspaceDialog() {
+    isWorkspaceDialogOpen.value = false
   }
 
   function openEditTaskModal() {
@@ -427,6 +437,7 @@ export const useUIStore = defineStore('ui', () => {
     modalStack,
     isModalOnTop,
     isChatModalOpen,
+    isWorkspaceDialogOpen,
 
     editableBoardId,
     editableBoardWorkspaceId,
@@ -477,5 +488,7 @@ export const useUIStore = defineStore('ui', () => {
     closeSupportModal,
     openPlansModal,
     closePlansModal,
+    openWorkspaceDialog,
+    closeWorkspaceDialog,
   }
 })

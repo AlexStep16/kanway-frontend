@@ -34,13 +34,25 @@ export function useDeleteChat() {
 
     onError: (err, vars, context) => {
       if (context?.previousChats) {
-        queryClient.setQueryData(context.categoryKey, context.previousChats)
+        const chatToRestore = context.previousChats.find((c) => c.id === vars.id)
+
+        if (chatToRestore) {
+          queryClient.setQueryData<IChat[]>(context.categoryKey, (current) => {
+            if (current?.some((c) => c.id === vars.id)) return current
+
+            return [chatToRestore, ...(current || [])]
+          })
+        }
       }
     },
 
-    onSuccess: (result, { workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(workspaceId) })
+    onSettled: (data, error, vars, context) => {
+      const categoryKey = chatKeys.byWorkspace(vars.workspaceId)
 
+      queryClient.invalidateQueries({ queryKey: categoryKey })
+    },
+
+    onSuccess: (result, { workspaceId }) => {
       toast.success('Чат успешно удален')
     },
   })

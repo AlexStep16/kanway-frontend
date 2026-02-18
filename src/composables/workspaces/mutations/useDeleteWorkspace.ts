@@ -40,7 +40,17 @@ export function useDeleteWorkspace() {
 
     onError: (err, vars, context) => {
       if (context?.previousWorkspaces) {
-        queryClient.setQueryData(context.workspaceKey, context.previousWorkspaces)
+        const workspaceToRestore = context.previousWorkspaces.find(
+          (w) => w.id === vars.workspace.id,
+        )
+
+        if (workspaceToRestore) {
+          queryClient.setQueryData<IWorkspace[]>(context.workspaceKey, (current) => {
+            if (current?.some((w) => w.id === vars.workspace.id)) return current
+
+            return [workspaceToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

@@ -44,7 +44,13 @@ export function useUpdateBoard() {
 
     onError: (err, vars, context) => {
       if (context?.previousBoards) {
-        queryClient.setQueryData(context.queryKey, context.previousBoards)
+        const originalBoard = context.previousBoards.find((b) => b.id === vars.payload.id)
+
+        if (originalBoard) {
+          queryClient.setQueryData<IBoard[]>(context.queryKey, (current) => {
+            return current?.map((b) => (b.id === vars.payload.id ? originalBoard : b)) ?? []
+          })
+        }
       }
     },
   })

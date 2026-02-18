@@ -24,24 +24,46 @@ export function useArchiveWorkspace() {
       requestQueueService.enqueue(workspace.id, () => archiveWorkspace(workspace.id)),
 
     onMutate: async ({ workspace }) => {
-      const queryKey = workspaceKeys.lists()
+      const actualWorkspacesKey = workspaceKeys.lists()
+      const archivedWorkspacesKey = workspaceKeys.archived()
 
-      await queryClient.cancelQueries({ queryKey })
+      await queryClient.cancelQueries({ queryKey: actualWorkspacesKey })
+      await queryClient.cancelQueries({ queryKey: archivedWorkspacesKey })
 
-      const previousWorkspaces = queryClient.getQueryData<IWorkspace[]>(queryKey)
+      const prevWorkspaces = queryClient.getQueryData<IWorkspace[]>(actualWorkspacesKey)
+      const prevArchived = queryClient.getQueryData<IWorkspace[]>(archivedWorkspacesKey)
 
-      if (previousWorkspaces) {
-        queryClient.setQueryData<IWorkspace[]>(queryKey, (old) =>
-          old ? old.filter((c) => c.id !== workspace.id) : [],
+      if (prevWorkspaces) {
+        queryClient.setQueryData<IWorkspace[]>(actualWorkspacesKey, (old) =>
+          old ? old.filter((w) => w.id !== workspace.id) : [],
         )
       }
 
-      return { previousWorkspaces, queryKey }
+      if (prevArchived) {
+        queryClient.setQueryData<IWorkspace[]>(archivedWorkspacesKey, (old) =>
+          old ? [...old, { ...workspace, isDeleted: true }] : [{ ...workspace, isDeleted: true }],
+        )
+      }
+
+      return { prevArchived, prevWorkspaces, archivedWorkspacesKey, actualWorkspacesKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousWorkspaces) {
-        queryClient.setQueryData(context.queryKey, context.previousWorkspaces)
+      if (context?.prevWorkspaces) {
+        const workspaceToRestore = context.prevWorkspaces.find((w) => w.id === vars.workspace.id)
+
+        if (workspaceToRestore) {
+          queryClient.setQueryData<IWorkspace[]>(context.actualWorkspacesKey, (current) => {
+            if (current?.some((w) => w.id === vars.workspace.id)) return current
+            return [workspaceToRestore, ...(current || [])]
+          })
+        }
+      }
+
+      if (context?.archivedWorkspacesKey) {
+        queryClient.setQueryData<IWorkspace[]>(context.archivedWorkspacesKey, (current) => {
+          return current?.filter((w) => w.id !== vars.workspace.id) || []
+        })
       }
     },
 

@@ -29,14 +29,13 @@ export function useCreateWorkspace() {
 
     onSuccess: async (result) => {
       const WORKSPACE_STORE = useWorkspaceStore()
-      const workspaces = queryClient.getQueryData<IWorkspace[]>(workspaceKeys.lists())
-      const nextWorkspace = workspaces && workspaces.length > 0 ? workspaces[0] : null
 
       queryClient.setQueryData(workspaceKeys.lists(), (oldWorkspaces: IWorkspace[] | undefined) => {
         return oldWorkspaces ? [...oldWorkspaces, ...result.data] : result.data
       })
 
-      if (nextWorkspace) WORKSPACE_STORE.selectWorkspace(nextWorkspace, true)
+      if (result.data && result.data.length > 0)
+        WORKSPACE_STORE.selectWorkspace(result.data[0], true)
 
       toast.success('Пространство успешно создано', {
         action: {

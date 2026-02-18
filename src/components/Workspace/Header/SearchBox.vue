@@ -4,9 +4,8 @@ import { useUIStore } from '@stores/ui'
 import Tabs from '@/enums/TabsEnum'
 import { Nullable } from '@/types/utils'
 import { useBoardStore } from '@/stores/board'
-import { useWorkspaceStore } from '@/stores/workspace'
 import { X } from 'lucide-vue-next'
-import { useGlobalSearch } from '@/composables/useGlobalSearch'
+import { useBoardSearch } from '@/composables/useBoardSearch'
 import { storeToRefs } from 'pinia'
 import { onClickOutside } from '@vueuse/core'
 
@@ -20,23 +19,16 @@ const emit = defineEmits<{
 
 const uiStore = useUIStore()
 const boardStore = useBoardStore()
-const workspaceStore = useWorkspaceStore()
 
 const { activeBoardId } = storeToRefs(boardStore)
-const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 const searchBoxRef = ref<Nullable<HTMLElement>>(null)
-const searchDropdownRef = ref<Nullable<HTMLElement>>(null)
 const searchInputRef = ref<Nullable<HTMLInputElement>>(null)
 const searchModel = ref('')
 const preventAutofill = ref(true)
 const isDropdownHidden = ref(true)
 
-const { tasks, categories, boards, workspaces } = useGlobalSearch(
-  searchModel,
-  activeBoardId,
-  activeWorkspaceId,
-)
+const { tasks, categories, isEmpty } = useBoardSearch(searchModel, activeBoardId)
 
 watch(searchModel, (newVal) => {
   isDropdownHidden.value = newVal.length === 0
@@ -133,12 +125,7 @@ onMounted(() => {
             'px-2.5': isAlwaysVisible,
             'px-4': !isAlwaysVisible,
           }"
-          v-if="
-            tasks.length === 0 &&
-            categories.length === 0 &&
-            boards.length === 0 &&
-            workspaces.length === 0
-          "
+          v-if="isEmpty"
         >
           Ничего не найдено...
         </div>
@@ -168,36 +155,7 @@ onMounted(() => {
             <span class="text-sm text-gray-800 truncate" :title="category.name">{{
               category.name
             }}</span>
-            <span class="ms-auto text-xs text-gray-400">{{ category.board.name }}</span>
-          </button>
-        </div>
-
-        <div tabindex="3" v-if="boards.length > 0">
-          <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Доски</div>
-          <button
-            v-for="board in boards"
-            :key="board.id + '-search'"
-            class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
-            type="button"
-            @click="uiStore.openBoardToEdit(board)"
-          >
-            <span class="text-sm text-gray-800 truncate" :title="board.name">{{ board.name }}</span>
-            <span class="ms-auto text-xs text-gray-400">{{ board.workspace.name }}</span>
-          </button>
-        </div>
-
-        <div tabindex="4" v-if="workspaces.length > 0">
-          <div class="block text-xs text-gray-500 px-2.5 pt-2 mb-1">Пространства</div>
-          <button
-            v-for="workspace in workspaces"
-            :key="workspace.id + '-search'"
-            class="py-2 px-2.5 w-full flex items-center gap-x-3 hover:bg-gray-100 transition-colors duration-100 rounded-lg focus:outline-hidden focus:bg-gray-100"
-            type="button"
-            @click="uiStore.openWorkspaceToEdit(workspace)"
-          >
-            <span class="text-sm text-gray-800 truncate" :title="workspace.name">{{
-              workspace.name
-            }}</span>
+            <span class="ms-auto text-xs text-gray-400">{{ category.board?.name }}</span>
           </button>
         </div>
       </div>

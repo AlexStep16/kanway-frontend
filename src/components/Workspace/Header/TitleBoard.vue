@@ -2,7 +2,7 @@
 import { SquarePen, SquareKanban } from 'lucide-vue-next'
 import { useBoardStore } from '@/stores/board'
 import { nextTick, ref, watch } from 'vue'
-import Spinner from '@/components/Loader/Spinner.vue'
+import Spinner from '@/components/ui/spinner/Spinner.vue'
 import { Nullable } from '@/types/utils'
 import { storeToRefs } from 'pinia'
 import { useUpdateBoard } from '@/composables/boards/mutations/useUpdateBoard'
@@ -10,9 +10,12 @@ import { useWorkspaceStore } from '@/stores/workspace'
 import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
 import { useBoard } from '@/composables/boards/useBoard'
 import { IBoard } from '@/interfaces/domain/IBoard'
+import Input from '@/components/ui/input/Input.vue'
+import Button from '@/components/ui/button/Button.vue'
+import { useBoards } from '@/composables/boards/queries/useBoards'
+import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
 
 const isInputVisible = ref(false)
-const inputRef = ref<Nullable<HTMLInputElement>>(null)
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
 
@@ -21,6 +24,8 @@ const name = ref('')
 const { activeBoardId } = storeToRefs(boardStore)
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
+const { isPending: areBoardsLoading } = useBoards(activeWorkspaceId)
+
 const { mutate: updateBoard } = useUpdateBoard()
 const board = useBoard(activeBoardId, activeWorkspaceId)
 
@@ -28,12 +33,6 @@ const { isBusy } = useBoardMutationStatus(activeBoardId)
 
 function showInput() {
   isInputVisible.value = true
-
-  nextTick(() => {
-    if (inputRef.value) {
-      inputRef.value.focus()
-    }
-  })
 }
 
 function updateBoardName(event: Event) {
@@ -68,36 +67,34 @@ watch(
 </script>
 
 <template>
-  <div class="flex gap-x-1 items-center min-w-0 text-gray-800 focus:outline-hidden">
-    <div class="shrink-0">
-      <div v-if="isBusy" class="size-5 flex items-center justify-center">
-        <Spinner class="size-4 text-gray-500" />
-      </div>
-      <SquareKanban v-else class="size-5" />
-    </div>
+  <div class="flex gap-x-1 items-center min-w-0">
+    <template v-if="!areBoardsLoading">
+      <Button
+        variant="secondary"
+        class="px-1.5! group"
+        size="sm"
+        @click="showInput"
+        v-if="!isInputVisible"
+      >
+        <div class="shrink-0 text-foreground">
+          <Spinner class="size-4" v-if="isBusy" />
+          <SquareKanban v-else class="size-4" />
+        </div>
+        <span>{{ name }}</span>
+        <SquarePen class="size-3.5 text-muted-foreground opacity-0 group-hover:opacity-100" />
+      </Button>
 
-    <button
-      type="button"
-      class="flex gap-x-2 h-9 items-center text-lg font-semibold rounded-sm text-gray-800 px-2 hover:bg-gray-100 transition-colors duration-100 group"
-      @click="showInput"
-      v-show="!isInputVisible"
-    >
-      {{ name }}
-      <SquarePen
-        class="size-4 text-gray-400 group-hover:text-gray-500 transition-colors duration-100"
+      <Input
+        v-model="name"
+        isFocused
+        class="font-medium text-secondary-foreground px-2 h-8"
+        @keydown.enter="updateBoardName"
+        @keydown.esc="resetForm"
+        @blur="resetForm"
+        v-autowidth
+        v-else
       />
-    </button>
-
-    <input
-      type="text"
-      class="text-lg h-9 rounded-sm font-semibold px-2 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-2 focus:bg-gray-100 hover:bg-gray-100 transition-colors duration-100"
-      v-model="name"
-      @keydown.enter="updateBoardName"
-      @keydown.esc="resetForm"
-      @blur="resetForm"
-      v-autowidth
-      ref="inputRef"
-      v-show="isInputVisible"
-    />
+    </template>
+    <Skeleton class="h-8 w-32 rounded-md" v-else />
   </div>
 </template>

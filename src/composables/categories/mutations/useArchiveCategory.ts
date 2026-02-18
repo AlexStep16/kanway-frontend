@@ -22,24 +22,46 @@ export function useArchiveCategory() {
     mutationFn: ({ category }: ArchiveCategoryVars) =>
       requestQueueService.enqueue(category.id, () => archiveCategory(category.id)),
     onMutate: async ({ category }) => {
-      const queryKey = categoryKeys.byBoard(category.board.id)
+      const actualCategoriesKey = categoryKeys.byBoard(category.board.id)
+      const archivedCategoriesKey = categoryKeys.archived()
 
-      await queryClient.cancelQueries({ queryKey })
+      await queryClient.cancelQueries({ queryKey: actualCategoriesKey })
+      await queryClient.cancelQueries({ queryKey: archivedCategoriesKey })
 
-      const previousCategories = queryClient.getQueryData<ICategoryState[]>(queryKey)
+      const prevCategories = queryClient.getQueryData<ICategoryState[]>(actualCategoriesKey)
+      const prevArchived = queryClient.getQueryData<ICategoryState[]>(archivedCategoriesKey)
 
-      if (previousCategories) {
-        queryClient.setQueryData<ICategoryState[]>(queryKey, (old) =>
+      if (prevCategories) {
+        queryClient.setQueryData<ICategoryState[]>(actualCategoriesKey, (old) =>
           old ? old.filter((c) => c.id !== category.id) : [],
         )
       }
 
-      return { previousCategories, queryKey }
+      if (prevArchived) {
+        queryClient.setQueryData<ICategoryState[]>(archivedCategoriesKey, (old) =>
+          old ? [...old, { ...category, isDeleted: true }] : [{ ...category, isDeleted: true }],
+        )
+      }
+
+      return { prevArchived, prevCategories, archivedCategoriesKey, actualCategoriesKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousCategories) {
-        queryClient.setQueryData(context.queryKey, context.previousCategories)
+      if (context?.prevCategories) {
+        const categoryToRestore = context.prevCategories.find((c) => c.id === vars.category.id)
+
+        if (categoryToRestore) {
+          queryClient.setQueryData<ICategoryState[]>(context.actualCategoriesKey, (current) => {
+            if (current?.some((c) => c.id === vars.category.id)) return current
+            return [categoryToRestore, ...(current || [])]
+          })
+        }
+      }
+
+      if (context?.archivedCategoriesKey) {
+        queryClient.setQueryData<ICategoryState[]>(context.archivedCategoriesKey, (current) => {
+          return current?.filter((c) => c.id !== vars.category.id) || []
+        })
       }
     },
 

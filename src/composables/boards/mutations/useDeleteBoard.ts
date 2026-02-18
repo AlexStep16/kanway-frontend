@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys' // Твои ключи кэша
+import { boardKeys, categoryKeys, chatKeys, taskKeys, workspaceKeys } from '@/keys' // Твои ключи кэша
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { removeBoard } from '@/services/board'
@@ -39,7 +39,15 @@ export function useDeleteBoard() {
 
     onError: (err, vars, context) => {
       if (context?.previousBoards) {
-        queryClient.setQueryData(context.boardKey, context.previousBoards)
+        const boardToRestore = context.previousBoards.find((c) => c.id === vars.board.id)
+
+        if (boardToRestore) {
+          queryClient.setQueryData<IBoard[]>(context.boardKey, (current) => {
+            if (current?.some((c) => c.id === vars.board.id)) return current
+
+            return [boardToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

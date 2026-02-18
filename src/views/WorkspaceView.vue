@@ -5,9 +5,6 @@ import TaskEdit from '@components/Workspace/Main/Task/Edit/Edit.vue'
 import CategoryEdit from '@components/Workspace/Main/Category/Edit.vue'
 import BoardEdit from '@components/Workspace/Main/Board/Edit.vue'
 import WorkspaceEdit from '@components/Workspace/Edit.vue'
-import Board from '@/components/Workspace/Main/Board/Board.vue'
-import Archive from '@components/Workspace/Main/Archive/Archive.vue'
-import Start from '@components/Workspace/Main/Start.vue'
 import { useUIStore } from '@stores/ui'
 import { HSOverlay } from 'preline/dist'
 import Settings from '@components/Workspace/Settings/Settings.vue'
@@ -23,6 +20,8 @@ import { useChat } from '@/composables/chat/queries/useChat'
 import { useRootStore } from '@/stores/root'
 import Support from '@/components/Workspace/Main/Support/Support.vue'
 import Plans from '@/components/Workspace/Main/Subscription/Plans.vue'
+import SidebarNew from '@/components/Workspace/Sidebar/SidebarNew.vue'
+import WorkspaceDialog from '@/components/Workspace/WorkspaceDialog.vue'
 
 const rootStore = useRootStore()
 const uiStore = useUIStore()
@@ -117,32 +116,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <Sidebar />
-  <main
-    class="bg-gray-100 transition-all duration-300 fixed inset-0 lg:py-3 lg:px-3 lg:ps-70"
-    :class="{
-      'lg:ps-3!': !uiStore.isSidebarOpen,
-    }"
-  >
-    <div
-      class="h-full overflow-hidden flex flex-col px-3 sm:px-5 bg-white lg:border lg:border-gray-200 lg:shadow-xs lg:rounded-md"
-    >
-      <Board v-if="uiStore.currentTab === Tabs.Board" />
-      <Start v-else-if="uiStore.currentTab === Tabs.Start" />
-      <Archive v-else-if="uiStore.currentTab === Tabs.Archive" />
-    </div>
+  <SidebarNew />
+  <WorkspaceDialog />
 
-    <Teleport to="body">
-      <TaskEdit />
-      <CategoryEdit />
-      <BoardEdit />
-      <WorkspaceEdit />
-      <Settings />
-      <Chat />
-      <Tip />
-      <MobileSearch />
-      <Support />
-      <Plans />
-    </Teleport>
-  </main>
+  <Teleport to="body">
+    <TaskEdit />
+    <CategoryEdit />
+    <BoardEdit />
+    <WorkspaceEdit />
+    <Settings />
+    <Chat />
+    <Tip />
+    <MobileSearch />
+    <Support />
+    <Plans />
+  </Teleport>
 </template>

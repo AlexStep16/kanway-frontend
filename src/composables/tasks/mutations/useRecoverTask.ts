@@ -29,7 +29,7 @@ export function useRecoverTask() {
       await queryClient.cancelQueries({ queryKey: archivedTasksKey })
 
       const prevArchived = queryClient.getQueryData<ITaskState[]>(archivedTasksKey)
-      const prevBoard = queryClient.getQueryData<ITaskState[]>(actualTasksKey)
+      const prevTasks = queryClient.getQueryData<ITaskState[]>(actualTasksKey)
 
       if (prevArchived) {
         queryClient.setQueryData<ITaskState[]>(archivedTasksKey, (old) =>
@@ -37,23 +37,31 @@ export function useRecoverTask() {
         )
       }
 
-      if (prevBoard) {
-        queryClient.setQueryData<ITaskState[]>(actualTasksKey, (old) => {
-          if (!old) return []
-
-          return [...old, { ...task, isDeleted: false }]
-        })
+      if (prevTasks) {
+        queryClient.setQueryData<ITaskState[]>(actualTasksKey, (old) =>
+          old ? [...old, { ...task, isDeleted: false }] : [{ ...task, isDeleted: false }],
+        )
       }
 
-      return { prevArchived, prevBoard, archivedTasksKey, actualTasksKey }
+      return { prevArchived, prevTasks, archivedTasksKey, actualTasksKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.prevArchived) {
-        queryClient.setQueryData(context.archivedTasksKey, context.prevArchived)
+      if (context?.actualTasksKey) {
+        queryClient.setQueryData<ITaskState[]>(context.actualTasksKey, (current) => {
+          return current?.filter((t) => t.id !== vars.task.id) || []
+        })
       }
-      if (context?.prevBoard) {
-        queryClient.setQueryData(context.actualTasksKey, context.prevBoard)
+
+      if (context?.prevArchived) {
+        const taskToRestore = context.prevArchived.find((t) => t.id === vars.task.id)
+
+        if (taskToRestore) {
+          queryClient.setQueryData<ITaskState[]>(context.archivedTasksKey, (current) => {
+            if (current?.some((t) => t.id === vars.task.id)) return current
+            return [taskToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

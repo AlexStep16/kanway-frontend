@@ -30,7 +30,7 @@ export function useRecoverBoard() {
       await queryClient.cancelQueries({ queryKey: archivedBoardsKey })
 
       const prevArchived = queryClient.getQueryData<IBoard[]>(archivedBoardsKey)
-      const prevBoard = queryClient.getQueryData<IBoard[]>(actualBoardsKey)
+      const prevBoards = queryClient.getQueryData<IBoard[]>(actualBoardsKey)
 
       if (prevArchived) {
         queryClient.setQueryData<IBoard[]>(archivedBoardsKey, (old) =>
@@ -38,23 +38,30 @@ export function useRecoverBoard() {
         )
       }
 
-      if (prevBoard) {
-        queryClient.setQueryData<IBoard[]>(actualBoardsKey, (old) => {
-          if (!old) return []
-
-          return [...old, { ...board, isDeleted: false }]
-        })
+      if (prevBoards) {
+        queryClient.setQueryData<IBoard[]>(actualBoardsKey, (old) =>
+          old ? [...old, { ...board, isDeleted: false }] : [{ ...board, isDeleted: false }],
+        )
       }
 
-      return { prevArchived, prevBoard, archivedBoardsKey, actualBoardsKey }
+      return { prevArchived, prevBoards, archivedBoardsKey, actualBoardsKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.prevArchived) {
-        queryClient.setQueryData(context.archivedBoardsKey, context.prevArchived)
+      if (context?.actualBoardsKey) {
+        queryClient.setQueryData<IBoard[]>(context.actualBoardsKey, (current) => {
+          return current?.filter((b) => b.id !== vars.board.id) || []
+        })
       }
-      if (context?.prevBoard) {
-        queryClient.setQueryData(context.actualBoardsKey, context.prevBoard)
+
+      if (context?.prevArchived) {
+        const boardToRestore = context.prevArchived.find((b) => b.id === vars.board.id)
+        if (boardToRestore) {
+          queryClient.setQueryData<IBoard[]>(context.archivedBoardsKey, (current) => {
+            if (current?.some((b) => b.id === vars.board.id)) return current
+            return [boardToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

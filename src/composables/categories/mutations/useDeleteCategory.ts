@@ -37,7 +37,15 @@ export function useDeleteCategory() {
 
     onError: (err, vars, context) => {
       if (context?.previousCategories) {
-        queryClient.setQueryData(context.categoryKey, context.previousCategories)
+        const categoryToRestore = context.previousCategories.find((c) => c.id === vars.category.id)
+
+        if (categoryToRestore) {
+          queryClient.setQueryData<ICategoryState[]>(context.categoryKey, (current) => {
+            if (current?.some((c) => c.id === vars.category.id)) return current
+
+            return [categoryToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

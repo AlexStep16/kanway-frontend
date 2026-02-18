@@ -11,7 +11,7 @@ const { mutate: register, isPending: isRegistering } = useRegister()
 
 const schema = toTypedSchema(
   z.object({
-    email: z.string().email('Неверный формат'),
+    email: z.email('Неверный формат'),
     password: z.string().min(10, 'Пароль должен содержать минимум 10 символов'),
     agreement: z.boolean().refine((val) => val === true, {
       message: 'Необходимо согласие с политикой конфиденциальности',

@@ -8,6 +8,7 @@ export function useBoardMutationStatus(boardId: MaybeRef<string | null>) {
       isArchiving: computed(() => false),
       isRecovering: computed(() => false),
       isCloning: computed(() => false),
+      isFavoritePending: computed(() => false),
       isMoving: computed(() => false),
       isDeleting: computed(() => false),
       isUpdating: computed(() => false),
@@ -44,6 +45,7 @@ export function useBoardMutationStatus(boardId: MaybeRef<string | null>) {
   }
 
   const isArchiving = checkStatus('archive')
+  const isFavoritePending = checkStatus('favorite')
   const isRecovering = checkStatus('recover')
   const isCloning = checkStatus('clone')
   const isDeleting = checkStatus('delete')
@@ -53,6 +55,7 @@ export function useBoardMutationStatus(boardId: MaybeRef<string | null>) {
   const isBusy = computed(
     () =>
       isArchiving.value ||
+      isFavoritePending.value ||
       isRecovering.value ||
       isCloning.value ||
       isMoving.value ||
@@ -62,6 +65,7 @@ export function useBoardMutationStatus(boardId: MaybeRef<string | null>) {
 
   return {
     isArchiving,
+    isFavoritePending,
     isRecovering,
     isCloning,
     isMoving,

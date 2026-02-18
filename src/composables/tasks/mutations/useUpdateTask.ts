@@ -42,7 +42,13 @@ export function useUpdateTask() {
 
     onError: (err, vars, context) => {
       if (context?.previousTasks) {
-        queryClient.setQueryData(context.queryKey, context.previousTasks)
+        const originalTask = context.previousTasks.find((t) => t.id === vars.payload.id)
+
+        if (originalTask) {
+          queryClient.setQueryData<ITaskState[]>(context.queryKey, (current) => {
+            return current?.map((t) => (t.id === vars.payload.id ? originalTask : t)) ?? []
+          })
+        }
       }
     },
   })

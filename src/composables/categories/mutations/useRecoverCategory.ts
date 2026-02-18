@@ -30,7 +30,7 @@ export function useRecoverCategory() {
       await queryClient.cancelQueries({ queryKey: archivedCategoriesKey })
 
       const prevArchived = queryClient.getQueryData<ICategoryState[]>(archivedCategoriesKey)
-      const prevBoard = queryClient.getQueryData<ICategoryState[]>(actualCategoriesKey)
+      const prevCategories = queryClient.getQueryData<ICategoryState[]>(actualCategoriesKey)
 
       if (prevArchived) {
         queryClient.setQueryData<ICategoryState[]>(archivedCategoriesKey, (old) =>
@@ -38,23 +38,31 @@ export function useRecoverCategory() {
         )
       }
 
-      if (prevBoard) {
-        queryClient.setQueryData<ICategoryState[]>(actualCategoriesKey, (old) => {
-          if (!old) return []
-
-          return [...old, { ...category, isDeleted: false }]
-        })
+      if (prevCategories) {
+        queryClient.setQueryData<ICategoryState[]>(actualCategoriesKey, (old) =>
+          old ? [...old, { ...category, isDeleted: false }] : [{ ...category, isDeleted: false }],
+        )
       }
 
-      return { prevArchived, prevBoard, archivedCategoriesKey, actualCategoriesKey }
+      return { prevArchived, prevCategories, archivedCategoriesKey, actualCategoriesKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.prevArchived) {
-        queryClient.setQueryData(context.archivedCategoriesKey, context.prevArchived)
+      if (context?.actualCategoriesKey) {
+        queryClient.setQueryData<ICategoryState[]>(context.actualCategoriesKey, (current) => {
+          return current?.filter((c) => c.id !== vars.category.id) || []
+        })
       }
-      if (context?.prevBoard) {
-        queryClient.setQueryData(context.actualCategoriesKey, context.prevBoard)
+
+      if (context?.prevArchived) {
+        const categoryToRestore = context.prevArchived.find((c) => c.id === vars.category.id)
+
+        if (categoryToRestore) {
+          queryClient.setQueryData<ICategoryState[]>(context.archivedCategoriesKey, (current) => {
+            if (current?.some((c) => c.id === vars.category.id)) return current
+            return [categoryToRestore, ...(current || [])]
+          })
+        }
       }
     },
 

@@ -64,6 +64,49 @@ export function useUpdateManyCategories() {
       return { snapshots }
     },
 
+    onError: (err, vars, context) => {
+      if (!context?.snapshots) return
+
+      const { categories, boards, workspaces } = context.snapshots
+
+      if (categories) {
+        const failedIds = new Set(vars.payload.map((p) => p.id))
+        const categoriesSnapshotMap = new Map(categories.map((c) => [c.id, c]))
+
+        queryClient.setQueryData<ICategoryState[]>(categoryKeys.all, (current) => {
+          return (
+            current?.map((item) => {
+              if (failedIds.has(item.id)) {
+                return categoriesSnapshotMap.get(item.id) || item
+              }
+              return item
+            }) || []
+          )
+        })
+
+        if (boards) {
+          const boardDeltas = calculateCounterDeltas(categories, vars.payload, 'board')
+
+          const invertedBoardDeltas = new Map<string, number>()
+          boardDeltas.forEach((val, id) => {
+            invertedBoardDeltas.set(id, -val)
+          })
+
+          applyOptimisticCounters(queryClient, boardKeys.all, invertedBoardDeltas)
+        }
+
+        if (workspaces) {
+          const workspaceDeltas = calculateCounterDeltas(categories, vars.payload, 'workspace')
+          const invertedWorkspaceDeltas = new Map<string, number>()
+          workspaceDeltas.forEach((val, id) => {
+            invertedWorkspaceDeltas.set(id, -val)
+          })
+
+          applyOptimisticCounters(queryClient, workspaceKeys.lists(), invertedWorkspaceDeltas)
+        }
+      }
+    },
+
     onSettled: (result) => {
       if (!result) return
 
@@ -75,14 +118,6 @@ export function useUpdateManyCategories() {
           queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
           queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
         })
-      }
-    },
-
-    onError: (err, vars, context) => {
-      if (context?.snapshots) {
-        queryClient.setQueryData(categoryKeys.all, context.snapshots.categories)
-        queryClient.setQueryData(boardKeys.all, context.snapshots.boards)
-        queryClient.setQueryData(workspaceKeys.lists(), context.snapshots.workspaces)
       }
     },
   })

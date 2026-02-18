@@ -44,7 +44,13 @@ export function useUpdateCategory() {
 
     onError: (err, vars, context) => {
       if (context?.previousCategories) {
-        queryClient.setQueryData(context.queryKey, context.previousCategories)
+        const originalCategory = context.previousCategories.find((c) => c.id === vars.payload.id)
+
+        if (originalCategory) {
+          queryClient.setQueryData<ICategoryState[]>(context.queryKey, (current) => {
+            return current?.map((c) => (c.id === vars.payload.id ? originalCategory : c)) ?? []
+          })
+        }
       }
     },
   })

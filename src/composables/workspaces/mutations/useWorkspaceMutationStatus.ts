@@ -6,6 +6,7 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
   if (!toValue(workspaceId))
     return {
       isArchiving: computed(() => false),
+      isFavoritePending: computed(() => false),
       isRecovering: computed(() => false),
       isCloning: computed(() => false),
       isMoving: computed(() => false),
@@ -44,6 +45,7 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
   }
 
   const isArchiving = checkStatus('archive')
+  const isFavoritePending = checkStatus('favorite')
   const isRecovering = checkStatus('recover')
   const isCloning = checkStatus('clone')
   const isDeleting = checkStatus('delete')
@@ -53,6 +55,7 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
   const isBusy = computed(
     () =>
       isArchiving.value ||
+      isFavoritePending.value ||
       isRecovering.value ||
       isCloning.value ||
       isMoving.value ||
@@ -62,6 +65,7 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
 
   return {
     isArchiving,
+    isFavoritePending,
     isRecovering,
     isCloning,
     isMoving,

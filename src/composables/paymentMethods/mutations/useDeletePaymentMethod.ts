@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { paymentMethodKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
-import { ITaskState } from '@/stores/interfaces/ITaskState'
 import { deletePaymentMethod } from '@/services/setting'
+import { IPaymentMethod } from '@/interfaces/domain/IPaymentMethod'
 
 export interface DeletePaymentMethodVars {
   id: string
@@ -22,10 +22,10 @@ export function useDeletePaymentMethod() {
 
       await queryClient.cancelQueries({ queryKey: paymentMethodKey })
 
-      const previousPaymentMethods = queryClient.getQueryData<ITaskState[]>(paymentMethodKey)
+      const previousPaymentMethods = queryClient.getQueryData<IPaymentMethod[]>(paymentMethodKey)
 
       if (previousPaymentMethods) {
-        queryClient.setQueryData<ITaskState[]>(paymentMethodKey, (oldPaymentMethods) =>
+        queryClient.setQueryData<IPaymentMethod[]>(paymentMethodKey, (oldPaymentMethods) =>
           oldPaymentMethods ? oldPaymentMethods.filter((t) => t.id !== id) : [],
         )
       }
@@ -35,13 +35,23 @@ export function useDeletePaymentMethod() {
 
     onError: (err, vars, context) => {
       if (context?.previousPaymentMethods) {
-        queryClient.setQueryData(context.paymentMethodKey, context.previousPaymentMethods)
+        const paymentMethodToRestore = context.previousPaymentMethods.find((c) => c.id === vars.id)
+
+        if (paymentMethodToRestore) {
+          queryClient.setQueryData<IPaymentMethod[]>(context.paymentMethodKey, (current) => {
+            if (current?.some((c) => c.id === vars.id)) return current
+
+            return [paymentMethodToRestore, ...(current || [])]
+          })
+        }
       }
     },
 
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: paymentMethodKeys.all })
+    },
 
+    onSuccess: () => {
       toast.success('Способ оплаты успешно удален')
     },
   })

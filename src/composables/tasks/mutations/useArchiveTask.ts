@@ -23,24 +23,46 @@ export function useArchiveTask() {
       requestQueueService.enqueue(task.id, () => archiveTask(task.id)),
 
     onMutate: async ({ task }) => {
-      const queryKey = taskKeys.byBoard(task.board.id)
+      const actualTasksKey = taskKeys.byBoard(task.board.id)
+      const archivedTasksKey = taskKeys.archived()
 
-      await queryClient.cancelQueries({ queryKey })
+      await queryClient.cancelQueries({ queryKey: actualTasksKey })
+      await queryClient.cancelQueries({ queryKey: archivedTasksKey })
 
-      const previousTasks = queryClient.getQueryData<ITaskState[]>(queryKey)
+      const prevTasks = queryClient.getQueryData<ITaskState[]>(actualTasksKey)
+      const prevArchived = queryClient.getQueryData<ITaskState[]>(archivedTasksKey)
 
-      if (previousTasks) {
-        queryClient.setQueryData<ITaskState[]>(queryKey, (old) =>
+      if (prevTasks) {
+        queryClient.setQueryData<ITaskState[]>(actualTasksKey, (old) =>
           old ? old.filter((t) => t.id !== task.id) : [],
         )
       }
 
-      return { previousTasks, queryKey }
+      if (prevArchived) {
+        queryClient.setQueryData<ITaskState[]>(archivedTasksKey, (old) =>
+          old ? [...old, { ...task, isDeleted: true }] : [{ ...task, isDeleted: true }],
+        )
+      }
+
+      return { prevArchived, prevTasks, archivedTasksKey, actualTasksKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousTasks) {
-        queryClient.setQueryData(context.queryKey, context.previousTasks)
+      if (context?.prevTasks) {
+        const taskToRestore = context.prevTasks.find((t) => t.id === vars.task.id)
+
+        if (taskToRestore) {
+          queryClient.setQueryData<ITaskState[]>(context.actualTasksKey, (current) => {
+            if (current?.some((t) => t.id === vars.task.id)) return current
+            return [taskToRestore, ...(current || [])]
+          })
+        }
+      }
+
+      if (context?.archivedTasksKey) {
+        queryClient.setQueryData<ITaskState[]>(context.archivedTasksKey, (current) => {
+          return current?.filter((t) => t.id !== vars.task.id) || []
+        })
       }
     },
 

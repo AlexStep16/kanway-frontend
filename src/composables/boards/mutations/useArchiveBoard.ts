@@ -23,24 +23,46 @@ export function useArchiveBoard() {
       requestQueueService.enqueue(board.id, () => archiveBoard(board.id)),
 
     onMutate: async ({ board }) => {
-      const queryKey = boardKeys.byWorkspace(board.workspace.id)
+      const actualBoardsKey = boardKeys.byWorkspace(board.workspace.id)
+      const archivedBoardsKey = boardKeys.archived()
 
-      await queryClient.cancelQueries({ queryKey })
+      await queryClient.cancelQueries({ queryKey: actualBoardsKey })
+      await queryClient.cancelQueries({ queryKey: archivedBoardsKey })
 
-      const previousBoards = queryClient.getQueryData<IBoard[]>(queryKey)
+      const prevBoards = queryClient.getQueryData<IBoard[]>(actualBoardsKey)
+      const prevArchived = queryClient.getQueryData<IBoard[]>(archivedBoardsKey)
 
-      if (previousBoards) {
-        queryClient.setQueryData<IBoard[]>(queryKey, (old) =>
-          old ? old.filter((c) => c.id !== board.id) : [],
+      if (prevBoards) {
+        queryClient.setQueryData<IBoard[]>(actualBoardsKey, (old) =>
+          old ? old.filter((b) => b.id !== board.id) : [],
         )
       }
 
-      return { previousBoards, queryKey }
+      if (prevArchived) {
+        queryClient.setQueryData<IBoard[]>(archivedBoardsKey, (old) =>
+          old ? [...old, { ...board, isDeleted: true }] : [{ ...board, isDeleted: true }],
+        )
+      }
+
+      return { prevArchived, prevBoards, archivedBoardsKey, actualBoardsKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousBoards) {
-        queryClient.setQueryData(context.queryKey, context.previousBoards)
+      if (context?.prevBoards) {
+        const boardToRestore = context.prevBoards.find((b) => b.id === vars.board.id)
+
+        if (boardToRestore) {
+          queryClient.setQueryData<IBoard[]>(context.actualBoardsKey, (current) => {
+            if (current?.some((b) => b.id === vars.board.id)) return current
+            return [boardToRestore, ...(current || [])]
+          })
+        }
+      }
+
+      if (context?.archivedBoardsKey) {
+        queryClient.setQueryData<IBoard[]>(context.archivedBoardsKey, (current) => {
+          return current?.filter((b) => b.id !== vars.board.id) || []
+        })
       }
     },
 

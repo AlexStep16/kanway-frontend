@@ -41,7 +41,13 @@ export function useUpdateSetting() {
 
     onError: (err, vars, context) => {
       if (context?.previousSetting) {
-        queryClient.setQueryData(context.queryKey, context.previousSetting)
+        const originalSetting = context.previousSetting
+
+        if (originalSetting) {
+          queryClient.setQueryData<ISetting>(context.queryKey, (current) => {
+            return current?.id === vars.payload.id ? originalSetting : current
+          })
+        }
       }
     },
   })

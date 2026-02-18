@@ -58,9 +58,9 @@ function handleSortChange() {
 </script>
 
 <template>
-  <Header />
+  <!--<Header />-->
 
-  <div class="size-full py-1.5 flex gap-3 overflow-y-hidden custom-scrollbar">
+  <div class="size-full pt-4 flex gap-3 overflow-y-hidden custom-scrollbar">
     <template v-if="!isBoardsLoading">
       <draggable
         v-model="localCategoryList"
@@ -113,7 +113,7 @@ function handleSortChange() {
     </template>
   </div>
 
-  <AIInput />
+  <!--<AIInput />-->
 </template>
 
 <style lang="css" scoped>

@@ -37,7 +37,15 @@ export function useDeleteTask() {
 
     onError: (err, vars, context) => {
       if (context?.previousTasks) {
-        queryClient.setQueryData(context.taskKey, context.previousTasks)
+        const taskToRestore = context.previousTasks.find((t) => t.id === vars.task.id)
+
+        if (taskToRestore) {
+          queryClient.setQueryData<ITaskState[]>(context.taskKey, (current) => {
+            if (current?.some((t) => t.id === vars.task.id)) return current
+
+            return [taskToRestore, ...(current || [])]
+          })
+        }
       }
     },
 
