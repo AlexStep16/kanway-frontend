@@ -23,14 +23,20 @@ export function useRetryAgent() {
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveTool'],
 
-    mutationFn: ({ payload }: RetryAgentVars) =>
-      retryAgent({
+    mutationFn: ({ payload }: RetryAgentVars) => {
+      const jobId = crypto.randomUUID()
+
+      agentStore.connectSSE(jobId)
+
+      return retryAgent({
         chatId: payload.chatId,
         threadId: payload.threadId,
         boardId: payload.boardId,
         workspaceId: payload.workspaceId,
         timezone: dayjs.tz.guess(),
-      }),
+        jobId,
+      })
+    },
 
     onSuccess: (result, { chatId, payload }) => {
       queryClient.setQueryData<IChatMessage[]>(
@@ -43,6 +49,9 @@ export function useRetryAgent() {
       )
 
       agentStore.connectSSE(result.jobId)
+    },
+    onError: () => {
+      agentStore.closeSSE()
     },
   })
 }

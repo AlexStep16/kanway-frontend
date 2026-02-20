@@ -125,7 +125,6 @@ onMounted(() => {
     <BoardEdit />
     <WorkspaceEdit />
     <Settings />
-    <Chat />
     <Tip />
     <MobileSearch />
     <Support />

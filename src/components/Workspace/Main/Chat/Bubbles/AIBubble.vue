@@ -8,8 +8,6 @@ defineEmits<{
 defineProps<{
   isError?: boolean
   date?: string
-  hideAvatar?: boolean
-  hideBackground?: boolean
   isContentFullWidth?: boolean
   fastQuestions?: string[]
 }>()
@@ -17,16 +15,9 @@ defineProps<{
 
 <template>
   <div class="w-full flex flex-col justify-start gap-y-1 group/bubble">
-    <div class="flex items-end gap-x-2" :class="{ 'items-stretch! w-full': hideBackground }">
+    <div class="flex items-end w-full">
       <div
-        class="size-8 shrink-0 rounded-full hidden sm:inline-flex"
-        :class="{ 'bg-[url(/src/assets/logo_circle.svg)] bg-center bg-cover': !hideAvatar }"
-      ></div>
-      <div
-        class="rounded-lg bg-gray-100 p-3"
         :class="{
-          'rounded-bl-none': !hideAvatar,
-          'bg-transparent inline-flex items-center p-0! ps-2! grow-1': hideBackground,
           'w-full sm:w-full max-w-[90%] sm:max-w-xl': isContentFullWidth,
           'max-w-[90%] sm:max-w-lg': !isContentFullWidth,
         }"
@@ -35,7 +26,7 @@ defineProps<{
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center sm:ps-10 justify-start gap-1" v-if="isError">
+    <div class="flex flex-wrap items-center justify-start gap-1" v-if="isError">
       <button
         type="button"
         class="text-xs flex items-center gap-x-1 rounded-md text-gray-500 py-1.5 px-2.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100"
@@ -47,7 +38,7 @@ defineProps<{
     </div>
 
     <div
-      class="flex flex-wrap items-center sm:ps-10 justify-start gap-1"
+      class="flex flex-wrap items-center justify-start gap-1"
       v-if="fastQuestions && fastQuestions.length"
     >
       <button
@@ -61,8 +52,8 @@ defineProps<{
     </div>
 
     <div
-      class="flex items-center sm:ps-10 justify-start opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-100 gap-x-1"
-      v-if="!hideAvatar && !hideBackground"
+      class="flex items-center justify-start opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-100 gap-x-1"
+      v-if="date"
     >
       <span class="text-xs text-gray-500">{{ date }}</span>
     </div>

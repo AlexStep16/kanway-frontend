@@ -12,6 +12,7 @@ import Start from '@components/Workspace/Main/Start.vue'
 /** Stores */
 import TitleBoard from '../Header/TitleBoard.vue'
 import Search from './Search.vue'
+import Chat from './Chat.vue'
 
 const uiStore = useUIStore()
 </script>
@@ -35,5 +36,6 @@ const uiStore = useUIStore()
         <Start v-else />
       </div>
     </SidebarInset>
+    <Chat />
   </SidebarProvider>
 </template>

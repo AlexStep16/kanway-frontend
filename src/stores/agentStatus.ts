@@ -1,4 +1,4 @@
-import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
+import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
 import { AgentProgress } from '@/interfaces/AgentProgress'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -18,7 +18,8 @@ export interface Event {
 
 export const useAgentStatusStore = defineStore('agentStatus', () => {
   const activeJobId = ref<string | null>(null)
-  const currentActivity = ref<string | null>(null)
+  const currentTool = ref<string | null>(null)
+  const isThinking = ref(false)
   const timeElapsed = ref(0)
 
   let timerInterval: number | null = null
@@ -54,14 +55,12 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     }
   }
 
-  const assistantStream = ref<string>('')
-
   const eventSource = ref<EventSource | null>(null)
 
   function connectSSE(jobId: string) {
     if (eventSource.value) eventSource.value.close()
 
-    currentActivity.value = 'Думаю'
+    isThinking.value = true
 
     startTimer()
 
@@ -74,6 +73,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     activeJobId.value = jobId
 
     eventSource.value.onmessage = (event: MessageEvent<string>) => {
+      isThinking.value = false
+
       handleIncomingEvent(JSON.parse(event.data))
     }
 
@@ -93,11 +94,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       return
     }
 
-    if (data.role === AgentRolesEnum.TOOLS_EXECUTION) {
-      currentActivity.value = data.title || 'Выполнение инструмента'
-    } else if (data.role === AgentRolesEnum.ASSISTANT_CHUNK) {
-      assistantStream.value += data.content
-    } else if (data.role === AgentRolesEnum.NEW_MESSAGE) {
+    if (data.role === CustomEventsEnum.NEW_MESSAGE) {
       queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(data.message.chatId),
         (oldChatMessages: IChatMessage[] | undefined) => {
@@ -105,10 +102,21 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
         },
       )
 
-      if (data.message.role === AgentRolesEnum.ACTIONS) {
+      if (data.message.role === CustomEventsEnum.ACTIONS) {
         invalidateActions(data.message.content as IActionResponse)
       }
-    } else if (data.role === AgentRolesEnum.UNDO) {
+    } else if (data.role === CustomEventsEnum.UPDATE_MESSAGE) {
+      queryClient.setQueryData<IChatMessage[]>(
+        chatMessageKeys.byChat(data.message.chatId),
+        (oldChatMessages: IChatMessage[] | undefined) => {
+          return oldChatMessages
+            ? oldChatMessages.map((msg) =>
+                msg.id === data.message.id ? { ...msg, ...data.message } : msg,
+              )
+            : [data.message]
+        },
+      )
+    } else if (data.role === CustomEventsEnum.UNDO) {
       invalidateUndo(data.undo)
     }
   }
@@ -119,9 +127,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       eventSource.value = null
     }
     activeJobId.value = null
-    currentActivity.value = null
-
-    assistantStream.value = ''
+    currentTool.value = null
+    isThinking.value = false
 
     stopTimer()
   }
@@ -132,8 +139,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
   return {
     activeJobId,
-    currentActivity,
-    assistantStream,
+    currentTool,
+    isThinking,
     formattedTime,
 
     connectSSE,

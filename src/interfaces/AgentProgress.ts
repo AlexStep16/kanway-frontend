@@ -1,4 +1,4 @@
-import { AgentRolesEnum } from '@/enums/AgentRolesEnum'
+import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
 import ChatMessageModel from '@/models/ChatMessageModel'
 import { ConfirmationData } from '@interfaces/ConfirmationData'
 import { IUndoResponse } from '@/interfaces/IUndoResponse'
@@ -7,35 +7,28 @@ import { IActionResponse } from '@/interfaces/IActionResponse'
 export type AgentProgress =
   | {
       role:
-        | AgentRolesEnum.TOOLS_RETRIEVING
-        | AgentRolesEnum.SYNTHESIZE_START
-        | AgentRolesEnum.CALLING_TOOLS
-        | AgentRolesEnum.HISTORY_RETRIEVING
+        | CustomEventsEnum.TOOLS_RETRIEVING
+        | CustomEventsEnum.SYNTHESIZE_START
+        | CustomEventsEnum.CALLING_TOOLS
+        | CustomEventsEnum.HISTORY_RETRIEVING
     }
   | {
-      role: AgentRolesEnum.ASSISTANT_CHUNK | AgentRolesEnum.ASSISTANT_FINAL
-      content: string
-    }
-  | {
-      role: AgentRolesEnum.PREVIEW
+      role: CustomEventsEnum.PREVIEW
       content: ConfirmationData[]
     }
   | {
-      role: AgentRolesEnum.UNDO
+      role: CustomEventsEnum.UNDO
       undo: IUndoResponse
     }
   | {
-      role: AgentRolesEnum.ACTIONS
+      role: CustomEventsEnum.ACTIONS
       actions: IActionResponse
     }
   | {
-      role: AgentRolesEnum.TOOLS_EXECUTION
-      name: string
-      toolCallId: string
-      input: string
-      title: string
+      role: CustomEventsEnum.NEW_MESSAGE
+      message: ChatMessageModel
     }
   | {
-      role: AgentRolesEnum.NEW_MESSAGE
+      role: CustomEventsEnum.UPDATE_MESSAGE
       message: ChatMessageModel
     }

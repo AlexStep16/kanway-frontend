@@ -13,7 +13,7 @@ interface SendMessageVars {
     workspaceId: string | null
     threadId?: string
   }
-  chatId: string
+  chatId?: string
 }
 
 export function useSendMessage() {
@@ -29,8 +29,13 @@ export function useSendMessage() {
         throw new Error('Нет активного пространства')
       }
 
+      const jobId = crypto.randomUUID()
+
+      agentStore.connectSSE(jobId)
+
       return sendMessageApi({
         message: payload.message,
+        jobId,
         boardId: payload.boardId ?? undefined,
         threadId: payload.threadId,
         timezone: dayjs.tz.guess(),
@@ -38,9 +43,11 @@ export function useSendMessage() {
       })
     },
 
-    onSuccess: (result, { chatId }) => {
+    onSuccess: (result) => {
+      chatStore.selectChat(result.chat)
+
       queryClient.setQueryData<IChatMessage[]>(
-        chatMessageKeys.byChat(chatId),
+        chatMessageKeys.byChat(result.chat.id),
         (oldChatMessages: IChatMessage[] | undefined) => {
           return oldChatMessages ? [...oldChatMessages, ...result.chatMessages] : []
         },
@@ -50,10 +57,9 @@ export function useSendMessage() {
       if (!chatStore.activeChat || chatStore.activeChat.id !== result.chat.id) {
         chatStore.selectChat(result.chat, true)
       }
-
-      if (result.jobId) {
-        agentStore.connectSSE(result.jobId)
-      }
+    },
+    onError: () => {
+      agentStore.closeSSE()
     },
   })
 }
