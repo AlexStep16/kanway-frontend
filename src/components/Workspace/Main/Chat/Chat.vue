@@ -16,8 +16,8 @@ import { useWorkspaceStore } from '@/stores/workspace'
 import { useRetryAgent } from '@/composables/chat/mutations/useRetryAgent'
 import { useChatMessages } from '@/composables/chatMessages/queries/useChatMessages'
 import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
-import ChatActions from './ChatActions.vue'
-import ChatPreview from './ChatPreview.vue'
+import ChatLog from './ChatLog.vue'
+import ChatAmbiguous from './ChatAmbiguous.vue'
 import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
 
@@ -101,12 +101,12 @@ onBeforeUnmount(() => {
           <Stepper :steps="message.content" />
         </AIBubble>
 
-        <template v-else-if="message.role === CustomEventsEnum.ACTIONS">
-          <ChatActions :message="message" />
+        <template v-else-if="message.role === CustomEventsEnum.OPERATION">
+          <ChatLog :message="message" />
         </template>
 
-        <template v-else-if="message.role === CustomEventsEnum.PREVIEW">
-          <ChatPreview :message="message" />
+        <template v-else-if="message.role === CustomEventsEnum.AMBIGUOUS">
+          <ChatAmbiguous :message="message" />
         </template>
       </template>
     </template>

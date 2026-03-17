@@ -7,6 +7,7 @@ export default class ChatMessageModel implements IChatMessage {
   public content: any
   public tempId?: string
   public listType?: 'workspace' | 'board' | 'category' | 'task'
+  public pendingToolCallId?: string
   public userId: string
   public chatId: string
   public threadId: string
@@ -18,6 +19,7 @@ export default class ChatMessageModel implements IChatMessage {
     this.role = props.role
     this.content = props.content
     this.listType = props.listType
+    this.pendingToolCallId = props.pendingToolCallId
     this.userId = props.userId
     this.chatId = props.chatId
     this.threadId = props.threadId

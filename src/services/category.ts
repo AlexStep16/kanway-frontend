@@ -113,8 +113,8 @@ export async function saveCategories(
   }
 }
 
-export async function removeCategory(id: string) {
-  await deleteCategoryApi(id)
+export async function removeCategory(id: string): Promise<IResponseWithLog<null>> {
+  return await deleteCategoryApi(id)
 }
 
 export async function archiveCategory(id: string): Promise<IResponseWithLog<ICategory[]>> {

@@ -10,16 +10,3 @@ export const COLOR_NAMES_MAP = {
   neutral: 'Нейтральный',
   gray: 'Серый',
 }
-
-export const COLOR_NAMES = [
-  'Red',
-  'Blue',
-  'Yellow',
-  'Purple',
-  'Orange',
-  'Green',
-  'Lime',
-  'Pink',
-  'Neutral',
-  'Gray',
-] as const

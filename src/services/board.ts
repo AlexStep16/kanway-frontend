@@ -90,8 +90,8 @@ export async function saveBoard(payload: ISingleUpdate<BoardModel>) {
   }
 }
 
-export async function removeBoard(id: string) {
-  await deleteBoardApi(id)
+export async function removeBoard(id: string): Promise<IResponseWithLog<null>> {
+  return await deleteBoardApi(id)
 }
 
 export async function archiveBoard(id: string): Promise<IResponseWithLog<IBoard[]>> {

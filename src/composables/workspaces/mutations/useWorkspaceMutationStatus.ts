@@ -51,6 +51,7 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
   const isDeleting = checkStatus('delete')
   const isMoving = checkStatus('move', 'payload')
   const isUpdating = checkStatus('update', 'payload')
+  const isUpdatingMany = checkStatus('updateMany', 'array')
 
   const isBusy = computed(
     () =>
@@ -60,7 +61,8 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
       isCloning.value ||
       isMoving.value ||
       isDeleting.value ||
-      isUpdating.value,
+      isUpdating.value ||
+      isUpdatingMany.value,
   )
 
   return {
@@ -71,6 +73,7 @@ export function useWorkspaceMutationStatus(workspaceId: MaybeRef<string | null>)
     isMoving,
     isDeleting,
     isUpdating,
+    isUpdatingMany,
     isBusy,
   }
 }

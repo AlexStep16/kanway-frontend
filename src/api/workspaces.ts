@@ -51,7 +51,7 @@ export async function patchWorkspaceApi(
 }
 
 export async function deleteWorkspaceApi(workspaceId: string) {
-  return await apiCall<void>({
+  return await apiCall<IResponseWithLog<null>>({
     method: 'DELETE',
     url: `/workspaces/${workspaceId}`,
   })

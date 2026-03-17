@@ -13,7 +13,7 @@ export function getTimeStatus(
   const date =
     dueHours != null && dueMinutes != null
       ? dayjs(dueDate).hour(dueHours).minute(dueMinutes)
-      : dayjs(dueDate).startOf('day')
+      : dayjs(dueDate).endOf('day')
 
   if (date < now) return TimeStatus.EXPIRED
   if (date >= now && date <= now.add(2, 'days')) return TimeStatus.EXPIRING

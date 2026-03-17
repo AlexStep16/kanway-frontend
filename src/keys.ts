@@ -39,6 +39,12 @@ export const workspaceKeys = {
   ],
 }
 
+export const logKeys = {
+  all: ['logs'],
+  lists: () => [...logKeys.all, 'list'],
+  detailed: (logId: MaybeRef<string | null>) => [...logKeys.all, 'detailed', { logId }],
+}
+
 export const settingKeys = {
   all: ['settings'],
 }

@@ -100,7 +100,9 @@ const focusOutsideHandler = (event: any) => {
                   @click="uiStore.openCategoryToEdit(category)"
                 >
                   <span class="text-sm truncate" :title="category.name">{{ category.name }}</span>
-                  <span class="ms-auto text-xs text-muted-foreground">{{ category.name }}</span>
+                  <span class="ms-auto text-xs text-muted-foreground">{{
+                    category.board.name
+                  }}</span>
                 </Button>
               </div>
             </div>

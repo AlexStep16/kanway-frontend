@@ -5,6 +5,7 @@ import {
   cloneChatApi,
   sendMessageApi,
   approveToolCallApi,
+  resolveAmbiguousApi,
   retryApi,
   stopAgentApi,
   getChatApi,
@@ -12,9 +13,10 @@ import {
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import ChatModel from '@/models/ChatModel'
 import { SendMessagePayload } from '@/interfaces/SendMessagePayload'
-import { ApproveToolCall } from '@/interfaces/ApproveToolCall'
+import { IApproveEntityActionToolCallPayload } from '@/interfaces/IApproveEntityActionToolCallPayload'
 import { RetryAgentPayload } from '@/interfaces/RetryAgentPayload'
 import { StopAgentPayload } from '@/interfaces/StopAgentPayload'
+import { ResolveAmbiguous } from '@/interfaces/ResolveAmbiguous'
 
 export function transformChat(raw: IChat): ChatModel {
   return new ChatModel({
@@ -53,8 +55,12 @@ export async function removeChat(id: string) {
   await deleteChatApi(id)
 }
 
-export async function approveToolCall(data: ApproveToolCall) {
-  const result = await approveToolCallApi(data)
+export async function approveToolCall(data: IApproveEntityActionToolCallPayload) {
+  return await approveToolCallApi(data)
+}
+
+export async function resolveAmbiguous(data: ResolveAmbiguous) {
+  const result = await resolveAmbiguousApi(data)
 
   return {
     jobId: result.jobId,

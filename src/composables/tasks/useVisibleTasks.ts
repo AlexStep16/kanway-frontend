@@ -109,7 +109,7 @@ export function useVisibleTasks(
     if (!categoryTasks.value) return []
 
     const tags = new Set<string>()
-    categoryTasks.value.forEach((t) => t.tags?.forEach((tag) => tags.add(tag)))
+    categoryTasks.value.forEach((t) => t.tags.forEach((tag) => tags.add(tag)))
     return Array.from(tags)
   })
 

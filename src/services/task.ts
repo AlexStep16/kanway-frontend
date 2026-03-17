@@ -139,8 +139,8 @@ export async function saveTasks(
   }
 }
 
-export async function removeTask(id: string) {
-  await deleteTaskApi(id)
+export async function removeTask(id: string): Promise<IResponseWithLog<null>> {
+  return await deleteTaskApi(id)
 }
 
 export async function archiveTask(id: string): Promise<IResponseWithLog<ITask[]>> {

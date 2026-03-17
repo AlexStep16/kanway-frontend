@@ -4,7 +4,7 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { recoverBoard } from '@/services/board'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 
 interface RecoverBoardVars {
   board: IBoard

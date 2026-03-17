@@ -53,7 +53,7 @@ export async function patchBoardApi(payload: ISingleUpdate<IBoard>) {
 }
 
 export async function deleteBoardApi(id: string) {
-  return await apiCall<void>({
+  return await apiCall<IResponseWithLog<null>>({
     method: 'DELETE',
     url: `/boards/${id}`,
   })

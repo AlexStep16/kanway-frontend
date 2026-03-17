@@ -1,0 +1,59 @@
+<script setup lang="ts">
+import { hasArrayChanges } from '@/utils/hasArrayChanges'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  before: {
+    tags?: string[]
+  }
+  after: {
+    tags?: string[]
+  }
+  baseBlockBeforeClasses?: string
+  baseBlockAfterClasses?: string
+}>()
+
+const hasTagsChange = computed(() => {
+  return hasArrayChanges(props.before.tags, props.after.tags)
+})
+</script>
+
+<template>
+  <div class="flex gap-1 flex-wrap" v-if="hasTagsChange">
+    <div
+      class="flex flex-wrap text-xs"
+      :class="baseBlockBeforeClasses"
+      v-if="before.tags && before.tags.length"
+    >
+      <span class="truncate">{{ before.tags.map((t) => '#' + t).join(' ') }}</span>
+    </div>
+    <div
+      class="flex flex-wrap text-xs gap-1"
+      :class="baseBlockBeforeClasses"
+      v-else-if="before.tags && before.tags.length === 0"
+    >
+      Нет тегов
+    </div>
+
+    <div
+      class="flex flex-wrap text-xs"
+      :class="baseBlockAfterClasses"
+      v-if="after.tags && after.tags.length"
+    >
+      <span class="truncate">{{ after.tags.map((t) => '#' + t).join(' ') }}</span>
+    </div>
+    <div
+      class="flex flex-wrap text-xs"
+      :class="baseBlockAfterClasses"
+      v-else-if="after.tags && after.tags.length === 0"
+    >
+      Нет тегов
+    </div>
+  </div>
+  <div
+    class="flex flex-wrap text-xs text-gray-500 gap-1"
+    v-else-if="before.tags && before.tags.length"
+  >
+    {{ before.tags.map((t) => '#' + t).join(' ') }}
+  </div>
+</template>

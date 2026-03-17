@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { toast } from 'vue-sonner'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { saveBoard } from '@/services/board'
 

@@ -24,7 +24,7 @@ import { storeToRefs } from 'pinia'
 import { useBoard } from '@/composables/boards/useBoard'
 import { EntityType } from '@/enums/EntityType'
 import { useArchivedCategories } from '@/composables/categories/queries/useArchivedCategories'
-import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import EntityCardSkeleton from '@components/Workspace/Main/EntityCardSkeleton.vue'
 import { useArchivedBoard } from '@/composables/boards/useArchivedBoard'
 
 const uiStore = useUIStore()
@@ -165,17 +165,23 @@ const handleClose = () => uiStore.closeEditBoardModal()
                   v-for="cat in data"
                   :id="cat.id"
                   :key="cat.id"
+                  :entity="cat"
+                  :status="status"
                   :name="cat.name"
-                  :isStatic="false"
-                  :hasCopy="true"
-                  :hasDelete="true"
-                  :hasSelected="false"
+                  :options="{
+                    hasCopy: true,
+                    hasDelete: true,
+                  }"
                   @click="uiStore.openCategoryToEdit(cat)"
                 />
               </template>
             </ColumnsView>
 
-            <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`" v-else></TaskSkeleton>
+            <EntityCardSkeleton
+              v-for="i in 5"
+              :key="`board-edit-card-skeleton-${i}`"
+              v-else
+            ></EntityCardSkeleton>
 
             <div v-if="categories.length === 0" class="text-center py-10 text-gray-400 text-sm">
               Нет категории

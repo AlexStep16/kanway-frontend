@@ -107,7 +107,7 @@ onMounted(() => {
       aria-labelledby="hs-dropdown-move"
     >
       <div class="flex flex-col p-2 gap-y-2">
-        <div class="flex flex-col gap-y-0.5 flex-grow-1">
+        <div class="flex flex-col gap-y-0.5 grow">
           <span class="text-xs text-gray-400">Пространство</span>
 
           <select
@@ -130,7 +130,7 @@ onMounted(() => {
           </select>
         </div>
 
-        <div class="flex flex-col gap-y-0.5 flex-grow-1" v-if="type !== EntityType.Board">
+        <div class="flex flex-col gap-y-0.5 grow" v-if="type !== EntityType.Board">
           <span class="text-xs text-gray-400">Доска</span>
           <div
             v-if="isBoardsLoading"
@@ -154,7 +154,7 @@ onMounted(() => {
           ></select>
         </div>
 
-        <div class="flex flex-col gap-y-0.5 flex-grow-1" v-if="type === EntityType.Task">
+        <div class="flex flex-col gap-y-0.5 grow" v-if="type === EntityType.Task">
           <span class="text-xs text-gray-400">Категория</span>
 
           <div v-if="isCategoriesLoading" class="absolute inset-0 bg-white/60 z-10">

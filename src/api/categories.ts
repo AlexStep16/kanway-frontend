@@ -52,7 +52,7 @@ export async function bulkUpdateCategoriesApi(payload: ISingleUpdate<ICategory>[
 }
 
 export async function deleteCategoryApi(id: string) {
-  return await apiCall<void>({
+  return await apiCall<IResponseWithLog<null>>({
     method: 'DELETE',
     url: `/categories/${id}`,
   })

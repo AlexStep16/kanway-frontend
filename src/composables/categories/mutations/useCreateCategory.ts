@@ -4,7 +4,7 @@ import { boardKeys, categoryKeys, workspaceKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
 import { ICategory } from '@/interfaces/domain/ICategory'
 import { createCategory } from '@/services/category'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 
 interface CreateCategoryVars {
   payload: Partial<ICategory>

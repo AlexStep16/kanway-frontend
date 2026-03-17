@@ -2,10 +2,11 @@
 import { TaskModel } from '@models/TaskModel'
 import { Palette, CircleOff } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
-import { COLOR_NAMES, COLOR_NAMES_MAP } from '@/constants/COLOR_NAMES_MAP'
-import { TASK_COLORS, TASK_COLORS_MAP } from '@/constants/TASK_COLORS'
+import { COLOR_NAMES_MAP } from '@/constants/COLOR_NAMES_MAP'
+import { TASK_COLORS_MAP, TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 import { HSDropdown, HSStaticMethods, ICollectionItem } from 'preline'
 import { Nullable } from '@/types/utils'
+import { getColorByNameAndTone } from '@/utils/getColorByNameAndTone'
 
 const colorDropdownRef = ref<Nullable<HTMLElement>>(null)
 const colorDropdownInstance = ref<Nullable<HSDropdown>>(null)
@@ -17,32 +18,36 @@ const props = defineProps<{
 const emit = defineEmits<{
   (
     e: 'setColor',
-    color: Nullable<(typeof TASK_COLORS)[number]>,
-    colorName: Nullable<(typeof COLOR_NAMES)[number]>,
+    color: Nullable<{
+      value: (typeof TASK_COLORS_TITLES)[number]
+      tone: 'light' | 'medium' | 'dark'
+    }>,
   ): void
 }>()
 
-const getColorName = (colorName?: Nullable<(typeof COLOR_NAMES)[number]>) => {
+const getColorName = (colorName?: Nullable<(typeof TASK_COLORS_TITLES)[number]>) => {
   if (!colorName) return 'Без цвета'
 
-  const loweredColorName = colorName.toLowerCase() as keyof typeof COLOR_NAMES_MAP
-  return COLOR_NAMES_MAP[loweredColorName] || colorName
+  return COLOR_NAMES_MAP[colorName] || colorName
 }
 
-const getColorTitle = computed(() => {
-  if (props.task.colorName) {
-    return getColorName(props.task.colorName)
+const colorTitle = computed(() => {
+  if (props.task.color) {
+    return getColorName(props.task.color.value)
   } else {
     return 'Цвет'
   }
 })
 
-function setColor(color: (typeof TASK_COLORS)[number]) {
-  emit('setColor', color, (TASK_COLORS_MAP[color] as (typeof COLOR_NAMES)[number]) || null)
+function setColor(name: (typeof TASK_COLORS_TITLES)[number], tone: 'light' | 'medium' | 'dark') {
+  emit('setColor', {
+    value: name,
+    tone,
+  })
 }
 
 function clearColor() {
-  emit('setColor', null, null)
+  emit('setColor', null)
 
   closeColorDropdown()
 }
@@ -53,21 +58,29 @@ function closeColorDropdown() {
   }
 }
 
-function getGridColorsTemplate(): {
-  col: number
-  row: number
-  color: (typeof TASK_COLORS)[number]
-}[] {
-  const colorsTemplate: { col: number; row: number; color: (typeof TASK_COLORS)[number] }[] = []
+function getGridColorsTemplate() {
+  const colorsTemplate: {
+    col: number
+    row: number
+    name: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }[] = []
+
   let row = 1
   let col = 1
   let minRow = 1
   let maxRow = 3
 
-  for (const color of TASK_COLORS) {
-    colorsTemplate.push({ col, row, color })
+  for (const [colorHex, color] of Object.entries(TASK_COLORS_MAP)) {
+    colorsTemplate.push({
+      col,
+      row,
+      name: color.name as (typeof TASK_COLORS_TITLES)[number],
+      tone: color.tone as unknown as 'light' | 'medium' | 'dark',
+    })
 
     row++
+
     if (row > maxRow) {
       row = minRow
       col++
@@ -83,6 +96,27 @@ function getGridColorsTemplate(): {
   }
 
   return colorsTemplate
+}
+
+const taskColor = computed(() => {
+  if (!props.task.color) return null
+
+  return getColorByNameAndTone(props.task.color.value, props.task.color.tone)
+})
+
+function compareColors(
+  taskColor?: Nullable<{
+    value: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }>,
+  gridColor?: Nullable<{
+    name: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }>,
+) {
+  if (!taskColor || !gridColor) return false
+
+  return taskColor.value === gridColor.name && taskColor.tone === gridColor.tone
 }
 
 onMounted(() => {
@@ -115,11 +149,11 @@ onMounted(() => {
     >
       <div class="flex items-center gap-x-2">
         <Palette class="size-4" />
-        <span>{{ getColorTitle }}</span>
+        <span>{{ colorTitle }}</span>
         <div
-          v-if="task.color"
+          v-if="taskColor"
           class="w-5 h-4 rounded-sm"
-          :style="{ backgroundColor: task.color }"
+          :style="{ backgroundColor: taskColor }"
         ></div>
       </div>
       <svg
@@ -147,44 +181,44 @@ onMounted(() => {
       <div class="flex flex-col p-2 gap-y-2">
         <span class="text-xs text-gray-400">Цвет</span>
         <div
-          class="flex rounded-sm items-center text-neutral-400 justify-center p-1 gap-x-1 border-1 border-neutral-300 pointer-events-none"
-          v-if="!task.color"
+          class="flex rounded-sm items-center text-neutral-400 justify-center p-1 gap-x-1 border border-neutral-300 pointer-events-none"
+          v-if="!taskColor"
         >
           <CircleOff class="size-3" />
           <span class="text-custom-sm">Без цвета</span>
         </div>
         <div
-          class="flex rounded-sm items-center px-2 py-1 gap-x-2 border-1 pointer-events-none"
-          :style="{ borderColor: task.color }"
+          class="flex rounded-sm items-center px-2 py-1 gap-x-2 border pointer-events-none"
+          :style="{ borderColor: taskColor }"
           v-else
         >
-          <span class="text-custom-sm font-medium" :style="{ color: task.color }">{{
-            getColorName(task.colorName)
+          <span class="text-custom-sm font-medium" :style="{ color: taskColor }">{{
+            getColorName(task.color?.value)
           }}</span>
-          <div class="w-full h-4 rounded-[1px]" :style="{ backgroundColor: task.color }"></div>
+          <div class="w-full h-4 rounded-[1px]" :style="{ backgroundColor: taskColor }"></div>
         </div>
         <div
-          class="max-h-50 overflow-y-auto overflow-x-visible pl-[2px] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+          class="max-h-50 overflow-y-auto overflow-x-visible pl-0.5 pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
         >
           <div class="grid grid-cols-4 grid-rows-[repeat(9, minmax(1.75rem, auto))] gap-1">
             <button
               class="h-7 rounded-sm hover:opacity-70 transition-opacity duration-100"
               :class="{
-                'outline-2 outline-blue-500 outline-offset-1': task.color === gridObj.color,
+                'outline-2 outline-blue-500 outline-offset-1': compareColors(task.color, gridObj),
               }"
               v-for="gridObj in getGridColorsTemplate()"
-              :key="gridObj.col + gridObj.row + gridObj.color"
+              :key="gridObj.col + gridObj.row + gridObj.name + gridObj.tone"
               :style="{
                 'grid-column-start': gridObj.col,
                 'grid-row-start': gridObj.row,
-                'background-color': gridObj.color,
+                'background-color': getColorByNameAndTone(gridObj.name, gridObj.tone),
               }"
-              @click.prevent.stop="setColor(gridObj.color)"
+              @click.prevent.stop="setColor(gridObj.name, gridObj.tone)"
             />
           </div>
         </div>
 
-        <div class="text-right text-custom-sm border-t-1 border-gray-200 pt-2 my-1">
+        <div class="text-right text-custom-sm border-t border-gray-200 pt-2 my-1">
           <button
             type="button"
             class="text-gray-400 hover:text-gray-600 transition-colors duration-100 focus:outline-hidden"

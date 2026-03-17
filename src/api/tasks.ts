@@ -57,7 +57,7 @@ export async function bulkUpdateTasksApi(payload: ISingleUpdate<ITask>[]) {
 }
 
 export async function deleteTaskApi(id: string) {
-  return await apiCall<void>({
+  return await apiCall<IResponseWithLog<null>>({
     method: 'DELETE',
     url: `/tasks/${id}`,
   })

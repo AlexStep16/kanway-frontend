@@ -3,7 +3,7 @@ import { toast } from 'vue-sonner'
 import { boardKeys, categoryKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { cloneCategory } from '@/services/category'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 
 interface CloneCategoryVars {
   id: string

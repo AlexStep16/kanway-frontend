@@ -71,8 +71,8 @@ export async function saveWorkspace(
   }
 }
 
-export async function removeWorkspace(workspaceId: string) {
-  await deleteWorkspaceApi(workspaceId)
+export async function removeWorkspace(workspaceId: string): Promise<IResponseWithLog<null>> {
+  return await deleteWorkspaceApi(workspaceId)
 }
 
 export async function archiveWorkspace(

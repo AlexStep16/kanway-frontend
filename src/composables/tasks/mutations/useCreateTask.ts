@@ -4,7 +4,7 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ITask } from '@interfaces/domain/ITask'
 import { createTask } from '@services/task'
 import { queryClient } from '@/plugins/queryClient'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 
 export interface CreateTaskVars {
   payload: Partial<ITask>

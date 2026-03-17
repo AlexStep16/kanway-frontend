@@ -4,10 +4,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { invalidateUndo } from '@/helpers/invalidateUndo'
 import { queryClient } from '@/plugins/queryClient'
-import { chatMessageKeys } from '@/keys'
+import { boardKeys, categoryKeys, chatMessageKeys, taskKeys, workspaceKeys } from '@/keys'
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
-import { invalidateActions } from '@/helpers/invalidateActions'
-import { IActionResponse } from '@/interfaces/IActionResponse'
 
 export interface Event {
   status: 'progress' | 'completed' | 'failed'
@@ -86,7 +84,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
   // Обработка DTO (role, content, etc.)
   function handleIncomingEvent(event: Event) {
-    const data = event.data
+    const eventData = event.data
 
     if (event.status === 'completed' || event.status === 'failed') {
       closeSSE()
@@ -94,30 +92,33 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       return
     }
 
-    if (data.role === CustomEventsEnum.NEW_MESSAGE) {
+    if (eventData.role === CustomEventsEnum.NEW_MESSAGE) {
+      const message = eventData.data
+
       queryClient.setQueryData<IChatMessage[]>(
-        chatMessageKeys.byChat(data.message.chatId),
+        chatMessageKeys.byChat(message.chatId),
         (oldChatMessages: IChatMessage[] | undefined) => {
-          return oldChatMessages ? [...oldChatMessages, data.message] : [data.message]
+          return oldChatMessages ? [...oldChatMessages, message] : [message]
         },
       )
+    } else if (eventData.role === CustomEventsEnum.OPERATION) {
+      queryClient.invalidateQueries({ queryKey: taskKeys.all })
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all })
+      queryClient.invalidateQueries({ queryKey: boardKeys.all })
+      queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
+    } else if (eventData.role === CustomEventsEnum.UPDATE_MESSAGE) {
+      const message = eventData.data
 
-      if (data.message.role === CustomEventsEnum.ACTIONS) {
-        invalidateActions(data.message.content as IActionResponse)
-      }
-    } else if (data.role === CustomEventsEnum.UPDATE_MESSAGE) {
       queryClient.setQueryData<IChatMessage[]>(
-        chatMessageKeys.byChat(data.message.chatId),
+        chatMessageKeys.byChat(message.chatId),
         (oldChatMessages: IChatMessage[] | undefined) => {
           return oldChatMessages
-            ? oldChatMessages.map((msg) =>
-                msg.id === data.message.id ? { ...msg, ...data.message } : msg,
-              )
-            : [data.message]
+            ? oldChatMessages.map((msg) => (msg.id === message.id ? { ...msg, ...message } : msg))
+            : [message]
         },
       )
-    } else if (data.role === CustomEventsEnum.UNDO) {
-      invalidateUndo(data.undo)
+    } else if (eventData.role === CustomEventsEnum.UNDO) {
+      invalidateUndo(eventData.data)
     }
   }
 

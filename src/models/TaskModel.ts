@@ -1,5 +1,5 @@
 import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
-import { TASK_COLORS } from '@/constants/TASK_COLORS'
+import { TASK_COLORS, TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 import { OptionalNullable } from '@/types/utils'
 import { ITask } from '@interfaces/domain/ITask'
 
@@ -29,7 +29,10 @@ export class TaskModel implements ITask {
   public dueDate?: OptionalNullable<string>
   public dueHours?: OptionalNullable<number>
   public dueMinutes?: OptionalNullable<number>
-  public color?: OptionalNullable<(typeof TASK_COLORS)[number]>
+  public color?: OptionalNullable<{
+    value: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }>
   public colorName?: OptionalNullable<(typeof COLOR_NAMES)[number]>
   public createdAt: Date
   public updatedAt: Date

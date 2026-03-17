@@ -1,4 +1,4 @@
-import { TASK_COLORS } from '@/constants/TASK_COLORS'
+import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 import { Nullable } from '@/types/utils'
 
 export interface ITaskEditApiPayload {
@@ -11,7 +11,10 @@ export interface ITaskEditApiPayload {
   categoryId?: string
   boardId?: string
   workspaceId?: string
-  color?: Nullable<(typeof TASK_COLORS)[number]>
+  color?: Nullable<{
+    value: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }>
   tags?: string[]
   isCompleted?: boolean
   order?: number

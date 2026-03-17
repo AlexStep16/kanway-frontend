@@ -1,4 +1,4 @@
-import { TASK_COLORS } from '@/constants/TASK_COLORS'
+import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 
 export interface ITaskCreateApiPayload {
   id?: string
@@ -10,7 +10,10 @@ export interface ITaskCreateApiPayload {
   categoryId: string
   boardId: string
   workspaceId: string
-  color?: (typeof TASK_COLORS)[number]
+  color?: {
+    value: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }
   tags?: string[]
   isCompleted?: boolean
   order?: number

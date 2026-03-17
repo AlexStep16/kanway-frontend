@@ -1,22 +1,13 @@
-import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
-import { TASK_COLORS } from '@/constants/TASK_COLORS'
+import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 import { OptionalNullable } from '@/types/utils'
+import { IParent } from '../IParent'
 
 export interface ITask {
   id: string
   name: string
-  workspace: {
-    id: string
-    name: string
-  }
-  board: {
-    id: string
-    name: string
-  }
-  category: {
-    id: string
-    name: string
-  }
+  workspace: IParent
+  board: IParent
+  category: IParent
   isDeleted: boolean
   isDeletedExternal: boolean
   order: number
@@ -28,8 +19,10 @@ export interface ITask {
   dueDate?: OptionalNullable<string>
   dueHours?: OptionalNullable<number>
   dueMinutes?: OptionalNullable<number>
-  color?: OptionalNullable<(typeof TASK_COLORS)[number]>
-  colorName?: OptionalNullable<(typeof COLOR_NAMES)[number]>
+  color?: OptionalNullable<{
+    value: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }>
   createdAt: Date
   updatedAt: Date
 }

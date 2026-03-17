@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ButtonCreateSkeleton from '@components/Buttons/ButtonCreateSkeleton.vue'
-import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import EntityCardSkeleton from '@components/Workspace/Main/EntityCardSkeleton.vue'
 
 function getRandomTasksNumber() {
   const randomNumber = Math.floor(Math.random() * 4) + 1
@@ -20,10 +20,13 @@ function getRandomTasksNumber() {
     </div>
 
     <!-- Tasks -->
-    <div class="flex grow-1 flex-col min-h-0 gap-y-2 mb-3">
+    <div class="flex grow flex-col min-h-0 gap-y-2 mb-3">
       <ButtonCreateSkeleton />
 
-      <TaskSkeleton v-for="number in getRandomTasksNumber()" :key="number + '_skeleton_task'" />
+      <EntityCardSkeleton
+        v-for="number in getRandomTasksNumber()"
+        :key="number + '_skeleton_task'"
+      />
     </div>
   </div>
 </template>

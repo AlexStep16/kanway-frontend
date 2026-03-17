@@ -5,7 +5,7 @@ import { ITask } from '@/interfaces/domain/ITask'
 import { saveTask } from '@/services/task'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { toast } from 'vue-sonner'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 
 export interface MoveTaskVars {
   payload: ISingleUpdate<ITask>

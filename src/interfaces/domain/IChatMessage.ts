@@ -5,6 +5,7 @@ export interface IChatMessage {
   role: IChatMessageRoles
   content: any
   listType?: 'workspace' | 'board' | 'category' | 'task'
+  pendingToolCallId?: string
   tempId?: string
   userId: string
   chatId: string

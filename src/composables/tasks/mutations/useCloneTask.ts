@@ -3,7 +3,7 @@ import { toast } from 'vue-sonner'
 import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { cloneTask } from '@/services/task'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 
 export interface CloneTaskVars {
   id: string

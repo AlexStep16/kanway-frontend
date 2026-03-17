@@ -49,7 +49,9 @@ export function useSendMessage() {
       queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(result.chat.id),
         (oldChatMessages: IChatMessage[] | undefined) => {
-          return oldChatMessages ? [...oldChatMessages, ...result.chatMessages] : []
+          return oldChatMessages
+            ? [...oldChatMessages, ...result.chatMessages]
+            : [...result.chatMessages]
         },
       )
       queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(result.chat.workspaceId) })

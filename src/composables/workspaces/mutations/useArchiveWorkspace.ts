@@ -4,7 +4,7 @@ import { boardKeys, taskKeys, categoryKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { archiveWorkspace } from '@/services/workspace'
-import { useUndo } from '@/composables/useUndo'
+import { useUndo } from '@/composables/logs/useUndo'
 import { IBoard } from '@/interfaces/domain/IBoard'
 
 interface ArchiveWorkspaceVars {

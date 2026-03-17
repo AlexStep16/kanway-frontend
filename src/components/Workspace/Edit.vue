@@ -18,7 +18,7 @@ import { useBoards } from '@/composables/boards/queries/useBoards'
 import { useArchivedBoards } from '@/composables/boards/queries/useArchivedBoards'
 import { useWorkspaceMutationStatus } from '@/composables/workspaces/mutations/useWorkspaceMutationStatus'
 import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
-import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import EntityCardSkeleton from '@components/Workspace/Main/EntityCardSkeleton.vue'
 import { useArchivedWorkspace } from '@/composables/workspaces/useArchivedWorkspace'
 
 const uiStore = useUIStore()
@@ -203,21 +203,19 @@ watch(
                 <EntityCard
                   v-for="board in slotProps.data"
                   :id="board.id"
-                  :hasSelected="false"
                   :key="board.id"
-                  :name="board.name"
-                  :isStatic="false"
-                  :hasCopy="true"
-                  :isCopying="getBoardStatus(board.id).isCloning?.value"
-                  :isDeleted="board.isDeleted"
-                  :hasDelete="true"
-                  :isArchiving="getBoardStatus(board.id).isArchiving?.value"
+                  :entity="board"
+                  :options="{
+                    hasCopy: true,
+                    hasDelete: true,
+                  }"
+                  :status="status"
                   @click="uiStore.openBoardToEdit(board)"
                 />
               </template>
             </ColumnsView>
 
-            <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`" v-else></TaskSkeleton>
+            <EntityCardSkeleton v-for="i in 5" :key="`entity-card-skeleton-${i}`" v-else />
 
             <div v-if="boards.length === 0" class="text-center py-10 text-gray-400 text-sm">
               Нет досок

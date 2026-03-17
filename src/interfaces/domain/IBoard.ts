@@ -1,10 +1,9 @@
+import { IParent } from '../IParent'
+
 export interface IBoard {
   id: string
   name: string
-  workspace: {
-    id: string
-    name: string
-  }
+  workspace: IParent
   userId: string
   isFavorite: boolean
   categoriesCount: number

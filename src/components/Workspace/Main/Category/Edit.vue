@@ -8,7 +8,7 @@ import { ref } from 'vue'
 import { Nullable } from '@/types/utils'
 import { HSStaticMethods } from 'preline'
 import Task from '@components/Workspace/Main/Task/Task.vue'
-import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import EntityCardSkeleton from '@components/Workspace/Main/EntityCardSkeleton.vue'
 import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
 import { SquareKanban } from 'lucide-vue-next'
 import TitleWithBadge from '@components/Workspace/Main/TitleWithBadge.vue'
@@ -236,7 +236,11 @@ watch(
               </template>
             </ColumnsView>
 
-            <TaskSkeleton v-for="i in 5" :key="`task-skeleton-${i}`" v-else></TaskSkeleton>
+            <EntityCardSkeleton
+              v-for="i in 5"
+              :key="`category-edit-card-skeleton-${i}`"
+              v-else
+            ></EntityCardSkeleton>
           </div>
         </div>
       </div>

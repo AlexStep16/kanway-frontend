@@ -3,7 +3,6 @@ import vue from '@vitejs/plugin-vue'
 import vike from 'vike/plugin'
 import compressPlugin from 'vite-plugin-compression'
 import tailwindcss from '@tailwindcss/vite'
-import vueDevTools from 'vite-plugin-vue-devtools'
 import path from 'path'
 import svgLoader from 'vite-svg-loader'
 
@@ -37,6 +36,5 @@ export default defineConfig({
       deleteOriginFile: false,
     }),
     tailwindcss(),
-    vueDevTools(),
   ],
 })

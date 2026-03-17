@@ -24,6 +24,7 @@ import Color from '@components/Workspace/Main/Task/Edit/Color.vue'
 import { Nullable } from '@/types/utils'
 import { EntityType } from '@/enums/EntityType'
 import { useArchivedTask } from '@/composables/tasks/useArchivedTask'
+import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 
 const uiStore = useUIStore()
 const { editableTaskId, editableTaskBoardId, isEditableTaskDeleted } = storeToRefs(uiStore)
@@ -90,8 +91,13 @@ const toggleCompleted = () => {
   patchTask({ isCompleted: !task.value.isCompleted })
 }
 
-const handleSetColor = (color: string | null, colorName: string | null) => {
-  patchTask({ color, colorName })
+const handleSetColor = (
+  color: Nullable<{
+    value: (typeof TASK_COLORS_TITLES)[number]
+    tone: 'light' | 'medium' | 'dark'
+  }>,
+) => {
+  patchTask({ color })
 }
 
 const handleAddTag = (tag: string) => {

@@ -22,7 +22,7 @@ import { useMoveCategory } from '@/composables/categories/mutations/useMoveCateg
 import { useCloneCategory } from '@/composables/categories/mutations/useCloneCategory'
 import { useArchiveCategory } from '@/composables/categories/mutations/useArchiveCategory'
 import { useTasks } from '@/composables/tasks/queries/useTasks'
-import TaskSkeleton from '@components/Workspace/Main/Task/TaskSkeleton.vue'
+import EntityCardSkeleton from '../EntityCardSkeleton.vue'
 
 const props = defineProps<{
   category: ICategoryState
@@ -184,7 +184,7 @@ const otherBoards = computed(() => {
         />
       </div>
 
-      <div class="h-8 grow-1 relative undraggable" v-if="isInputVisible">
+      <div class="h-8 grow relative undraggable" v-if="isInputVisible">
         <input
           type="text"
           class="text-sm h-full font-semibold p-0 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 transition-colors duration-100"
@@ -194,8 +194,8 @@ const otherBoards = computed(() => {
           placeholder="Название категории"
           ref="inputEditRef"
         />
-        <div class="shrink-0 absolute -bottom-[2px] w-full left-0">
-          <div class="h-[2px] bg-blue-500 w-full animation-grow"></div>
+        <div class="shrink-0 absolute -bottom-0.5 w-full left-0">
+          <div class="h-0.5 bg-blue-500 w-full animation-grow"></div>
         </div>
       </div>
 
@@ -229,7 +229,7 @@ const otherBoards = computed(() => {
 
     <!-- Tasks -->
     <div
-      class="flex grow-1 flex-col min-h-0 gap-y-2 mb-3"
+      class="flex grow flex-col min-h-0 gap-y-2 mb-3"
       :class="{ 'gap-y-1!': localTaskList.length === 0 }"
     >
       <ButtonCreate
@@ -245,7 +245,7 @@ const otherBoards = computed(() => {
         itemKey="id"
         class="flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden px-0.5 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
         :class="{
-          'grow-1 pb-2': !isTaskAddFormShown,
+          'grow pb-2': !isTaskAddFormShown,
           'grow-0': isTaskAddFormShown,
         }"
         :delayOnTouchOnly="true"
@@ -262,12 +262,15 @@ const otherBoards = computed(() => {
         v-if="!areTasksLoading"
       >
         <template #item="{ element }">
-          <Task :key="element.id" :task="element" :hasCopy="true" :hasDelete="true" />
+          <Task :key="element.id" :task="element" :options="{ hasCopy: true, hasDelete: true }" />
         </template>
       </draggable>
 
       <template v-else>
-        <TaskSkeleton v-for="number in getRandomTasksNumber()" :key="number + '_skeleton_task'" />
+        <EntityCardSkeleton
+          v-for="number in getRandomTasksNumber()"
+          :key="number + '_skeleton_task'"
+        />
       </template>
 
       <CreateTaskForm
