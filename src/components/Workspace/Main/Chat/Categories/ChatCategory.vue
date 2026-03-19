@@ -15,12 +15,13 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const categoryQuery = useCategory(props.category.id, props.category.board.id)
+const { data, isPending } = useCategory(props.category.id, props.category.board.id)
 </script>
 
 <template>
   <ChatEntityWrapper
-    :query-result="categoryQuery"
+    :data="data"
+    :is-pending="isPending"
     :entity-id="category.id"
     :has-checkbox="hasCheckbox"
     v-model:selected-ids="selectedIds"

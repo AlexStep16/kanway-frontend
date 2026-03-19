@@ -78,8 +78,8 @@ const orderedWorkspaces = computed(() => {
     },
   )
 
-  favoriteWorkspaces.sort((a, b) => a.order - b.order)
-  otherWorkspaces.sort((a, b) => a.order - b.order)
+  favoriteWorkspaces.sort((a, b) => a.rank.localeCompare(b.rank))
+  otherWorkspaces.sort((a, b) => a.rank.localeCompare(b.rank))
   return [...favoriteWorkspaces, ...otherWorkspaces]
 })
 

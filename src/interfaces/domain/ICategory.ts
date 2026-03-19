@@ -8,7 +8,7 @@ export interface ICategory {
   board: IParent
   tasksCount: number
   userId: string
-  order: number
+  rank: string
   isDeleted: boolean
   isDeletedExternal: boolean
   deletedTime?: OptionalNullable<Date>

@@ -8,7 +8,7 @@ export interface IWorkspace {
   boardsCount: number
   categoriesCount: number
   tasksCount: number
-  order: number
+  rank: string
   color: AvailableColors
   colorName: string
   isDeleted: boolean

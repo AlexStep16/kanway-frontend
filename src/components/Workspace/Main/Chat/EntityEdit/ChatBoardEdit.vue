@@ -5,7 +5,6 @@ import { IParent } from '@/interfaces/IParent'
 import WorkspaceChange from './Changes/WorkspaceChange.vue'
 import NameChange from './Changes/NameChange.vue'
 import SelectCheckbox from '../SelectCheckbox.vue'
-import OrderChange from './Changes/OrderChange.vue'
 import FavoriteChange from './Changes/FavoriteChange.vue'
 import { IBoard } from '@/interfaces/domain/IBoard'
 
@@ -67,13 +66,6 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
           v-if="isSelectable && selectedIds"
         />
       </div>
-      <!-- Позиция -->
-      <OrderChange
-        :before="before"
-        :after="after"
-        :baseBlockBeforeClasses="baseBlockBeforeClasses"
-        :baseBlockAfterClasses="baseBlockAfterClasses"
-      />
       <!-- Избранное -->
       <FavoriteChange
         :before="before"

@@ -4,6 +4,7 @@ import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ITask } from '@interfaces/domain/ITask'
 import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
 import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
+import { ITaskMoveApiPayload } from '@/interfaces/ITaskMoveApiPayload'
 
 export async function getTasksApi(boardId?: string, categoryId?: string) {
   let queryParams = boardId ? `?boardId=${boardId}` : ''
@@ -44,6 +45,14 @@ export async function patchTaskApi(payload: ITaskEditApiPayload) {
   return await apiCall<IResponseWithLog<ITask[]>>({
     method: 'PATCH',
     url: `/tasks/${payload.id}`,
+    data: payload,
+  })
+}
+
+export async function moveTaskApi(payload: ITaskMoveApiPayload) {
+  return await apiCall<IResponseWithLog<ITask[]>>({
+    method: 'PATCH',
+    url: `/tasks/move`,
     data: payload,
   })
 }

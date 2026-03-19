@@ -6,7 +6,6 @@ import BoardChange from './Changes/BoardChange.vue'
 import WorkspaceChange from './Changes/WorkspaceChange.vue'
 import NameChange from './Changes/NameChange.vue'
 import SelectCheckbox from '../SelectCheckbox.vue'
-import OrderChange from './Changes/OrderChange.vue'
 import { ICategory } from '@/interfaces/domain/ICategory'
 
 const props = defineProps<{
@@ -76,13 +75,6 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
           v-if="isSelectable && selectedIds"
         />
       </div>
-      <!-- Позиция -->
-      <OrderChange
-        :before="before"
-        :after="after"
-        :baseBlockBeforeClasses="baseBlockBeforeClasses"
-        :baseBlockAfterClasses="baseBlockAfterClasses"
-      />
       <slot />
     </div>
   </div>

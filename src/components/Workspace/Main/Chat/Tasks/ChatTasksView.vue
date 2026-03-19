@@ -9,7 +9,7 @@ import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 const props = defineProps<{
   message: IChatMessage
   items: ITask[]
-  isSelectable: boolean
+  isSelectable?: boolean
   isTemporary?: boolean
   minSelect?: number
   maxSelect?: number

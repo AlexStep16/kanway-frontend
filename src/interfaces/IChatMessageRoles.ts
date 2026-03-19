@@ -6,4 +6,4 @@ export type IChatMessageRoles =
   | 'operation'
   | 'steps'
   | 'ambiguous'
-  | 'entity_action_confirmation'
+  | 'display'

@@ -1,5 +1,4 @@
-import { COLOR_NAMES } from '@/constants/COLOR_NAMES_MAP'
-import { TASK_COLORS, TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
+import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 import { OptionalNullable } from '@/types/utils'
 import { ITask } from '@interfaces/domain/ITask'
 
@@ -20,7 +19,7 @@ export class TaskModel implements ITask {
   }
   public isDeleted: boolean
   public isDeletedExternal: boolean
-  public order: number
+  public rank: string
   public isCompleted: boolean
   public tags: Array<string>
   public userId: string
@@ -33,7 +32,6 @@ export class TaskModel implements ITask {
     value: (typeof TASK_COLORS_TITLES)[number]
     tone: 'light' | 'medium' | 'dark'
   }>
-  public colorName?: OptionalNullable<(typeof COLOR_NAMES)[number]>
   public createdAt: Date
   public updatedAt: Date
 
@@ -45,7 +43,7 @@ export class TaskModel implements ITask {
     this.category = props.category
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal
-    this.order = props.order
+    this.rank = props.rank
     this.isCompleted = props.isCompleted
     this.tags = props.tags
     this.userId = props.userId
@@ -55,7 +53,6 @@ export class TaskModel implements ITask {
     this.dueHours = props.dueHours
     this.dueMinutes = props.dueMinutes
     this.color = props.color
-    this.colorName = props.colorName
     this.createdAt = props.createdAt
     this.updatedAt = props.updatedAt
   }

@@ -3,5 +3,4 @@ export interface ICategoryEditApiPayload {
   name?: string
   boardId?: string
   workspaceId?: string
-  order?: number
 }

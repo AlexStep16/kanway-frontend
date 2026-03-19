@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { computed, ComputedRef, ref, toValue } from 'vue'
-import {
-  Clock,
-  TextAlignStart,
-  Archive,
-  Copy,
-  SquareKanban,
-  Layers,
-  FolderKanban,
-} from 'lucide-vue-next'
+import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
 
 import { TimeStatus } from '@/enums/TimeStatus'
 import { getTimeInReadableFormat } from '@utils/date'
@@ -26,7 +18,6 @@ const props = defineProps<{
     description?: Nullable<string>
     isCompleted?: boolean
     isDeleted: boolean
-    order: number
     dueDate?: Nullable<string>
     dueHours?: Nullable<number>
     dueMinutes?: Nullable<number>
@@ -73,7 +64,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'toggleComplete'): void
+  (e: 'toggleCompletion'): void
   (e: 'toggleSelect'): void
   (e: 'archive'): void
   (e: 'copy'): void
@@ -120,6 +111,7 @@ const entityColor = computed(() => {
 })
 
 const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
+const hasInfo = computed(() => props.entity.category || props.entity.board)
 </script>
 
 <template>
@@ -135,7 +127,7 @@ const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
     <div class="h-3 w-full" v-if="entityColor" :style="{ backgroundColor: entityColor }" />
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
       <!-- Info -->
-      <div class="flex items-center gap-x-2" v-if="options?.showInfo">
+      <div class="flex items-center flex-wrap gap-2" v-if="options?.showInfo && hasInfo">
         <div class="flex items-center gap-x-1 text-gray-500" v-if="entity.category">
           <Layers class="size-3" /><span class="text-xs">{{
             entity.category.name ?? 'Без категории'
@@ -144,11 +136,6 @@ const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
         <div class="flex items-center gap-x-1 text-gray-500" v-if="entity.board">
           <SquareKanban class="size-3" /><span class="text-xs">{{
             entity.board.name ?? 'Без доски'
-          }}</span>
-        </div>
-        <div class="flex items-center gap-x-1 text-gray-500" v-if="entity.workspace">
-          <FolderKanban class="size-3" /><span class="text-xs">{{
-            entity.workspace.name ?? 'Без пространства'
           }}</span>
         </div>
       </div>
@@ -178,7 +165,7 @@ const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
                   class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
                   :checked="entity.isCompleted"
                   id="check-custom-style"
-                  @change="$emit('toggleComplete')"
+                  @change="$emit('toggleCompletion')"
                 />
                 <span
                   class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"

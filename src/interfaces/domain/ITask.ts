@@ -10,7 +10,7 @@ export interface ITask {
   category: IParent
   isDeleted: boolean
   isDeletedExternal: boolean
-  order: number
+  rank: string
   isCompleted: boolean
   tags: Array<string>
   userId: string

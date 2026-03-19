@@ -20,6 +20,7 @@ import ChatLog from './ChatLog.vue'
 import ChatAmbiguous from './ChatAmbiguous.vue'
 import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
+import ChatDisplay from './ChatDisplay.vue'
 
 const chatStore = useChatStore()
 const agentStatusStore = useAgentStatusStore()
@@ -103,6 +104,10 @@ onBeforeUnmount(() => {
 
         <template v-else-if="message.role === CustomEventsEnum.OPERATION">
           <ChatLog :message="message" />
+        </template>
+
+        <template v-else-if="message.role === CustomEventsEnum.DISPLAY">
+          <ChatDisplay :message="message" />
         </template>
 
         <template v-else-if="message.role === CustomEventsEnum.AMBIGUOUS">

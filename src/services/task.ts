@@ -11,6 +11,7 @@ import {
   getArchivedTasksApi,
   recoverTaskApi,
   getTaskApi,
+  moveTaskApi,
 } from '@api/tasks'
 import dayjs from 'dayjs'
 import { ITaskState } from '@stores/interfaces/ITaskState'
@@ -20,6 +21,7 @@ import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
 import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
 import { pickClean } from '@/utils/pickClean'
+import { ITaskMoveApiPayload } from '@/interfaces/ITaskMoveApiPayload'
 
 const BASE_TASK_FIELDS: (keyof ITask)[] = [
   'name',
@@ -30,7 +32,7 @@ const BASE_TASK_FIELDS: (keyof ITask)[] = [
   'color',
   'tags',
   'isCompleted',
-  'order',
+  'rank',
 ]
 
 export function transformTask(raw: ITask): ITaskState {
@@ -141,6 +143,10 @@ export async function saveTasks(
 
 export async function removeTask(id: string): Promise<IResponseWithLog<null>> {
   return await deleteTaskApi(id)
+}
+
+export async function moveTask(payload: ITaskMoveApiPayload): Promise<IResponseWithLog<ITask[]>> {
+  return await moveTaskApi(payload)
 }
 
 export async function archiveTask(id: string): Promise<IResponseWithLog<ITask[]>> {

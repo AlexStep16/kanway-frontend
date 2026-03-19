@@ -3,7 +3,6 @@ import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { computed } from 'vue'
 import NameChange from './Changes/NameChange.vue'
 import SelectCheckbox from '../SelectCheckbox.vue'
-import OrderChange from './Changes/OrderChange.vue'
 import FavoriteChange from './Changes/FavoriteChange.vue'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import WorkspaceColorChange from './Changes/WorkspaceColorChange.vue'
@@ -57,13 +56,6 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
       </div>
       <!-- Цвет -->
       <WorkspaceColorChange
-        :before="before"
-        :after="after"
-        :baseBlockBeforeClasses="baseBlockBeforeClasses"
-        :baseBlockAfterClasses="baseBlockAfterClasses"
-      />
-      <!-- Позиция -->
-      <OrderChange
         :before="before"
         :after="after"
         :baseBlockBeforeClasses="baseBlockBeforeClasses"

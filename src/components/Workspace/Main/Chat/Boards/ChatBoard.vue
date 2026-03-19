@@ -15,12 +15,13 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const boardQuery = useBoard(props.board.id, props.board.workspace.id)
+const { data, isPending } = useBoard(props.board.id, props.board.workspace.id)
 </script>
 
 <template>
   <ChatEntityWrapper
-    :query-result="boardQuery"
+    :data="data"
+    :is-pending="isPending"
     :entity-id="board.id"
     :has-checkbox="hasCheckbox"
     v-model:selected-ids="selectedIds"

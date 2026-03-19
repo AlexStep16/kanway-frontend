@@ -3,5 +3,4 @@ export interface IBoardEditApiPayload {
   name?: string
   workspaceId?: string
   isFavorite?: boolean
-  order?: number
 }

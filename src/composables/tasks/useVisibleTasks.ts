@@ -102,7 +102,7 @@ export function useVisibleTasks(
   function getTasksByCategoryId(categoryId: string) {
     const tasks = filteredTasks.value.filter((t) => t.category.id === categoryId)
 
-    return tasks.sort((a, b) => a.order - b.order)
+    return tasks.sort((a, b) => a.rank.localeCompare(b.rank))
   }
 
   const availableTags = computed(() => {

@@ -13,7 +13,6 @@ import SelectCheckbox from '../SelectCheckbox.vue'
 import DescriptionChange from './Changes/DescriptionChange.vue'
 import TaskColorChange from './Changes/TaskColorChange.vue'
 import TagsChange from './Changes/TagsChange.vue'
-import OrderChange from './Changes/OrderChange.vue'
 import DueDateChange from './Changes/DueDateChange.vue'
 import { BeforeAfterTask } from '../Tasks/ChatTasksEditView.vue'
 
@@ -111,13 +110,6 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
       />
       <!-- Теги -->
       <TagsChange
-        :before="before"
-        :after="after"
-        :baseBlockBeforeClasses="baseBlockBeforeClasses"
-        :baseBlockAfterClasses="baseBlockAfterClasses"
-      />
-      <!-- Позиция -->
-      <OrderChange
         :before="before"
         :after="after"
         :baseBlockBeforeClasses="baseBlockBeforeClasses"

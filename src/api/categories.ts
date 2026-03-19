@@ -3,6 +3,7 @@ import { ICategory } from '@interfaces/domain/ICategory'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ICategoryCreateApiPayload } from '@/interfaces/ICategoryCreateApiPayload'
+import { ICategoryMoveApiPayload } from '@/interfaces/ICategoryMoveApiPayload'
 
 export async function getCategoriesApi(boardId?: string) {
   const queryParams = boardId ? `?boardId=${boardId}` : ''
@@ -47,6 +48,14 @@ export async function bulkUpdateCategoriesApi(payload: ISingleUpdate<ICategory>[
   return await apiCall<IResponseWithLog<ICategory[]>>({
     method: 'PATCH',
     url: `/categories/bulk`,
+    data: payload,
+  })
+}
+
+export async function moveCategoryApi(payload: ICategoryMoveApiPayload) {
+  return await apiCall<IResponseWithLog<ICategory[]>>({
+    method: 'PATCH',
+    url: `/categories/move`,
     data: payload,
   })
 }

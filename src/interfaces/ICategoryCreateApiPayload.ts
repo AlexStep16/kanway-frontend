@@ -3,5 +3,4 @@ export interface ICategoryCreateApiPayload {
   name: string
   boardId: string
   workspaceId: string
-  order?: number
 }

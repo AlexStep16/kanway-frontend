@@ -15,12 +15,13 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const workspaceQuery = useWorkspace(props.workspace.id)
+const { data, isPending } = useWorkspace(props.workspace.id)
 </script>
 
 <template>
   <ChatEntityWrapper
-    :query-result="workspaceQuery"
+    :data="data"
+    :is-pending="isPending"
     :entity-id="workspace.id"
     :has-checkbox="hasCheckbox"
     v-model:selected-ids="selectedIds"

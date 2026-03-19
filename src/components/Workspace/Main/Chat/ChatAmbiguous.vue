@@ -81,7 +81,6 @@ const items = computed(() => selectedMap.value as any)
       <ChatTasksView
         :message="message"
         :items="items"
-        :is-temporary="false"
         :is-selectable="true"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
@@ -93,7 +92,6 @@ const items = computed(() => selectedMap.value as any)
       <ChatCategoriesView
         :message="message"
         :items="items"
-        :is-temporary="false"
         :is-selectable="true"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
@@ -105,7 +103,6 @@ const items = computed(() => selectedMap.value as any)
       <ChatBoardsView
         :message="message"
         :items="items"
-        :is-temporary="false"
         :is-selectable="true"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
@@ -119,7 +116,6 @@ const items = computed(() => selectedMap.value as any)
       <ChatWorkspacesView
         :message="message"
         :items="items"
-        :is-temporary="false"
         :is-selectable="true"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"

@@ -9,7 +9,7 @@ export default class WorkspaceModel implements IWorkspace {
   public boardsCount: number
   public categoriesCount: number
   public tasksCount: number
-  public order: number
+  public rank: string
   public color: AvailableColors
   public colorName: string
   public isDeleted: boolean
@@ -25,7 +25,7 @@ export default class WorkspaceModel implements IWorkspace {
     this.boardsCount = props.boardsCount
     this.categoriesCount = props.categoriesCount
     this.tasksCount = props.tasksCount
-    this.order = props.order
+    this.rank = props.rank
     this.color = props.color
     this.colorName = props.colorName
     this.isDeleted = props.isDeleted

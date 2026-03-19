@@ -18,7 +18,7 @@ import { IBoardCreateApiPayload } from '@/interfaces/IBoardCreateApiPayload'
 import { pickClean } from '@/utils/pickClean'
 import { IBoardEditApiPayload } from '@/interfaces/IBoardEditApiPayload'
 
-const BASE_BOARD_FIELDS: (keyof IBoard)[] = ['name', 'order', 'isFavorite']
+const BASE_BOARD_FIELDS: (keyof IBoard)[] = ['name', 'rank', 'isFavorite']
 
 export function transformBoard(raw: IBoard): BoardModel {
   return new BoardModel({

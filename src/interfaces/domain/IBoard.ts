@@ -8,7 +8,7 @@ export interface IBoard {
   isFavorite: boolean
   categoriesCount: number
   tasksCount: number
-  order: number
+  rank: string
   isDeleted: boolean
   isDeletedExternal: boolean
   deletedTime?: Date

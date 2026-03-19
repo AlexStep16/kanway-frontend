@@ -13,7 +13,7 @@ export default class CategoryModel implements ICategory {
     name: string
   }
   public tasksCount: number
-  public order: number
+  public rank: string
   public isDeleted: boolean
   public isDeletedExternal: boolean
   public deletedTime?: OptionalNullable<Date>
@@ -27,7 +27,7 @@ export default class CategoryModel implements ICategory {
     this.workspace = props.workspace
     this.board = props.board
     this.tasksCount = props.tasksCount
-    this.order = props.order
+    this.rank = props.rank
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal
     this.deletedTime = props.deletedTime

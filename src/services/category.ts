@@ -11,6 +11,7 @@ import {
   getArchivedCategoriesApi,
   recoverCategoryApi,
   getCategoryApi,
+  moveCategoryApi,
 } from '@api/categories'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
@@ -18,8 +19,9 @@ import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ICategoryCreateApiPayload } from '@/interfaces/ICategoryCreateApiPayload'
 import { pickClean } from '@/utils/pickClean'
 import { ICategoryEditApiPayload } from '@/interfaces/ICategoryEditApiPayload'
+import { ICategoryMoveApiPayload } from '@/interfaces/ICategoryMoveApiPayload'
 
-const BASE_CATEGORY_FIELDS: (keyof ICategory)[] = ['name', 'order']
+const BASE_CATEGORY_FIELDS: (keyof ICategory)[] = ['name', 'rank']
 
 export function transformCategory(raw: ICategory): ICategoryState {
   const categoryModel = new CategoryModel({
@@ -124,6 +126,12 @@ export async function archiveCategory(id: string): Promise<IResponseWithLog<ICat
     data: archiveResult.data.map(transformCategory),
     logId: archiveResult.logId,
   }
+}
+
+export async function moveCategory(
+  payload: ICategoryMoveApiPayload,
+): Promise<IResponseWithLog<ICategory[]>> {
+  return await moveCategoryApi(payload)
 }
 
 export async function recoverCategory(id: string): Promise<IResponseWithLog<ICategory[]>> {

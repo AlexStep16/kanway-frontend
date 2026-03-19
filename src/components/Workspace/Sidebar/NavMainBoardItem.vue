@@ -81,8 +81,8 @@ const orderedBoards = computed(() => {
     },
   )
 
-  favoriteBoards.sort((a, b) => a.order - b.order)
-  otherBoards.sort((a, b) => a.order - b.order)
+  favoriteBoards.sort((a, b) => a.rank.localeCompare(b.rank))
+  otherBoards.sort((a, b) => a.rank.localeCompare(b.rank))
   return [...favoriteBoards, ...otherBoards]
 })
 </script>

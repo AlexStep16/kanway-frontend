@@ -16,5 +16,4 @@ export interface ITaskCreateApiPayload {
   }
   tags?: string[]
   isCompleted?: boolean
-  order?: number
 }

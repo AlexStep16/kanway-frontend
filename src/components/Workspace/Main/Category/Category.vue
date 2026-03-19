@@ -10,7 +10,6 @@ import draggable from 'vuedraggable'
 import { ITaskState } from '@stores/interfaces/ITaskState'
 import _ from 'lodash'
 import { useVisibleTasks } from '@/composables/tasks/useVisibleTasks'
-import { useUpdateManyTasks } from '@/composables/tasks/mutations/useUpdateManyTasks'
 import { useUpdateCategory } from '@/composables/categories/mutations/useUpdateCategory'
 import { useCategoryMutationStatus } from '@/composables/categories/mutations/useCategoryMutationStatus'
 import { useTaskFilterStore } from '@/stores/taskFilters'
@@ -23,6 +22,7 @@ import { useCloneCategory } from '@/composables/categories/mutations/useCloneCat
 import { useArchiveCategory } from '@/composables/categories/mutations/useArchiveCategory'
 import { useTasks } from '@/composables/tasks/queries/useTasks'
 import EntityCardSkeleton from '../EntityCardSkeleton.vue'
+import { useMoveTaskCard } from '@/composables/tasks/mutations/useMoveTaskCard'
 
 const props = defineProps<{
   category: ICategoryState
@@ -38,7 +38,7 @@ const { tasks } = useVisibleTasks(
 )
 const { data: boardsData } = useBoards(computed(() => props.category.workspace.id))
 
-const { mutate: updateTasks } = useUpdateManyTasks()
+const { mutate: moveTaskCard } = useMoveTaskCard()
 const { mutate: updateCategory } = useUpdateCategory()
 const { mutate: moveCategory } = useMoveCategory()
 const { mutate: cloneCategory } = useCloneCategory()
@@ -57,37 +57,30 @@ const isTaskAddFormShown = ref(false)
 watch(
   tasks,
   (newList) => {
-    localTaskList.value = _.cloneDeep(newList).sort((a, b) => a.order - b.order)
+    localTaskList.value = _.cloneDeep(newList).sort((a, b) => a.rank.localeCompare(b.rank))
   },
   { deep: true, immediate: true },
 )
 
-function sortTasks() {
-  let isSortNeeded = false
+function draggableChange(event: any) {
+  if (!event.moved && !event.added) return
 
-  localTaskList.value.forEach((task: ITaskState, index: number) => {
-    if (task.order !== index + 1 || task.category.id !== props.category.id) {
-      isSortNeeded = true
-    }
+  const movedTask = event.moved ? event.moved.element : event.added.element
+  const newIndex = event.moved ? event.moved.newIndex : event.added.newIndex
 
-    task.order = index + 1
-    task.category.id = props.category.id
-    task.category.name = props.category.name
+  const beforeTask = localTaskList.value[newIndex + 1]
+  const afterTask = localTaskList.value[newIndex - 1]
+
+  const beforeTaskId = beforeTask ? beforeTask.id : null
+  const afterTaskId = afterTask ? afterTask.id : null
+
+  moveTaskCard({
+    id: movedTask.id,
+    beforeTaskId,
+    afterTaskId,
+    newCategoryId: props.category.id,
+    boardId: props.category.board.id,
   })
-
-  if (isSortNeeded) {
-    const reducedTasks = localTaskList.value.map((task: ITaskState) => {
-      return {
-        id: task.id,
-        order: task.order,
-        category: { id: task.category.id, name: task.category.name },
-      }
-    })
-
-    updateTasks({
-      payload: reducedTasks,
-    })
-  }
 }
 
 function showInput() {
@@ -239,7 +232,7 @@ const otherBoards = computed(() => {
         @click="isTaskAddFormShown = true"
       />
       <draggable
-        @change="sortTasks"
+        @change="draggableChange"
         :list="localTaskList"
         :delay="300"
         itemKey="id"

@@ -10,14 +10,12 @@ import { useWorkspaceStore } from '@stores/workspace'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
 
 import { useCategories } from '@/composables/categories/queries/useCategories'
-import { useUpdateManyCategories } from '@/composables/categories/mutations/useUpdateManyCategories'
 import { useBoards } from '@/composables/boards/queries/useBoards'
 
-import Header from '@components/Workspace/Header/Header.vue'
 import Category from '@components/Workspace/Main/Category/Category.vue'
-import AIInput from '@components/Workspace/Main/AIInput.vue'
 import CategorySkeleton from '@components/Workspace/Main/Category/CategorySkeleton.vue'
 import CreateCategoryForm from '@/components/Forms/CreateCategoryForm.vue'
+import { useMoveCategoryCard } from '@/composables/categories/mutations/useMoveCategoryCard'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
@@ -28,7 +26,7 @@ const { activeWorkspaceId } = storeToRefs(workspaceStore)
 const { data: categories, isPending: areCategoriesLoading } = useCategories(activeBoardId)
 const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
 
-const { mutate: updateManyCategories } = useUpdateManyCategories()
+const { mutate: moveCategory } = useMoveCategoryCard()
 
 const localCategoryList = ref<ICategoryState[]>([])
 const isCategoryFormShown = ref(false)
@@ -38,21 +36,28 @@ watch(
   (newList) => {
     if (!newList) return
 
-    localCategoryList.value = [...newList].sort((a, b) => a.order - b.order)
+    localCategoryList.value = [...newList].sort((a, b) => a.rank.localeCompare(b.rank))
   },
   { immediate: true },
 )
 
-function handleSortChange() {
-  if (!activeBoardId.value || !activeWorkspaceId.value) return
+function draggableChange(event: any) {
+  if (!event.moved && !event.added) return
 
-  const payload = localCategoryList.value.map((category, index) => ({
-    id: category.id,
-    order: index + 1,
-  }))
+  const movedTask = event.moved ? event.moved.element : event.added.element
+  const newIndex = event.moved ? event.moved.newIndex : event.added.newIndex
 
-  updateManyCategories({
-    payload,
+  const beforeCategory = localCategoryList.value[newIndex + 1]
+  const afterCategory = localCategoryList.value[newIndex - 1]
+
+  const beforeCategoryId = beforeCategory ? beforeCategory.id : null
+  const afterCategoryId = afterCategory ? afterCategory.id : null
+
+  moveCategory({
+    id: movedTask.id,
+    beforeCategoryId,
+    afterCategoryId,
+    boardId: activeBoardId.value,
   })
 }
 </script>
@@ -64,7 +69,7 @@ function handleSortChange() {
     <template v-if="!isBoardsLoading">
       <draggable
         v-model="localCategoryList"
-        @change="handleSortChange"
+        @change="draggableChange"
         itemKey="id"
         class="flex gap-x-3 h-full items-start"
         group="categories"

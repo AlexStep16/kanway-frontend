@@ -15,12 +15,13 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const taskQuery = useTask(props.task.id, props.task.board.id)
+const { data, isPending } = useTask(props.task.id, props.task.board.id)
 </script>
 
 <template>
   <ChatEntityWrapper
-    :query-result="taskQuery"
+    :data="data"
+    :is-pending="isPending"
     :entity-id="task.id"
     :has-checkbox="hasCheckbox"
     v-model:selected-ids="selectedIds"

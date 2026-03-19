@@ -1,10 +1,11 @@
 <script setup lang="ts" generic="T">
-import { Ref, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import _ from 'lodash'
 import DeletedEntity from '@/components/Workspace/Main/DeletedEntity.vue'
 
 const props = defineProps<{
-  queryResult: { data: Ref<T | undefined | null>; isPending: Ref<boolean> }
+  data: T | null | undefined
+  isPending: boolean
   entityId: string
   hasCheckbox?: boolean
 }>()
@@ -25,7 +26,7 @@ function handleToggleSelect() {
 }
 
 watch(
-  () => props.queryResult.data,
+  () => props.data,
   (newData) => {
     dataCopy.value = newData ? _.cloneDeep(newData) : null
   },
@@ -34,7 +35,7 @@ watch(
 </script>
 
 <template>
-  <template v-if="queryResult.isPending">
+  <template v-if="props.isPending">
     <slot name="skeleton"></slot>
   </template>
 
