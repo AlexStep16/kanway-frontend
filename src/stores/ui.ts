@@ -45,7 +45,6 @@ export const useUIStore = defineStore('ui', () => {
   const createBoardButtonRef = ref<Nullable<HTMLElement>>(null)
   const settingsModalRef = ref<Nullable<HTMLElement>>(null)
   const settingsModalHSInstance = ref<Nullable<HSOverlay>>(null)
-  const chatModalRef = ref<Nullable<HTMLElement>>(null)
   const chatModalHSInstance = ref<Nullable<HSOverlay>>(null)
   const supportModalRef = ref<Nullable<HTMLElement>>(null)
   const supportModalHSInstance = ref<Nullable<HSOverlay>>(null)
@@ -60,7 +59,7 @@ export const useUIStore = defineStore('ui', () => {
   const modalInstances = ref(new Map<string, HSOverlay>())
 
   const isSidebarOpen = ref(true)
-  const isChatModalOpen = ref(false)
+  const isChatOpen = ref(false)
   const isSupportModalOpen = ref(false)
 
   function watchForBackdropClicks(
@@ -106,14 +105,6 @@ export const useUIStore = defineStore('ui', () => {
     editWorkspaceModalRef,
     (newVal) => {
       watchForBackdropClicks(newVal, 'workspace-edit', closeEditWorkspaceModal)
-    },
-    { once: true },
-  )
-
-  watch(
-    chatModalRef,
-    (newVal) => {
-      watchForBackdropClicks(newVal, 'chat', closeChatModal)
     },
     { once: true },
   )
@@ -319,26 +310,6 @@ export const useUIStore = defineStore('ui', () => {
     }
   }
 
-  function openChatModal() {
-    if (chatModalHSInstance.value) {
-      addToModalStack('chatModal')
-
-      modalInstances.value.set('chatModal', chatModalHSInstance.value)
-
-      nextTick(() => {
-        if (chatModalHSInstance.value) chatModalHSInstance.value.open()
-      })
-    }
-  }
-
-  function closeChatModal() {
-    if (chatModalHSInstance.value) {
-      chatModalHSInstance.value.close()
-
-      removeFromModalStack('chatModal')
-    }
-  }
-
   function openSidebar() {
     isSidebarOpen.value = true
   }
@@ -428,7 +399,6 @@ export const useUIStore = defineStore('ui', () => {
     createBoardButtonRef,
     settingsModalRef,
     settingsModalHSInstance,
-    chatModalRef,
     chatModalHSInstance,
     isSidebarOpen,
     tipRef,
@@ -436,7 +406,7 @@ export const useUIStore = defineStore('ui', () => {
     sidebarRef,
     modalStack,
     isModalOnTop,
-    isChatModalOpen,
+    isChatOpen,
     isWorkspaceDialogOpen,
 
     editableBoardId,
@@ -467,8 +437,6 @@ export const useUIStore = defineStore('ui', () => {
     closeEditWorkspaceModal,
     openSettingsModal,
     closeSettingsModal,
-    openChatModal,
-    closeChatModal,
     openSidebar,
     closeSidebar,
     selectArchive,

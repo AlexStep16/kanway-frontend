@@ -6,7 +6,6 @@ export interface ICategory {
   name: string
   workspace: IParent
   board: IParent
-  tasksCount: number
   userId: string
   rank: string
   isDeleted: boolean

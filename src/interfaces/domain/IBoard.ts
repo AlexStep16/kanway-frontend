@@ -6,8 +6,6 @@ export interface IBoard {
   workspace: IParent
   userId: string
   isFavorite: boolean
-  categoriesCount: number
-  tasksCount: number
   rank: string
   isDeleted: boolean
   isDeletedExternal: boolean

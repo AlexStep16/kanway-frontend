@@ -15,9 +15,6 @@ export function useCloneBoard() {
 
   return useMutation({
     mutationKey: [...boardKeys.all, 'clone'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: ({ id }: CloneBoardVars) => requestQueueService.enqueue(id, () => cloneBoard(id)),
 
     onSuccess: async (result) => {
@@ -25,6 +22,7 @@ export function useCloneBoard() {
 
       if (newBoard) {
         queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newBoard.workspace.id) })
+        queryClient.invalidateQueries({ queryKey: [...boardKeys.count(), newBoard.workspace.id] })
       }
 
       toast.success('Доска скопирована', {

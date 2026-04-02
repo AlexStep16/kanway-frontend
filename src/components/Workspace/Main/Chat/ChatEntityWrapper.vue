@@ -21,7 +21,7 @@ function handleToggleSelect() {
   if (selectedIds.value.includes(props.entityId)) {
     selectedIds.value = selectedIds.value.filter((id) => id !== props.entityId)
   } else {
-    selectedIds.value.push(props.entityId)
+    selectedIds.value = [...selectedIds.value, props.entityId]
   }
 }
 

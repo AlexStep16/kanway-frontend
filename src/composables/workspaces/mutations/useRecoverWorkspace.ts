@@ -6,6 +6,7 @@ import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { recoverWorkspace } from '@services/workspace'
 import { useUndo } from '@/composables/logs/useUndo'
 import { IBoard } from '@/interfaces/domain/IBoard'
+import { useWorkspaceStore } from '@/stores/workspace'
 
 interface RecoverWorkspaceVars {
   workspace: IWorkspace
@@ -68,7 +69,9 @@ export function useRecoverWorkspace() {
     },
 
     onSuccess: (result) => {
+      const workspaceStore = useWorkspaceStore()
       const newWorkspaceId = result.data[0].id ?? null
+
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
 
       const availableBoards = queryClient.getQueryData<IBoard[]>(
@@ -90,6 +93,13 @@ export function useRecoverWorkspace() {
           },
         },
       })
+
+      const workspaces = queryClient.getQueryData<IWorkspace[]>(workspaceKeys.lists())
+      const workspace = workspaces?.find((w) => w.id === result.data[0].id)
+
+      if (workspace) {
+        workspaceStore.selectWorkspace(workspace, true)
+      }
     },
   })
 }

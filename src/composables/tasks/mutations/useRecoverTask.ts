@@ -17,7 +17,7 @@ export function useRecoverTask() {
   return useMutation({
     mutationKey: [...taskKeys.all, 'recover'],
     meta: {
-      keysToInvalidate: [workspaceKeys.lists(), taskKeys.archived()],
+      keysToInvalidate: [taskKeys.archived()],
     },
     mutationFn: ({ task }: RecoverTaskVars) =>
       requestQueueService.enqueue(task.id, () => recoverTask(task.id)),
@@ -77,8 +77,6 @@ export function useRecoverTask() {
     },
 
     onSettled: (result, error, { task }) => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(task.workspace.id) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(task.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(task.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.detailed(task.id) })
     },

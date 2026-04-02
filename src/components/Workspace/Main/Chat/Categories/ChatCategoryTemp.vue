@@ -21,8 +21,6 @@ const selectedIds = defineModel('selectedIds', {
         :category="entity"
         :options="{
           hasBorder: true,
-          hasCopy: false,
-          hasDelete: false,
           hasCheckbox: hasCheckbox,
           isStatic: true,
           showInfo: true,

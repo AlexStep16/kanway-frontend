@@ -18,9 +18,6 @@ export function useCreateTask() {
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'create'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: async ({ payload, categoryId, boardId, workspaceId }: CreateTaskVars) => {
       if (!workspaceId) {
         throw new Error('Не выбрано пространство')
@@ -38,8 +35,6 @@ export function useCreateTask() {
     },
 
     onSuccess: async (result, { boardId, workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
 
       queryClient.setQueryData(taskKeys.byBoard(boardId), (oldTasks: ITask[] | undefined) => {

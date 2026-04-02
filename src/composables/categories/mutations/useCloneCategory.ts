@@ -15,9 +15,6 @@ export function useCloneCategory() {
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'clone'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: ({ id }: CloneCategoryVars) =>
       requestQueueService.enqueue(id, () => cloneCategory(id)),
 
@@ -25,7 +22,7 @@ export function useCloneCategory() {
       const newCategory = result.data[0]
 
       if (newCategory) {
-        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newCategory.workspace.id) })
+        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newCategory.board.id) })
       }
 
       toast.success('Категория скопирована', {

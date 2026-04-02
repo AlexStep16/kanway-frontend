@@ -26,7 +26,7 @@ const selectedWorkspacesCount = computed(() => {
   return selectedIds.value.length
 })
 
-const hasCheckbox = computed(() => (workspace: IWorkspace) => {
+function hasCheckbox(workspace: IWorkspace) {
   if (!props.isSelectable) return false
   if ((props.minSelect ?? 0) > 0 || (props.maxSelect ?? 0) > 0) {
     if ((props.minSelect ?? 0) > 0 && selectedWorkspacesCount.value < (props.minSelect ?? 0)) {
@@ -38,7 +38,7 @@ const hasCheckbox = computed(() => (workspace: IWorkspace) => {
     return true
   }
   return true
-})
+}
 </script>
 
 <template>

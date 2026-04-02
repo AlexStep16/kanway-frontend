@@ -17,7 +17,7 @@ export function useArchiveCategory() {
   return useMutation({
     mutationKey: [...categoryKeys.all, 'archive'],
     meta: {
-      keysToInvalidate: [categoryKeys.archived(), workspaceKeys.lists()],
+      keysToInvalidate: [categoryKeys.archived()],
     },
     mutationFn: ({ category }: ArchiveCategoryVars) =>
       requestQueueService.enqueue(category.id, () => archiveCategory(category.id)),
@@ -77,7 +77,6 @@ export function useArchiveCategory() {
     },
 
     onSettled: (data, error, { category }) => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(category.workspace.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })

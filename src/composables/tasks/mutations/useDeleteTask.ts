@@ -15,7 +15,7 @@ export function useDeleteTask() {
   return useMutation({
     mutationKey: [...taskKeys.all, 'delete'],
     meta: {
-      keysToInvalidate: [workspaceKeys.lists(), taskKeys.archived()],
+      keysToInvalidate: [taskKeys.archived()],
     },
     mutationFn: ({ task }: DeleteTaskVars) =>
       requestQueueService.enqueue(task.id, () => removeTask(task.id)),
@@ -54,8 +54,6 @@ export function useDeleteTask() {
     },
 
     onSettled: (data, error, { task }) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(task.board.id) })
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(task.workspace.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(task.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.detailed(task.id) })
     },

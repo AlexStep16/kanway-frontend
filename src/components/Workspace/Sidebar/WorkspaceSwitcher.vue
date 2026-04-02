@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils'
 import DropdownMenuMore from '@/components/ui/dropdown-menu/DropdownMenuMore.vue'
 import { useUIStore } from '@/stores/ui'
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
+import { useBoardsCount } from '@/composables/boards/queries/useBoardsCount'
 
 const isOpen = ref(false)
 const { isMobile } = useSidebar()
@@ -46,12 +47,11 @@ const workspaceStore = useWorkspaceStore()
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 const activeWorkspace = useWorkspace(activeWorkspaceId)
 
+const { data: boardsCountData, isPending: areBoardsCountLoading } =
+  useBoardsCount(activeWorkspaceId)
+
 const activeWorkspaceName = computed(() => {
   return activeWorkspace.value?.name ?? ''
-})
-
-const activeWorkspaceBoardsCount = computed(() => {
-  return activeWorkspace.value?.boardsCount ?? 0
 })
 
 const getFirstLetterOfWorkspace = computed(() => (workspaceId: string) => {
@@ -103,7 +103,10 @@ const openWorkspaceDialog = () => {
             <ActiveWorkspaceAvatar />
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-medium">{{ activeWorkspaceName }}</span>
-              <span class="truncate text-xs">Досок: {{ activeWorkspaceBoardsCount }}</span>
+              <div class="flex items-center gap-x-1 truncate text-xs" v-if="!areBoardsCountLoading">
+                Досок: <span>{{ boardsCountData }}</span>
+              </div>
+              <Skeleton v-else class="h-4 w-14" />
             </div>
             <ChevronsUpDown class="ml-auto" />
           </SidebarMenuButton>

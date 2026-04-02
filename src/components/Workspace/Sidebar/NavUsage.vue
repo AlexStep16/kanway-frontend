@@ -11,7 +11,6 @@ import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useUIStore } from '@/stores/ui'
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
-import { cn } from '@/lib/utils'
 
 const uiStore = useUIStore()
 const authStore = useAuthStore()

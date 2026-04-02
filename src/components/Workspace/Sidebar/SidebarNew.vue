@@ -13,8 +13,10 @@ import Start from '@components/Workspace/Main/Start.vue'
 import TitleBoard from '../Header/TitleBoard.vue'
 import Search from './Search.vue'
 import Chat from './Chat.vue'
+import { useChatStore } from '@/stores/chat'
 
 const uiStore = useUIStore()
+const chatStore = useChatStore()
 </script>
 
 <template>
@@ -36,6 +38,6 @@ const uiStore = useUIStore()
         <Start v-else />
       </div>
     </SidebarInset>
-    <Chat />
+    <Chat v-if="chatStore.activeChat || uiStore.isChatOpen" />
   </SidebarProvider>
 </template>

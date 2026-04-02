@@ -23,6 +23,7 @@ export const categoryKeys = {
 export const boardKeys = {
   all: ['boards'],
   lists: () => [...boardKeys.all, 'list'],
+  count: () => [...boardKeys.all, 'count'],
   byWorkspace: (workspaceId: MaybeRef<string | null>) => [...boardKeys.lists(), { workspaceId }],
   archived: () => [...boardKeys.all, 'archived'],
   detailed: (boardId: MaybeRef<string | null>) => [...boardKeys.all, 'detailed', { boardId }],

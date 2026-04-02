@@ -5,6 +5,7 @@ import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { recoverBoard } from '@/services/board'
 import { useUndo } from '@/composables/logs/useUndo'
+import { useBoardStore } from '@/stores/board'
 
 interface RecoverBoardVars {
   board: IBoard
@@ -17,7 +18,7 @@ export function useRecoverBoard() {
   return useMutation({
     mutationKey: [...boardKeys.all, 'recover'],
     meta: {
-      keysToInvalidate: [workspaceKeys.lists(), boardKeys.archived()],
+      keysToInvalidate: [boardKeys.archived()],
     },
     mutationFn: ({ board }: RecoverBoardVars) =>
       requestQueueService.enqueue(board.id, () => recoverBoard(board.id)),
@@ -65,7 +66,13 @@ export function useRecoverBoard() {
       }
     },
 
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
+      const boardStore = useBoardStore()
+
+      await queryClient.invalidateQueries({
+        queryKey: boardKeys.byWorkspace(result.data[0].workspace.id),
+      })
+
       toast.success('Доска восстановлена', {
         action: {
           label: 'Отменить',
@@ -74,10 +81,21 @@ export function useRecoverBoard() {
           },
         },
       })
+
+      const boards = queryClient.getQueryData<IBoard[]>(
+        boardKeys.byWorkspace(result.data[0].workspace.id),
+      )
+      const board = boards?.find((b) => b.id === result.data[0].id)
+
+      if (board) {
+        boardStore.selectBoard(board, true)
+      }
     },
 
     onSettled: (result, error, { board }) => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(board.workspace.id) })
+      queryClient.invalidateQueries({
+        queryKey: [...boardKeys.count(), board.workspace.id],
+      })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(board.id) })
 
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })

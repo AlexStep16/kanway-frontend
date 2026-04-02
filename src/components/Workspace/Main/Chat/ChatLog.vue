@@ -25,6 +25,7 @@ import ChatWorkspacesView from './Workspaces/ChatWorkspacesView.vue'
 import ChatCategoriesEditView from './Categories/ChatCategoriesEditView.vue'
 import ChatBoardsEditView from './Boards/ChatBoardsEditView.vue'
 import ChatWorkspacesEditView from './Workspaces/ChatWorkspacesEditView.vue'
+import { Check } from 'lucide-vue-next'
 
 const props = defineProps<{
   message: IChatMessage
@@ -78,6 +79,7 @@ const OPERATION_VERBS: Record<string, string> = {
   DELETE: 'удалены',
   UPDATE: 'обновлены',
   CREATE: 'созданы',
+  CLONE: 'скопированы',
 }
 
 const SELECTS_FROM_AFTER = new Set([
@@ -85,6 +87,7 @@ const SELECTS_FROM_AFTER = new Set([
   OperationTypesEnum.UPDATE,
   OperationTypesEnum.ARCHIVE,
   OperationTypesEnum.RECOVER,
+  OperationTypesEnum.CLONE,
 ])
 
 /**
@@ -155,8 +158,8 @@ const renderBlocks = computed<RenderBlock[]>(() => {
     ]
   }
 
-  // CREATE (choose temp view while pending)
-  if (operationType === OperationTypesEnum.CREATE) {
+  // CREATE | DELETE (choose temp view while pending)
+  if (operationType === OperationTypesEnum.CREATE || operationType === OperationTypesEnum.DELETE) {
     return [
       {
         id,
@@ -219,7 +222,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <AIBubble :hideAvatar="true" :isContentFullWidth="true" v-if="logCopy && !isApproved">
+  <AIBubble :hideAvatar="true" :isContentFullWidth="true" v-if="logCopy">
     <template v-if="!isLogLoading">
       <div v-for="block in renderBlocks" :key="block.id" class="mb-4 last:mb-0">
         <Assistant :text="block.title" v-if="block.title" />
@@ -244,7 +247,7 @@ watchEffect(() => {
             <div class="flex items-center justify-center absolute" v-if="isLogApproving">
               <Spinner class="size-4" />
             </div>
-            <span> Подтвердить </span>
+            <span :class="{ 'opacity-0': isLogApproving }"> Подтвердить </span>
           </button>
 
           <button
@@ -255,7 +258,28 @@ watchEffect(() => {
             <div class="flex items-center justify-center absolute" v-if="isLogCancelling">
               <Spinner class="size-4" />
             </div>
-            <span> Отменить </span>
+            <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
+          </button>
+        </div>
+
+        <div
+          class="flex items-center gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200"
+          v-else-if="isApproved"
+        >
+          <div class="flex items-center text-xs gap-x-1 text-green-600">
+            <Check class="size-4" />
+            <span>Подтверждено</span>
+          </div>
+
+          <button
+            type="button"
+            class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
+            @click="handleApproveLog(false)"
+          >
+            <div class="flex items-center justify-center absolute" v-if="isLogCancelling">
+              <Spinner class="size-4" />
+            </div>
+            <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
           </button>
         </div>
       </div>

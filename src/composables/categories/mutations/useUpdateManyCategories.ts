@@ -3,8 +3,6 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { saveCategories } from '@/services/category'
-import { calculateCounterDeltas } from '@/utils/queries/calculateCounterDeltas'
-import { applyOptimisticCounters } from '@/utils/queries/applyOptimisticCounters'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 
 interface UpdateManyVars {
@@ -49,16 +47,6 @@ export function useUpdateManyCategories() {
             return update ? { ...t, ...update } : t
           })
         })
-
-        const boardDeltas = calculateCounterDeltas(snapshots.categories, vars.payload, 'board')
-        applyOptimisticCounters(queryClient, bKey, boardDeltas)
-
-        const workspaceDeltas = calculateCounterDeltas(
-          snapshots.categories,
-          vars.payload,
-          'workspace',
-        )
-        applyOptimisticCounters(queryClient, wKey, workspaceDeltas)
       }
 
       return { snapshots }
@@ -67,7 +55,7 @@ export function useUpdateManyCategories() {
     onError: (err, vars, context) => {
       if (!context?.snapshots) return
 
-      const { categories, boards, workspaces } = context.snapshots
+      const { categories } = context.snapshots
 
       if (categories) {
         const failedIds = new Set(vars.payload.map((p) => p.id))
@@ -83,27 +71,6 @@ export function useUpdateManyCategories() {
             }) || []
           )
         })
-
-        if (boards) {
-          const boardDeltas = calculateCounterDeltas(categories, vars.payload, 'board')
-
-          const invertedBoardDeltas = new Map<string, number>()
-          boardDeltas.forEach((val, id) => {
-            invertedBoardDeltas.set(id, -val)
-          })
-
-          applyOptimisticCounters(queryClient, boardKeys.all, invertedBoardDeltas)
-        }
-
-        if (workspaces) {
-          const workspaceDeltas = calculateCounterDeltas(categories, vars.payload, 'workspace')
-          const invertedWorkspaceDeltas = new Map<string, number>()
-          workspaceDeltas.forEach((val, id) => {
-            invertedWorkspaceDeltas.set(id, -val)
-          })
-
-          applyOptimisticCounters(queryClient, workspaceKeys.lists(), invertedWorkspaceDeltas)
-        }
       }
     },
 

@@ -15,7 +15,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const { data, isPending } = useBoard(props.board.id, props.board.workspace.id)
+const { data, isPending } = useBoard(props.board.id, props.board.workspace?.id)
 </script>
 
 <template>

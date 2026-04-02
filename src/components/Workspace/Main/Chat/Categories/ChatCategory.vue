@@ -15,7 +15,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const { data, isPending } = useCategory(props.category.id, props.category.board.id)
+const { data, isPending } = useCategory(props.category.id, props.category.board?.id)
 </script>
 
 <template>

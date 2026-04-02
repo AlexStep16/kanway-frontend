@@ -16,7 +16,7 @@ export function useDeleteBoard() {
   return useMutation({
     mutationKey: [...boardKeys.all, 'delete'],
     meta: {
-      keysToInvalidate: [workspaceKeys.lists(), boardKeys.archived()],
+      keysToInvalidate: [boardKeys.archived()],
     },
     mutationFn: ({ board }: DeleteBoardVars) =>
       requestQueueService.enqueue(board.id, () => removeBoard(board.id)),
@@ -52,25 +52,16 @@ export function useDeleteBoard() {
     },
 
     onSuccess: async (data, variables) => {
-      const BOARD_STORE = useBoardStore()
+      queryClient.invalidateQueries({
+        queryKey: [...boardKeys.count(), variables.board.workspace.id],
+      })
 
       await queryClient.invalidateQueries({
         queryKey: boardKeys.byWorkspace(variables.board.workspace.id),
       })
-
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(variables.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(variables.board.id) })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(variables.board.id) })
-
-      if (BOARD_STORE.activeBoardId === variables.board.id) {
-        const boards = queryClient.getQueryData<IBoard[]>(
-          boardKeys.byWorkspace(variables.board.workspace.id),
-        )
-
-        const nextBoard = boards && boards.length > 0 ? boards[0] : null
-
-        if (nextBoard) BOARD_STORE.selectBoard(nextBoard, true)
-      }
 
       toast.success('Доска успешно удалена')
     },

@@ -130,7 +130,7 @@ const boardName = computed(() => (id: string) => {
             <SelectTrigger
               :class="
                 cn(
-                  'border flex shadow-none h-8 text-xs rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent justify-start',
+                  'border flex shadow-none h-8 text-xs rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent justify-start px-2',
                   isTypeSelectOpen && 'text-foreground bg-accent',
                 )
               "
@@ -166,7 +166,7 @@ const boardName = computed(() => (id: string) => {
                 size="sm"
                 :class="
                   cn(
-                    'max-w-50 border flex w-auto shadow-none h-8 text-xs rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent',
+                    'max-w-50 border flex w-auto shadow-none h-8 text-xs rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent justify-start px-2',
                     selectedBoardIds.length === 0 && 'text-muted-foreground',
                     isContextSelectOpen && 'text-foreground bg-accent',
                   )
@@ -226,12 +226,13 @@ const boardName = computed(() => (id: string) => {
             v-if="!agentStatusStore.isSSEActive()"
             @click="sendChatMessage()"
           >
+            <span class="text-xs">Отправить</span>
             <Sparkles class="size-4" />
           </Button>
 
-          <Button size="icon-sm" class="text-xs font-medium" v-else @click="handleStopAgent()">
+          <Button size="sm" class="text-xs font-medium" v-else @click="handleStopAgent()">
+            <span>Стоп</span>
             <Square class="size-3.5" fill="#FFFFFF" />
-            <span>{{ agentStatusStore.formattedTime }}</span>
           </Button>
         </div>
       </div>

@@ -120,8 +120,6 @@ function handleMove(newBoardId: string) {
       payload: props.category,
       oldBoardId: props.category.board.id,
       newBoardId: board.id,
-      oldWorkspaceId: props.category.workspace.id,
-      newWorkspaceId: board.workspace.id,
     })
   }
 }
@@ -255,7 +253,11 @@ const otherBoards = computed(() => {
         v-if="!areTasksLoading"
       >
         <template #item="{ element }">
-          <Task :key="element.id" :task="element" :options="{ hasCopy: true, hasDelete: true }" />
+          <Task
+            :key="element.id"
+            :task="element"
+            :options="{ hasCopy: true, hasDelete: true, isCompletable: true }"
+          />
         </template>
       </draggable>
 

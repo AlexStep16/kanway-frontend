@@ -35,21 +35,12 @@ const props = defineProps<{
   }
 }>()
 
-const selectedMap = ref<{ id: string; isSelected: boolean }[]>([])
-
-props.message.content.ids.forEach((id) => {
-  selectedMap.value.push({
-    id,
-    isSelected: false,
-  })
-})
+const selectedIds = ref<string[]>([])
 
 function handleResolveAmbiguous() {
-  const ids = selectedMap.value.filter((item) => item.isSelected).map((item) => item.id)
-
   resolveAmbiguous({
     payload: {
-      ids,
+      ids: selectedIds.value,
       callId: props.message.content.callId,
     },
     chatId: chatStore.activeChat?.id ?? '',
@@ -70,7 +61,12 @@ const selectCountTitle = computed(() => {
   return 'Выберите подходящие варианты'
 })
 
-const items = computed(() => selectedMap.value as any)
+const items = computed(
+  () =>
+    ((props.message.content?.ids ?? []) as any[]).map((id) => ({
+      id,
+    })) as any[],
+)
 </script>
 
 <template>
@@ -82,6 +78,7 @@ const items = computed(() => selectedMap.value as any)
         :message="message"
         :items="items"
         :is-selectable="true"
+        v-model:selectedIds="selectedIds"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
       />
@@ -93,6 +90,7 @@ const items = computed(() => selectedMap.value as any)
         :message="message"
         :items="items"
         :is-selectable="true"
+        v-model:selectedIds="selectedIds"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
       />
@@ -104,6 +102,7 @@ const items = computed(() => selectedMap.value as any)
         :message="message"
         :items="items"
         :is-selectable="true"
+        v-model:selectedIds="selectedIds"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
       />
@@ -117,6 +116,7 @@ const items = computed(() => selectedMap.value as any)
         :message="message"
         :items="items"
         :is-selectable="true"
+        v-model:selectedIds="selectedIds"
         :min-select="message.content.minSelect"
         :max-select="message.content.maxSelect"
       />
@@ -132,7 +132,7 @@ const items = computed(() => selectedMap.value as any)
         <div class="flex items-center justify-center absolute" v-if="isResolvingAmbiguous">
           <Spinner class="size-4" />
         </div>
-        <span> Подтвердить </span>
+        <span :class="{ 'opacity-0': isResolvingAmbiguous }"> Подтвердить </span>
       </button>
     </div>
   </AIBubble>

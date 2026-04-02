@@ -11,6 +11,16 @@ import { getColorByNameAndTone } from '@/utils/getColorByNameAndTone'
 import { Nullable, OptionalNullable } from '@/types/utils'
 import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
 
+export interface EntityCardOptions {
+  hasBorder?: boolean
+  hasCheckbox?: boolean
+  isCompletable?: boolean
+  hasCopy?: boolean
+  hasDelete?: boolean
+  showInfo?: boolean
+  isStatic?: boolean
+}
+
 const props = defineProps<{
   entity: {
     id: string
@@ -39,14 +49,7 @@ const props = defineProps<{
       name?: string
     }
   }
-  options?: {
-    hasBorder?: boolean
-    hasCheckbox?: boolean
-    hasCopy?: boolean
-    hasDelete?: boolean
-    isStatic?: boolean
-    showInfo?: boolean
-  }
+  options?: EntityCardOptions
   status: {
     isArchiving: ComputedRef<boolean>
     isRecovering: ComputedRef<boolean>
@@ -112,6 +115,7 @@ const entityColor = computed(() => {
 
 const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
 const hasInfo = computed(() => props.entity.category || props.entity.board)
+const isEntityCompletable = computed(() => props.options?.isCompletable && !props.options?.isStatic)
 </script>
 
 <template>
@@ -145,26 +149,26 @@ const hasInfo = computed(() => props.entity.category || props.entity.board)
           class="flex items-center pr-14 pointer-fine:pr-0 gap-x-1 shrink overflow-hidden min-w-0 text-gray-800 transform pointer-fine:-translate-x-6 transition-all duration-100"
           :class="{
             'translate-x-0!': entity.isCompleted,
-            'group-hover/task:translate-x-0': !options?.isStatic,
+            'group-hover/task:translate-x-0': isEntityCompletable,
           }"
         >
           <div
             class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
             :class="{
-              'opacity-100! pointer-events-auto!': entity.isCompleted && !options?.isStatic,
+              'opacity-100! pointer-events-auto!': entity.isCompleted && isEntityCompletable,
             }"
           >
             <div class="size-5 flex items-center justify-center">
               <label
                 class="flex items-center cursor-pointer relative transition-all select-none"
                 @click.stop
-                v-if="!options?.isStatic"
+                v-if="isEntityCompletable"
               >
                 <input
                   type="checkbox"
                   class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
                   :checked="entity.isCompleted"
-                  id="check-custom-style"
+                  :id="'toggleCompletion-checkbox' + entity.id"
                   @change="$emit('toggleCompletion')"
                 />
                 <span
@@ -200,13 +204,14 @@ const hasInfo = computed(() => props.entity.category || props.entity.board)
 
         <label
           class="flex items-center cursor-pointer relative transition-all"
-          @click.stop="$emit('toggleSelect')"
+          @click.stop
           v-if="options?.hasCheckbox && selectedIds"
         >
           <input
             type="checkbox"
             class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-blue-500 checked:border-blue-600"
-            id="payment-method-card-2"
+            :id="'selected-checkbox' + entity.id"
+            @change="$emit('toggleSelect')"
             :checked="isSelected"
           />
           <span

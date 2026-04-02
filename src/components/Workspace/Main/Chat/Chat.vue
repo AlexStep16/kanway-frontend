@@ -4,7 +4,6 @@ import UserBubbleSkeleton from '@components/Workspace/Main/Chat/Bubbles/UserBubb
 import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import AIBubbleSkeleton from '@components/Workspace/Main/Chat/Bubbles/AIBubbleSkeleton.vue'
 import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
-import Stepper from '@components/Workspace/Main/Chat/Bubbles/Stepper.vue'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
@@ -19,8 +18,8 @@ import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
 import ChatLog from './ChatLog.vue'
 import ChatAmbiguous from './ChatAmbiguous.vue'
 import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
-import Spinner from '@/components/ui/spinner/Spinner.vue'
 import ChatDisplay from './ChatDisplay.vue'
+import ChatThinking from './ChatThinking.vue'
 
 const chatStore = useChatStore()
 const agentStatusStore = useAgentStatusStore()
@@ -90,6 +89,9 @@ onBeforeUnmount(() => {
           :text="message.content"
           :date="getFormattedDate(message.createdAt)"
         />
+
+        <ChatThinking v-else-if="message.role === 'steps'" :steps="message.content" />
+
         <AIBubble
           v-else-if="['assistant', 'error'].includes(message.role)"
           :date="getFormattedDate(message.createdAt)"
@@ -97,9 +99,6 @@ onBeforeUnmount(() => {
           @tryAgain="handleRetryAgent(message.id)"
         >
           <Assistant :text="message.content" />
-        </AIBubble>
-        <AIBubble v-else-if="message.role === 'steps'">
-          <Stepper :steps="message.content" />
         </AIBubble>
 
         <template v-else-if="message.role === CustomEventsEnum.OPERATION">
@@ -121,9 +120,5 @@ onBeforeUnmount(() => {
       <UserBubbleSkeleton />
       <AIBubbleSkeleton />
     </template>
-
-    <AIBubble v-if="agentStatusStore.isThinking">
-      <Spinner class="size-4" />
-    </AIBubble>
   </div>
 </template>

@@ -5,9 +5,6 @@ export interface IWorkspace {
   name: string
   userId: string
   isFavorite: boolean
-  boardsCount: number
-  categoriesCount: number
-  tasksCount: number
   rank: string
   color: AvailableColors
   colorName: string

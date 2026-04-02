@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUIStore } from '@/stores/ui'
-import EntityCard from './Main/EntityCard.vue'
-import { useArchiveBoard } from '@/composables/boards/mutations/useArchiveBoard'
-import { useCloneBoard } from '@/composables/boards/mutations/useCloneBoard'
-import { useBoardMutationStatus } from '@/composables/boards/mutations/useBoardMutationStatus'
+import EntityCard, { EntityCardOptions } from './Main/EntityCard.vue'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { useArchiveWorkspace } from '@/composables/workspaces/mutations/useArchiveWorkspace'
 import { useCloneWorkspace } from '@/composables/workspaces/mutations/useCloneWorkspace'
@@ -12,14 +9,7 @@ import { useWorkspaceMutationStatus } from '@/composables/workspaces/mutations/u
 
 const props = defineProps<{
   workspace: IWorkspace
-  options?: {
-    hasBorder?: boolean
-    hasCheckbox?: boolean
-    hasCopy?: boolean
-    hasDelete?: boolean
-    showInfo?: boolean
-    isStatic?: boolean
-  }
+  options?: EntityCardOptions
   selectedIds?: string[]
   classes?: string
 }>()

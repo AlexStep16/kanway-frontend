@@ -3,10 +3,13 @@ import { computed, MaybeRef, toValue } from 'vue'
 import { boardKeys } from '@/keys'
 import { fetchBoardsCount } from '@services/board'
 
-export function useBoardsCount(isEnabled: MaybeRef<boolean> = true) {
+export function useBoardsCount(
+  workspaceId?: MaybeRef<string | null>,
+  isEnabled: MaybeRef<boolean> = true,
+) {
   return useQuery({
-    queryKey: [...boardKeys.all, 'count'],
-    queryFn: () => fetchBoardsCount(),
+    queryKey: [...boardKeys.count(), toValue(workspaceId)],
+    queryFn: () => fetchBoardsCount(toValue(workspaceId)),
     enabled: computed(() => toValue(isEnabled)),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 60 * 5,

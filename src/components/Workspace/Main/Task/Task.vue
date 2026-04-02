@@ -6,18 +6,11 @@ import { useUpdateTask } from '@/composables/tasks/mutations/useUpdateTask'
 import { useArchiveTask } from '@/composables/tasks/mutations/useArchiveTask'
 import { useCloneTask } from '@/composables/tasks/mutations/useCloneTask'
 import { useTaskMutationStatus } from '@/composables/tasks/mutations/useTaskMutationStatus'
-import EntityCard from '../EntityCard.vue'
+import EntityCard, { EntityCardOptions } from '../EntityCard.vue'
 
 const props = defineProps<{
   task: ITaskState
-  options?: {
-    hasBorder?: boolean
-    hasCheckbox?: boolean
-    hasCopy?: boolean
-    hasDelete?: boolean
-    showInfo?: boolean
-    isStatic?: boolean
-  }
+  options?: EntityCardOptions
   selectedIds?: string[]
   classes?: string
 }>()

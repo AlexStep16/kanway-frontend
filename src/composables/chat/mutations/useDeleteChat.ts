@@ -4,6 +4,7 @@ import { chatKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IChat } from '@/interfaces/domain/IChat'
 import { removeChat } from '@/services/chat'
+import { useChatStore } from '@/stores/chat'
 
 interface DeleteChatVars {
   id: string
@@ -52,8 +53,14 @@ export function useDeleteChat() {
       queryClient.invalidateQueries({ queryKey: categoryKey })
     },
 
-    onSuccess: (result, { workspaceId }) => {
+    onSuccess: (result, { id }) => {
+      const chatStore = useChatStore()
+
       toast.success('Чат успешно удален')
+
+      if (chatStore.activeChat?.id === id) {
+        chatStore.closeChat()
+      }
     },
   })
 }

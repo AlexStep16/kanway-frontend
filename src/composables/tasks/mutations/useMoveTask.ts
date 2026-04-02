@@ -14,8 +14,6 @@ export interface MoveTaskVars {
   newCategoryId: string
   oldBoardId: string
   newBoardId: string
-  oldWorkspaceId: string
-  newWorkspaceId: string
 }
 
 export function useMoveTask() {
@@ -26,26 +24,12 @@ export function useMoveTask() {
     mutationKey: [...taskKeys.all, 'move'],
     mutationFn: ({ payload }: MoveTaskVars) =>
       requestQueueService.enqueue(payload.id, () => saveTask(payload)),
-    onSuccess: async (
-      result,
-      { oldBoardId, newBoardId, oldWorkspaceId, newWorkspaceId, payload },
-    ) => {
+    onSuccess: async (result, { oldBoardId, newBoardId, payload }) => {
       queryClient.invalidateQueries({ queryKey: taskKeys.detailed(payload.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(oldBoardId) })
 
       if (oldBoardId !== newBoardId) {
-        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(oldWorkspaceId) })
-        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
-
-        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(oldBoardId) })
-        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newBoardId) })
-
-        queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(oldBoardId) })
         queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(newBoardId) })
-      }
-
-      if (oldWorkspaceId !== newWorkspaceId) {
-        queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() })
       }
 
       toast.success('Задача успешно перемещена', {

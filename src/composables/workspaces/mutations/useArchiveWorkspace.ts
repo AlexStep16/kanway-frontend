@@ -6,6 +6,7 @@ import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { archiveWorkspace } from '@/services/workspace'
 import { useUndo } from '@/composables/logs/useUndo'
 import { IBoard } from '@/interfaces/domain/IBoard'
+import { useWorkspaceStore } from '@/stores/workspace'
 
 interface ArchiveWorkspaceVars {
   workspace: IWorkspace
@@ -68,7 +69,9 @@ export function useArchiveWorkspace() {
     },
 
     onSuccess: (result) => {
+      const workspaceStore = useWorkspaceStore()
       const workspaceId = result.data[0].id ?? null
+
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
 
       const availableBoards = queryClient.getQueryData<IBoard[]>(boardKeys.byWorkspace(workspaceId))
@@ -88,6 +91,14 @@ export function useArchiveWorkspace() {
           },
         },
       })
+
+      if (workspaceStore.activeWorkspaceId === result.data[0].id) {
+        const workspaces = queryClient.getQueryData<IWorkspace[]>(workspaceKeys.lists())
+
+        const nextWorkspace = workspaces && workspaces.length > 0 ? workspaces[0] : null
+
+        if (nextWorkspace) workspaceStore.selectWorkspace(nextWorkspace, true)
+      }
     },
   })
 }

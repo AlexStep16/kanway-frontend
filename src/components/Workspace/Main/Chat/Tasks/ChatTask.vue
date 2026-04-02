@@ -15,7 +15,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const { data, isPending } = useTask(props.task.id, props.task.board.id)
+const { data, isPending } = useTask(props.task.id, props.task.board?.id)
 </script>
 
 <template>
@@ -32,6 +32,7 @@ const { data, isPending } = useTask(props.task.id, props.task.board.id)
         :options="{
           hasBorder: true,
           hasCheckbox: hasCheckbox,
+          isCompletable: true,
           showInfo: true,
         }"
         :selected-ids="selectedIds"

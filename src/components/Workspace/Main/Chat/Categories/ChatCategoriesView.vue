@@ -26,7 +26,7 @@ const selectedCategoriesCount = computed(() => {
   return selectedIds.value.length
 })
 
-const hasCheckbox = computed(() => (category: ICategory) => {
+function hasCheckbox(category: ICategory) {
   if (!props.isSelectable) return false
   if ((props.minSelect ?? 0) > 0 || (props.maxSelect ?? 0) > 0) {
     if ((props.minSelect ?? 0) > 0 && selectedCategoriesCount.value < (props.minSelect ?? 0)) {
@@ -38,7 +38,7 @@ const hasCheckbox = computed(() => (category: ICategory) => {
     return true
   }
   return true
-})
+}
 </script>
 
 <template>

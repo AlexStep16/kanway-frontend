@@ -15,9 +15,6 @@ export function useCloneTask() {
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'clone'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: ({ id }: CloneTaskVars) => {
       return requestQueueService.enqueue(id, () => cloneTask(id))
     },
@@ -27,8 +24,6 @@ export function useCloneTask() {
 
       if (newTask) {
         queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(newTask.board.id) })
-        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newTask.board.id) })
-        queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newTask.workspace.id) })
       }
 
       toast.success('Задача скопирована', {

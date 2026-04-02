@@ -12,7 +12,6 @@ export default class CategoryModel implements ICategory {
     id: string
     name: string
   }
-  public tasksCount: number
   public rank: string
   public isDeleted: boolean
   public isDeletedExternal: boolean
@@ -26,7 +25,6 @@ export default class CategoryModel implements ICategory {
     this.name = props.name
     this.workspace = props.workspace
     this.board = props.board
-    this.tasksCount = props.tasksCount
     this.rank = props.rank
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal

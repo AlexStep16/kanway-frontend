@@ -20,7 +20,7 @@ export async function getBoardApi(id: string) {
   })
 }
 
-export async function getBoardsCountApi(workspaceId?: string) {
+export async function getBoardsCountApi(workspaceId?: string | null) {
   const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
 
   return await apiCall<number>({

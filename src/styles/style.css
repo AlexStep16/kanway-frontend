@@ -60,6 +60,8 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-muted: var(--primary-muted);
+  --color-primary-muted-hover: var(--primary-muted-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -98,6 +100,8 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(62.31% 0.1881 259.83);
+  --primary-muted: oklch(0.95 0.02 261);
+  --primary-muted-hover: oklch(0.92 0.02 261);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: oklch(0.325 0 0);
@@ -135,6 +139,8 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(62.31% 0.1881 259.83);
+  --primary-muted: oklch(0.95 0.02 261);
+  --primary-muted-hover: oklch(0.92 0.02 261);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -170,5 +176,31 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.shimmer-text {
+  color: #1e3a8a;
+  background: linear-gradient(
+    to left,
+    #1e3a8a 20%,
+    #3b82f6 40%,
+    #ffffff 50%,
+    #3b82f6 60%,
+    #1e3a8a 80%
+  );
+  background-position: 200% center;
+  background-size: 200% auto;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: shine 2s infinite linear;
+}
+
+@keyframes shine {
+  to {
+    background-position: 0;
   }
 }

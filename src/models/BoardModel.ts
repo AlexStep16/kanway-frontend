@@ -9,8 +9,6 @@ export default class BoardModel implements IBoard {
   }
   public userId: string
   public isFavorite: boolean
-  public categoriesCount: number
-  public tasksCount: number
   public rank: string
   public isDeleted: boolean
   public isDeletedExternal: boolean
@@ -24,8 +22,6 @@ export default class BoardModel implements IBoard {
     this.workspace = props.workspace
     this.userId = props.userId
     this.isFavorite = props.isFavorite
-    this.categoriesCount = props.categoriesCount
-    this.tasksCount = props.tasksCount
     this.rank = props.rank
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal

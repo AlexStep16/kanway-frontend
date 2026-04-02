@@ -17,7 +17,6 @@ export interface Event {
 export const useAgentStatusStore = defineStore('agentStatus', () => {
   const activeJobId = ref<string | null>(null)
   const currentTool = ref<string | null>(null)
-  const isThinking = ref(false)
   const timeElapsed = ref(0)
 
   let timerInterval: number | null = null
@@ -58,8 +57,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   function connectSSE(jobId: string) {
     if (eventSource.value) eventSource.value.close()
 
-    isThinking.value = true
-
     startTimer()
 
     eventSource.value = new EventSource(
@@ -71,8 +68,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     activeJobId.value = jobId
 
     eventSource.value.onmessage = (event: MessageEvent<string>) => {
-      isThinking.value = false
-
       handleIncomingEvent(JSON.parse(event.data))
     }
 
@@ -129,7 +124,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     }
     activeJobId.value = null
     currentTool.value = null
-    isThinking.value = false
 
     stopTimer()
   }
@@ -141,7 +135,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   return {
     activeJobId,
     currentTool,
-    isThinking,
     formattedTime,
 
     connectSSE,

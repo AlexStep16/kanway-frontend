@@ -16,9 +16,6 @@ export interface MoveCategoryCardVars {
 export function useMoveCategoryCard() {
   return useMutation({
     mutationKey: [...categoryKeys.all, 'move-card'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: async ({
       id,
       beforeCategoryId,

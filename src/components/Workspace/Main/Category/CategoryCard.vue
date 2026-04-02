@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useUIStore } from '@/stores/ui'
-import EntityCard from '../EntityCard.vue'
+import EntityCard, { EntityCardOptions } from '../EntityCard.vue'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 import { useArchiveCategory } from '@/composables/categories/mutations/useArchiveCategory'
 import { useCloneCategory } from '@/composables/categories/mutations/useCloneCategory'
@@ -9,14 +9,7 @@ import { useCategoryMutationStatus } from '@/composables/categories/mutations/us
 
 const props = defineProps<{
   category: ICategoryState
-  options?: {
-    hasBorder?: boolean
-    hasCheckbox?: boolean
-    hasCopy?: boolean
-    hasDelete?: boolean
-    showInfo?: boolean
-    isStatic?: boolean
-  }
+  options?: EntityCardOptions
   selectedIds?: string[]
   classes?: string
 }>()

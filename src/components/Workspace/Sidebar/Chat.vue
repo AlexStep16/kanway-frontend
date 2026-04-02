@@ -12,9 +12,11 @@ import { computed } from 'vue'
 import { useChat } from '@/composables/chat/queries/useChat'
 import Chat from '../Main/Chat/Chat.vue'
 import ScrollArea from '@/components/ui/scroll-area/ScrollArea.vue'
+import { useUIStore } from '@/stores/ui'
 
 const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
 
+const uiStore = useUIStore()
 const chatStore = useChatStore()
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
@@ -51,17 +53,21 @@ function send(message: string) {
     chatId: chatStore.activeChat?.id ?? '',
   })
 }
+
+const activeChatName = computed(() => {
+  return activeChat.value?.name || 'Новый чат'
+})
 </script>
 
 <template>
   <aside
-    class="relative flex h-[calc(100svh-(--spacing(4)))] max-w-md overflow-y-auto overflow-x-hidden flex-1 flex-col bg-background m-2 ml-0 rounded-xl shadow"
+    class="relative flex h-[calc(100svh-(--spacing(4)))] max-w-115 overflow-y-auto overflow-x-hidden flex-1 flex-col bg-background m-2 ml-0 rounded-xl shadow"
   >
     <header class="p-4 pb-0 flex flex-col gap-1">
       <div class="flex items-center justify-between gap-2">
         <div class="size-5"></div>
-        <h2 class="font-semibold">Новый чат</h2>
-        <Button variant="ghost" size="icon-sm" aria-label="Close">
+        <h2 class="font-semibold truncate max-w-70">{{ activeChatName }}</h2>
+        <Button variant="ghost" size="icon-sm" aria-label="Close" @click="chatStore.closeChat()">
           <X class="size-4.5" />
         </Button>
       </div>

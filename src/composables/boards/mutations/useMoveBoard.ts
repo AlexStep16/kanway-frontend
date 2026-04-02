@@ -18,9 +18,6 @@ export function useMoveBoard() {
 
   return useMutation({
     mutationKey: [...boardKeys.all, 'move'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: ({ payload }: MoveBoardVars) =>
       requestQueueService.enqueue(payload.id, () => saveBoard(payload)),
 
@@ -36,6 +33,12 @@ export function useMoveBoard() {
     },
 
     onSettled: (data, error, { oldWorkspaceId, newWorkspaceId, payload }) => {
+      queryClient.invalidateQueries({
+        queryKey: [...boardKeys.count(), oldWorkspaceId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [...boardKeys.count(), newWorkspaceId],
+      })
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(oldWorkspaceId) })
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(payload.id) })

@@ -43,7 +43,7 @@ const { isMobile } = useSidebar()
 const isChatOpen = computed(() => (id: string) => {
   if (!chatStore.activeChat) return false
 
-  return id === chatStore.activeChat.id && uiStore.isChatModalOpen
+  return id === chatStore.activeChat.id && uiStore.isChatOpen
 })
 </script>
 
@@ -69,7 +69,7 @@ const isChatOpen = computed(() => (id: string) => {
           variant="ghost"
           size="icon-xs"
           class="text-muted-foreground opacity-0 group-hover/menu-item:opacity-100"
-          @click.stop
+          @click.stop="chatStore.newChat"
         >
           <Plus class="size-3.5" stroke-width="2.5" />
           <span class="sr-only">Создать чат</span>
@@ -89,7 +89,7 @@ const isChatOpen = computed(() => (id: string) => {
                 size="md"
                 as-child
                 :is-active="isChatOpen(chat.id)"
-                @click="chatStore.selectChat(chat, true)"
+                @click="chatStore.selectChat(chat)"
               >
                 <span class="text-nowrap">{{ chat.name }}</span>
               </SidebarMenuSubButton>

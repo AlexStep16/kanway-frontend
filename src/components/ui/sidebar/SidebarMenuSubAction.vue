@@ -28,11 +28,11 @@ const props = withDefaults(
         showOnHover &&
           'group-focus-within/menu-sub-item:opacity-100 group-hover/menu-sub-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-sub-button:text-sidebar-accent-foreground md:opacity-0',
 
-        'peer-data-[active=true]/menu-sub-button:bg-transparent',
+        'peer-data-[active=true]/menu-sub-button:bg-primary-muted',
         'peer-data-[active=true]/menu-sub-button:text-primary',
-        'peer-data-[active=true]/menu-sub-button:hover:bg-primary/10',
+        'peer-data-[active=true]/menu-sub-button:hover:bg-primary-muted-hover',
         'peer-data-[active=true]/menu-sub-button:hover:text-primary',
-        'peer-data-[active=true]/menu-sub-button:data-[state=open]:bg-primary/10',
+        'peer-data-[active=true]/menu-sub-button:data-[state=open]:bg-primary-muted-hover',
         props.class,
       )
     "

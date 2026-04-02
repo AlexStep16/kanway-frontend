@@ -129,8 +129,6 @@ const handleMoveTask = (data: any) => {
     newCategoryId: data.newCategoryId,
     oldBoardId: task.value.board.id,
     newBoardId: data.newBoardId,
-    oldWorkspaceId: task.value.workspace.id,
-    newWorkspaceId: data.newWorkspaceId,
   })
 }
 

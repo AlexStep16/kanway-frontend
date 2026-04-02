@@ -5,8 +5,6 @@ import { ITaskState } from '@/stores/interfaces/ITaskState'
 import { saveTasks } from '@/services/task'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
-import { calculateCounterDeltas } from '@/utils/queries/calculateCounterDeltas'
-import { applyOptimisticCounters } from '@/utils/queries/applyOptimisticCounters'
 
 export interface UpdateManyTaskVars {
   payload: ISingleUpdate<ITaskState>[]
@@ -52,15 +50,6 @@ export function useUpdateManyTasks() {
             return update ? { ...t, ...update } : t
           })
         })
-
-        const catDeltas = calculateCounterDeltas(snapshots.tasks, vars.payload, 'category')
-        applyOptimisticCounters<ICategoryState>(queryClient, cKey, catDeltas)
-
-        const boardDeltas = calculateCounterDeltas(snapshots.tasks, vars.payload, 'board')
-        applyOptimisticCounters(queryClient, bKey, boardDeltas)
-
-        const workspaceDeltas = calculateCounterDeltas(snapshots.tasks, vars.payload, 'workspace')
-        applyOptimisticCounters(queryClient, wKey, workspaceDeltas)
       }
 
       return { snapshots }
@@ -69,7 +58,7 @@ export function useUpdateManyTasks() {
     onError: (err, vars, context) => {
       if (!context?.snapshots) return
 
-      const { tasks, categories, boards, workspaces } = context.snapshots
+      const { tasks } = context.snapshots
 
       if (tasks) {
         const failedIds = new Set(vars.payload.map((p) => p.id))
@@ -85,38 +74,6 @@ export function useUpdateManyTasks() {
             }) || []
           )
         })
-
-        if (categories) {
-          const categoryDeltas = calculateCounterDeltas(tasks, vars.payload, 'category')
-
-          const invertedCategoryDeltas = new Map<string, number>()
-          categoryDeltas.forEach((val, id) => {
-            invertedCategoryDeltas.set(id, -val)
-          })
-
-          applyOptimisticCounters(queryClient, categoryKeys.all, invertedCategoryDeltas)
-        }
-
-        if (boards) {
-          const boardDeltas = calculateCounterDeltas(tasks, vars.payload, 'board')
-
-          const invertedBoardDeltas = new Map<string, number>()
-          boardDeltas.forEach((val, id) => {
-            invertedBoardDeltas.set(id, -val)
-          })
-
-          applyOptimisticCounters(queryClient, boardKeys.all, invertedBoardDeltas)
-        }
-
-        if (workspaces) {
-          const workspaceDeltas = calculateCounterDeltas(tasks, vars.payload, 'workspace')
-          const invertedWorkspaceDeltas = new Map<string, number>()
-          workspaceDeltas.forEach((val, id) => {
-            invertedWorkspaceDeltas.set(id, -val)
-          })
-
-          applyOptimisticCounters(queryClient, workspaceKeys.lists(), invertedWorkspaceDeltas)
-        }
       }
     },
 
@@ -127,7 +84,6 @@ export function useUpdateManyTasks() {
 
       if (updatedTasks) {
         updatedTasks.forEach((task) => {
-          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(task.board.id) })
           queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(task.board.id) })
           queryClient.invalidateQueries({ queryKey: taskKeys.detailed(task.id) })
         })

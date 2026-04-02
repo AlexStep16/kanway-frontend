@@ -6,9 +6,6 @@ export default class WorkspaceModel implements IWorkspace {
   public name: string
   public userId: string
   public isFavorite: boolean
-  public boardsCount: number
-  public categoriesCount: number
-  public tasksCount: number
   public rank: string
   public color: AvailableColors
   public colorName: string
@@ -22,9 +19,6 @@ export default class WorkspaceModel implements IWorkspace {
     this.name = props.name
     this.userId = props.userId
     this.isFavorite = props.isFavorite
-    this.boardsCount = props.boardsCount
-    this.categoriesCount = props.categoriesCount
-    this.tasksCount = props.tasksCount
     this.rank = props.rank
     this.color = props.color
     this.colorName = props.colorName

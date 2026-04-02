@@ -79,26 +79,6 @@ function initPlansModal() {
   }
 }
 
-function initChatModal() {
-  if (uiStore.chatModalRef) {
-    uiStore.chatModalHSInstance = new HSOverlay(uiStore.chatModalRef)
-
-    uiStore.chatModalHSInstance.on('close', () => {
-      uiStore.isChatModalOpen = false
-
-      if (agentStatusStore.isSSEActive())
-        stopAgent({
-          chatId: chat.value?.id || '',
-          threadId: chat.value?.threadId || '',
-        })
-    })
-
-    uiStore.chatModalHSInstance.on('open', () => {
-      uiStore.isChatModalOpen = true
-    })
-  }
-}
-
 onMounted(() => {
   window.HSStaticMethods.autoInit()
 
@@ -107,7 +87,6 @@ onMounted(() => {
   initBoardEditModal()
   initWorkspaceEditModal()
   initSettingsModal()
-  initChatModal()
   initSupportModal()
   initPlansModal()
 

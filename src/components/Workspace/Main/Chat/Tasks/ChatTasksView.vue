@@ -26,7 +26,7 @@ const selectedTasksCount = computed(() => {
   return selectedIds.value.length
 })
 
-const hasCheckbox = computed(() => (task: ITask) => {
+function hasCheckbox(task: ITask) {
   if (!props.isSelectable) return false
   if ((props.minSelect ?? 0) > 0 || (props.maxSelect ?? 0) > 0) {
     if ((props.minSelect ?? 0) > 0 && selectedTasksCount.value < (props.minSelect ?? 0)) {
@@ -38,7 +38,7 @@ const hasCheckbox = computed(() => (task: ITask) => {
     return true
   }
   return true
-})
+}
 </script>
 
 <template>

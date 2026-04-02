@@ -42,7 +42,7 @@ export async function fetchBoard(id: string) {
   return board ? transformBoard(board) : null
 }
 
-export async function fetchBoardsCount(workspaceId?: string) {
+export async function fetchBoardsCount(workspaceId?: string | null) {
   const count = await getBoardsCountApi(workspaceId)
 
   return count

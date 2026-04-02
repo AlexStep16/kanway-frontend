@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
-import { ITask } from '@/interfaces/domain/ITask'
 import { getColorByNameAndTone } from '@/utils/getColorByNameAndTone'
 import { computed } from 'vue'
 import CategoryChange from './Changes/CategoryChange.vue'
-import { IParent } from '@/interfaces/IParent'
 import BoardChange from './Changes/BoardChange.vue'
 import WorkspaceChange from './Changes/WorkspaceChange.vue'
 import StatusChange from './Changes/StatusChange.vue'
@@ -15,6 +12,8 @@ import TaskColorChange from './Changes/TaskColorChange.vue'
 import TagsChange from './Changes/TagsChange.vue'
 import DueDateChange from './Changes/DueDateChange.vue'
 import { BeforeAfterTask } from '../Tasks/ChatTasksEditView.vue'
+import dayjs from 'dayjs'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps<{
   before: BeforeAfterTask
@@ -39,6 +38,28 @@ function handleToggleSelect(id: string) {
 }
 
 const isSelected = computed(() => selectedIds.value.includes(props.after.id || props.before.id))
+
+const getTransformedTask = (task: BeforeAfterTask) => {
+  if (!task.dueDate) return task
+
+  if (task.dueDate && task.dueHours != null && task.dueMinutes != null) {
+    const AUTH_STORE = useAuthStore()
+
+    const timezone = AUTH_STORE.user?.timezone || dayjs.tz.guess()
+
+    const collectedDateTime = `${task.dueDate}T${task.dueHours}:${task.dueMinutes}`
+    const utcDueDate = dayjs.utc(collectedDateTime).tz(timezone)
+
+    return {
+      ...task,
+      dueDate: utcDueDate.format('YYYY-MM-DD'),
+      dueHours: utcDueDate.hour(),
+      dueMinutes: utcDueDate.minute(),
+    }
+  }
+
+  return task
+}
 </script>
 
 <template>
@@ -117,8 +138,8 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
       />
       <!-- Дата выполнения -->
       <DueDateChange
-        :before="before"
-        :after="after"
+        :before="getTransformedTask(before)"
+        :after="getTransformedTask(after)"
         :baseBlockBeforeClasses="baseBlockBeforeClasses"
         :baseBlockAfterClasses="baseBlockAfterClasses"
       />

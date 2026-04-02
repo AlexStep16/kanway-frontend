@@ -15,7 +15,7 @@ export function useDeleteCategory() {
   return useMutation({
     mutationKey: [...categoryKeys.all, 'delete'],
     meta: {
-      keysToInvalidate: [workspaceKeys.lists(), categoryKeys.archived()],
+      keysToInvalidate: [categoryKeys.archived()],
     },
     mutationFn: ({ category }: DeleteCategoryVars) =>
       requestQueueService.enqueue(category.id, () => removeCategory(category.id)),
@@ -52,9 +52,6 @@ export function useDeleteCategory() {
     onSettled: (data, error, { category }) => {
       queryClient.invalidateQueries({
         queryKey: categoryKeys.byBoard(category.board.id),
-      })
-      queryClient.invalidateQueries({
-        queryKey: boardKeys.byWorkspace(category.workspace.id),
       })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })

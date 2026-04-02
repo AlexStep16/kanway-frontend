@@ -5,6 +5,7 @@ import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { archiveBoard } from '@/services/board'
 import { useUndo } from '@/composables/logs/useUndo'
+import { useBoardStore } from '@/stores/board'
 
 interface ArchiveBoardVars {
   board: IBoard
@@ -17,7 +18,7 @@ export function useArchiveBoard() {
   return useMutation({
     mutationKey: [...boardKeys.all, 'archive'],
     meta: {
-      keysToInvalidate: [boardKeys.archived(), workspaceKeys.lists()],
+      keysToInvalidate: [boardKeys.archived()],
     },
     mutationFn: ({ board }: ArchiveBoardVars) =>
       requestQueueService.enqueue(board.id, () => archiveBoard(board.id)),
@@ -67,6 +68,8 @@ export function useArchiveBoard() {
     },
 
     onSuccess: (result) => {
+      const boardStore = useBoardStore()
+
       toast.success('Доска архивирована', {
         action: {
           label: 'Отменить',
@@ -75,9 +78,22 @@ export function useArchiveBoard() {
           },
         },
       })
+
+      if (boardStore.activeBoardId === result.data[0].id) {
+        const boards = queryClient.getQueryData<IBoard[]>(
+          boardKeys.byWorkspace(result.data[0].workspace.id),
+        )
+
+        const nextBoard = boards && boards.length > 0 ? boards[0] : null
+
+        if (nextBoard) boardStore.selectBoard(nextBoard, true)
+      }
     },
 
     onSettled: (data, error, { board }) => {
+      queryClient.invalidateQueries({
+        queryKey: [...boardKeys.count(), board.workspace.id],
+      })
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(board.workspace.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })

@@ -26,7 +26,7 @@ const selectedBoardsCount = computed(() => {
   return selectedIds.value.length
 })
 
-const hasCheckbox = computed(() => (board: IBoard) => {
+function hasCheckbox(board: IBoard) {
   if (!props.isSelectable) return false
   if ((props.minSelect ?? 0) > 0 || (props.maxSelect ?? 0) > 0) {
     if ((props.minSelect ?? 0) > 0 && selectedBoardsCount.value < (props.minSelect ?? 0)) {
@@ -38,7 +38,7 @@ const hasCheckbox = computed(() => (board: IBoard) => {
     return true
   }
   return true
-})
+}
 </script>
 
 <template>

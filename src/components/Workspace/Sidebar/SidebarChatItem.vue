@@ -27,7 +27,7 @@ defineEmits<{
 const chatStatus = useChatMutationStatus(computed(() => props.item.id))
 
 const selected = computed(() => {
-  return props.item.id === activeChat.value?.id && uiStore.isChatModalOpen
+  return props.item.id === activeChat.value?.id && uiStore.isChatOpen
 })
 
 function handleDelete() {

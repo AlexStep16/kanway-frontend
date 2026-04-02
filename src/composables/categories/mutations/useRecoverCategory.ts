@@ -17,7 +17,7 @@ export function useRecoverCategory() {
   return useMutation({
     mutationKey: [...categoryKeys.all, 'recover'],
     meta: {
-      keysToInvalidate: [workspaceKeys.lists(), categoryKeys.archived()],
+      keysToInvalidate: [categoryKeys.archived()],
     },
     mutationFn: ({ category }: RecoverCategoryVars) =>
       requestQueueService.enqueue(category.id, () => recoverCategory(category.id)),
@@ -67,7 +67,6 @@ export function useRecoverCategory() {
     },
 
     onSettled: (result, error, { category }) => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(category.workspace.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })

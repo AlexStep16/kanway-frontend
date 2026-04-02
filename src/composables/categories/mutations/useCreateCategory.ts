@@ -17,9 +17,6 @@ export function useCreateCategory() {
 
   return useMutation({
     mutationKey: [...categoryKeys.all, 'create'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: async ({ payload, boardId, workspaceId }: CreateCategoryVars) => {
       if (!workspaceId) {
         throw new Error('Не выбрано пространство')
@@ -32,8 +29,7 @@ export function useCreateCategory() {
       return createCategory(payload, boardId, workspaceId)
     },
 
-    onSuccess: async (result, { workspaceId, boardId }) => {
-      queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
+    onSuccess: async (result, { boardId }) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
 
       queryClient.setQueryData(

@@ -17,9 +17,6 @@ export function useCreateBoard() {
 
   return useMutation({
     mutationKey: [...boardKeys.all, 'create'],
-    meta: {
-      keysToInvalidate: [workspaceKeys.lists()],
-    },
     mutationFn: async ({ payload, workspaceId }: CreateBoardVars) => {
       if (!workspaceId) {
         throw new Error('Не выбрано пространство')
@@ -32,6 +29,7 @@ export function useCreateBoard() {
       const boardStore = useBoardStore()
 
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(workspaceId) })
+      queryClient.invalidateQueries({ queryKey: [...boardKeys.count(), workspaceId] })
 
       queryClient.setQueryData(
         boardKeys.byWorkspace(workspaceId),

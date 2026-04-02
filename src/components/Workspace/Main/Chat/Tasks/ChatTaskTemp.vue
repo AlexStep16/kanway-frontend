@@ -21,8 +21,7 @@ const selectedIds = defineModel('selectedIds', {
         :task="entity"
         :options="{
           hasBorder: true,
-          hasCopy: false,
-          hasDelete: false,
+          isCompletable: true,
           hasCheckbox: hasCheckbox,
           isStatic: true,
           showInfo: true,

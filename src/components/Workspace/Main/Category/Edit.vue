@@ -85,8 +85,6 @@ function handleMoveCategory(data: { newBoardId: string; newWorkspaceId: string }
     payload: category.value,
     oldBoardId: category.value.board.id,
     newBoardId: data.newBoardId,
-    oldWorkspaceId: category.value.workspace.id,
-    newWorkspaceId: data.newWorkspaceId,
   })
 }
 

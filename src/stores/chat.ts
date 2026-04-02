@@ -8,13 +8,20 @@ export const useChatStore = defineStore('chat', () => {
 
   const uiStore = useUIStore()
 
-  function selectChat(chat: IChat, openModal = false) {
-    activeChat.value = chat
-
-    if (openModal) {
-      uiStore.openChatModal()
-    }
+  function newChat() {
+    activeChat.value = null
+    uiStore.isChatOpen = true
   }
 
-  return { activeChat, selectChat }
+  function selectChat(chat: IChat) {
+    activeChat.value = chat
+    uiStore.isChatOpen = true
+  }
+
+  function closeChat() {
+    activeChat.value = null
+    uiStore.isChatOpen = false
+  }
+
+  return { activeChat, newChat, selectChat, closeChat }
 })
