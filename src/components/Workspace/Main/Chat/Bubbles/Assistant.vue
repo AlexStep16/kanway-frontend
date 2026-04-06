@@ -21,3 +21,11 @@ const textConverter = new showdown.Converter({
     v-html="textConverter.makeHtml(text || '')"
   ></div>
 </template>
+
+<style lang="css" scoped>
+.prose-sm :deep(li),
+.prose-sm :deep(ul) {
+  list-style: disc !important;
+  list-style-type: disc !important;
+}
+</style>

@@ -20,9 +20,5 @@ export function useStopAgent() {
         threadId: vars.threadId,
         jobId: agentStore.activeJobId || '',
       }),
-
-    onSuccess: () => {
-      agentStore.closeSSE()
-    },
   })
 }

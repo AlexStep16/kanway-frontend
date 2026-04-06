@@ -34,6 +34,10 @@ onUnmounted(() => {
     detach.value()
   }
 })
+
+defineExpose({
+  textareaRef,
+})
 </script>
 
 <template>

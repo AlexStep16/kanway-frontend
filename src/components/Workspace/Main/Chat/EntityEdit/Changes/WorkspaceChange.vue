@@ -10,19 +10,30 @@ const props = defineProps<{
   baseBlockAfterClasses?: string
 }>()
 
+const isBeforeWorkspaceExists = computed(() => {
+  return typeof props.beforeWorkspace !== 'string'
+})
+
 const hasWorkspaceChange = computed(() => {
-  return props.beforeWorkspace.id !== props.afterWorkspace.id
+  if (!isBeforeWorkspaceExists.value) {
+    return true
+  } else {
+    return (props.beforeWorkspace as IParent).id !== (props.afterWorkspace as IParent).id
+  }
 })
 </script>
 
 <template>
   <div class="flex items-center gap-x-1" v-if="hasWorkspaceChange">
     <div class="flex items-center gap-x-1" :class="baseBlockBeforeClasses" v-if="beforeWorkspace">
-      <FolderKanban class="size-3" />
-      <span class="text-xs">{{ beforeWorkspace.name }}</span>
+      <FolderKanban class="size-3 shrink-0" />
+      <span class="text-xs" v-if="isBeforeWorkspaceExists">{{
+        (beforeWorkspace as IParent).name
+      }}</span>
+      <span class="text-xs" v-else>Удалено</span>
     </div>
     <div class="flex items-center gap-x-1" :class="baseBlockAfterClasses">
-      <FolderKanban class="size-3" />
+      <FolderKanban class="size-3 shrink-0" />
       <span class="text-xs">{{ afterWorkspace.name }}</span>
     </div>
   </div>

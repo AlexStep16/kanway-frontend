@@ -153,21 +153,23 @@ const isEntityCompletable = computed(() => props.options?.isCompletable && !prop
           }"
         >
           <div
-            class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none group-hover/task:opacity-100 group-hover/task:pointer-events-auto transition-all duration-100"
+            class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none transition-all duration-100"
             :class="{
-              'opacity-100! pointer-events-auto!': entity.isCompleted && isEntityCompletable,
+              'opacity-100! pointer-events-auto!': entity.isCompleted,
+              'group-hover/task:opacity-100 group-hover/task:pointer-events-auto':
+                isEntityCompletable,
             }"
           >
             <div class="size-5 flex items-center justify-center">
               <label
                 class="flex items-center cursor-pointer relative transition-all select-none"
                 @click.stop
-                v-if="isEntityCompletable"
               >
                 <input
                   type="checkbox"
                   class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
                   :checked="entity.isCompleted"
+                  :disabled="!isEntityCompletable"
                   :id="'toggleCompletion-checkbox' + entity.id"
                   @change="$emit('toggleCompletion')"
                 />

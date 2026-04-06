@@ -95,7 +95,7 @@ async function toggleRecording() {
         if (transcriptStore.isRecording && transcriptStore.transcriptionDelta === '') {
           stopRecording()
         }
-      }, 4000)
+      }, 15000)
     } catch (err) {
       console.error('Ошибка доступа к микрофону:', err)
     }

@@ -12,8 +12,8 @@ import TaskColorChange from './Changes/TaskColorChange.vue'
 import TagsChange from './Changes/TagsChange.vue'
 import DueDateChange from './Changes/DueDateChange.vue'
 import { BeforeAfterTask } from '../Tasks/ChatTasksEditView.vue'
-import dayjs from 'dayjs'
-import { useAuthStore } from '@/stores/auth'
+import { useUIStore } from '@/stores/ui'
+import { useTask } from '@/composables/tasks/queries/useTask'
 
 const props = defineProps<{
   before: BeforeAfterTask
@@ -26,6 +26,9 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
+const uiStore = useUIStore()
+const { data: realTask } = useTask(props.after.id, props.after.board.id)
+
 const baseBlockBeforeClasses = 'text-red-500 bg-red-200 py-1 px-2 self-start rounded-sm'
 const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start rounded-sm'
 
@@ -37,34 +40,19 @@ function handleToggleSelect(id: string) {
   }
 }
 
-const isSelected = computed(() => selectedIds.value.includes(props.after.id || props.before.id))
+function handleEdit() {
+  if (!realTask.value) return
 
-const getTransformedTask = (task: BeforeAfterTask) => {
-  if (!task.dueDate) return task
-
-  if (task.dueDate && task.dueHours != null && task.dueMinutes != null) {
-    const AUTH_STORE = useAuthStore()
-
-    const timezone = AUTH_STORE.user?.timezone || dayjs.tz.guess()
-
-    const collectedDateTime = `${task.dueDate}T${task.dueHours}:${task.dueMinutes}`
-    const utcDueDate = dayjs.utc(collectedDateTime).tz(timezone)
-
-    return {
-      ...task,
-      dueDate: utcDueDate.format('YYYY-MM-DD'),
-      dueHours: utcDueDate.hour(),
-      dueMinutes: utcDueDate.minute(),
-    }
-  }
-
-  return task
+  uiStore.openTaskToEdit(realTask.value)
 }
+
+const isSelected = computed(() => selectedIds.value.includes(props.after.id || props.before.id))
 </script>
 
 <template>
   <div
     class="flex flex-col shrink-0 shadow-sm rounded-md min-w-60 cursor-pointer border border-gray-200 hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
+    @click="handleEdit"
   >
     <div
       class="h-3 w-full"
@@ -138,8 +126,8 @@ const getTransformedTask = (task: BeforeAfterTask) => {
       />
       <!-- Дата выполнения -->
       <DueDateChange
-        :before="getTransformedTask(before)"
-        :after="getTransformedTask(after)"
+        :before="before"
+        :after="after"
         :baseBlockBeforeClasses="baseBlockBeforeClasses"
         :baseBlockAfterClasses="baseBlockAfterClasses"
       />

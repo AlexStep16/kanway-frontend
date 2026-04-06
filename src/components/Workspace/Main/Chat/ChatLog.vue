@@ -26,6 +26,11 @@ import ChatCategoriesEditView from './Categories/ChatCategoriesEditView.vue'
 import ChatBoardsEditView from './Boards/ChatBoardsEditView.vue'
 import ChatWorkspacesEditView from './Workspaces/ChatWorkspacesEditView.vue'
 import { Check } from 'lucide-vue-next'
+import { transformTask } from '@/services/task'
+import { transformCategory } from '@/services/category'
+import { transformBoard } from '@/services/board'
+import { transformWorkspace } from '@/services/workspace'
+import { IOperationLog } from '@/interfaces/domain/IOperationLog'
 
 const props = defineProps<{
   message: IChatMessage
@@ -44,7 +49,7 @@ const { activeWorkspaceId } = storeToRefs(workspaceStore)
 const { mutate: approveLog, isPending: isLogApproving } = useApproveLog()
 const { mutate: cancelLog, isPending: isLogCancelling } = useApproveLog()
 
-const logCopy = ref<any>()
+const logCopy = ref<IOperationLog | null>(null)
 const selectedIds = ref<string[]>([])
 
 /**
@@ -55,21 +60,25 @@ const ENTITY_CONFIG = {
     component: markRaw(ChatTasksView),
     componentUpdate: markRaw(ChatTasksEditView),
     labels: { nom: 'задачи', gen: 'задач' },
+    transformFn: transformTask,
   },
   categories: {
     component: markRaw(ChatCategoriesView),
     componentUpdate: markRaw(ChatCategoriesEditView),
     labels: { nom: 'категории', gen: 'категорий' },
+    transformFn: transformCategory,
   },
   boards: {
     component: markRaw(ChatBoardsView),
     componentUpdate: markRaw(ChatBoardsEditView),
     labels: { nom: 'доски', gen: 'досок' },
+    transformFn: transformBoard,
   },
   workspaces: {
     component: markRaw(ChatWorkspacesView),
     componentUpdate: markRaw(ChatWorkspacesEditView),
     labels: { nom: 'пространства', gen: 'пространств' },
+    transformFn: transformWorkspace,
   },
 } as const
 
@@ -138,6 +147,7 @@ const renderBlocks = computed<RenderBlock[]>(() => {
   if (!logCopy.value) return []
 
   const operationType = logCopy.value.operationType
+  const status = logCopy.value.status
   const collection = logCopy.value.collectionName
   const config = ENTITY_CONFIG[collection as keyof typeof ENTITY_CONFIG]
   if (!config) return []
@@ -147,26 +157,39 @@ const renderBlocks = computed<RenderBlock[]>(() => {
 
   // UPDATE
   if (operationType === OperationTypesEnum.UPDATE) {
+    const before = logCopy.value.entitiesBefore || []
+    const after = logCopy.value.entitiesAfter || []
+
     return [
       {
         id,
         title,
-        before: logCopy.value.entitiesBefore || [],
-        after: logCopy.value.entitiesAfter || [],
+        before: before.map((entity: any) => config.transformFn(entity)),
+        after: after.map((entity: any) => config.transformFn(entity)),
         component: config.componentUpdate,
       },
     ]
   }
 
   // CREATE | DELETE (choose temp view while pending)
-  if (operationType === OperationTypesEnum.CREATE || operationType === OperationTypesEnum.DELETE) {
+  if (operationType === OperationTypesEnum.CREATE) {
     return [
       {
         id,
         title,
-        items: logEntities.value,
+        items: logEntities.value.map((entity: any) => config.transformFn(entity)),
         component: config.component,
-        isTemp: true,
+        isTemp: status === OperationLogStatusesEnum.SUCCESS ? false : true,
+      },
+    ]
+  } else if (operationType === OperationTypesEnum.DELETE) {
+    return [
+      {
+        id,
+        title,
+        items: logEntities.value.map((entity: any) => config.transformFn(entity)),
+        component: config.component,
+        isTemp: status === OperationLogStatusesEnum.SUCCESS ? true : false,
       },
     ]
   }
@@ -176,7 +199,7 @@ const renderBlocks = computed<RenderBlock[]>(() => {
     {
       id,
       title,
-      items: logEntities.value,
+      items: logEntities.value.map((entity: any) => config.transformFn(entity)),
       component: config.component,
     },
   ]
@@ -187,6 +210,8 @@ const renderBlocks = computed<RenderBlock[]>(() => {
  */
 function handleApproveLog(isConfirmed: boolean) {
   const mutate = isConfirmed ? approveLog : cancelLog
+
+  if (!logCopy.value) return
 
   mutate({
     payload: {

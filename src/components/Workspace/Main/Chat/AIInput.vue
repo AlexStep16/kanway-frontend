@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import { useChatStore } from '@stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
-import { Square, MessageCircleQuestionMark, SquarePlay, ChevronDown } from 'lucide-vue-next'
+import { MessageCircleQuestionMark, SquarePlay, ChevronDown } from 'lucide-vue-next'
 import Sparkles from '@assets/sparkles.svg?component'
 import { computed, ref } from 'vue'
 import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
@@ -28,6 +28,7 @@ import { storeToRefs } from 'pinia'
 import { useBoards } from '@/composables/boards/queries/useBoards'
 import { cn } from '@/lib/utils'
 import { SquareKanban } from 'lucide-vue-next'
+import Spinner from '@/components/ui/spinner/Spinner.vue'
 
 const workspaceStore = useWorkspaceStore()
 
@@ -40,9 +41,9 @@ const boards = computed(() => boardsData.value || [])
 const isContextSelectOpen = ref(false)
 const isTypeSelectOpen = ref(false)
 const selectedType = ref<'question' | 'task'>('task')
+const messageRef = ref<HTMLTextAreaElement | null>(null)
 
 const props = defineProps<{
-  isLastMessageFromHuman?: boolean
   isDisabled?: boolean
 }>()
 
@@ -101,17 +102,21 @@ function handleStopAgent() {
   }
 }
 
-const isRunButtonDisabled = computed(() => {
-  return (
-    agentStatusStore.isSSEActive() ||
-    (props.isLastMessageFromHuman === false && message.value.trim() === '')
-  )
-})
-
 const boardName = computed(() => (id: string) => {
   const board = boards.value.find((b) => b.id === id)
   return board ? board.name : 'Все доски'
 })
+
+function handleTextareaRef(
+  el: {
+    textareaRef: HTMLTextAreaElement | null
+  } | null,
+) {
+  if (el && el.textareaRef) {
+    messageRef.value = el.textareaRef
+    messageRef.value.focus()
+  }
+}
 </script>
 
 <template>
@@ -120,8 +125,9 @@ const boardName = computed(() => (id: string) => {
       <div class="w-full flex items-center">
         <Textarea
           class="p-0 border-none shadow-none min-h-12"
-          placeholder="Создай задачу..."
+          placeholder="Опиши проект или просто выгрузи мысли..."
           v-model="message"
+          :ref="(el) => handleTextareaRef(el as any)"
         />
       </div>
       <div class="flex justify-between items-center gap-2 w-full">
@@ -222,7 +228,7 @@ const boardName = computed(() => (id: string) => {
           ></MicButton>
           <Button
             size="sm"
-            :disabled="isRunButtonDisabled"
+            :disabled="message.trim() === '' || isDisabled"
             v-if="!agentStatusStore.isSSEActive()"
             @click="sendChatMessage()"
           >
@@ -231,8 +237,8 @@ const boardName = computed(() => (id: string) => {
           </Button>
 
           <Button size="sm" class="text-xs font-medium" v-else @click="handleStopAgent()">
-            <span>Стоп</span>
-            <Square class="size-3.5" fill="#FFFFFF" />
+            <span>Остановить</span>
+            <Spinner class="size-4" />
           </Button>
         </div>
       </div>

@@ -2,14 +2,29 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useUIStore } from '@stores/ui'
 import { IChat } from '@/interfaces/domain/IChat'
+import { useAuthStore } from './auth'
+import { useWorkspaceStore } from './workspace'
 
 export const useChatStore = defineStore('chat', () => {
-  const activeChat = ref<IChat | null>(null)
-
   const uiStore = useUIStore()
+  const authStore = useAuthStore()
+  const workspaceStore = useWorkspaceStore()
+
+  const activeChat = ref<IChat | null>(null)
+  const temporaryChatId = ref(crypto.randomUUID())
 
   function newChat() {
-    activeChat.value = null
+    temporaryChatId.value = crypto.randomUUID()
+
+    activeChat.value = {
+      id: temporaryChatId.value,
+      userId: authStore.user!.id,
+      threadId: '',
+      workspaceId: workspaceStore.activeWorkspaceId!,
+      name: 'Новый чат',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
     uiStore.isChatOpen = true
   }
 
@@ -23,5 +38,5 @@ export const useChatStore = defineStore('chat', () => {
     uiStore.isChatOpen = false
   }
 
-  return { activeChat, newChat, selectChat, closeChat }
+  return { activeChat, temporaryChatId, newChat, selectChat, closeChat }
 })

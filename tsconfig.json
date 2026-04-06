@@ -10,20 +10,19 @@
     "types": ["vite/client"],
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@assets/*": ["src/assets/*"],
-      "@helpers/*": ["src/helpers/*"],
-      "@views/*": ["src/views/*"],
-      "@utils/*": ["src/utils/*"],
-      "@interfaces/*": ["src/interfaces/*"],
-      "@stores/*": ["src/stores/*"],
-      "@api/*": ["src/api/*"],
-      "@services/*": ["src/services/*"],
-      "@enums/*": ["src/enums/*"],
-      "@models/*": ["src/models/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@views/*": ["./src/views/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@interfaces/*": ["./src/interfaces/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@api/*": ["./src/api/*"],
+      "@services/*": ["./src/services/*"],
+      "@enums/*": ["./src/enums/*"],
+      "@models/*": ["./src/models/*"]
     }
   },
   "ts-node": {

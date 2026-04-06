@@ -131,18 +131,18 @@ const openWorkspaceDialog = () => {
             >
               <DropdownMenuItem
                 :item="workspace"
-                class="gap-2 p-2 cursor-default w-full"
+                class="gap-2 p-2 cursor-default w-full max-w-60"
                 @click="workspaceStore.selectWorkspace(workspace, true)"
                 :is-active="workspace.id === activeWorkspaceId"
               >
                 <div
-                  class="size-5 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
+                  class="size-5 shrink-0 rounded-sm text-xs flex items-center justify-center font-semibold text-white"
                   :style="{ backgroundColor: workspace.color || '#3B82F6' }"
                 >
                   {{ getFirstLetterOfWorkspace(workspace.id) }}
                 </div>
-                <div class="flex gap-x-2 items-center">
-                  <span class="text-nowrap">{{ workspace.name }}</span>
+                <div class="flex gap-x-2 items-center truncate">
+                  <span class="text-nowrap truncate">{{ workspace.name }}</span>
                   <Star
                     :class="
                       cn(

@@ -57,35 +57,37 @@ const isAllStepsCompleted = computed(() => {
           </Transition>
         </div>
 
-        <AccordionTrigger class="border-t p-2 text-xs text-muted-foreground bg-muted">
-          Развернуть шаги выполнения
-        </AccordionTrigger>
+        <template v-if="steps.length">
+          <AccordionTrigger class="border-t p-2 text-xs text-muted-foreground bg-muted">
+            Развернуть шаги выполнения
+          </AccordionTrigger>
 
-        <AccordionContent class="flex flex-col gap-1 p-2">
-          <div
-            class="flex items-center justify-start text-foreground gap-x-2"
-            v-for="step in steps"
-            :key="step.id"
-          >
+          <AccordionContent class="flex flex-col gap-1 p-2">
             <div
-              class="rounded-full size-4 flex items-center justify-center bg-green-600"
-              v-if="step.state === 'completed'"
+              class="flex items-center justify-start text-foreground gap-x-2"
+              v-for="step in steps"
+              :key="step.id"
             >
-              <Check class="size-2.5 text-white" strokeWidth="4" />
+              <div
+                class="rounded-full size-4 flex items-center justify-center bg-green-600"
+                v-if="step.state === 'completed'"
+              >
+                <Check class="size-2.5 text-white" strokeWidth="4" />
+              </div>
+              <div
+                class="rounded-full size-4 flex items-center justify-center bg-red-500"
+                v-else-if="step.state === 'failed'"
+              >
+                <X class="size-2.5 text-white" strokeWidth="4" />
+              </div>
+              <Spinner
+                class="size-4 text-muted-foreground"
+                v-else-if="step.state === 'in_progress'"
+              />
+              <span class="text-sm text-muted-foreground">{{ step.name }}</span>
             </div>
-            <div
-              class="rounded-full size-4 flex items-center justify-center bg-red-500"
-              v-else-if="step.state === 'failed'"
-            >
-              <X class="size-2.5 text-white" strokeWidth="4" />
-            </div>
-            <Spinner
-              class="size-4 text-muted-foreground"
-              v-else-if="step.state === 'in_progress'"
-            />
-            <span class="text-sm text-muted-foreground">{{ step.name }}</span>
-          </div>
-        </AccordionContent>
+          </AccordionContent>
+        </template>
       </div>
     </AccordionItem>
   </Accordion>

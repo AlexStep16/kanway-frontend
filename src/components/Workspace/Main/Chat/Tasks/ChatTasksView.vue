@@ -43,7 +43,7 @@ function hasCheckbox(task: ITask) {
 
 <template>
   <div
-    class="flex gap-2 mt-3 w-full"
+    class="flex gap-2 mt-2 w-full"
     :ref="
       (el) => {
         messagesContainerRefMap[message.id] = el as HTMLElement
