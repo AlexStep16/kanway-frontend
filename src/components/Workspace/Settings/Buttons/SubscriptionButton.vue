@@ -3,17 +3,15 @@ import { useBuySubscription } from '@/composables/payments/mutations/useBuySubsc
 import { useDowngradeSubscription } from '@/composables/payments/mutations/useDowngradeSubscription'
 import { useUpgradeSubscription } from '@/composables/payments/mutations/useUpgradeSubscription'
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import Spinner from '@components/Loader/Spinner.vue'
+import { useUser } from '@/composables/auth/queries/useUser'
 
 const props = defineProps<{
   plan: SubscriptionPlanEnum
 }>()
 
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { mutate: buySubscription, isPending: isBuying } = useBuySubscription()
 const { mutate: downgradeSubscription, isPending: isDowngrading } = useDowngradeSubscription()

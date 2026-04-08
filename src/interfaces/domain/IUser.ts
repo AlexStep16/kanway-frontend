@@ -13,7 +13,7 @@ export interface IUser {
   subscriptionId: SubscriptionPlanEnum
   subscriptionUntil?: Date
   isSubscriptionActive?: boolean
-  generationsCount: number
+  credits: number
   avatarColor: AvailableColors
   isTipsCompleted?: boolean
   paymentMethodId?: string

@@ -66,9 +66,14 @@ export const paymentMethodKeys = {
 export const chatKeys = {
   all: ['chats'],
   byWorkspace: (workspaceId: MaybeRef<string | null>) => [...chatKeys.all, { workspaceId }],
+  detailed: (chatId: MaybeRef<string | null>) => [...chatKeys.all, 'detailed', { chatId }],
 }
 
 export const chatMessageKeys = {
   all: ['chatMessages'],
   byChat: (chatId: MaybeRef<string | null>) => [...chatMessageKeys.all, { chatId }],
+}
+
+export const userKeys = {
+  me: ['me'],
 }

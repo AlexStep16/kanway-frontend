@@ -50,7 +50,11 @@ function hasCheckbox(workspace: IWorkspace) {
       }
     "
   >
-    <ColumnsView :items="items" :containerRef="messagesContainerRefMap[message.id]">
+    <ColumnsView
+      :initialCountShown="10"
+      :items="items"
+      :containerRef="messagesContainerRefMap[message.id]"
+    >
       <template v-slot:default="slotProps">
         <template v-if="!isTemporary">
           <ChatWorkspace

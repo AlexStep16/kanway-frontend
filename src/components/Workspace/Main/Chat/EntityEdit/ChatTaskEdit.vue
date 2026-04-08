@@ -56,8 +56,8 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
   >
     <div
       class="h-3 w-full"
-      v-if="before.color"
-      :style="{ backgroundColor: getColorByNameAndTone(before.color.value, before.color.tone) }"
+      v-if="after.color"
+      :style="{ backgroundColor: getColorByNameAndTone(after.color.value, after.color.tone) }"
     />
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
       <!-- Info -->

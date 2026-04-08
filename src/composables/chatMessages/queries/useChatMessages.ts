@@ -17,6 +17,7 @@ export function useChatMessages(
       const id = toValue(chatId)
       return !!id && id !== chatStore.temporaryChatId && toValue(isEnabled)
     }),
+    initialData: () => [],
     staleTime: Infinity,
   })
 }

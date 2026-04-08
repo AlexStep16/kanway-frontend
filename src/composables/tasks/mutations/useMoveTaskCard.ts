@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
+import { taskKeys, workspaceKeys } from '@/keys'
 import { moveTask } from '@services/task'
 import { queryClient } from '@/plugins/queryClient'
 import { Nullable } from '@/types/utils'
@@ -7,8 +7,8 @@ import { MaybeRef } from 'vue'
 
 export interface MoveTaskCardVars {
   id: string
-  beforeTaskId?: Nullable<string>
-  afterTaskId?: Nullable<string>
+  beforeId?: Nullable<string>
+  afterId?: Nullable<string>
   newCategoryId?: string
   boardId: MaybeRef<Nullable<string>>
 }
@@ -19,8 +19,8 @@ export function useMoveTaskCard() {
     meta: {
       keysToInvalidate: [workspaceKeys.lists()],
     },
-    mutationFn: async ({ id, beforeTaskId, afterTaskId, newCategoryId }: MoveTaskCardVars) =>
-      moveTask({ id, beforeTaskId, afterTaskId, newCategoryId }),
+    mutationFn: async ({ id, beforeId, afterId, newCategoryId }: MoveTaskCardVars) =>
+      moveTask({ id, beforeId, afterId, newCategoryId }),
 
     onSuccess: async (_, { boardId }) => {
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })

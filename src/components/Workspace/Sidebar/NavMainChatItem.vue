@@ -27,6 +27,7 @@ const chatStore = useChatStore()
 const workspaceStore = useWorkspaceStore()
 
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
+const { activeChatId } = storeToRefs(chatStore)
 
 const { data: chatsData, isPending: areChatsLoading } = useChats(activeWorkspaceId)
 
@@ -41,9 +42,9 @@ function toggle() {
 const { isMobile } = useSidebar()
 
 const isChatOpen = computed(() => (id: string) => {
-  if (!chatStore.activeChat) return false
+  if (!activeChatId.value) return false
 
-  return id === chatStore.activeChat.id && uiStore.isChatOpen
+  return id === activeChatId.value && uiStore.isChatOpen
 })
 </script>
 
@@ -91,7 +92,9 @@ const isChatOpen = computed(() => (id: string) => {
                 :is-active="isChatOpen(chat.id)"
                 @click="chatStore.selectChat(chat)"
               >
-                <span class="text-nowrap">{{ chat.name }}</span>
+                <div>
+                  <span class="text-nowrap truncate">{{ chat.name }}</span>
+                </div>
               </SidebarMenuSubButton>
 
               <DropdownMenu v-model:open="openOptions[chat.id]">

@@ -10,6 +10,7 @@ import Spinner from '@/components/Loader/Spinner.vue'
 import { getColorByNameAndTone } from '@/utils/getColorByNameAndTone'
 import { Nullable, OptionalNullable } from '@/types/utils'
 import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
+import { cn } from '@/lib/utils'
 
 export interface EntityCardOptions {
   hasBorder?: boolean
@@ -120,25 +121,28 @@ const isEntityCompletable = computed(() => props.options?.isCompletable && !prop
 
 <template>
   <div
-    class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
-    :class="{
-      'border border-gray-200': options?.hasBorder,
-      'shadow-sm': !options?.hasBorder,
-      [classes || '']: !!classes,
-    }"
+    :class="
+      cn(
+        'flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none',
+        options?.hasBorder && 'border border-gray-200',
+        !options?.hasBorder && 'shadow-sm',
+        options?.isStatic && 'hover:shadow-none cursor-default select-auto',
+        classes || '',
+      )
+    "
     @click="$emit('edit')"
   >
     <div class="h-3 w-full" v-if="entityColor" :style="{ backgroundColor: entityColor }" />
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
       <!-- Info -->
       <div class="flex items-center flex-wrap gap-2" v-if="options?.showInfo && hasInfo">
-        <div class="flex items-center gap-x-1 text-gray-500" v-if="entity.category">
-          <Layers class="size-3" /><span class="text-xs">{{
+        <div class="flex items-center gap-x-1 text-gray-500 max-w-full" v-if="entity.category">
+          <Layers class="size-3 shrink-0" /><span class="text-xs truncate">{{
             entity.category.name ?? 'Без категории'
           }}</span>
         </div>
-        <div class="flex items-center gap-x-1 text-gray-500" v-if="entity.board">
-          <SquareKanban class="size-3" /><span class="text-xs">{{
+        <div class="flex items-center gap-x-1 text-gray-500 max-w-full" v-if="entity.board">
+          <SquareKanban class="size-3 shrink-0" /><span class="text-xs truncate">{{
             entity.board.name ?? 'Без доски'
           }}</span>
         </div>

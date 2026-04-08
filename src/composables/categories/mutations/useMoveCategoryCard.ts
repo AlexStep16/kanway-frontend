@@ -1,14 +1,14 @@
 import { useMutation } from '@tanstack/vue-query'
-import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
+import { categoryKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
 import { Nullable } from '@/types/utils'
 import { moveCategory } from '@/services/category'
-import { MaybeRef } from 'node_modules/@tanstack/vue-query/build/modern/types'
+import { MaybeRef } from 'vue'
 
 export interface MoveCategoryCardVars {
   id: string
-  beforeCategoryId?: Nullable<string>
-  afterCategoryId?: Nullable<string>
+  beforeId?: Nullable<string>
+  afterId?: Nullable<string>
   newBoardId?: string
   boardId: MaybeRef<Nullable<string>>
 }
@@ -16,12 +16,8 @@ export interface MoveCategoryCardVars {
 export function useMoveCategoryCard() {
   return useMutation({
     mutationKey: [...categoryKeys.all, 'move-card'],
-    mutationFn: async ({
-      id,
-      beforeCategoryId,
-      afterCategoryId,
-      newBoardId,
-    }: MoveCategoryCardVars) => moveCategory({ id, beforeCategoryId, afterCategoryId, newBoardId }),
+    mutationFn: async ({ id, beforeId, afterId, newBoardId }: MoveCategoryCardVars) =>
+      moveCategory({ id, beforeId, afterId, newBoardId }),
 
     onSuccess: async (_, { boardId }) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })

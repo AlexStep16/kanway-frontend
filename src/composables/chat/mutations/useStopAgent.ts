@@ -1,11 +1,12 @@
-import { chatKeys } from '@/keys'
+import { chatKeys, chatMessageKeys } from '@/keys'
+import { queryClient } from '@/plugins/queryClient'
 import { stopAgent } from '@/services/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import { useMutation } from '@tanstack/vue-query'
 
 export interface StopAgentVars {
   chatId: string
-  threadId: string
+  jobId: string
 }
 
 export function useStopAgent() {
@@ -16,9 +17,15 @@ export function useStopAgent() {
 
     mutationFn: (vars: StopAgentVars) =>
       stopAgent({
-        chatId: vars.chatId,
-        threadId: vars.threadId,
-        jobId: agentStore.activeJobId || '',
+        jobId: vars.jobId,
       }),
+
+    onSuccess: () => {
+      agentStore.closeSSE()
+    },
+
+    onSettled: (data, error, vars) => {
+      queryClient.invalidateQueries({ queryKey: chatMessageKeys.byChat(vars.chatId) })
+    },
   })
 }

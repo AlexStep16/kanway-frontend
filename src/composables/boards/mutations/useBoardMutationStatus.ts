@@ -34,7 +34,7 @@ export function useBoardMutationStatus(boardId: MaybeRef<string | null>) {
     return computed(() => {
       return pendingBoardMutations.value.some((m) => {
         if (!m.key.includes(action)) return false
-
+        console.log(m.variables)
         const v = m.variables
         if (type === 'board') return v?.board?.id === toValue(boardId)
         if (type === 'payload') return v?.payload?.id === toValue(boardId)

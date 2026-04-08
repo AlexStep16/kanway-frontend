@@ -6,6 +6,7 @@ import { IBoard } from '@/interfaces/domain/IBoard'
 import { archiveBoard } from '@/services/board'
 import { useUndo } from '@/composables/logs/useUndo'
 import { useBoardStore } from '@/stores/board'
+import { useUIStore } from '@/stores/ui'
 
 interface ArchiveBoardVars {
   board: IBoard
@@ -69,6 +70,7 @@ export function useArchiveBoard() {
 
     onSuccess: (result) => {
       const boardStore = useBoardStore()
+      const uiStore = useUIStore()
 
       toast.success('Доска архивирована', {
         action: {
@@ -87,6 +89,10 @@ export function useArchiveBoard() {
         const nextBoard = boards && boards.length > 0 ? boards[0] : null
 
         if (nextBoard) boardStore.selectBoard(nextBoard, true)
+        else {
+          boardStore.resetBoardSelection()
+          uiStore.selectChat()
+        }
       }
     },
 

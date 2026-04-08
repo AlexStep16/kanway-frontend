@@ -22,6 +22,9 @@ import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
 import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
 import { pickClean } from '@/utils/pickClean'
 import { ITaskMoveApiPayload } from '@/interfaces/ITaskMoveApiPayload'
+import { userKeys } from '@/keys'
+import { IUser } from '@/interfaces/domain/IUser'
+import { queryClient } from '@/plugins/queryClient'
 
 const BASE_TASK_FIELDS: (keyof ITask)[] = [
   'name',
@@ -36,9 +39,9 @@ const BASE_TASK_FIELDS: (keyof ITask)[] = [
 ]
 
 export function transformTask(raw: ITask): ITaskState {
-  const AUTH_STORE = useAuthStore()
+  const user = queryClient.getQueryData<IUser>(userKeys.me)
 
-  const timezone = AUTH_STORE.user?.timezone || dayjs.tz.guess()
+  const timezone = user?.timezone || dayjs.tz.guess()
 
   if (raw.dueDate && raw.dueHours != null && raw.dueMinutes != null) {
     const collectedDateTime = `${raw.dueDate}T${raw.dueHours}:${raw.dueMinutes}`

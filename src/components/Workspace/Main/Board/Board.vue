@@ -16,6 +16,11 @@ import Category from '@components/Workspace/Main/Category/Category.vue'
 import CategorySkeleton from '@components/Workspace/Main/Category/CategorySkeleton.vue'
 import CreateCategoryForm from '@/components/Forms/CreateCategoryForm.vue'
 import { useMoveCategoryCard } from '@/composables/categories/mutations/useMoveCategoryCard'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
+import TitleBoard from '../../Header/TitleBoard.vue'
+import SidebarInset from '@/components/ui/sidebar/SidebarInset.vue'
+import Search from '../../Header/Search.vue'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
@@ -50,75 +55,86 @@ function draggableChange(event: any) {
   const beforeCategory = localCategoryList.value[newIndex + 1]
   const afterCategory = localCategoryList.value[newIndex - 1]
 
-  const beforeCategoryId = beforeCategory ? beforeCategory.id : null
-  const afterCategoryId = afterCategory ? afterCategory.id : null
+  const beforeId = beforeCategory ? beforeCategory.id : null
+  const afterId = afterCategory ? afterCategory.id : null
 
   moveCategory({
     id: movedTask.id,
-    beforeCategoryId,
-    afterCategoryId,
+    beforeId,
+    afterId,
     boardId: activeBoardId.value,
   })
 }
 </script>
 
 <template>
-  <!--<Header />-->
+  <SidebarInset>
+    <header class="flex justify-between h-16 shrink-0 items-center gap-2 px-4">
+      <div class="flex items-center gap-2">
+        <SidebarTrigger class="-ml-1" />
+        <Separator orientation="vertical" class="mr-0 data-[orientation=vertical]:h-4" />
+        <TitleBoard />
+      </div>
+      <Search />
+    </header>
 
-  <div class="size-full pt-4 flex gap-3 overflow-y-hidden custom-scrollbar">
-    <template v-if="!isBoardsLoading">
-      <draggable
-        v-model="localCategoryList"
-        @change="draggableChange"
-        itemKey="id"
-        class="flex gap-x-3 h-full items-start"
-        group="categories"
-        :animation="150"
-        :delay="300"
-        :delay-on-touch-only="true"
-        ghost-class="ghost-class"
-        drag-class="drag-class"
-        filter=".undraggable"
-        :force-fallback="true"
-        :fallback-tolerance="2"
-        v-if="localCategoryList.length > 0 && !areCategoriesLoading"
-      >
-        <template #item="{ element }">
-          <Category :category="element" />
+    <Separator />
+
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">
+      <div class="size-full pt-4 flex gap-3 overflow-y-hidden custom-scrollbar">
+        <template v-if="!isBoardsLoading">
+          <draggable
+            v-model="localCategoryList"
+            @change="draggableChange"
+            itemKey="id"
+            class="flex gap-x-3 h-full items-start"
+            group="categories"
+            :animation="150"
+            :delay="300"
+            :delay-on-touch-only="true"
+            ghost-class="ghost-class"
+            drag-class="drag-class"
+            filter=".undraggable"
+            :force-fallback="true"
+            :fallback-tolerance="2"
+            v-if="localCategoryList.length > 0 && !areCategoriesLoading"
+          >
+            <template #item="{ element }">
+              <Category :category="element" />
+            </template>
+          </draggable>
+
+          <template v-else-if="areCategoriesLoading">
+            <CategorySkeleton v-for="n in 3" :key="'skeleton' + n" />
+          </template>
+
+          <CreateCategoryForm
+            v-if="isCategoryFormShown"
+            @close="isCategoryFormShown = false"
+            :boardId="activeBoardId"
+            :workspaceId="activeWorkspaceId"
+          />
+
+          <div class="h-full flex items-center pr-10">
+            <button
+              type="button"
+              class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors focus:outline-hidden"
+              @click="isCategoryFormShown = true"
+            >
+              <Plus class="size-6" />
+            </button>
+          </div>
         </template>
-      </draggable>
 
-      <template v-else-if="areCategoriesLoading">
-        <CategorySkeleton v-for="n in 3" :key="'skeleton' + n" />
-      </template>
-
-      <CreateCategoryForm
-        v-if="isCategoryFormShown"
-        @close="isCategoryFormShown = false"
-        :boardId="activeBoardId"
-        :workspaceId="activeWorkspaceId"
-      />
-
-      <div class="h-full flex items-center pr-10">
-        <button
-          type="button"
-          class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors focus:outline-hidden"
-          @click="isCategoryFormShown = true"
-        >
-          <Plus class="size-6" />
-        </button>
+        <template v-else>
+          <CategorySkeleton v-for="n in 3" :key="'skeleton' + n" />
+          <div class="h-full flex items-center">
+            <div class="size-10 bg-gray-200 rounded-full animate-pulse"></div>
+          </div>
+        </template>
       </div>
-    </template>
-
-    <template v-else>
-      <CategorySkeleton v-for="n in 3" :key="'skeleton' + n" />
-      <div class="h-full flex items-center">
-        <div class="size-10 bg-gray-200 rounded-full animate-pulse"></div>
-      </div>
-    </template>
-  </div>
-
-  <!--<AIInput />-->
+    </div>
+  </SidebarInset>
 </template>
 
 <style lang="css" scoped>

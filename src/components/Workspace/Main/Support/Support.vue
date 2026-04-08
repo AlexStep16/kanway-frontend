@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 import { toTypedSchema } from '@vee-validate/zod'
-import { storeToRefs } from 'pinia'
 import { onMounted, onUnmounted } from 'vue'
 import { z } from 'zod'
 import { useForm } from 'vee-validate'
@@ -10,13 +8,13 @@ import { X } from 'lucide-vue-next'
 import { useSendSupport } from '@/composables/support/useSendSupport'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import { ThemesEnum } from '@/enums/ThemesEnum'
+import { useUser } from '@/composables/auth/queries/useUser'
 
 const uiStore = useUIStore()
-const authStore = useAuthStore()
 
 const { mutate: sendSupport, isPending: isSending } = useSendSupport()
 
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const schema = toTypedSchema(
   z.object({
@@ -33,7 +31,7 @@ const schema = toTypedSchema(
       .min(1, 'Подробности должны быть заполнены')
       .max(1000, 'Подробности должны быть не длиннее 1000 символов'),
     theme: z.nativeEnum(ThemesEnum, {
-      errorMap: () => ({ message: 'Тема должна быть выбрана' }),
+      error: () => ({ message: 'Тема должна быть выбрана' }),
     }),
   }),
 )
@@ -100,7 +98,7 @@ onUnmounted(() => {
   >
     <div class="size-full flex items-center justify-center p-2 sm:p-4">
       <div
-        class="max-w-[85rem] relative px-4 py-6 sm:px-6 lg:pb-10 lg:pt-6 bg-white pointer-events-auto rounded-lg"
+        class="max-w-340 relative px-4 py-6 sm:px-6 lg:pb-10 lg:pt-6 bg-white pointer-events-auto rounded-lg"
       >
         <div class="max-w-xl">
           <button

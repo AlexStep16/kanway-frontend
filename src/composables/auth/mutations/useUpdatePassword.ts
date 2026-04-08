@@ -1,5 +1,6 @@
+import { userKeys } from '@/keys'
+import { queryClient } from '@/plugins/queryClient'
 import { updatePassword } from '@/services/auth'
-import { useAuthStore } from '@/stores/auth'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 
@@ -9,14 +10,16 @@ export interface UpdatePasswordVars {
 }
 
 export function useUpdatePassword() {
-  const authStore = useAuthStore()
-
   return useMutation({
     mutationKey: ['user'],
     mutationFn: (data: UpdatePasswordVars) => updatePassword(data),
-    onSuccess: (result) => {
-      authStore.setUser(result)
+    onSuccess: () => {
       toast.success('Пароль успешно обновлен')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: userKeys.me,
+      })
     },
   })
 }

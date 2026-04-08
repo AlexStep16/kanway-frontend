@@ -197,13 +197,33 @@ watch(
                 task.isCompleted ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
               "
             >
-              <div class="size-4.5 relative">
-                <input
-                  type="checkbox"
-                  :checked="task.isCompleted"
-                  class="peer size-4.5 rounded-full border-gray-300 checked:bg-green-600 focus:ring-0 cursor-pointer"
-                  @click.stop
-                />
+              <div class="inline-flex items-center size-4">
+                <label class="flex items-center relative transition-all" @click.prevent>
+                  <input
+                    v-model="task.isCompleted"
+                    type="checkbox"
+                    class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
+                    id="check-custom-style"
+                  />
+                  <span
+                    class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="size-3"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      stroke="currentColor"
+                      stroke-width="1"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </span>
+                </label>
               </div>
               {{ task.isCompleted ? 'Выполнено' : 'Выполняется' }}
             </button>

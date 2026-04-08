@@ -1,6 +1,6 @@
 export interface ITaskMoveApiPayload {
   id: string
-  afterTaskId?: string | null
-  beforeTaskId?: string | null
+  afterId?: string | null
+  beforeId?: string | null
   newCategoryId?: string
 }

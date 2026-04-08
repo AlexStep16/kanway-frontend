@@ -54,5 +54,7 @@ function handleArchive() {
     @edit="handleEdit"
     @copy="handleCopy"
     @archive="handleArchive"
-  />
+  >
+    <slot />
+  </EntityCard>
 </template>

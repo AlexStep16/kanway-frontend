@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import TaskEdit from '@components/Workspace/Main/Task/Edit/Edit.vue'
 import CategoryEdit from '@components/Workspace/Main/Category/Edit.vue'
 import BoardEdit from '@components/Workspace/Main/Board/Edit.vue'
@@ -9,11 +9,6 @@ import { HSOverlay } from 'preline/dist'
 import Settings from '@components/Workspace/Settings/Settings.vue'
 import Tip from '@components/Tip/Tip.vue'
 import MobileSearch from '@components/Workspace/MobileSearch.vue'
-import { useChatStore } from '@stores/chat'
-import { useAgentStatusStore } from '@stores/agentStatus'
-import { storeToRefs } from 'pinia'
-import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
-import { useChat } from '@/composables/chat/queries/useChat'
 import { useRootStore } from '@/stores/root'
 import Support from '@/components/Workspace/Main/Support/Support.vue'
 import Plans from '@/components/Workspace/Main/Subscription/Plans.vue'
@@ -22,17 +17,6 @@ import WorkspaceDialog from '@/components/Workspace/WorkspaceDialog.vue'
 
 const rootStore = useRootStore()
 const uiStore = useUIStore()
-const chatStore = useChatStore()
-const agentStatusStore = useAgentStatusStore()
-
-const { activeChat } = storeToRefs(chatStore)
-
-const activeChatId = computed(() => activeChat.value?.id || null)
-const activeChatWorkspaceId = computed(() => activeChat.value?.workspaceId || null)
-
-const chat = useChat(activeChatId, activeChatWorkspaceId)
-
-const { mutate: stopAgent } = useStopAgent()
 
 function initEditTaskModal() {
   if (uiStore.editTaskModalRef) {

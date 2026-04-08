@@ -1,17 +1,19 @@
+import { IUser } from '@/interfaces/domain/IUser'
+import { userKeys } from '@/keys'
+import { queryClient } from '@/plugins/queryClient'
 import { resetAvatar } from '@/services/auth'
-import { useAuthStore } from '@/stores/auth'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 
 export function useResetAvatar() {
-  const authStore = useAuthStore()
-
   return useMutation({
     mutationKey: ['user'],
     onMutate: () => {
-      const oldAvatarUrl = authStore.user?.avatarUrl
+      const user = queryClient.getQueryData<IUser>(userKeys.me)
 
-      if (authStore.user) authStore.user.avatarUrl = undefined
+      const oldAvatarUrl = user?.avatarUrl
+
+      if (user) queryClient.setQueryData(userKeys.me, { ...user, avatarUrl: undefined })
 
       return { oldAvatarUrl }
     },
@@ -21,8 +23,10 @@ export function useResetAvatar() {
     },
 
     onError: (err, vars, context) => {
-      if (context?.oldAvatarUrl && authStore.user) {
-        authStore.user.avatarUrl = context.oldAvatarUrl
+      const user = queryClient.getQueryData<IUser>(userKeys.me)
+
+      if (context?.oldAvatarUrl && user) {
+        queryClient.setQueryData(userKeys.me, { ...user, avatarUrl: context.oldAvatarUrl })
       }
     },
   })

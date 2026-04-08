@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
-import { useAuthStore } from '@stores/auth'
 import dayjs from 'dayjs'
 import { computed, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useBoardsCount } from '@/composables/boards/queries/useBoardsCount'
 import { useSubscriptions } from '@/composables/subscriptions/queries/useSubscriptions'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
@@ -12,10 +10,9 @@ import Spinner from '@components/Loader/Spinner.vue'
 import { useResumeSubscription } from '@/composables/payments/mutations/useResumeSubscription'
 import { useDowngradeCancelSubscription } from '@/composables/payments/mutations/useDowngradeCancelSubscription'
 import PlanCards from '../Main/Subscription/PlanCards.vue'
+import { useUser } from '@/composables/auth/queries/useUser'
 
-const authStore = useAuthStore()
-
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount()
 const { data: subscriptionsData } = useSubscriptions()
@@ -82,17 +79,12 @@ const getRemainingWorkspaces = computed(() => {
   return Math.max(0, maxWorkspaces - workspaces.value.length)
 })
 
-const getRemainingMessages = computed(() => {
-  if (!currentSubscription.value || !user.value) {
+const getRemainingCredits = computed(() => {
+  if (!user.value) {
     return 0
   }
 
-  const maxMessages = currentSubscription.value.limitAiMessagesPerMonth
-  if (maxMessages === -1) {
-    return -1
-  }
-
-  return Math.max(0, maxMessages - (user.value.generationsCount || 0))
+  return user.value.credits
 })
 
 function handleDowngradeCancelSubscription() {
@@ -132,7 +124,7 @@ onMounted(() => {
         v-if="isBasicSubscription"
       >
         <div class="flex items-start justify-between p-3">
-          <div class="flex flex-col grow-1 gap-y-1">
+          <div class="flex flex-col grow gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовая</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
           </div>
@@ -144,7 +136,7 @@ onMounted(() => {
         v-else-if="currentSubscription"
       >
         <div class="flex items-start justify-between p-3">
-          <div class="flex flex-col grow-1 gap-y-1">
+          <div class="flex flex-col grow gap-y-1">
             <div class="flex items-center justify-between w-full relative">
               <span class="text-sm font-medium text-gray-800">{{ currentSubscription.name }}</span>
               <span
@@ -230,7 +222,7 @@ onMounted(() => {
     <div class="flex flex-wrap lg:flex-nowrap gap-2">
       <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70">
         <div class="flex items-start justify-between p-3">
-          <div class="flex flex-col grow-1 gap-y-1">
+          <div class="flex flex-col grow gap-y-1">
             <span class="text-sm text-gray-500">Пространств осталось:</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold">{{
               getRemainingWorkspaces === -1 ? '∞' : getRemainingWorkspaces
@@ -245,7 +237,7 @@ onMounted(() => {
       ></div>
       <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70" v-else>
         <div class="flex items-start justify-between p-3">
-          <div class="flex flex-col grow-1 gap-y-1">
+          <div class="flex flex-col grow gap-y-1">
             <span class="text-sm text-gray-500">Досок осталось:</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold">{{
               getRemainingBoards === -1 ? '∞' : getRemainingBoards
@@ -256,10 +248,10 @@ onMounted(() => {
 
       <div class="rounded-md bg-white self-start border border-gray-200 w-full max-w-70">
         <div class="flex items-start justify-between p-3">
-          <div class="flex flex-col grow-1 gap-y-1">
-            <span class="text-sm text-gray-500">Сообщений осталось:</span>
+          <div class="flex flex-col grow gap-y-1">
+            <span class="text-sm text-gray-500">Кредитов осталось:</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold">{{
-              getRemainingMessages === -1 ? '∞' : getRemainingMessages
+              getRemainingCredits
             }}</span>
           </div>
         </div>

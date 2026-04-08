@@ -67,7 +67,7 @@ export const useRootStore = defineStore('root', () => {
       await boardStore.selectBoard(selectedBoard, shouldNavigateToBoard)
     } else {
       boardStore.resetBoardSelection()
-      uiStore.selectStart()
+      uiStore.selectChat()
 
       setTimeout(() => {
         if (selectedWorkspace) {

@@ -1,5 +1,5 @@
 import { IOperationLog } from '@/interfaces/domain/IOperationLog'
-import { IUndoResponse } from '@/interfaces/IUndoResponse'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { getLogApi, patchUndoApi } from '@api/log'
 
 export async function fetchLog(id: string): Promise<IOperationLog | null> {
@@ -9,6 +9,6 @@ export async function fetchLog(id: string): Promise<IOperationLog | null> {
   return log
 }
 
-export async function undoOperation(id: string): Promise<IUndoResponse> {
+export async function undoOperation(id: string): Promise<IResponseWithLog<any>[]> {
   return await patchUndoApi(id)
 }

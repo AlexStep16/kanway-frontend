@@ -1,19 +1,19 @@
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
-import { paymentKeys } from '@/keys'
+import { paymentKeys, userKeys } from '@/keys'
+import { queryClient } from '@/plugins/queryClient'
 import { downgradeSubscription } from '@/services/payment'
-import { useAuthStore } from '@/stores/auth'
 import { useMutation } from '@tanstack/vue-query'
 
 export function useDowngradeSubscription() {
-  const authStore = useAuthStore()
-
   return useMutation({
     mutationKey: paymentKeys.all,
     mutationFn: ({ subscriptionId }: { subscriptionId: SubscriptionPlanEnum }) =>
       downgradeSubscription(subscriptionId),
     onSuccess: (result) => {
       if (result) {
-        authStore.setUser(result)
+        queryClient.invalidateQueries({
+          queryKey: userKeys.me,
+        })
       }
     },
   })

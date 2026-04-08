@@ -8,10 +8,9 @@ import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { AvailableColors } from '@enums/AvailableColors'
 import { Nullable } from '@/types/utils'
 import SubmitButton from '@/components/Forms/BasicCreateEditForm/SubmitButton.vue'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { useCreateWorkspace } from '@/composables/workspaces/mutations/useCreateWorkspace'
 import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
+import { useUser } from '@/composables/auth/queries/useUser'
 
 enum Tab {
   WORKSPACE = 0,
@@ -19,9 +18,7 @@ enum Tab {
   AVATAR = 2,
 }
 
-const authStore = useAuthStore()
-
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { mutate: createWorkspace, isPending: isAddingWorkspace } = useCreateWorkspace()
 const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUser()
@@ -217,7 +214,7 @@ onMounted(() => {
       </button>
     </header>
 
-    <main class="flex items-center justify-center grow-1">
+    <main class="flex items-center justify-center grow">
       <div class="flex flex-col gap-y-6 max-h-100 h-full p-4 justify-between w-full max-w-100">
         <TransitionGroup
           class="flex items-center justify-center h-full relative"

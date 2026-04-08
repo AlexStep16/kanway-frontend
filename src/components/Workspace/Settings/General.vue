@@ -3,20 +3,17 @@ import { Camera, Lock } from 'lucide-vue-next'
 import dayjs from 'dayjs'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { computed, onMounted, ref, watch } from 'vue'
-import { useAuthStore } from '@stores/auth'
 import { toast } from 'vue-sonner'
 import { HSSelect, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
-import { storeToRefs } from 'pinia'
 import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
 import ColorButtons from '@/components/Buttons/ColorButtons.vue'
 import { AvailableColors } from '@/enums/AvailableColors'
 import { Nullable } from '@/types/utils'
 import { useResetAvatar } from '@/composables/auth/mutations/useResetAvatar'
+import { useUser } from '@/composables/auth/queries/useUser'
 
-const authStore = useAuthStore()
-
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUser()
 const { mutate: updateUserTimezone, isPending: isUserTimezoneUpdating } = useUpdateUser()

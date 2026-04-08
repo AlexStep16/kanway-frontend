@@ -12,11 +12,11 @@ export const useTranscriptStore = defineStore('transcript', () => {
   const isConnected = ref<boolean>(false)
   const isRecording = ref<boolean>(false)
   const isTranscribing = ref<boolean>(false)
+  const speechStartedTime = ref<number>(0)
+  const speechEndedTime = ref<number>(0)
 
   const transcriptionDelta = ref<string>('')
   const transcriptionCompleted = ref<string>('')
-
-  const activeListener = ref<'WORKSPACE' | 'CHAT' | null>(null)
 
   function initialize() {
     if (isConnected.value || isConnecting.value) return
@@ -33,15 +33,24 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     newSocket.onmessage = (event) => {
       const data = JSON.parse(event.data)
+      console.log(data)
       if (data.type === 'input_audio_buffer.committed') {
         isTranscribing.value = true
         stopRecording()
+      }
+      if (data.type === 'input_audio_buffer.speech_started') {
+        speechStartedTime.value = Date.now()
+        speechEndedTime.value = 0
+      }
+      if (data.type === 'input_audio_buffer.speech_ended') {
+        speechEndedTime.value = Date.now()
       }
       if (data.type === 'conversation.item.input_audio_transcription.delta')
         transcriptionDelta.value = data.delta
       if (data.type === 'conversation.item.input_audio_transcription.completed') {
         isTranscribing.value = false
         transcriptionCompleted.value = data.transcript
+        resetSpeechTimes()
       }
     }
 
@@ -49,6 +58,7 @@ export const useTranscriptStore = defineStore('transcript', () => {
       console.error('Ошибка WebSocket:', error)
       isConnecting.value = false
       isConnected.value = false
+      resetSpeechTimes()
     }
 
     newSocket.onclose = (e) => {
@@ -62,6 +72,11 @@ export const useTranscriptStore = defineStore('transcript', () => {
     }
   }
 
+  function resetSpeechTimes() {
+    speechStartedTime.value = 0
+    speechEndedTime.value = 0
+  }
+
   async function startRecording(stream: MediaStream) {
     if (!isConnected.value || isRecording.value) return
 
@@ -70,6 +85,8 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     transcriptionDelta.value = ''
     transcriptionCompleted.value = ''
+
+    resetSpeechTimes()
 
     audioContext.value = new AudioContext({ sampleRate: 16000 })
     await audioContext.value.audioWorklet.addModule('/audio-worklet.js')
@@ -129,6 +146,8 @@ export const useTranscriptStore = defineStore('transcript', () => {
       mediaStreamSource.value = null
       mediaStream.value = null
     }, 200)
+
+    resetSpeechTimes()
   }
 
   return {
@@ -136,9 +155,10 @@ export const useTranscriptStore = defineStore('transcript', () => {
     isConnecting,
     isTranscribing,
     isRecording,
-    activeListener,
     transcriptionDelta,
     transcriptionCompleted,
+    speechStartedTime,
+    speechEndedTime,
 
     initialize,
     startRecording,

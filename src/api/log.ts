@@ -1,6 +1,6 @@
 import { apiCall } from '@/apiClient'
 import { IOperationLog } from '@/interfaces/domain/IOperationLog'
-import { IUndoResponse } from '@/interfaces/IUndoResponse'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 
 export async function getLogApi(id: string) {
   return await apiCall<IOperationLog[]>({
@@ -10,7 +10,7 @@ export async function getLogApi(id: string) {
 }
 
 export async function patchUndoApi(id: string) {
-  return await apiCall<IUndoResponse>({
+  return await apiCall<IResponseWithLog<any>[]>({
     method: 'PATCH',
     url: `/operation-logs/${id}/undo`,
   })

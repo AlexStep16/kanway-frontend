@@ -28,15 +28,15 @@ import {
 
 /** Stores */
 import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { AvailableColors } from '@/enums/AvailableColors'
 import { useUIStore } from '@/stores/ui'
+import { useUser } from '@/composables/auth/queries/useUser'
 
 const uiStore = useUIStore()
 const authStore = useAuthStore()
 
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { isMobile } = useSidebar()
 

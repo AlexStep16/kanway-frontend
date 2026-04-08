@@ -4,14 +4,14 @@ import { ref } from 'vue'
 import { Nullable } from '@/types/utils'
 import { useBoardStore } from './board'
 import { queryClient } from '@/plugins/queryClient'
-import { boardKeys } from '@/keys'
+import { boardKeys, workspaceKeys } from '@/keys'
 import { fetchBoards } from '@/services/board'
 
 export const useWorkspaceStore = (pinia?: Pinia) => {
   return defineStore('workspace', () => {
     const activeWorkspaceId = ref<Nullable<string>>(null)
 
-    const BOARD_STORE = useBoardStore()
+    const boardStore = useBoardStore()
 
     async function selectWorkspace(
       newWorkspace: WorkspaceModel,
@@ -20,7 +20,7 @@ export const useWorkspaceStore = (pinia?: Pinia) => {
     ) {
       if (activeWorkspaceId.value === newWorkspace.id) return
 
-      BOARD_STORE.activeBoardId = null
+      boardStore.activeBoardId = null
       activeWorkspaceId.value = newWorkspace.id
 
       localStorage.setItem('activeWorkspaceId', newWorkspace.id)
@@ -32,7 +32,7 @@ export const useWorkspaceStore = (pinia?: Pinia) => {
       })
 
       if (shouldSelectBoard && boards && boards.length > 0) {
-        await BOARD_STORE.selectBoard(boards[0], shouldNavigate)
+        await boardStore.selectBoard(boards[0], shouldNavigate)
       } else {
         if (shouldNavigate) {
           window.history.pushState({ triggeredBy: 'user' }, '', `/workspace/${newWorkspace.id}`)

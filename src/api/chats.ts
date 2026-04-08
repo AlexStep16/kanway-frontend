@@ -8,6 +8,7 @@ import { IChatMessage } from '@interfaces/domain/IChatMessage'
 import { RetryAgentPayload } from '@interfaces/RetryAgentPayload'
 import { StopAgentPayload } from '@interfaces/StopAgentPayload'
 import { ResolveAmbiguous } from '@/interfaces/ResolveAmbiguous'
+import { IChatEditPayload } from '@/interfaces/IChatEditPayload'
 
 export async function getChatsApi(workspaceId?: string) {
   const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
@@ -75,6 +76,14 @@ export async function stopAgentApi(data: StopAgentPayload) {
   return await apiCall<void>({
     method: 'POST',
     url: `/chats/${data.jobId}/stop`,
-    data: { chatId: data.chatId, threadId: data.threadId },
+    data: { jobId: data.jobId },
+  })
+}
+
+export async function patchChatApi(payload: IChatEditPayload, id: string) {
+  return apiCall<IChat[]>({
+    method: 'PATCH',
+    url: `/chats/${id}`,
+    data: payload,
   })
 }

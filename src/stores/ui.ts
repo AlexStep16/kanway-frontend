@@ -9,9 +9,11 @@ import { ITaskState } from './interfaces/ITaskState'
 import { ICategoryState } from './interfaces/ICategoryState'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
+import { useChatStore } from './chat'
 
 export const useUIStore = defineStore('ui', () => {
   const boardStore = useBoardStore()
+  const chatStore = useChatStore()
 
   const editableTaskId = ref<Nullable<string>>(null)
   const editableTaskBoardId = ref<Nullable<string>>(null)
@@ -378,12 +380,21 @@ export const useUIStore = defineStore('ui', () => {
     boardStore.resetBoardSelection()
   }
 
+  const isArchiveTabSelected = computed(() => currentTab.value === Tabs.Archive)
+  const isBoardTabSelected = computed(() => currentTab.value === Tabs.Board)
+  const isChatTabSelected = computed(() => currentTab.value === Tabs.Chat)
+
   function selectBoard() {
     currentTab.value = Tabs.Board
   }
 
-  function selectStart() {
-    currentTab.value = Tabs.Start
+  function selectChat() {
+    currentTab.value = Tabs.Chat
+    if (!chatStore.activeChatId) {
+      chatStore.newChat()
+    }
+
+    boardStore.resetBoardSelection()
   }
 
   return {
@@ -408,6 +419,9 @@ export const useUIStore = defineStore('ui', () => {
     isModalOnTop,
     isChatOpen,
     isWorkspaceDialogOpen,
+    isArchiveTabSelected,
+    isBoardTabSelected,
+    isChatTabSelected,
 
     editableBoardId,
     editableBoardWorkspaceId,
@@ -441,7 +455,7 @@ export const useUIStore = defineStore('ui', () => {
     closeSidebar,
     selectArchive,
     selectBoard,
-    selectStart,
+    selectChat,
     addToModalStack,
     removeFromModalStack,
     openTaskToEdit,

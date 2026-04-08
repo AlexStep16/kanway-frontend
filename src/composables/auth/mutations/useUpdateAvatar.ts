@@ -1,5 +1,6 @@
+import { userKeys } from '@/keys'
+import { queryClient } from '@/plugins/queryClient'
 import { updateAvatar } from '@/services/auth'
-import { useAuthStore } from '@/stores/auth'
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 
@@ -8,13 +9,13 @@ export interface UpdateAvatarVars {
 }
 
 export function useUpdateAvatar() {
-  const authStore = useAuthStore()
-
   return useMutation({
     mutationKey: ['user'],
     mutationFn: (payload: UpdateAvatarVars) => updateAvatar(payload.data),
     onSuccess: (result) => {
-      if (authStore.user) authStore.user.avatarUrl = result
+      queryClient.invalidateQueries({
+        queryKey: userKeys.me,
+      })
 
       toast.success('Аватар успешно обновлен')
     },

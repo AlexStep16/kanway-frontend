@@ -17,8 +17,9 @@ defineProps<{
   <div class="w-full flex flex-col justify-start gap-y-1 group/bubble">
     <div class="flex items-end w-full">
       <div
+        class="w-full"
         :class="{
-          'w-full sm:w-full max-w-[90%] sm:max-w-xl': isContentFullWidth,
+          'sm:w-full max-w-[90%]': isContentFullWidth,
           'max-w-[90%] sm:max-w-lg': !isContentFullWidth,
         }"
       >

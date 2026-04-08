@@ -77,7 +77,11 @@ const beforeAfterArray = computed(() => {
       }
     "
   >
-    <ColumnsView :items="beforeAfterArray" :containerRef="messagesContainerRefMap[message.id]">
+    <ColumnsView
+      :initialCountShown="10"
+      :items="beforeAfterArray"
+      :containerRef="messagesContainerRefMap[message.id]"
+    >
       <template v-slot:default="slotProps">
         <ChatTaskEdit
           v-for="[before, after] in slotProps.data"

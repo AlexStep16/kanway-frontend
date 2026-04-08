@@ -10,8 +10,6 @@ const emit = defineEmits<{
   (e: 'clearInput'): void
 }>()
 const props = defineProps<{
-  isChat?: boolean
-  isWorkspace?: boolean
   isDisabled?: boolean
 }>()
 
@@ -80,7 +78,6 @@ async function toggleRecording() {
       return
     }
 
-    transcriptStore.activeListener = props.isChat ? 'CHAT' : 'WORKSPACE'
     emit('clearInput')
 
     try {
@@ -92,45 +89,30 @@ async function toggleRecording() {
       transcriptStore.startRecording(stream)
 
       setTimeout(() => {
-        if (transcriptStore.isRecording && transcriptStore.transcriptionDelta === '') {
+        const hasSpoken = transcriptStore.speechStartedTime > 0
+
+        if (transcriptStore.isRecording && !hasSpoken) {
           stopRecording()
         }
-      }, 15000)
+      }, 4000)
     } catch (err) {
       console.error('Ошибка доступа к микрофону:', err)
     }
   }
 }
 
-const getIsMicrophoneActive = computed(() => {
-  if (!transcriptStore.isRecording) return false
-  if (props.isChat && transcriptStore.activeListener === 'CHAT') return true
-  if (props.isWorkspace && transcriptStore.activeListener === 'WORKSPACE') return true
-  if (!props.isChat && !props.isWorkspace) return true
-  return false
+const isMicrophoneActive = computed(() => {
+  return transcriptStore.isRecording
 })
 
 const getIsMicrophoneInit = computed(() => {
-  if (transcriptStore.isConnecting) return true
-  if (!transcriptStore.isTranscribing) return false
-
-  if (props.isChat && transcriptStore.activeListener === 'CHAT') return true
-  if (props.isWorkspace && transcriptStore.activeListener === 'WORKSPACE') return true
-  if (!props.isChat && !props.isWorkspace) return true
-
-  return false
-})
-
-const currentListener = computed(() => {
-  if (props.isChat) return 'CHAT'
-  if (props.isWorkspace) return 'WORKSPACE'
-  return null
+  return transcriptStore.isConnecting
 })
 
 watch(
   () => transcriptStore.transcriptionDelta,
   (newText) => {
-    if (newText && transcriptStore.activeListener === currentListener.value) {
+    if (newText) {
       emit('deltaAdd', newText)
     }
   },
@@ -139,14 +121,14 @@ watch(
 watch(
   () => transcriptStore.transcriptionCompleted,
   (finalText) => {
-    if (finalText && transcriptStore.activeListener === currentListener.value) {
+    if (finalText) {
       emit('transcriptionCompleted', finalText)
     }
   },
 )
 
 const isSpeaking = computed(() => {
-  return getIsMicrophoneActive.value && volumeLevel.value > 5
+  return isMicrophoneActive.value && volumeLevel.value > 5
 })
 
 onMounted(() => {
@@ -155,7 +137,7 @@ onMounted(() => {
 </script>
 <template>
   <div class="relative flex items-center justify-center z-20">
-    <template v-if="getIsMicrophoneActive">
+    <template v-if="isMicrophoneActive">
       <div
         class="absolute size-10 bg-red-600 opacity-40 rounded-full transition-transform duration-200 ease-out"
         :class="{
@@ -174,8 +156,8 @@ onMounted(() => {
       @click="toggleRecording"
       class="flex items-center justify-center z-2 size-8 rounded-md text-gray-500 transition-colors"
       :class="{
-        'text-white!': getIsMicrophoneActive,
-        'hover:bg-gray-100': !getIsMicrophoneActive,
+        'text-white!': isMicrophoneActive,
+        'hover:bg-gray-100': !isMicrophoneActive,
       }"
       title="Голосовой ввод"
       v-if="!getIsMicrophoneInit"

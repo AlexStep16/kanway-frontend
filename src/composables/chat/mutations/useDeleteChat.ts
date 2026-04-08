@@ -18,19 +18,19 @@ export function useDeleteChat() {
     mutationKey: [...chatKeys.all, 'delete'],
     mutationFn: ({ id }: DeleteChatVars) => requestQueueService.enqueue(id, () => removeChat(id)),
     onMutate: async ({ id, workspaceId }) => {
-      const categoryKey = chatKeys.byWorkspace(workspaceId)
+      const chatKey = chatKeys.byWorkspace(workspaceId)
 
-      await queryClient.cancelQueries({ queryKey: categoryKey })
+      await queryClient.cancelQueries({ queryKey: chatKey })
 
-      const previousChats = queryClient.getQueryData<IChat[]>(categoryKey)
+      const previousChats = queryClient.getQueryData<IChat[]>(chatKey)
 
       if (previousChats) {
-        queryClient.setQueryData<IChat[]>(categoryKey, (oldChats) =>
+        queryClient.setQueryData<IChat[]>(chatKey, (oldChats) =>
           oldChats ? oldChats.filter((c) => c.id !== id) : [],
         )
       }
 
-      return { previousChats, categoryKey }
+      return { previousChats, chatKey }
     },
 
     onError: (err, vars, context) => {
@@ -38,7 +38,7 @@ export function useDeleteChat() {
         const chatToRestore = context.previousChats.find((c) => c.id === vars.id)
 
         if (chatToRestore) {
-          queryClient.setQueryData<IChat[]>(context.categoryKey, (current) => {
+          queryClient.setQueryData<IChat[]>(context.chatKey, (current) => {
             if (current?.some((c) => c.id === vars.id)) return current
 
             return [chatToRestore, ...(current || [])]
@@ -47,10 +47,8 @@ export function useDeleteChat() {
       }
     },
 
-    onSettled: (data, error, vars, context) => {
-      const categoryKey = chatKeys.byWorkspace(vars.workspaceId)
-
-      queryClient.invalidateQueries({ queryKey: categoryKey })
+    onSettled: (data, error, vars) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(vars.workspaceId) })
     },
 
     onSuccess: (result, { id }) => {
@@ -58,7 +56,7 @@ export function useDeleteChat() {
 
       toast.success('Чат успешно удален')
 
-      if (chatStore.activeChat?.id === id) {
+      if (chatStore.activeChatId === id) {
         chatStore.closeChat()
       }
     },

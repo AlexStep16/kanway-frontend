@@ -9,6 +9,7 @@ import {
   retryApi,
   stopAgentApi,
   getChatApi,
+  patchChatApi,
 } from '@api/chats'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import ChatModel from '@/models/ChatModel'
@@ -17,6 +18,7 @@ import { IApproveEntityActionToolCallPayload } from '@/interfaces/IApproveEntity
 import { RetryAgentPayload } from '@/interfaces/RetryAgentPayload'
 import { StopAgentPayload } from '@/interfaces/StopAgentPayload'
 import { ResolveAmbiguous } from '@/interfaces/ResolveAmbiguous'
+import { IChatEditPayload } from '@/interfaces/IChatEditPayload'
 
 export function transformChat(raw: IChat): ChatModel {
   return new ChatModel({
@@ -24,6 +26,12 @@ export function transformChat(raw: IChat): ChatModel {
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })
+}
+
+export async function updateChat(payload: IChatEditPayload, id: string) {
+  const result = await patchChatApi(payload, id)
+
+  return result.map(transformChat).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
 }
 
 export async function sendMessage(payload: SendMessagePayload) {

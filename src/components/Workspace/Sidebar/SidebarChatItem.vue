@@ -12,7 +12,7 @@ import { useDeleteChat } from '@/composables/chat/mutations/useDeleteChat'
 const chatStore = useChatStore()
 const uiStore = useUIStore()
 
-const { activeChat } = storeToRefs(chatStore)
+const { activeChatId } = storeToRefs(chatStore)
 
 const { mutate: deleteChat } = useDeleteChat()
 
@@ -27,7 +27,7 @@ defineEmits<{
 const chatStatus = useChatMutationStatus(computed(() => props.item.id))
 
 const selected = computed(() => {
-  return props.item.id === activeChat.value?.id && uiStore.isChatOpen
+  return props.item.id === activeChatId.value && uiStore.isChatOpen
 })
 
 function handleDelete() {

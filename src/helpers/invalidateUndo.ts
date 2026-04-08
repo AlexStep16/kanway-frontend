@@ -1,22 +1,10 @@
-import { IUndoResponse } from '@/interfaces/IUndoResponse'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
 
-export function invalidateUndo(data: IUndoResponse) {
+export function invalidateUndo(data: IResponseWithLog<any>[]) {
+  queryClient.invalidateQueries({ queryKey: boardKeys.all })
+  queryClient.invalidateQueries({ queryKey: categoryKeys.all })
+  queryClient.invalidateQueries({ queryKey: taskKeys.all })
   queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
-
-  if (data.affectedBoardIds?.length) {
-    queryClient.invalidateQueries({ queryKey: boardKeys.all })
-  }
-
-  if (data.affectedCategoryIds?.length) {
-    queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-    queryClient.invalidateQueries({ queryKey: boardKeys.all })
-  }
-
-  if (data.affectedTaskIds?.length) {
-    queryClient.invalidateQueries({ queryKey: taskKeys.all })
-    queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-    queryClient.invalidateQueries({ queryKey: boardKeys.all })
-  }
 }

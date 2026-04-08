@@ -1,12 +1,12 @@
 import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
 import ChatMessageModel from '@/models/ChatMessageModel'
-import { IUndoResponse } from '@/interfaces/IUndoResponse'
 import { IOperationLog } from './domain/IOperationLog'
+import { IResponseWithLog } from './IResponseWithLog'
 
 export type AgentProgress =
   | {
       role: CustomEventsEnum.UNDO
-      data: IUndoResponse
+      data: IResponseWithLog<any>[]
     }
   | {
       role: CustomEventsEnum.OPERATION

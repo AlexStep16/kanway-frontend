@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useAuthStore } from '@stores/auth'
 import { PaymentStatusesEnum } from '@/enums/PaymentStatusesEnum'
 import dayjs from 'dayjs'
 import { usePayments } from '@/composables/payments/queries/usePayments'
 import { usePaymentMethods } from '@/composables/paymentMethods/queries/usePaymentMethods'
-import { storeToRefs } from 'pinia'
 import PaymentMethod from './PaymentMethod.vue'
+import { useUser } from '@/composables/auth/queries/useUser'
 
-const authStore = useAuthStore()
-
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { data: paymentsData, isPending: isPaymentsLoading } = usePayments()
 const { data: paymentMethodsData, isPending: isPaymentMethodsLoading } = usePaymentMethods()

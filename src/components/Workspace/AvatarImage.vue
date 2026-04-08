@@ -1,15 +1,13 @@
 <script setup lang="ts">
+import { useUser } from '@/composables/auth/queries/useUser'
 import { AvailableColors } from '@/enums/AvailableColors'
-import { useAuthStore } from '@stores/auth'
-import { computed, toRef } from 'vue'
+import { computed } from 'vue'
 
 defineProps<{
   imageClasses?: string
 }>()
 
-const AUTH_STORE = useAuthStore()
-
-const user = toRef(AUTH_STORE, 'user')
+const { data: user } = useUser()
 
 const getAvatarUrl = computed(() => {
   if (user.value?.avatarUrl) {

@@ -77,5 +77,7 @@ function handleArchive() {
     @copy="handleCopy"
     @archive="handleArchive"
     @mousedown="startDragging"
-  />
+  >
+    <slot />
+  </EntityCard>
 </template>

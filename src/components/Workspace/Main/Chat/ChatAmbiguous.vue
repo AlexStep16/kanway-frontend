@@ -43,7 +43,7 @@ function handleResolveAmbiguous() {
       ids: selectedIds.value,
       callId: props.message.content.callId,
     },
-    chatId: chatStore.activeChat?.id ?? '',
+    chatId: chatStore.activeChatId ?? '',
     chatMessageId: props.message.id,
     boardId: activeBoardId.value || '',
     workspaceId: activeWorkspaceId.value || '',

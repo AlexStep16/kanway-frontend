@@ -7,15 +7,14 @@ import { computed } from 'vue'
 import { useBoardsCount } from '@/composables/boards/queries/useBoardsCount'
 import { useSubscriptions } from '@/composables/subscriptions/queries/useSubscriptions'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
-import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { useUIStore } from '@/stores/ui'
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
+import { Banknote } from 'lucide-vue-next'
+import { useUser } from '@/composables/auth/queries/useUser'
 
 const uiStore = useUIStore()
-const authStore = useAuthStore()
 
-const { user } = storeToRefs(authStore)
+const { data: user } = useUser()
 
 const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount()
 const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
@@ -51,14 +50,6 @@ const maxWorkspaces = computed(() => {
   return currentSubscription.value.limitWorkspaces
 })
 
-const maxMessages = computed(() => {
-  if (!currentSubscription.value) {
-    return 0
-  }
-
-  return currentSubscription.value.limitAiMessagesPerMonth
-})
-
 const boardsProgress = computed(() => {
   if (!currentSubscription.value || isBoardsCountLoading.value) {
     return 0
@@ -82,34 +73,12 @@ const workspacesProgress = computed(() => {
 
   return Math.min((workspaces.value.length / maxWorkspaces.value) * 100, 100)
 })
-
-const messagesProgress = computed(() => {
-  if (!currentSubscription.value || !user.value) {
-    return 0
-  }
-
-  if (maxMessages.value === -1) {
-    return 0
-  }
-
-  return Math.min(((user.value.generationsCount || 0) / maxMessages.value) * 100, 100)
-})
-
-const progressColor = computed(() => (progress: number) => {
-  if (progress < 70) {
-    return 'bg-primary'
-  } else if (progress < 90) {
-    return 'bg-yellow-500'
-  } else {
-    return 'bg-red-500'
-  }
-})
 </script>
 
 <template>
   <SidebarMenu>
     <SidebarMenuItem class="cursor-default">
-      <Card class="w-full shadow-none" v-if="!isSubscriptionsLoading">
+      <Card class="w-full shadow-none" v-if="!isSubscriptionsLoading && user">
         <CardHeader class="p-4 pb-3 flex-row items-center justify-between">
           <div class="flex flex-col">
             <span class="text-xs text-muted-foreground"> План </span>
@@ -124,41 +93,33 @@ const progressColor = computed(() => (progress: number) => {
           </Button>
         </CardHeader>
         <CardContent class="p-4 pt-0 flex flex-col gap-y-2">
-          <div class="flex flex-col gap-y-1">
-            <span class="text-xs">
-              <span class="font-medium text-primary">{{ user?.generationsCount || 0 }}</span> из
-              {{ maxMessages }} сообщений
+          <div class="flex items-center gap-1 text-foreground mb-1">
+            <Banknote class="size-4" />
+
+            <span class="text-xs font-medium">
+              Кредитов:
+              <span
+                class="font-medium text-primary"
+                :class="{
+                  'text-red-500': user.credits === 0,
+                }"
+                >{{ user.credits }}</span
+              >
             </span>
-            <Progress
-              :model-value="messagesProgress"
-              class="w-full h-1"
-              :color="progressColor(messagesProgress)"
-              :is-limit="true"
-            />
           </div>
           <div class="flex flex-col gap-y-1" v-if="maxWorkspaces > 0">
             <span class="text-xs">
               <span class="font-medium text-primary">{{ workspaces.length }}</span> из
               {{ maxWorkspaces }} пространств
             </span>
-            <Progress
-              :model-value="workspacesProgress"
-              class="w-full h-1"
-              :color="progressColor(workspacesProgress)"
-              :is-limit="true"
-            />
+            <Progress :model-value="workspacesProgress" class="w-full h-1" color="bg-primary" />
           </div>
           <div class="flex flex-col gap-y-1" v-if="maxBoards > 0">
             <span class="text-xs">
               <span class="font-medium text-primary">{{ boardsCount ?? 0 }}</span> из
               {{ maxBoards }} досок
             </span>
-            <Progress
-              :model-value="boardsProgress"
-              class="w-full h-1"
-              :color="progressColor(boardsProgress)"
-              :is-limit="true"
-            />
+            <Progress :model-value="boardsProgress" class="w-full h-1" />
           </div>
         </CardContent>
       </Card>

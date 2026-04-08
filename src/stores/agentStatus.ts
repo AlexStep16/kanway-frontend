@@ -4,60 +4,31 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { invalidateUndo } from '@/helpers/invalidateUndo'
 import { queryClient } from '@/plugins/queryClient'
-import { boardKeys, categoryKeys, chatMessageKeys, taskKeys, workspaceKeys } from '@/keys'
+import { boardKeys, categoryKeys, chatMessageKeys, taskKeys, userKeys, workspaceKeys } from '@/keys'
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
+import { useBoardStore } from './board'
+import { useWorkspaceStore } from './workspace'
+import { useUIStore } from './ui'
+import WorkspaceModel from '@/models/WorkspaceModel'
 
 export interface Event {
   status: 'progress' | 'completed' | 'failed'
   data: AgentProgress
 }
 
-//type AgentStatusErrorType = Nullable<BackendError | HttpError>
-
 export const useAgentStatusStore = defineStore('agentStatus', () => {
   const activeJobId = ref<string | null>(null)
   const currentTool = ref<string | null>(null)
-  const timeElapsed = ref(0)
+  const isInterrupted = ref(false)
 
-  let timerInterval: number | null = null
-
-  // Форматирование времени MM:SS или S.s
-  const formattedTime = computed(() => {
-    const seconds = Math.floor(timeElapsed.value / 1000)
-    const ms = Math.floor((timeElapsed.value % 1000) / 100) // Десятые доли секунды
-
-    if (seconds < 60) {
-      return `${seconds}.${ms}c` // Показывем "4.5s" для динамики
-    }
-
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  })
-
-  const startTimer = () => {
-    const start = Date.now()
-    // Сбрасываем при новом старте
-    timeElapsed.value = 0
-
-    timerInterval = window.setInterval(() => {
-      timeElapsed.value = Date.now() - start
-    }, 100) // Обновляем каждые 100мс для плавности
-  }
-
-  const stopTimer = () => {
-    if (timerInterval) {
-      clearInterval(timerInterval)
-      timerInterval = null
-    }
-  }
+  const uiStore = useUIStore()
+  const boardStore = useBoardStore()
+  const workspaceStore = useWorkspaceStore()
 
   const eventSource = ref<EventSource | null>(null)
 
   function connectSSE(jobId: string) {
     if (eventSource.value) eventSource.value.close()
-
-    startTimer()
 
     eventSource.value = new EventSource(
       import.meta.env.VITE_SERVER_BASE_URL + `/chats/stream/${jobId}/status`,
@@ -77,12 +48,13 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     }
   }
 
-  // Обработка DTO (role, content, etc.)
   function handleIncomingEvent(event: Event) {
     const eventData = event.data
 
     if (event.status === 'completed' || event.status === 'failed') {
       closeSSE()
+
+      queryClient.invalidateQueries({ queryKey: userKeys.me })
 
       return
     }
@@ -101,6 +73,39 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
       queryClient.invalidateQueries({ queryKey: boardKeys.all })
       queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
+
+      const log = eventData.data
+
+      if (log.collectionName === 'boards') {
+        if (log.operationType === 'CREATE') {
+          if (log.entitiesAfter) boardStore.selectBoard(log.entitiesAfter[0], true) // Автоматически переключаемся на новую доску
+        } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
+          if (log.entitiesBefore) {
+            if (log.entitiesBefore.some((b: any) => b.id === boardStore.activeBoardId)) {
+              boardStore.resetBoardSelection()
+
+              uiStore.selectChat() // Переключаемся на чат, если удалили/архивировали активную доску
+            }
+          }
+        }
+      }
+
+      if (log.collectionName === 'workspaces') {
+        if (log.operationType === 'CREATE') {
+          if (log.entitiesAfter) workspaceStore.selectWorkspace(log.entitiesAfter[0], true) // Автоматически переключаемся на новое рабочее пространство
+        }
+      } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
+        if (log.entitiesBefore) {
+          if (log.entitiesBefore.some((w: any) => w.id === workspaceStore.activeWorkspaceId)) {
+            const workspaces = queryClient.getQueryData<WorkspaceModel[]>(workspaceKeys.lists())
+
+            if (workspaces && workspaces.length > 0) {
+              const nextWorkspace = workspaces[0]
+              workspaceStore.selectWorkspace(nextWorkspace, true)
+            }
+          }
+        }
+      }
     } else if (eventData.role === CustomEventsEnum.UPDATE_MESSAGE) {
       const message = eventData.data
 
@@ -124,8 +129,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     }
     activeJobId.value = null
     currentTool.value = null
-
-    stopTimer()
   }
 
   function isSSEActive() {
@@ -135,7 +138,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   return {
     activeJobId,
     currentTool,
-    formattedTime,
+    isInterrupted,
 
     connectSSE,
     isSSEActive,

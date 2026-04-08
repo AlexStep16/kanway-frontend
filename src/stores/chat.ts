@@ -1,42 +1,36 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useUIStore } from '@stores/ui'
 import { IChat } from '@/interfaces/domain/IChat'
-import { useAuthStore } from './auth'
-import { useWorkspaceStore } from './workspace'
+import { queryClient } from '@/plugins/queryClient'
+import { chatMessageKeys } from '@/keys'
 
 export const useChatStore = defineStore('chat', () => {
   const uiStore = useUIStore()
-  const authStore = useAuthStore()
-  const workspaceStore = useWorkspaceStore()
 
-  const activeChat = ref<IChat | null>(null)
   const temporaryChatId = ref(crypto.randomUUID())
+  const activeChatId = ref<string | null>(null)
+
+  const isActiveChatTemporary = computed(() => activeChatId.value === temporaryChatId.value)
 
   function newChat() {
     temporaryChatId.value = crypto.randomUUID()
+    activeChatId.value = temporaryChatId.value
 
-    activeChat.value = {
-      id: temporaryChatId.value,
-      userId: authStore.user!.id,
-      threadId: '',
-      workspaceId: workspaceStore.activeWorkspaceId!,
-      name: 'Новый чат',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
     uiStore.isChatOpen = true
   }
 
   function selectChat(chat: IChat) {
-    activeChat.value = chat
+    activeChatId.value = chat.id
     uiStore.isChatOpen = true
+
+    queryClient.invalidateQueries({ queryKey: chatMessageKeys.byChat(chat.id) })
   }
 
   function closeChat() {
-    activeChat.value = null
+    activeChatId.value = null
     uiStore.isChatOpen = false
   }
 
-  return { activeChat, temporaryChatId, newChat, selectChat, closeChat }
+  return { activeChatId, temporaryChatId, isActiveChatTemporary, newChat, selectChat, closeChat }
 })

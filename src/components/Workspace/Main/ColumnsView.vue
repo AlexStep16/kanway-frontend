@@ -2,20 +2,23 @@
 import { computed, watch } from 'vue'
 import { ref } from 'vue'
 import { generateUUID } from '@utils/idGenerator'
+import ShowMore from './Chat/ShowMore.vue'
 
 const props = defineProps<{
   items: Array<any>
   containerRef: HTMLElement | null
+  initialCountShown?: number
 }>()
 
 const currentAvailableColumns = ref(0)
+const countShown = ref(props.initialCountShown || 0)
 
 const columns = computed(() => {
   if (!currentAvailableColumns.value) return []
 
   const result: any = Array.from({ length: currentAvailableColumns.value }, () => [])
 
-  props.items.forEach((item, index) => {
+  limitedItems.value.forEach((item, index) => {
     result[index % currentAvailableColumns.value].push(item)
   })
   return result
@@ -37,6 +40,11 @@ function getColumns() {
   }
 }
 
+const limitedItems = computed(() => {
+  if (!countShown.value) return props.items
+  return props.items.slice(0, countShown.value)
+})
+
 watch(
   () => props.containerRef,
   () => {
@@ -55,14 +63,21 @@ watch(
 </script>
 
 <template>
-  <div class="flex gap-2">
-    <div
-      v-for="(columnItems, colIndex) in columns"
-      :key="colIndex + generateUUID()"
-      class="flex flex-col gap-2"
-      style="width: 250px"
-    >
-      <slot :data="columnItems"></slot>
+  <div class="flex flex-col gap-y-2">
+    <div class="flex gap-2">
+      <div
+        v-for="(columnItems, colIndex) in columns"
+        :key="colIndex + generateUUID()"
+        class="flex flex-col gap-2 w-62.5"
+      >
+        <slot :data="columnItems"></slot>
+      </div>
     </div>
+
+    <ShowMore
+      class="w-62.5"
+      @show-more="countShown += 10"
+      v-if="countShown && countShown < items.length"
+    />
   </div>
 </template>

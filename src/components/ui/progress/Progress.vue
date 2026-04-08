@@ -6,9 +6,7 @@ import { ProgressIndicator, ProgressRoot } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
 const props = withDefaults(
-  defineProps<
-    ProgressRootProps & { class?: HTMLAttributes['class']; color?: string; isLimit?: boolean }
-  >(),
+  defineProps<ProgressRootProps & { class?: HTMLAttributes['class']; isLimit?: boolean }>(),
   {
     modelValue: 0,
   },

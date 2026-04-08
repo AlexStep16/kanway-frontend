@@ -71,13 +71,13 @@ function draggableChange(event: any) {
   const beforeTask = localTaskList.value[newIndex + 1]
   const afterTask = localTaskList.value[newIndex - 1]
 
-  const beforeTaskId = beforeTask ? beforeTask.id : null
-  const afterTaskId = afterTask ? afterTask.id : null
+  const beforeId = beforeTask ? beforeTask.id : null
+  const afterId = afterTask ? afterTask.id : null
 
   moveTaskCard({
     id: movedTask.id,
-    beforeTaskId,
-    afterTaskId,
+    beforeId,
+    afterId,
     newCategoryId: props.category.id,
     boardId: props.category.board.id,
   })
