@@ -33,3 +33,11 @@ export class HttpError extends Error {
     Object.setPrototypeOf(this, HttpError.prototype)
   }
 }
+
+export class ClientAbortedError extends Error {
+  constructor(message: string) {
+    super(message)
+
+    Object.setPrototypeOf(this, ClientAbortedError.prototype)
+  }
+}

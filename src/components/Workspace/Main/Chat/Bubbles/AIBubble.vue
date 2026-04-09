@@ -5,7 +5,7 @@ defineEmits<{
   (e: 'tryAgain'): void
 }>()
 
-defineProps<{
+const props = defineProps<{
   isError?: boolean
   date?: string
   isContentFullWidth?: boolean
@@ -58,5 +58,6 @@ defineProps<{
     >
       <span class="text-xs text-gray-500">{{ date }}</span>
     </div>
+    <div class="h-4" v-else></div>
   </div>
 </template>

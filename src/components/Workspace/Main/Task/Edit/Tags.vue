@@ -86,7 +86,7 @@ const getTagsTitle = computed(() => {
       aria-labelledby="hs-dropdown-tags"
     >
       <div class="flex flex-col p-2">
-        <div class="flex flex-col gap-y-0.5 flex-grow-1">
+        <div class="flex flex-col gap-y-0.5 grow">
           <span class="text-xs text-gray-400">Теги</span>
           <div class="flex flex-wrap gap-1 max-h-50 overflow-y-auto">
             <div
@@ -105,10 +105,7 @@ const getTagsTitle = computed(() => {
             </div>
           </div>
         </div>
-        <div
-          class="flex flex-col gap-y-1 flex-grow-1"
-          :class="{ 'mt-2': props.task.tags.length > 0 }"
-        >
+        <div class="flex flex-col gap-y-1 grow" :class="{ 'mt-2': props.task.tags.length > 0 }">
           <input
             id="tags-input"
             type="text"
@@ -124,7 +121,7 @@ const getTagsTitle = computed(() => {
           <ButtonCreate :text="'Добавить'" @click="addTag" />
         </div>
 
-        <!-- <div class="flex flex-col gap-y-0.5 flex-grow-1 mt-2">
+        <!-- <div class="flex flex-col gap-y-0.5 grow mt-2">
           <span class="text-xs text-gray-400">Теги в пространстве</span>
           <div class="flex flex-wrap gap-1">
             <span

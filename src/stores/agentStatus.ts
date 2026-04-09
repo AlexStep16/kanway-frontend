@@ -1,10 +1,18 @@
 import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
 import { AgentProgress } from '@/interfaces/AgentProgress'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { invalidateUndo } from '@/helpers/invalidateUndo'
 import { queryClient } from '@/plugins/queryClient'
-import { boardKeys, categoryKeys, chatMessageKeys, taskKeys, userKeys, workspaceKeys } from '@/keys'
+import {
+  boardKeys,
+  categoryKeys,
+  chatKeys,
+  chatMessageKeys,
+  taskKeys,
+  userKeys,
+  workspaceKeys,
+} from '@/keys'
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 import { useBoardStore } from './board'
 import { useWorkspaceStore } from './workspace'
@@ -19,7 +27,6 @@ export interface Event {
 export const useAgentStatusStore = defineStore('agentStatus', () => {
   const activeJobId = ref<string | null>(null)
   const currentTool = ref<string | null>(null)
-  const isInterrupted = ref(false)
 
   const uiStore = useUIStore()
   const boardStore = useBoardStore()
@@ -119,6 +126,9 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       )
     } else if (eventData.role === CustomEventsEnum.UNDO) {
       invalidateUndo(eventData.data)
+    } else if (eventData.role === CustomEventsEnum.CHAT_UPDATED) {
+      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(eventData.data.workspaceId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.detailed(eventData.data.id) })
     }
   }
 
@@ -138,7 +148,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   return {
     activeJobId,
     currentTool,
-    isInterrupted,
 
     connectSSE,
     isSSEActive,

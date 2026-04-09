@@ -23,7 +23,7 @@ function onSearchInput(value: string) {
           <SearchBox @input="onSearchInput" :isAlwaysVisible="true" />
         </div>
 
-        <div class="size-full flex items-center justify-center grow-1" v-if="showEmptyInputMessage">
+        <div class="size-full flex items-center justify-center grow" v-if="showEmptyInputMessage">
           <span class="text-gray-400 text-sm">Введите текст чтобы начать поиск...</span>
         </div>
       </div>

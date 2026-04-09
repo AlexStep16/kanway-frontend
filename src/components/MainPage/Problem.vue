@@ -61,7 +61,7 @@ import { Check, X, Annoyed } from 'lucide-vue-next'
               <h3 class="text-lg md:text-xl font-semibold text-gray-700">Обычный таск-менеджер</h3>
             </div>
 
-            <p class="text-gray-500 leading-relaxed grow-1">
+            <p class="text-gray-500 leading-relaxed grow">
               Ваш текущий таск-менеджер — это просто цифровой список. Чтобы выполнить комплексное
               действие, например, перенести 20 просроченных задач, нужно выполнить ~20 утомительных
               кликов.
@@ -129,7 +129,7 @@ import { Check, X, Annoyed } from 'lucide-vue-next'
               <h3 class="text-lg md:text-xl font-semibold text-blue-500">Kanbar</h3>
             </div>
 
-            <p class="text-gray-500 leading-relaxed grow-1">
+            <p class="text-gray-500 leading-relaxed grow">
               Просто скажите, что вам нужно. Наш AI-агент понимает контекст и мгновенно выполняет
               многошаговые команды, освобождая ваше время для самого важного. Это очень просто!
             </p>

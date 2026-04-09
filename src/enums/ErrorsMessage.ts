@@ -3,4 +3,5 @@ export enum ErrorsMessage {
   NETWORK_ERROR = 'Возникла ошибка подключения.',
   UNEXPECTED_ERROR = 'Возникла непредвиденная ошибка.',
   UNAUTHORIZED = 'Пользователь не авторизован.',
+  CANCELLED = 'Запрос был отменён.',
 }

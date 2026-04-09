@@ -9,6 +9,7 @@ import { useUpdateChat } from '@/composables/chat/mutations/useUpdateChat'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { storeToRefs } from 'pinia'
 import { useChat } from '@/composables/chat/queries/useChat'
+import TitleChat from '../../Header/TitleChat.vue'
 
 const { mutate: updateChat, isPending: isUpdatingChat } = useUpdateChat()
 
@@ -40,14 +41,7 @@ function handleUpdateChatName(newName: string) {
       <Button variant="ghost" size="icon-sm" aria-label="Open" @click="uiStore.selectChat()">
         <SquareArrowOutUpRight class="size-4" />
       </Button>
-      <Title
-        :initial-name="activeChatName"
-        :is-loading="isChatLoading"
-        :is-busy="isUpdatingChat"
-        @update-name="handleUpdateChatName"
-      >
-        <MessageCircle class="size-4" />
-      </Title>
+      <TitleChat />
       <Button variant="ghost" size="icon-sm" aria-label="Close" @click="chatStore.closeChat()">
         <X class="size-4.5" />
       </Button>

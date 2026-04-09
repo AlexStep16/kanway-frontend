@@ -6,6 +6,7 @@ export interface IChatMessage {
   content: any
   listType?: 'workspace' | 'board' | 'category' | 'task'
   pendingToolCallId?: string
+  creditsUsed?: number
   tempId?: string
   userId: string
   chatId: string

@@ -58,7 +58,7 @@ import {
 
           <div class="mt-3 flex flex-col h-full">
             <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Пакетные действия</h3>
-            <div class="text-sm grow-1 text-gray-600 mt-1">
+            <div class="text-sm grow text-gray-600 mt-1">
               Управляйте десятками задач одной командой. Создавайте, перемещайте и архивируйте
               сразу.
             </div>
@@ -89,7 +89,7 @@ import {
             <h3 class="text-sm sm:text-lg font-semibold text-gray-800">
               Сложные фильтры без усилий
             </h3>
-            <div class="text-sm grow-1 text-gray-600 mt-1">
+            <div class="text-sm grow text-gray-600 mt-1">
               Используйте логические операторы "И"/"ИЛИ" на естественном языке, не задумываясь о
               синтаксисе.
             </div>
@@ -118,7 +118,7 @@ import {
           <!-- End Icon -->
           <div class="mt-3 flex flex-col h-full">
             <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Умное Уточнение</h3>
-            <div class="text-sm grow-1 text-gray-600 mt-1">
+            <div class="text-sm grow text-gray-600 mt-1">
               Если команда неоднозначна, ассистент не ошибется, а задаст уточняющий вопрос.
             </div>
             <div class="text-sm text-gray-800 mt-5">
@@ -147,7 +147,7 @@ import {
           <!-- End Icon -->
           <div class="mt-3 flex flex-col h-full">
             <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Точное Редактирование</h3>
-            <div class="text-sm grow-1 text-gray-600 mt-1">
+            <div class="text-sm grow text-gray-600 mt-1">
               Не просто изменяйте, а добавляйте, удаляйте или заменяйте части текста в названиях
               задач.
             </div>
@@ -176,7 +176,7 @@ import {
           <!-- End Icon -->
           <div class="mt-3 flex flex-col h-full">
             <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Понимание Контекста</h3>
-            <div class="text-sm grow-1 text-gray-600 mt-1">
+            <div class="text-sm grow text-gray-600 mt-1">
               Ассистент знает, на какой доске вы находитесь. Не нужно каждый раз уточнять проект.
             </div>
             <div class="text-sm text-gray-800 mt-5">
@@ -204,7 +204,7 @@ import {
           <!-- End Icon -->
           <div class="mt-3 flex flex-col h-full">
             <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Память Диалога</h3>
-            <div class="text-sm grow-1 text-gray-600 mt-1">
+            <div class="text-sm grow text-gray-600 mt-1">
               Ссылайтесь на предыдущие результаты. AI помнит, о чем вы говорили несколько шагов
               назад.
             </div>

@@ -4,7 +4,6 @@ import ChatCategoriesView from './Categories/ChatCategoriesView.vue'
 import ChatBoardsView from './Boards/ChatBoardsView.vue'
 import ChatWorkspacesView from './Workspaces/ChatWorkspacesView.vue'
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
-import ChatTask from './Tasks/ChatTask.vue'
 import ChatTasksView from './Tasks/ChatTasksView.vue'
 
 const props = defineProps<{

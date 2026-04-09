@@ -84,7 +84,7 @@ function handleDeletePaymentMethod(methodId: string) {
         </button>
       </div>
 
-      <div class="flex grow-1 justify-end">
+      <div class="flex grow justify-end">
         <div class="flex items-center cursor-pointer relative transition-all">
           <input
             type="checkbox"

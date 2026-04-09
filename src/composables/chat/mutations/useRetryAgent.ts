@@ -50,8 +50,5 @@ export function useRetryAgent() {
 
       agentStore.connectSSE(result.jobId)
     },
-    onError: () => {
-      agentStore.closeSSE()
-    },
   })
 }

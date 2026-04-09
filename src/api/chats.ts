@@ -26,11 +26,12 @@ export async function getChatApi(id: string) {
   })
 }
 
-export async function sendMessageApi(data: SendMessagePayload) {
+export async function sendMessageApi(data: SendMessagePayload, signal?: AbortSignal) {
   return await apiCall<SendMessageResponse>({
     method: 'POST',
     url: `/chats/send`,
     data,
+    signal,
   })
 }
 

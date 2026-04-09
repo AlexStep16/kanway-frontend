@@ -1,13 +1,10 @@
 ﻿<script setup lang="ts">
-import { useChatStore } from '@stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import Sparkles from '@assets/sparkles.svg?component'
 import { computed, ref } from 'vue'
-import { useStopAgent } from '@/composables/chat/mutations/useStopAgent'
 import MicButton from '@components/Workspace/Main/MicButton.vue'
 import Textarea from '@/components/ui/textarea/Textarea.vue'
 import Button from '@/components/ui/button/Button.vue'
-import { storeToRefs } from 'pinia'
 import {
   Select,
   SelectContent,
@@ -24,20 +21,17 @@ const messageRef = ref<HTMLTextAreaElement | null>(null)
 
 const props = defineProps<{
   isDisabled?: boolean
+  isStopping?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'send', message: string): void
+  (e: 'stop'): void
 }>()
 
 const message = ref<string>('')
 
 const agentStatusStore = useAgentStatusStore()
-const chatStore = useChatStore()
-
-const { activeChatId } = storeToRefs(chatStore)
-
-const { mutate: stopAgent, isPending: isStoppingAgent } = useStopAgent()
 
 const isModelTypeSelectOpen = ref(false)
 const selectedModelType = ref<'fast' | 'thinking'>('fast')
@@ -46,19 +40,6 @@ function sendChatMessage() {
   emit('send', message.value.trim())
 
   message.value = ''
-}
-
-function handleStopAgent() {
-  if (activeChatId.value && agentStatusStore.activeJobId) {
-    if (chatStore.isActiveChatTemporary) {
-      agentStatusStore.isInterrupted = true
-    } else {
-      stopAgent({
-        chatId: activeChatId.value,
-        jobId: agentStatusStore.activeJobId,
-      })
-    }
-  }
 }
 
 function handleTextareaRef(
@@ -75,6 +56,10 @@ function handleTextareaRef(
 function setMessage(newMessage: string) {
   message.value = newMessage
 }
+
+const isRunButtonDisabled = computed(() => {
+  return props.isDisabled || !message.value.trim() || agentStatusStore.isSSEActive()
+})
 
 defineExpose({
   setMessage,
@@ -127,7 +112,7 @@ defineExpose({
         <div class="flex shrink-0 items-center gap-x-2">
           <MicButton
             :isChat="true"
-            :isDisabled="isDisabled"
+            :isDisabled="isRunButtonDisabled"
             @deltaAdd="
               (deltaText: string) => {
                 message += deltaText
@@ -146,7 +131,8 @@ defineExpose({
           ></MicButton>
           <Button
             size="sm"
-            :disabled="message.trim() === '' || isDisabled"
+            class="min-w-30"
+            :disabled="isRunButtonDisabled"
             v-if="!agentStatusStore.isSSEActive()"
             @click="sendChatMessage()"
           >
@@ -156,21 +142,15 @@ defineExpose({
 
           <Button
             size="sm"
-            class="text-xs font-medium"
-            v-else-if="!agentStatusStore.isInterrupted"
-            @click="handleStopAgent()"
+            class="min-w-30 text-xs font-medium"
+            v-else-if="!isStopping"
+            @click="$emit('stop')"
           >
             <span>Остановить</span>
             <Spinner class="size-4" />
           </Button>
 
-          <Button
-            size="sm"
-            class="text-xs font-medium"
-            v-else-if="agentStatusStore.isInterrupted"
-            disabled
-          >
-            <span>Остановка...</span>
+          <Button size="sm" class="text-xs min-w-30 font-medium" v-else>
             <Spinner class="size-4" />
           </Button>
         </div>

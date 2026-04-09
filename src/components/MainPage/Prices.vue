@@ -36,7 +36,7 @@
           <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽0</span>
           <p class="mt-2 text-sm text-gray-500">Для знакомства с ИИ-ассистентом</p>
 
-          <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow-1">
+          <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
               <svg
                 class="shrink-0 mt-0.5 size-4 text-blue-600"
@@ -118,7 +118,7 @@
           <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽599</span>
           <p class="mt-2 text-sm text-gray-500">Для ежедневной продуктивной работы</p>
 
-          <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow-1">
+          <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
               <svg
                 class="shrink-0 mt-0.5 size-4 text-blue-600"
@@ -194,7 +194,7 @@
           <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽999</span>
           <p class="mt-2 text-sm text-gray-500">Для тех, кто хотят получить максимум от Kanbar</p>
 
-          <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow-1">
+          <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
               <svg
                 class="shrink-0 mt-0.5 size-4 text-blue-600"

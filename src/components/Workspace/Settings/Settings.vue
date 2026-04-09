@@ -50,7 +50,7 @@ onMounted(() => {
           </button>
         </div>
         <!-- Body -->
-        <div class="flex grow-1 min-h-0">
+        <div class="flex grow min-h-0">
           <!-- Sidebar -->
           <Sidebar
             @selectTab="
@@ -61,7 +61,7 @@ onMounted(() => {
             :currentTab
           />
           <!-- Content -->
-          <div class="grow-1 flex flex-col gap-y-4 ps-3 sm:ps-6 pe-1 overflow-y-auto">
+          <div class="grow flex flex-col gap-y-4 ps-3 sm:ps-6 pe-1 overflow-y-auto">
             <General v-if="currentTab === SettingTabs.GENERAL" />
             <Security v-if="currentTab === SettingTabs.SECURITY" />
             <Assistant v-if="currentTab === SettingTabs.ASSISTANT" />

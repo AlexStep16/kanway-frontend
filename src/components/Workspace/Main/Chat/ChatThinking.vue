@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { Check, X, Square } from 'lucide-vue-next'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
 
@@ -16,7 +16,7 @@ const props = defineProps<{
     state: 'in_progress' | 'completed' | 'failed' | 'cancelled'
   }[]
   isContentFullWidth?: boolean
-  isSending?: boolean
+  creditsUsed?: number
 }>()
 
 // Берем последний шаг из массива
@@ -27,8 +27,28 @@ const activeStep = computed(() => {
 const isAllStepsCompleted = computed(() => {
   if (props.steps.length === 0) return false
 
-  return !props.steps.some((step) => step.state === 'in_progress')
+  return props.steps.every((step) => step.state === 'completed')
 })
+
+function getCreditsDeclension(credits: number) {
+  const lastDigit = credits % 10
+  const lastTwoDigits = credits % 100
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return 'кредитов'
+  }
+
+  switch (lastDigit) {
+    case 1:
+      return 'кредит'
+    case 2:
+    case 3:
+    case 4:
+      return 'кредита'
+    default:
+      return 'кредитов'
+  }
+}
 </script>
 
 <template>
@@ -42,11 +62,8 @@ const isAllStepsCompleted = computed(() => {
     collapsible
   >
     <AccordionItem class="border-none" value="item-1">
-      <div
-        class="w-full border rounded-md overflow-hidden flex flex-col"
-        v-if="!isSending && activeStep"
-      >
-        <div class="p-2 text-sm overflow-hidden relative h-9 flex items-center">
+      <div class="w-full border rounded-md overflow-hidden flex flex-col" v-if="activeStep">
+        <div class="p-2 text-sm overflow-hidden relative h-9 flex items-center justify-between">
           <Transition name="slide-up">
             <div :key="activeStep.id" class="flex items-center gap-x-2">
               <template v-if="activeStep.state === 'failed'">
@@ -74,6 +91,10 @@ const isAllStepsCompleted = computed(() => {
               </template>
             </div>
           </Transition>
+
+          <span class="text-xs text-gray-500" v-if="creditsUsed">
+            {{ creditsUsed }} {{ getCreditsDeclension(creditsUsed) }}
+          </span>
         </div>
 
         <template v-if="steps.length">
@@ -113,12 +134,6 @@ const isAllStepsCompleted = computed(() => {
             </div>
           </AccordionContent>
         </template>
-      </div>
-
-      <div v-else>
-        <div class="text-sm overflow-hidden relative">
-          <span class="shimmer-text_muted">Устанавливаю связь...</span>
-        </div>
       </div>
     </AccordionItem>
   </Accordion>

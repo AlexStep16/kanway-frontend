@@ -2,14 +2,17 @@ import { IChat } from '@/interfaces/domain/IChat'
 import { chatKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
 import { fetchChat } from '@/services/chat'
+import { useChatStore } from '@/stores/chat'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, MaybeRef, toValue } from 'vue'
 
 export function useChat(id: MaybeRef<string | null>, workspaceId: MaybeRef<string | null>) {
+  const chatStore = useChatStore()
+
   return useQuery({
     queryKey: chatKeys.detailed(id),
     queryFn: () => fetchChat(toValue(id)!),
-    enabled: computed(() => !!toValue(id)),
+    enabled: computed(() => !!toValue(id) && chatStore.temporaryChatId !== toValue(id)),
     initialData: () => {
       const allChats = queryClient.getQueryData<IChat[]>(chatKeys.byWorkspace(workspaceId))
       return allChats?.find((chat) => chat.id === toValue(id)) || null

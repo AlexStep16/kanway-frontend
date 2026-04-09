@@ -68,7 +68,7 @@ onUnmounted(() => {
     class="flex gap-x-2 items-center bg-yellow-50 text-yellow-700 text-xs p-2 rounded-md mb-1 border border-yellow-400"
   >
     <Mail class="size-3.5 shrink-0" />
-    <span class="grow-1">
+    <span class="grow">
       Ваш email ({{ user.email }}) не подтвержден. Проверьте почту или
       <button type="button" class="underline" @click="handleResend" v-if="timer === 0">
         {{ isResending ? 'Отправка...' : 'Отправить ещё раз' }}

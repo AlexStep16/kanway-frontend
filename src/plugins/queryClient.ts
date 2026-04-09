@@ -1,4 +1,4 @@
-import { HttpError } from '@/utils/errors'
+import { ClientAbortedError, HttpError } from '@/utils/errors'
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 
@@ -17,6 +17,7 @@ function handleMutationError(
 ) {
   if (context?.meta?.errorMessage === false) return
   if (error instanceof HttpError && error.status === 401) return
+  if (error instanceof ClientAbortedError) return
 
   toast.error(error.message)
 }

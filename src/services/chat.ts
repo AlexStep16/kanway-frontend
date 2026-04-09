@@ -34,8 +34,8 @@ export async function updateChat(payload: IChatEditPayload, id: string) {
   return result.map(transformChat).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
 }
 
-export async function sendMessage(payload: SendMessagePayload) {
-  const result = await sendMessageApi(payload)
+export async function sendMessage(payload: SendMessagePayload, signal?: AbortSignal) {
+  const result = await sendMessageApi(payload, signal)
 
   return result
 }

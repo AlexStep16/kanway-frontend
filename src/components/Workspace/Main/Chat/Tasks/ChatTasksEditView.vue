@@ -70,7 +70,7 @@ const beforeAfterArray = computed(() => {
 
 <template>
   <div
-    class="flex gap-2 mt-2 w-full"
+    class="flex gap-2 w-full"
     :ref="
       (el) => {
         messagesContainerRefMap[message.id] = el as HTMLElement

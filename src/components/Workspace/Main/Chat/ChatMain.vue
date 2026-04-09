@@ -23,10 +23,12 @@ import AIInput from './AIInput.vue'
 import dayjs from 'dayjs'
 import ChatMessageModel from '@/models/ChatMessageModel'
 import { START_TILES } from '@/constants/START_TILES'
+import { ClientAbortedError } from '@/utils/errors'
 
 const props = defineProps<{
   isMainChat?: boolean
   isError?: boolean
+  error: Error | null
   isSending?: boolean
   aiInputRef?: InstanceType<typeof AIInput> | null
   reversedMessages: ChatMessageModel[]
@@ -71,6 +73,10 @@ const isChatEmpty = computed(() => {
   return props.reversedMessages.length === 0 && !props.areMessagesLoading
 })
 
+const isAbortedError = computed(() => {
+  return props.error instanceof ClientAbortedError
+})
+
 function handleTileClick(tile: (typeof START_TILES)[number]) {
   props.aiInputRef?.setMessage(tile.query)
 }
@@ -104,14 +110,21 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
         "
       >
         <template v-if="!areMessagesLoading">
+          <div v-if="isSending">
+            <div class="text-sm overflow-hidden relative">
+              <span class="shimmer-text_muted">Устанавливаю связь...</span>
+            </div>
+          </div>
+
           <template v-if="isChatEmpty">
             <StartChatTitle :is-main-chat="isMainChat" @tile-click="handleTileClick" />
           </template>
           <template v-else>
             <AIBubble
-              v-if="isError"
+              v-if="isError && !isAbortedError"
               :is-content-full-width="isContentFullWidth"
               :isError="true"
+              :error="error"
               @tryAgain="$emit('sendAgain')"
             >
               <Error />
@@ -124,12 +137,13 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
                 :date="getFormattedDate(message.createdAt)"
               />
 
-              <ChatThinking
-                :is-content-full-width="isContentFullWidth"
-                v-else-if="message.role === 'steps'"
-                :steps="message.content"
-                :is-sending="props.isSending"
-              />
+              <AIBubble v-else-if="message.role === 'steps' && message.content?.length > 0">
+                <ChatThinking
+                  :is-content-full-width="isContentFullWidth"
+                  :steps="message.content"
+                  :creditsUsed="message.creditsUsed"
+                />
+              </AIBubble>
 
               <template v-else-if="message.role === CustomEventsEnum.OPERATION">
                 <ChatLog :message="message" />

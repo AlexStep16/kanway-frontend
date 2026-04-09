@@ -250,7 +250,7 @@ watchEffect(() => {
   <AIBubble :hideAvatar="true" :isContentFullWidth="true" v-if="logCopy">
     <template v-if="!isLogLoading">
       <div v-for="block in renderBlocks" :key="block.id" class="mb-4 last:mb-0">
-        <Assistant :text="block.title" v-if="block.title" />
+        <Assistant class="mb-2" :text="block.title" v-if="block.title" />
 
         <component
           :is="block.component"

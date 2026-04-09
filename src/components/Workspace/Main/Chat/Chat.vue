@@ -30,11 +30,13 @@ const { data: activeChat } = useChat(activeChatId, activeWorkspaceId)
 
 const messagesRef = ref<HTMLDivElement | null>(null)
 const aiInputRef = ref<InstanceType<typeof AIInput> | null>(null)
+const abortController = ref<AbortController | null>(null)
+const savedMessage = ref<string>('')
 
 const { data: messages, isFetching: areMessagesLoading } = useChatMessages(activeChatId)
-const { mutate: sendMessage, isPending: isMessageSending, isError } = useSendMessage()
+const { mutate: sendMessage, isPending: isMessageSending, isError, error } = useSendMessage()
 
-const { mutate: stopAgent } = useStopAgent()
+const { mutate: stopAgent, isPending: isStopping } = useStopAgent()
 
 function stopActiveAgent() {
   if (activeChat.value && agentStatusStore.isSSEActive()) {
@@ -45,18 +47,44 @@ function stopActiveAgent() {
   }
 }
 
+function handleStop() {
+  if (isMessageSending.value) {
+    abortController.value?.abort()
+  } else if (activeChatId.value && agentStatusStore.activeJobId) {
+    stopAgent({
+      chatId: activeChatId.value,
+      jobId: agentStatusStore.activeJobId,
+    })
+  }
+}
+
 function send(message: string) {
   if (!message.trim() || isMessageSending.value || !activeChatId.value) return
 
-  sendMessage({
-    payload: {
-      message,
-      boardId: activeBoardId.value || '',
-      threadId: activeChat.value?.threadId || '',
-      workspaceId: activeWorkspaceId.value || '',
+  savedMessage.value = message.trim()
+  abortController.value = new AbortController()
+
+  sendMessage(
+    {
+      payload: {
+        message,
+        boardId: activeBoardId.value || '',
+        threadId: activeChat.value?.threadId || '',
+        workspaceId: activeWorkspaceId.value || '',
+      },
+      chatId: activeChatId.value,
+      signal: abortController.value.signal,
     },
-    chatId: activeChatId.value,
-  })
+    {
+      onError() {
+        aiInputRef.value?.setMessage(savedMessage.value)
+        savedMessage.value = ''
+      },
+      onSettled() {
+        abortController.value = null
+      },
+    },
+  )
 
   if (messagesRef.value) {
     nextTick(() =>
@@ -116,8 +144,9 @@ onBeforeUnmount(() => {
 
     <ChatMain
       :isMainChat="isMainChat"
-      :isError="isError"
       :isSending="isMessageSending"
+      :isError="isError"
+      :error="error"
       :aiInputRef="aiInputRef"
       :reversedMessages="reversedMessages"
       :areMessagesLoading="isInitialMessagesLoading"
@@ -126,7 +155,14 @@ onBeforeUnmount(() => {
     />
 
     <footer class="max-w-4xl w-full p-4">
-      <AIInput @send="send" ref="aiInputRef" :is-last-message-steps="isLastMessageSteps" />
+      <AIInput
+        @send="send"
+        @stop="handleStop"
+        ref="aiInputRef"
+        :is-disabled="isMessageSending"
+        :is-stopping="isStopping"
+        :is-last-message-steps="isLastMessageSteps"
+      />
     </footer>
   </aside>
 
@@ -137,6 +173,7 @@ onBeforeUnmount(() => {
       :isMainChat="isMainChat"
       :isSending="isMessageSending"
       :isError="isError"
+      :error="error"
       :aiInputRef="aiInputRef"
       :reversedMessages="reversedMessages"
       :areMessagesLoading="isInitialMessagesLoading"
@@ -146,7 +183,14 @@ onBeforeUnmount(() => {
 
     <footer class="w-full flex justify-center p-4">
       <div class="w-full max-w-4xl">
-        <AIInput @send="send" ref="aiInputRef" :is-last-message-steps="isLastMessageSteps" />
+        <AIInput
+          @send="send"
+          @stop="handleStop"
+          ref="aiInputRef"
+          :is-disabled="isMessageSending"
+          :is-stopping="isStopping"
+          :is-last-message-steps="isLastMessageSteps"
+        />
       </div>
     </footer>
   </SidebarInset>

@@ -1,6 +1,12 @@
-import axios, { AxiosInstance, AxiosError, AxiosResponse, AxiosRequestConfig } from 'axios'
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  AxiosResponse,
+  AxiosRequestConfig,
+  CanceledError,
+} from 'axios'
 import type ApiResponse from '@/interfaces/ApiResponse'
-import { HttpError, BackendError } from '@utils/errors'
+import { HttpError, BackendError, ClientAbortedError } from '@utils/errors'
 import { ErrorsMessage } from './enums/ErrorsMessage'
 import { Nullable } from '@/types/utils'
 import { useAuthStore } from './stores/auth'
@@ -35,6 +41,10 @@ axiosClient.interceptors.response.use(
     let message = ErrorsMessage.SERVER_ERROR
     let status: Nullable<number> = null
     let isNetworkError = false
+
+    if (error instanceof CanceledError) {
+      return Promise.reject(new ClientAbortedError(ErrorsMessage.CANCELLED))
+    }
 
     if (error.response) {
       status = error.response.status

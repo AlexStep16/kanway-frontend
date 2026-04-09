@@ -22,10 +22,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col grow-1 gap-2 h-160 overflow-y-auto py-2 px-1">
+  <div class="flex flex-col grow gap-2 h-160 overflow-y-auto py-2 px-1">
     <!-- Body -->
     <div
-      class="flex flex-col grow-1 gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+      class="flex flex-col grow gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
       ref="containerRef"
     >
       <UserBubble

@@ -70,7 +70,7 @@ onMounted(() => {
 
     <div v-else class="text-sm text-gray-500">Методы оплаты не сохранены</div>
   </div>
-  <div class="grow-1 flex flex-col gap-y-2">
+  <div class="grow flex flex-col gap-y-2">
     <h3
       class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
     >
