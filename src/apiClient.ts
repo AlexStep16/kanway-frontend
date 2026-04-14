@@ -9,7 +9,7 @@ import type ApiResponse from '@/interfaces/ApiResponse'
 import { HttpError, BackendError, ClientAbortedError } from '@utils/errors'
 import { ErrorsMessage } from './enums/ErrorsMessage'
 import { Nullable } from '@/types/utils'
-import { useAuthStore } from './stores/auth'
+import { queryClient } from './plugins/queryClient'
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_BASE_URL,
@@ -21,11 +21,10 @@ const axiosClient: AxiosInstance = axios.create({
 
 axiosClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<ApiResponse<any>>) => {
-    const authStore = useAuthStore()
-
+  async (error: AxiosError<ApiResponse<any>>) => {
     if (error.response?.status === 401) {
-      authStore.logout()
+      queryClient.clear()
+      localStorage.clear()
 
       return Promise.reject(new HttpError(ErrorsMessage.UNAUTHORIZED, 401))
     }

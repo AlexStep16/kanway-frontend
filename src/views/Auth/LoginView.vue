@@ -6,12 +6,14 @@ import { z } from 'zod'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
+import { HttpError } from '@/utils/errors'
+import { toast } from 'vue-sonner'
 
 const { mutate: login, isPending: isLogging } = useLogin()
 
 const schema = toTypedSchema(
   z.object({
-    email: z.string().email('Неверный формат'),
+    email: z.email('Неверный формат'),
     password: z.string().min(1, 'Пожалуйста, введите пароль'),
   }),
 )
@@ -28,7 +30,18 @@ const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 
 const onSubmit = handleSubmit((values) => {
-  login({ email: values.email, password: values.password })
+  login(
+    { email: values.email, password: values.password },
+    {
+      onError: (e) => {
+        if (e instanceof HttpError && e.status === 401) {
+          toast.error('Неверный логин или пароль')
+        } else {
+          toast.error('Произошла ошибка при входе')
+        }
+      },
+    },
+  )
 })
 
 onMounted(() => {

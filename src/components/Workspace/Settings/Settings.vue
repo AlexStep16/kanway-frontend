@@ -8,11 +8,12 @@ import Assistant from '@components/Workspace/Settings/Assistant.vue'
 import Subscription from '@components/Workspace/Settings/Subscription.vue'
 import Payments from '@components/Workspace/Settings/Payments.vue'
 import { SettingTabs } from '@/enums/SettingTabs'
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 
 const uiStore = useUIStore()
 
-const currentTab = ref(SettingTabs.GENERAL)
+const { currentSettingsTab: currentTab } = storeToRefs(uiStore)
 
 onMounted(() => {
   window.HSStaticMethods.autoInit()
@@ -55,7 +56,7 @@ onMounted(() => {
           <Sidebar
             @selectTab="
               (tab: SettingTabs) => {
-                currentTab = tab
+                uiStore.currentSettingsTab = tab
               }
             "
             :currentTab

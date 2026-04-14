@@ -243,7 +243,6 @@ watch(
             v-model="date"
             locale="ru-RU"
             :class="cn('**:data-[slot=calendar-cell-trigger]:size-12!')"
-            @update:model-value="() => (open = false)"
           />
         </CardContent>
         <CardFooter class="flex justify-end gap-x-2 border-t p-2">

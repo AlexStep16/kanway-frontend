@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { categoryKeys, taskKeys } from '@/keys'
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
-import { ICategory } from '@/interfaces/domain/ICategory'
 import { saveCategory } from '@/services/category'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
+import { ICategoryEditApiPayload } from '@/interfaces/ICategoryEditApiPayload'
 
 interface UpdateCategoryVars {
-  payload: ISingleUpdate<ICategory>
+  payload: ICategoryEditApiPayload
   boardId: string | null
 }
 

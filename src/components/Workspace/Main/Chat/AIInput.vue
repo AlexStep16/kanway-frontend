@@ -21,7 +21,6 @@ const messageRef = ref<HTMLTextAreaElement | null>(null)
 
 const props = defineProps<{
   isDisabled?: boolean
-  isStopping?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -40,6 +39,32 @@ function sendChatMessage() {
   emit('send', message.value.trim())
 
   message.value = ''
+}
+
+async function typeSimulatedText(
+  text: string,
+  callback: (text: string) => void,
+  minSpeed = 30,
+  maxSpeed = 100,
+) {
+  let currentText = ''
+
+  for (const char of text) {
+    currentText += char
+    callback(currentText) // Передаем обновленную строку наружу
+
+    // Генерируем случайную задержку для эффекта "живого" ввода
+    const randomDelay = Math.floor(Math.random() * (maxSpeed - minSpeed) + minSpeed)
+    await new Promise((resolve) => setTimeout(resolve, randomDelay))
+  }
+}
+
+function runSimulatedTyping() {
+  const prompt = 'Спланируй запуск проекта по разработке мобильного приложения для фитнеса.'
+
+  typeSimulatedText(prompt, (updatedText) => {
+    message.value = updatedText
+  })
 }
 
 function handleTextareaRef(
@@ -75,6 +100,7 @@ defineExpose({
           placeholder="Опиши проект или просто выгрузи мысли..."
           v-model="message"
           :ref="(el) => handleTextareaRef(el as any)"
+          @click="runSimulatedTyping()"
         />
       </div>
       <div class="flex justify-between items-center gap-2 w-full">
@@ -143,7 +169,7 @@ defineExpose({
           <Button
             size="sm"
             class="min-w-30 text-xs font-medium"
-            v-else-if="!isStopping"
+            v-else-if="!agentStatusStore.isStopped"
             @click="$emit('stop')"
           >
             <span>Остановить</span>

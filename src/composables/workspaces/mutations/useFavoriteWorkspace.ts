@@ -20,6 +20,8 @@ export function useFavoriteWorkspace() {
     onMutate: async ({ workspace }: { workspace: IWorkspace }) => {
       const queryKey = workspaceKeys.lists()
 
+      await queryClient.cancelQueries({ queryKey })
+
       const previousWorkspaces = queryClient.getQueryData<IWorkspace[]>(queryKey)
 
       if (previousWorkspaces) {
@@ -41,6 +43,12 @@ export function useFavoriteWorkspace() {
             return current?.map((b) => (b.id === vars.workspace.id ? originalWorkspace : b)) ?? []
           })
         }
+      }
+    },
+
+    onSettled: (data, error, vars, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey })
       }
     },
   })

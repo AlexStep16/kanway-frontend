@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 
 function handleQueryError(error: Error) {
   if (error instanceof HttpError && error.status === 401) return
+  if (error instanceof ClientAbortedError) return
 
   toast.error(error.message)
 }

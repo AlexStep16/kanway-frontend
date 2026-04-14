@@ -1,16 +1,22 @@
+import { meApi } from '@/api/auth'
+import { dataErrorHandler } from '@/helpers/dataErrorHandler'
 import { userKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
-import { getMe } from '@/services/auth'
 import type { PageContextClient } from 'vike/types'
 
 export { data }
 
 const data = async (pageContext: PageContextClient) => {
   try {
-    const user = await getMe()
-
+    const user = await meApi()
     queryClient.setQueryData(userKeys.me, user)
-  } catch {
-    return
+
+    return { user }
+  } catch (e: any) {
+    if (e.status === 401 || e.response?.status === 401) {
+      return { user: null }
+    }
+
+    return dataErrorHandler(pageContext, e)
   }
 }

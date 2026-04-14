@@ -4,6 +4,7 @@ import { moveTask } from '@services/task'
 import { queryClient } from '@/plugins/queryClient'
 import { Nullable } from '@/types/utils'
 import { MaybeRef } from 'vue'
+import { ITaskState } from '@/stores/interfaces/ITaskState'
 
 export interface MoveTaskCardVars {
   id: string
@@ -22,7 +23,34 @@ export function useMoveTaskCard() {
     mutationFn: async ({ id, beforeId, afterId, newCategoryId }: MoveTaskCardVars) =>
       moveTask({ id, beforeId, afterId, newCategoryId }),
 
-    onSuccess: async (_, { boardId }) => {
+    onMutate: async (vars) => {
+      const queryKey = taskKeys.byBoard(vars.boardId)
+
+      await queryClient.cancelQueries({ queryKey })
+
+      const previousTasks = queryClient.getQueryData<ITaskState[]>(queryKey)
+
+      queryClient.setQueryData(queryKey, (oldTasks: ITaskState[] | undefined) => {
+        if (!oldTasks) return []
+
+        oldTasks.map((task) => {
+          if (task.id === vars.id) {
+            return { ...task, category: vars.newCategoryId ?? task.category }
+          }
+          return task
+        })
+      })
+
+      return { previousTasks, queryKey }
+    },
+
+    onError: (err, vars, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(context.queryKey, context.previousTasks)
+      }
+    },
+
+    onSettled: (data, error, { boardId }) => {
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
     },
   })

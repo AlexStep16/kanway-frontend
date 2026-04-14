@@ -27,7 +27,10 @@ const activeStep = computed(() => {
 const isAllStepsCompleted = computed(() => {
   if (props.steps.length === 0) return false
 
-  return props.steps.every((step) => step.state === 'completed')
+  const someInProgress = props.steps.some((step) => step.state === 'in_progress')
+  if (someInProgress) return false
+
+  return true
 })
 
 function getCreditsDeclension(credits: number) {

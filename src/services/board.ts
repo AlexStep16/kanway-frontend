@@ -12,13 +12,9 @@ import {
   getBoardsCountApi,
   getBoardApi,
 } from '@api/boards'
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { IBoardCreateApiPayload } from '@/interfaces/IBoardCreateApiPayload'
-import { pickClean } from '@/utils/pickClean'
 import { IBoardEditApiPayload } from '@/interfaces/IBoardEditApiPayload'
-
-const BASE_BOARD_FIELDS: (keyof IBoard)[] = ['name', 'rank', 'isFavorite']
 
 export function transformBoard(raw: IBoard): BoardModel {
   return new BoardModel({
@@ -55,19 +51,9 @@ export async function fetchArchivedBoards() {
 }
 
 export async function createBoard(
-  payload: Partial<BoardModel>,
-  workspaceId: string,
+  payload: IBoardCreateApiPayload,
 ): Promise<IResponseWithLog<IBoard[]>> {
-  const cleanedBoardFields = pickClean(payload, BASE_BOARD_FIELDS)
-
-  const apiPayload: IBoardCreateApiPayload = {
-    ...cleanedBoardFields,
-
-    name: payload.name || 'Новая доска',
-    workspaceId: payload.workspace?.id || workspaceId,
-  }
-
-  const newBoard = await postBoardApi(apiPayload)
+  const newBoard = await postBoardApi(payload)
 
   return {
     data: newBoard.data.map(transformBoard),
@@ -75,14 +61,8 @@ export async function createBoard(
   }
 }
 
-export async function saveBoard(payload: ISingleUpdate<BoardModel>) {
-  const apiPayload: IBoardEditApiPayload = {
-    ...payload,
-    id: payload.id,
-    workspaceId: payload.workspace?.id,
-  }
-
-  const saveResult = await patchBoardApi(apiPayload)
+export async function saveBoard(payload: IBoardEditApiPayload) {
+  const saveResult = await patchBoardApi(payload)
 
   return {
     data: saveResult.data.map(transformBoard),

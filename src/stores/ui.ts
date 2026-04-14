@@ -10,6 +10,7 @@ import { ICategoryState } from './interfaces/ICategoryState'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { IWorkspace } from '@/interfaces/domain/IWorkspace'
 import { useChatStore } from './chat'
+import { SettingTabs } from '@/enums/SettingTabs'
 
 export const useUIStore = defineStore('ui', () => {
   const boardStore = useBoardStore()
@@ -56,6 +57,7 @@ export const useUIStore = defineStore('ui', () => {
   const sidebarRef = ref<Nullable<HTMLElement>>(null)
 
   const currentTab = ref<Tabs>(Tabs.Board)
+  const currentSettingsTab = ref<SettingTabs>(SettingTabs.GENERAL)
 
   const modalStack = ref<string[]>([])
   const modalInstances = ref(new Map<string, HSOverlay>())
@@ -397,6 +399,21 @@ export const useUIStore = defineStore('ui', () => {
     boardStore.resetBoardSelection()
   }
 
+  function openSubscriptionSettings() {
+    currentSettingsTab.value = SettingTabs.SUBSCRIPTION
+    openSettingsModal()
+  }
+
+  function openGeneralSettings() {
+    currentSettingsTab.value = SettingTabs.GENERAL
+    openSettingsModal()
+  }
+
+  function openPaymentsSettings() {
+    currentSettingsTab.value = SettingTabs.PAYMENTS
+    openSettingsModal()
+  }
+
   return {
     // State
     editTaskModalRef,
@@ -414,6 +431,7 @@ export const useUIStore = defineStore('ui', () => {
     isSidebarOpen,
     tipRef,
     currentTab,
+    currentSettingsTab,
     sidebarRef,
     modalStack,
     isModalOnTop,
@@ -472,5 +490,8 @@ export const useUIStore = defineStore('ui', () => {
     closePlansModal,
     openWorkspaceDialog,
     closeWorkspaceDialog,
+    openSubscriptionSettings,
+    openGeneralSettings,
+    openPaymentsSettings,
   }
 })

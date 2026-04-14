@@ -15,28 +15,13 @@ import {
 } from '@api/tasks'
 import dayjs from 'dayjs'
 import { ITaskState } from '@stores/interfaces/ITaskState'
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
-import { useAuthStore } from '@stores/auth'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
 import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
-import { pickClean } from '@/utils/pickClean'
 import { ITaskMoveApiPayload } from '@/interfaces/ITaskMoveApiPayload'
 import { userKeys } from '@/keys'
 import { IUser } from '@/interfaces/domain/IUser'
 import { queryClient } from '@/plugins/queryClient'
-
-const BASE_TASK_FIELDS: (keyof ITask)[] = [
-  'name',
-  'description',
-  'dueDate',
-  'dueHours',
-  'dueMinutes',
-  'color',
-  'tags',
-  'isCompleted',
-  'rank',
-]
 
 export function transformTask(raw: ITask): ITaskState {
   const user = queryClient.getQueryData<IUser>(userKeys.me)
@@ -84,23 +69,9 @@ export async function fetchArchivedTasks() {
 }
 
 export async function createTask(
-  payload: Partial<ITask>,
-  categoryId: string,
-  boardId: string,
-  workspaceId: string,
+  payload: ITaskCreateApiPayload,
 ): Promise<IResponseWithLog<ITask[]>> {
-  const cleanedTaskFields = pickClean(payload, BASE_TASK_FIELDS)
-
-  const apiPayload: ITaskCreateApiPayload = {
-    ...cleanedTaskFields,
-
-    name: payload.name || 'Новая задача',
-    categoryId: payload.category?.id || categoryId,
-    boardId: payload.board?.id || boardId,
-    workspaceId: payload.workspace?.id || workspaceId,
-  }
-
-  const newTask = await postTaskApi(apiPayload)
+  const newTask = await postTaskApi(payload)
 
   return {
     data: newTask.data.map(transformTask),
@@ -108,16 +79,8 @@ export async function createTask(
   }
 }
 
-export async function saveTask(payload: ISingleUpdate<ITask>): Promise<IResponseWithLog<ITask[]>> {
-  const apiPayload: ITaskEditApiPayload = {
-    ...payload,
-    id: payload.id,
-    categoryId: payload.category?.id,
-    boardId: payload.board?.id,
-    workspaceId: payload.workspace?.id,
-  }
-
-  const saveResult = await patchTaskApi(apiPayload)
+export async function saveTask(payload: ITaskEditApiPayload): Promise<IResponseWithLog<ITask[]>> {
+  const saveResult = await patchTaskApi(payload)
 
   return {
     data: saveResult.data.map(transformTask),
@@ -126,17 +89,9 @@ export async function saveTask(payload: ISingleUpdate<ITask>): Promise<IResponse
 }
 
 export async function saveTasks(
-  payload: ISingleUpdate<ITask>[],
+  payload: ITaskEditApiPayload[],
 ): Promise<IResponseWithLog<ITask[]>> {
-  const cleanedPayload: ITaskEditApiPayload[] = payload.map((item) => ({
-    ...item,
-    id: item.id,
-    categoryId: item.category?.id,
-    boardId: item.board?.id,
-    workspaceId: item.workspace?.id,
-  }))
-
-  const saveResult = await bulkUpdateTasksApi(cleanedPayload)
+  const saveResult = await bulkUpdateTasksApi(payload)
 
   return {
     data: saveResult.data.map(transformTask),

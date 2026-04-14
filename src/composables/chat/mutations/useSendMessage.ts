@@ -43,20 +43,16 @@ export function useSendMessage() {
         updatedAt: new Date(),
       }
 
-      if (chatStore.temporaryChatId === chatId) {
-        queryClient.setQueryData(chatMessageKey, [userMessage])
-      } else {
-        queryClient.setQueryData<IChatMessage[]>(chatMessageKey, (oldMessages) => {
-          const newMessages = oldMessages ? [...oldMessages, userMessage] : [userMessage]
+      queryClient.setQueryData<IChatMessage[]>(chatMessageKey, (oldMessages) => {
+        const newMessages = oldMessages ? [...oldMessages, userMessage] : [userMessage]
 
-          return newMessages
-        })
-      }
+        return newMessages
+      })
 
       return { userMessage, originalChatId: chatId }
     },
 
-    mutationFn: ({ payload, signal }: SendMessageVars) => {
+    mutationFn: async ({ payload, signal }: SendMessageVars) => {
       if (!payload.workspaceId) {
         throw new Error('Нет активного пространства')
       }
@@ -79,41 +75,62 @@ export function useSendMessage() {
     },
 
     onSuccess: (result, _v, context) => {
-      const originalChatId = context?.originalChatId
       const realChatId = result.chat.id
+      const originalChatId = context?.originalChatId
+      const optimisticUserMessage = context?.userMessage
 
-      const userMessage = context?.userMessage
-
+      // 1. Переключаем ID активного чата
       chatStore.activeChatId = realChatId
 
+      // 2. Инвалидируем списки чатов (чтобы обновились названия и порядок в боковой панели)
       queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(result.chat.workspaceId) })
-      queryClient.invalidateQueries({ queryKey: chatKeys.detailed(realChatId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.detailed(result.chat.id) })
 
-      if (originalChatId && chatStore.temporaryChatId === originalChatId) {
-        queryClient.setQueryData<IChatMessage[]>(chatMessageKeys.byChat(originalChatId), () => [])
-      }
-
+      // 3. Обновляем кэш сообщений чата
       queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(realChatId),
-        (oldMessages) => {
-          return oldMessages ? oldMessages.filter((msg) => msg.id !== userMessage?.id) : []
+        (oldMessages = []) => {
+          // Убираем временное (оптимистичное) сообщение
+          const filtered = oldMessages.filter((msg) => msg.id !== optimisticUserMessage?.id)
+
+          // Добавляем реальные сообщения из ответа сервера
+          // Мы используем spread, чтобы гарантировать порядок: старые -> реальный User -> реальный Step
+          const updated = [...filtered, result.userMessage, result.stepMessage]
+
+          // Сортируем по дате на всякий случай, если SSE уже что-то прислал
+          return updated.sort((a, b) => dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf())
         },
       )
+
+      // 4. Если это был новый чат (был временный ID), очищаем старый кэш
+      if (originalChatId && originalChatId !== realChatId) {
+        queryClient.removeQueries({ queryKey: chatMessageKeys.byChat(originalChatId) })
+      }
     },
 
     onError: (error, _v, context) => {
+      // Закрываем SSE, так как задача даже не создалась или упала сразу
       agentStatusStore.closeSSE()
 
       const originalChatId = context?.originalChatId
-      const userMessage = context?.userMessage
+      const optimisticUserMessage = context?.userMessage
 
-      if (originalChatId && chatStore.temporaryChatId === originalChatId) {
-        queryClient.setQueryData<IChatMessage[]>(chatMessageKeys.byChat(originalChatId), () => [])
-      } else if (originalChatId) {
+      if (originalChatId) {
         queryClient.setQueryData<IChatMessage[]>(
           chatMessageKeys.byChat(originalChatId),
-          (oldMessages) => {
-            return oldMessages ? oldMessages.filter((msg) => msg.id !== userMessage?.id) : []
+          (oldMessages = []) => {
+            // Здесь два варианта:
+            // 1. Либо удаляем сообщение
+            return oldMessages.filter((msg) => msg.id !== optimisticUserMessage?.id)
+
+            // 2. Либо помечаем его как ошибочное
+            /*
+        return oldMessages.map(msg => 
+          msg.id === optimisticUserMessage?.id 
+            ? { ...msg, status: 'error' } 
+            : msg
+        )
+        */
           },
         )
       }

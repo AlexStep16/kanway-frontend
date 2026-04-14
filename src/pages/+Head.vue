@@ -21,9 +21,9 @@
   <link rel="icon" :href="`${path}favicon.ico`" />
   <link rel="manifest" :href="`${path}assets/favicon/site.webmanifest`" />
   <link rel="mask-icon" :href="`${path}assets/favicon/safari-pinned-tab.svg`" color="#3b82f6" />
-  <link rel="canonical" href="https://kanbar.ru" />
-  <meta name="apple-mobile-web-app-title" content="Kanbar" />
-  <meta name="application-name" content="Kanbar" />
+  <link rel="canonical" href="https://kanway.ru" />
+  <meta name="apple-mobile-web-app-title" content="Kanway" />
+  <meta name="application-name" content="Kanway" />
   <meta name="msapplication-TileColor" content="#2d89ef" />
   <meta name="theme-color" content="#ffffff" />
 
@@ -34,9 +34,9 @@
   />
   <meta
     name="description"
-    content="Kanbar - ваш персональный AI-помощник для управления задачами. Создавайте задачи голосом или текстом, организуйте проекты и повышайте свою продуктивность. Попробуйте бесплатно!"
+    content="Kanway - ваш персональный AI-помощник для управления задачами. Создавайте задачи голосом или текстом, организуйте проекты и повышайте свою продуктивность. Попробуйте бесплатно!"
   />
-  <title>Kanbar | AI-помощник для управления задачами</title>
+  <title>Kanway | AI-помощник для управления задачами</title>
 
   <script
     src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"
@@ -64,5 +64,5 @@
 
 <script lang="ts" setup>
 const path = import.meta.env.DEV === false ? '/' : '/src/'
-const hostUrl = import.meta.env.VITE_HOST_URL || 'https://kanbar.ru'
+const hostUrl = import.meta.env.VITE_HOST_URL || 'https://kanway.ru'
 </script>

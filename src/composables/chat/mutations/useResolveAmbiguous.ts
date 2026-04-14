@@ -17,13 +17,13 @@ interface ResolveAmbiguousVars {
 }
 
 export function useResolveAmbiguous() {
-  const agentStore = useAgentStatusStore()
+  const agentStatusStore = useAgentStatusStore()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'resolveAmbiguous'],
 
-    mutationFn: ({
+    mutationFn: async ({
       payload,
       chatId,
       chatMessageId,
@@ -34,12 +34,17 @@ export function useResolveAmbiguous() {
         throw new Error('Хотя бы одна сущность должна быть выбрана.')
       }
 
+      const jobId = crypto.randomUUID()
+
+      agentStatusStore.connectSSE(jobId)
+
       return resolveAmbiguous({
         callId: payload.callId,
         ids: payload.ids,
         chatId,
         chatMessageId,
         boardId,
+        jobId,
         workspaceId,
         timezone: dayjs.tz.guess(),
       })
@@ -55,7 +60,6 @@ export function useResolveAmbiguous() {
               : []
           },
         )
-        agentStore.connectSSE(result.jobId)
       }
     },
   })

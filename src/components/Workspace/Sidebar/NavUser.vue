@@ -111,21 +111,22 @@ const hasUserSubscription = computed(() => {
           <DropdownMenuItem
             class="bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] text-white!"
             v-if="!hasUserSubscription"
+            @click="uiStore.openPlansModal()"
           >
             <Sparkles />
             Улучшить план
           </DropdownMenuItem>
-          <DropdownMenuItem v-else>
+          <DropdownMenuItem @click="uiStore.openSubscriptionSettings()" v-else>
             <Sparkles />
             Управлять подпиской
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="uiStore.openGeneralSettings()">
               <BadgeCheck />
               Профиль
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem @click="uiStore.openPaymentsSettings()">
               <CreditCard />
               Платежи
             </DropdownMenuItem>

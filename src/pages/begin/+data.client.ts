@@ -1,18 +1,14 @@
 import type { PageContextClient } from 'vike/types'
-import { workspacesErrorRedirect } from '@helpers/workspacesErrorRedirect'
-import { getMe } from '@services/auth'
+import { dataErrorHandler } from '@helpers/dataErrorHandler'
 import { fetchWorkspacesCount } from '@/services/workspace'
 import { redirect } from 'vike/abort'
-import { queryClient } from '@/plugins/queryClient'
-import { userKeys } from '@/keys'
+import { requireAuth } from '../guards'
 
 export { data }
 
 const data = async (pageContext: PageContextClient) => {
   try {
-    const user = await getMe()
-
-    queryClient.setQueryData(userKeys.me, user)
+    await requireAuth()
 
     const workspaceCount = await fetchWorkspacesCount()
 
@@ -20,6 +16,6 @@ const data = async (pageContext: PageContextClient) => {
       throw redirect('/workspace')
     }
   } catch (e) {
-    workspacesErrorRedirect(pageContext, e)
+    dataErrorHandler(pageContext, e)
   }
 }

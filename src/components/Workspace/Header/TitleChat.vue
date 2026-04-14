@@ -7,6 +7,7 @@ import { useUpdateChat } from '@/composables/chat/mutations/useUpdateChat'
 import { useChat } from '@/composables/chat/queries/useChat'
 import { storeToRefs } from 'pinia'
 import { useWorkspaceStore } from '@/stores/workspace'
+import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
 
 const { mutate: updateChat, isPending: isUpdatingChat } = useUpdateChat()
 
@@ -16,7 +17,7 @@ const workspaceStore = useWorkspaceStore()
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 const { activeChatId } = storeToRefs(chatStore)
 
-const { data: activeChat } = useChat(activeChatId, activeWorkspaceId)
+const { data: activeChat, isPending: isChatLoading } = useChat(activeChatId, activeWorkspaceId)
 
 const activeChatName = computed(() => activeChat.value?.name || 'Без названия')
 
@@ -35,10 +36,13 @@ function handleUpdateChatName(newName: string) {
     :initialName="activeChatName"
     :isLoading="isUpdatingChat"
     @updateName="handleUpdateChatName"
-    v-if="!chatStore.isActiveChatTemporary"
+    v-if="activeChat && !chatStore.isActiveChatTemporary && !isChatLoading"
   >
     <MessageCircle class="size-4" />
   </Title>
+  <div class="flex items-center gap-2" v-else-if="isChatLoading">
+    <Skeleton class="w-24 h-5" />
+  </div>
   <div class="flex items-center gap-2" v-else>
     <MessageCircle class="size-4" />
     <span class="text-sm font-medium"> Новый чат </span>

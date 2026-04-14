@@ -7,20 +7,19 @@ import z from 'zod'
 
 import Input from '@/components/ui/input/Input.vue'
 import Button from '@/components/ui/button/Button.vue'
-import { Nullable } from '@/types/utils'
 import Spinner from '../ui/spinner/Spinner.vue'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 const { mutate: createBoard, isPending: isCreatingBoard } = useCreateBoard()
 
-const inputRef = ref<Nullable<HTMLInputElement>>(null)
+const inputRef = ref<HTMLInputElement | null>(null)
 
 const emits = defineEmits<{
   (e: 'close'): void
 }>()
 
 const props = defineProps<{
-  workspaceId: Nullable<string>
+  workspaceId: string
 }>()
 
 const schema = toTypedSchema(
@@ -51,8 +50,8 @@ const onSubmit = handleSubmit(
       {
         payload: {
           name: values.name,
+          workspaceId: props.workspaceId,
         },
-        workspaceId: props.workspaceId,
       },
       {
         onSuccess() {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onMounted, Ref, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDebounceFn } from '@vueuse/core'
 import { HSStaticMethods } from 'preline'
@@ -25,6 +25,8 @@ import { Nullable } from '@/types/utils'
 import { EntityType } from '@/enums/EntityType'
 import { useArchivedTask } from '@/composables/tasks/useArchivedTask'
 import { TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
+import { attach } from '@frsource/autoresize-textarea'
+import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
 
 const uiStore = useUIStore()
 const { editableTaskId, editableTaskBoardId, isEditableTaskDeleted } = storeToRefs(uiStore)
@@ -51,7 +53,8 @@ const localName = ref('')
 const localDescription = ref('')
 const textareaNameRef = ref<HTMLTextAreaElement | null>(null)
 const textareaDescRef = ref<HTMLTextAreaElement | null>(null)
-const dateRef = ref<any>(null)
+const textareaNameDetach = ref(() => {})
+const textareaDescDetach = ref(() => {})
 
 // --- Mutations ---
 const { mutate: updateTask } = useUpdateTask()
@@ -60,27 +63,30 @@ const { mutate: cloneTask } = useCloneTask()
 const { mutate: moveTask } = useMoveTask()
 
 // Универсальная функция для частичного обновления задачи
-const patchTask = (fields: Record<string, any>) => {
+const patchTask = (payload: Omit<ITaskEditApiPayload, 'id'>) => {
   if (!task.value) return
 
   updateTask({
-    payload: { id: task.value.id, ...fields },
+    payload: {
+      id: task.value.id,
+      ...payload,
+    },
     boardId: task.value.board.id,
   })
 }
 
-const textFieldsChanged = computed(() => {
-  if (!task.value) return false
-
-  return task.value.name !== localName.value || task.value.description !== localDescription.value
-})
-
-// --- Debounced Text Inputs ---
-const debouncedUpdate = useDebounceFn(() => {
-  if (!task.value || !textFieldsChanged.value) return
+const debouncedUpdateName = useDebounceFn(() => {
+  if (!task.value || task.value.name === localName.value) return
 
   patchTask({
     name: localName.value,
+  })
+}, 500)
+
+const debouncedUpdateDescription = useDebounceFn(() => {
+  if (!task.value || task.value.description === localDescription.value) return
+
+  patchTask({
     description: localDescription.value,
   })
 }, 500)
@@ -123,6 +129,7 @@ const handleChangeDate = (date: string | null) => patchTask({ dueDate: date })
 
 const handleMoveTask = (data: any) => {
   if (!task.value) return
+
   moveTask({
     payload: task.value,
     oldCategoryId: task.value.category.id,
@@ -140,9 +147,13 @@ watch(editableTaskId, (newId) => {
   }
 })
 
-function initializeTextarea(textarea: Nullable<HTMLTextAreaElement>) {
+function initializeTextarea(
+  textarea: Nullable<HTMLTextAreaElement>,
+  detachRef: Ref<() => void> = ref(() => {}),
+) {
   if (textarea) {
-    textarea.dispatchEvent(new Event('input'))
+    const { detach: detachFn } = attach(textarea) as any
+    detachRef.value = detachFn
   }
 }
 
@@ -156,17 +167,22 @@ watch(
       localDescription.value = newVal.description || ''
 
       nextTick(() => {
-        HSStaticMethods.autoInit()
-
-        initializeTextarea(textareaNameRef.value)
-        initializeTextarea(textareaDescRef.value)
-
-        dateRef.value?.initializeDate()
+        initializeTextarea(textareaNameRef.value, textareaNameDetach)
+        initializeTextarea(textareaDescRef.value, textareaDescDetach)
       })
     }
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  window.HSStaticMethods.autoInit()
+})
+
+onUnmounted(() => {
+  textareaNameDetach.value()
+  textareaDescDetach.value()
+})
 </script>
 
 <template>
@@ -234,7 +250,7 @@ watch(
               :entity="task"
               :key="task.id"
               :type="EntityType.Task"
-              @moveTask="handleMoveTask"
+              @move="handleMoveTask"
             >
               <Layers class="size-4 shrink-0" />
             </MoveDropdown>
@@ -259,8 +275,8 @@ watch(
           <textarea
             ref="textareaNameRef"
             v-model="localName"
-            @input="debouncedUpdate"
-            class="p-0 block w-full text-black border-none focus:ring-0 text-lg resize-none"
+            @input="debouncedUpdateName"
+            class="p-0 block w-full text-black border-none focus:ring-0 text-lg resize-none max-h-30"
             placeholder="Имя задачи"
             rows="1"
           ></textarea>
@@ -268,8 +284,8 @@ watch(
           <textarea
             ref="textareaDescRef"
             v-model="localDescription"
-            @input="debouncedUpdate"
-            class="p-0 mt-1 block w-full border-none resize-none text-sm focus:ring-0 text-gray-600"
+            @input="debouncedUpdateDescription"
+            class="p-0 mt-1 block w-full border-none resize-none text-sm focus:ring-0 text-gray-600 max-h-80"
             placeholder="Описание задачи"
             rows="2"
           ></textarea>

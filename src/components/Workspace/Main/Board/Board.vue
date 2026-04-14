@@ -109,7 +109,7 @@ function draggableChange(event: any) {
           </template>
 
           <CreateCategoryForm
-            v-if="isCategoryFormShown"
+            v-if="isCategoryFormShown && activeBoardId && activeWorkspaceId"
             @close="isCategoryFormShown = false"
             :boardId="activeBoardId"
             :workspaceId="activeWorkspaceId"

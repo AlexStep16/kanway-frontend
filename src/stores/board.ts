@@ -27,7 +27,7 @@ export const useBoardStore = (pinia?: Pinia) => {
       activeBoardId.value = board.id
       localStorage.setItem('activeBoardId', board.id)
 
-      setTimeout(() => (document.title = 'Kanbar | ' + board.name), 0)
+      setTimeout(() => (document.title = 'Kanway | ' + board.name), 0)
 
       UI_STORE.selectBoard() // Change current UI view to board view
     }

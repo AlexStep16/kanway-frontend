@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
 import { saveTasks } from '@/services/task'
 import { requestQueueService } from '@/utils/RequestQueueService'
-import { ICategoryState } from '@/stores/interfaces/ICategoryState'
+import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
 
 export interface UpdateManyTaskVars {
-  payload: ISingleUpdate<ITaskState>[]
+  payload: ITaskEditApiPayload[]
 }
 
 export function useUpdateManyTasks() {

@@ -1,16 +1,14 @@
 import { useMutation } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
+import { taskKeys } from '@/keys'
 import { ITask } from '@interfaces/domain/ITask'
 import { createTask } from '@services/task'
 import { queryClient } from '@/plugins/queryClient'
 import { useUndo } from '@/composables/logs/useUndo'
+import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
 
 export interface CreateTaskVars {
-  payload: Partial<ITask>
-  categoryId: string
-  boardId: string | null
-  workspaceId: string | null
+  payload: ITaskCreateApiPayload
 }
 
 export function useCreateTask() {
@@ -18,28 +16,17 @@ export function useCreateTask() {
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'create'],
-    mutationFn: async ({ payload, categoryId, boardId, workspaceId }: CreateTaskVars) => {
-      if (!workspaceId) {
-        throw new Error('Не выбрано пространство')
-      }
+    mutationFn: async ({ payload }: CreateTaskVars) => createTask(payload),
 
-      if (!boardId) {
-        throw new Error('Не выбрана доска')
-      }
+    onSuccess: async (result, { payload }) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(payload.boardId) })
 
-      if (!categoryId) {
-        throw new Error('Не выбрана категория')
-      }
-
-      return createTask(payload, categoryId, boardId, workspaceId)
-    },
-
-    onSuccess: async (result, { boardId, workspaceId }) => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
-
-      queryClient.setQueryData(taskKeys.byBoard(boardId), (oldTasks: ITask[] | undefined) => {
-        return oldTasks ? [...oldTasks, ...result.data] : result.data
-      })
+      queryClient.setQueryData(
+        taskKeys.byBoard(payload.boardId),
+        (oldTasks: ITask[] | undefined) => {
+          return oldTasks ? [...oldTasks, ...result.data] : result.data
+        },
+      )
 
       toast.success('Задача успешно создана', {
         action: {

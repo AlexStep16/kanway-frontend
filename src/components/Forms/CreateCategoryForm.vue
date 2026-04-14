@@ -4,8 +4,8 @@ import { onMounted, ref } from 'vue'
 import Spinner from '@components/Loader/Spinner.vue'
 
 const props = defineProps<{
-  boardId: string | null
-  workspaceId: string | null
+  boardId: string
+  workspaceId: string
 }>()
 
 const emit = defineEmits<{
@@ -26,9 +26,9 @@ function create() {
     {
       payload: {
         name: name.value.trim(),
+        boardId: props.boardId,
+        workspaceId: props.workspaceId,
       },
-      boardId: props.boardId,
-      workspaceId: props.workspaceId,
     },
     {
       onSuccess: () => {

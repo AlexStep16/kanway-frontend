@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { boardKeys, categoryKeys, taskKeys } from '@/keys'
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { saveBoard } from '@services/board'
+import { IBoardEditApiPayload } from '@/interfaces/IBoardEditApiPayload'
 
 interface UpdateBoardVars {
-  payload: ISingleUpdate<IBoard>
+  payload: IBoardEditApiPayload
   workspaceId: string | null
 }
 
@@ -37,9 +37,9 @@ export function useUpdateBoard() {
 
     onSettled: (result, error, variables) => {
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(variables.workspaceId) })
+      queryClient.invalidateQueries({ queryKey: boardKeys.detailed(variables.payload.id) })
       queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(variables.payload.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(variables.payload.id) })
-      queryClient.invalidateQueries({ queryKey: boardKeys.detailed(variables.payload.id) })
     },
 
     onError: (err, vars, context) => {

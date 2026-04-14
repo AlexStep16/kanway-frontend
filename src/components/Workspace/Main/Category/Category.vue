@@ -269,7 +269,7 @@ const otherBoards = computed(() => {
       </template>
 
       <CreateTaskForm
-        v-if="isTaskAddFormShown"
+        v-if="isTaskAddFormShown && category.id && category.board.id && category.workspace.id"
         :categoryId="category.id"
         :boardId="category.board.id"
         :workspaceId="category.workspace.id"

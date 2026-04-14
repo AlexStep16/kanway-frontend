@@ -17,6 +17,8 @@ export function useFavoriteBoard() {
     onMutate: async ({ board }: { board: IBoard }) => {
       const queryKey = boardKeys.byWorkspace(board.workspace.id)
 
+      await queryClient.cancelQueries({ queryKey })
+
       const previousBoards = queryClient.getQueryData<IBoard[]>(queryKey)
 
       if (previousBoards) {
@@ -38,6 +40,12 @@ export function useFavoriteBoard() {
             return current?.map((b) => (b.id === vars.board.id ? originalBoard : b)) ?? []
           })
         }
+      }
+    },
+
+    onSettled: (data, error, vars, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey })
       }
     },
   })

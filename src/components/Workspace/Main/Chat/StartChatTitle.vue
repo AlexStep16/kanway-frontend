@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { START_TILES } from '@/constants/START_TILES'
-import KanbarLogo from '../../../../assets/kanbar_logo.svg?component'
+import KanwayLogo from '../../../../assets/kanway_logo.svg?component'
 import Button from '@/components/ui/button/Button.vue'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +16,7 @@ defineEmits<{
 <template>
   <div class="flex w-full flex-col items-center gap-y-6">
     <div class="flex flex-col flex-wrap justify-center items-center text-center">
-      <KanbarLogo :class="cn('h-10 sm:h-12', !isMainChat && 'h-8 sm:h-10')" />
+      <KanwayLogo :class="cn('h-12 sm:w-55 sm:h-16', !isMainChat && 'h-8 sm:h-10')" />
       <h2
         :class="
           cn(

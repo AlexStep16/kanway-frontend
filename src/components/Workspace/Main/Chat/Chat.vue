@@ -36,7 +36,7 @@ const savedMessage = ref<string>('')
 const { data: messages, isFetching: areMessagesLoading } = useChatMessages(activeChatId)
 const { mutate: sendMessage, isPending: isMessageSending, isError, error } = useSendMessage()
 
-const { mutate: stopAgent, isPending: isStopping } = useStopAgent()
+const { mutate: stopAgent } = useStopAgent()
 
 function stopActiveAgent() {
   if (activeChat.value && agentStatusStore.isSSEActive()) {
@@ -136,62 +136,34 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <aside
-    class="relative flex h-[calc(100svh-(--spacing(4)))] w-full max-w-115 overflow-y-auto overflow-x-hidden flex-1 flex-col items-center bg-background m-2 ml-0 rounded-xl shadow"
-    v-if="!isMainChat"
-  >
-    <ChatSideHeader />
+  <SidebarInset>
+    <div class="min-w-130 flex flex-1 flex-col">
+      <ChatDefaultHeader v-if="isMainChat" />
+      <ChatSideHeader v-else />
 
-    <ChatMain
-      :isMainChat="isMainChat"
-      :isSending="isMessageSending"
-      :isError="isError"
-      :error="error"
-      :aiInputRef="aiInputRef"
-      :reversedMessages="reversedMessages"
-      :areMessagesLoading="isInitialMessagesLoading"
-      @sendAgain="sendAgain"
-      @setMessagesRef="(el: HTMLDivElement) => (messagesRef = el)"
-    />
-
-    <footer class="max-w-4xl w-full p-4">
-      <AIInput
-        @send="send"
-        @stop="handleStop"
-        ref="aiInputRef"
-        :is-disabled="isMessageSending"
-        :is-stopping="isStopping"
-        :is-last-message-steps="isLastMessageSteps"
+      <ChatMain
+        :isMainChat="isMainChat"
+        :isSending="isMessageSending"
+        :isError="isError"
+        :error="error"
+        :aiInputRef="aiInputRef"
+        :reversedMessages="reversedMessages"
+        :areMessagesLoading="isInitialMessagesLoading"
+        @sendAgain="sendAgain"
+        @setMessagesRef="(el: HTMLDivElement) => (messagesRef = el)"
       />
-    </footer>
-  </aside>
 
-  <SidebarInset v-else>
-    <ChatDefaultHeader />
-
-    <ChatMain
-      :isMainChat="isMainChat"
-      :isSending="isMessageSending"
-      :isError="isError"
-      :error="error"
-      :aiInputRef="aiInputRef"
-      :reversedMessages="reversedMessages"
-      :areMessagesLoading="isInitialMessagesLoading"
-      @sendAgain="sendAgain"
-      @setMessagesRef="(el: HTMLDivElement) => (messagesRef = el)"
-    />
-
-    <footer class="w-full flex justify-center p-4">
-      <div class="w-full max-w-4xl">
-        <AIInput
-          @send="send"
-          @stop="handleStop"
-          ref="aiInputRef"
-          :is-disabled="isMessageSending"
-          :is-stopping="isStopping"
-          :is-last-message-steps="isLastMessageSteps"
-        />
-      </div>
-    </footer>
+      <footer class="w-full flex justify-center p-4">
+        <div class="w-full max-w-4xl">
+          <AIInput
+            @send="send"
+            @stop="handleStop"
+            ref="aiInputRef"
+            :is-disabled="isMessageSending"
+            :is-last-message-steps="isLastMessageSteps"
+          />
+        </div>
+      </footer>
+    </div>
   </SidebarInset>
 </template>

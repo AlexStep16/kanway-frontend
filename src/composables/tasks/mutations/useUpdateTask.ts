@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { taskKeys } from '@/keys'
-import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
-import { ITask } from '@/interfaces/domain/ITask'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
 import { saveTask } from '@/services/task'
 import { requestQueueService } from '@/utils/RequestQueueService'
+import { ITaskEditApiPayload } from '@/interfaces/ITaskEditApiPayload'
 
 export interface UpdateTaskVars {
-  payload: ISingleUpdate<ITask>
+  payload: ITaskEditApiPayload
   boardId: string | null
 }
 

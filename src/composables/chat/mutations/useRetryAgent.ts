@@ -17,16 +17,16 @@ interface RetryAgentVars {
 }
 
 export function useRetryAgent() {
-  const agentStore = useAgentStatusStore()
+  const agentStatusStore = useAgentStatusStore()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveTool'],
 
-    mutationFn: ({ payload }: RetryAgentVars) => {
+    mutationFn: async ({ payload }: RetryAgentVars) => {
       const jobId = crypto.randomUUID()
 
-      agentStore.connectSSE(jobId)
+      agentStatusStore.connectSSE(jobId)
 
       return retryAgent({
         chatId: payload.chatId,
@@ -47,8 +47,6 @@ export function useRetryAgent() {
             : []
         },
       )
-
-      agentStore.connectSSE(result.jobId)
     },
   })
 }

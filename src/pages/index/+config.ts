@@ -1,5 +1,5 @@
 export const config = {
-  title: 'Kanbar | AI-помощник для управления задачами',
+  title: 'Kanway | AI-помощник для управления задачами',
   prerender: true,
-  ssr: true,
+  ssr: false,
 }

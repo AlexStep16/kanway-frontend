@@ -126,6 +126,7 @@ const orderedBoards = computed(() => {
               :ref="connectExposed"
               :workspace-id="activeWorkspaceId"
               @close="createBoardDropdownOpen = false"
+              v-if="activeWorkspaceId"
             />
           </DropdownMenuContent>
         </DropdownMenu>

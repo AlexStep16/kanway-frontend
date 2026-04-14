@@ -1,5 +1,4 @@
 import { CustomEventsEnum } from '@/enums/CustomEventsEnum'
-import { AgentProgress } from '@/interfaces/AgentProgress'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { invalidateUndo } from '@/helpers/invalidateUndo'
@@ -18,15 +17,22 @@ import { useBoardStore } from './board'
 import { useWorkspaceStore } from './workspace'
 import { useUIStore } from './ui'
 import WorkspaceModel from '@/models/WorkspaceModel'
+import ChatMessageModel from '@/models/ChatMessageModel'
+import { IOperationLog } from '@/interfaces/domain/IOperationLog'
+import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
+import { IChat } from '@/interfaces/domain/IChat'
 
 export interface Event {
+  id: string
+  role: CustomEventsEnum
   status: 'progress' | 'completed' | 'failed'
-  data: AgentProgress
+  data: any
 }
 
 export const useAgentStatusStore = defineStore('agentStatus', () => {
   const activeJobId = ref<string | null>(null)
   const currentTool = ref<string | null>(null)
+  const isStopped = ref(false)
 
   const uiStore = useUIStore()
   const boardStore = useBoardStore()
@@ -51,13 +57,12 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
     eventSource.value.onerror = (error) => {
       console.error('SSE Error:', error)
+
       closeSSE()
     }
   }
 
   function handleIncomingEvent(event: Event) {
-    const eventData = event.data
-
     if (event.status === 'completed' || event.status === 'failed') {
       closeSSE()
 
@@ -66,8 +71,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       return
     }
 
-    if (eventData.role === CustomEventsEnum.NEW_MESSAGE) {
-      const message = eventData.data
+    if (event.role === CustomEventsEnum.NEW_MESSAGE) {
+      const message = event.data as ChatMessageModel
 
       queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(message.chatId),
@@ -75,13 +80,13 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
           return oldChatMessages ? [...oldChatMessages, message] : [message]
         },
       )
-    } else if (eventData.role === CustomEventsEnum.OPERATION) {
+    } else if (event.role === CustomEventsEnum.OPERATION) {
       queryClient.invalidateQueries({ queryKey: taskKeys.all })
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
       queryClient.invalidateQueries({ queryKey: boardKeys.all })
       queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
 
-      const log = eventData.data
+      const log = event.data as IOperationLog
 
       if (log.collectionName === 'boards') {
         if (log.operationType === 'CREATE') {
@@ -113,8 +118,8 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
           }
         }
       }
-    } else if (eventData.role === CustomEventsEnum.UPDATE_MESSAGE) {
-      const message = eventData.data
+    } else if (event.role === CustomEventsEnum.UPDATE_MESSAGE) {
+      const message = event.data as ChatMessageModel
 
       queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(message.chatId),
@@ -124,11 +129,13 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
             : [message]
         },
       )
-    } else if (eventData.role === CustomEventsEnum.UNDO) {
-      invalidateUndo(eventData.data)
-    } else if (eventData.role === CustomEventsEnum.CHAT_UPDATED) {
-      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(eventData.data.workspaceId) })
-      queryClient.invalidateQueries({ queryKey: chatKeys.detailed(eventData.data.id) })
+    } else if (event.role === CustomEventsEnum.UNDO) {
+      invalidateUndo(event.data as IResponseWithLog<any>[])
+    } else if (event.role === CustomEventsEnum.CHAT_UPDATED) {
+      const data = event.data as IChat
+
+      queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(data.workspaceId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.detailed(data.id) })
     }
   }
 
@@ -139,6 +146,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     }
     activeJobId.value = null
     currentTool.value = null
+    isStopped.value = false
   }
 
   function isSSEActive() {
@@ -148,6 +156,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
   return {
     activeJobId,
     currentTool,
+    isStopped,
 
     connectSSE,
     isSSEActive,

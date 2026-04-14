@@ -1,38 +1,12 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { useChatStore } from '@/stores/chat'
-import { X, SquareArrowOutUpRight, MessageCircle } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { X, SquareArrowOutUpRight } from 'lucide-vue-next'
 import { useUIStore } from '@/stores/ui'
-import Title from '../../Header/Title.vue'
-import { useUpdateChat } from '@/composables/chat/mutations/useUpdateChat'
-import { useWorkspaceStore } from '@/stores/workspace'
-import { storeToRefs } from 'pinia'
-import { useChat } from '@/composables/chat/queries/useChat'
 import TitleChat from '../../Header/TitleChat.vue'
-
-const { mutate: updateChat, isPending: isUpdatingChat } = useUpdateChat()
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
-
-const workspaceStore = useWorkspaceStore()
-
-const { activeWorkspaceId } = storeToRefs(workspaceStore)
-const { activeChatId } = storeToRefs(chatStore)
-
-const { data: activeChat, isPending: isChatLoading } = useChat(activeChatId, activeWorkspaceId)
-
-const activeChatName = computed(() => activeChat.value?.name || 'Без названия')
-
-function handleUpdateChatName(newName: string) {
-  if (activeChatId.value) {
-    updateChat({
-      id: activeChatId.value,
-      payload: { name: newName },
-    })
-  }
-}
 </script>
 
 <template>

@@ -1,8 +1,7 @@
-import { OperationLogStatusesEnum } from '@/enums/OperationLogStatusesEnum'
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
-import { chatKeys, chatMessageKeys, logKeys } from '@/keys'
+import { chatKeys, logKeys } from '@/keys'
 import { approveToolCall } from '@/services/chat'
-import { useAgentStatusStore } from '@stores/agentStatus'
+import { useAgentStatusStore } from '@/stores/agentStatus'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 
@@ -18,13 +17,13 @@ interface ApproveLogVars {
 }
 
 export function useApproveLog() {
-  const agentStore = useAgentStatusStore()
   const queryClient = useQueryClient()
+  const agentStatusStore = useAgentStatusStore()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveLog'],
 
-    mutationFn: ({ payload, boardId, workspaceId, message }: ApproveLogVars) => {
+    mutationFn: async ({ payload, boardId, workspaceId, message }: ApproveLogVars) => {
       if (payload.isConfirmed && payload.selectedIds.length === 0) {
         throw new Error(
           'Хотя бы одна сущность должна быть подтверждена. Вы можете отменить весь вызов.',
@@ -35,11 +34,16 @@ export function useApproveLog() {
         throw new Error('Нет активного пространства')
       }
 
+      const jobId = crypto.randomUUID()
+
+      agentStatusStore.connectSSE(jobId)
+
       const approveData = {
         id: payload.id,
         selectedIds: payload.selectedIds,
         isConfirmed: payload.isConfirmed,
         chatId: message.chatId,
+        jobId,
         chatMessageId: message.id,
         threadId: message.threadId,
         boardId: boardId ?? undefined,
@@ -50,11 +54,8 @@ export function useApproveLog() {
       return approveToolCall(approveData)
     },
 
-    onSuccess: (result, { message, payload }) => {
-      if (result.jobId) {
-        queryClient.invalidateQueries({ queryKey: logKeys.detailed(payload.id) })
-        agentStore.connectSSE(result.jobId)
-      }
+    onSuccess: (result, { payload }) => {
+      queryClient.invalidateQueries({ queryKey: logKeys.detailed(payload.id) })
     },
   })
 }

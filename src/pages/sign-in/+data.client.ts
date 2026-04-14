@@ -1,20 +1,13 @@
 import type { PageContextClient } from 'vike/types'
-import { getMe } from '@services/auth'
-import { redirect } from 'vike/abort'
-import { signErrorRedirect } from '@/helpers/signErrorRedirect'
-import { queryClient } from '@/plugins/queryClient'
-import { userKeys } from '@/keys'
+import { dataErrorHandler } from '@/helpers/dataErrorHandler'
+import { requireGuest } from '../guards'
 
 export { data }
 
 const data = async (pageContext: PageContextClient) => {
   try {
-    const user = await getMe()
-
-    queryClient.setQueryData(userKeys.me, user)
-
-    throw redirect('/workspace')
+    await requireGuest()
   } catch (e) {
-    signErrorRedirect(pageContext, e)
+    dataErrorHandler(pageContext, e)
   }
 }

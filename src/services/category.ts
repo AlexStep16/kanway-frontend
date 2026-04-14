@@ -14,14 +14,10 @@ import {
   moveCategoryApi,
 } from '@api/categories'
 import { ICategoryState } from '@stores/interfaces/ICategoryState'
-import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ICategoryCreateApiPayload } from '@/interfaces/ICategoryCreateApiPayload'
-import { pickClean } from '@/utils/pickClean'
 import { ICategoryEditApiPayload } from '@/interfaces/ICategoryEditApiPayload'
 import { ICategoryMoveApiPayload } from '@/interfaces/ICategoryMoveApiPayload'
-
-const BASE_CATEGORY_FIELDS: (keyof ICategory)[] = ['name', 'rank']
 
 export function transformCategory(raw: ICategory): ICategoryState {
   const categoryModel = new CategoryModel({
@@ -57,21 +53,9 @@ export async function fetchArchivedCategories() {
 }
 
 export async function createCategory(
-  payload: Partial<CategoryModel>,
-  boardId: string,
-  workspaceId: string,
+  payload: ICategoryCreateApiPayload,
 ): Promise<IResponseWithLog<ICategory[]>> {
-  const cleanedCategoryFields = pickClean(payload, BASE_CATEGORY_FIELDS)
-
-  const apiPayload: ICategoryCreateApiPayload = {
-    ...cleanedCategoryFields,
-
-    name: payload.name || 'Новая категория',
-    boardId: boardId,
-    workspaceId: workspaceId,
-  }
-
-  const newCategory = await postCategoryApi(apiPayload)
+  const newCategory = await postCategoryApi(payload)
 
   return {
     data: newCategory.data.map(transformCategory),
@@ -80,16 +64,9 @@ export async function createCategory(
 }
 
 export async function saveCategory(
-  payload: ISingleUpdate<CategoryModel>,
+  payload: ICategoryEditApiPayload,
 ): Promise<IResponseWithLog<ICategory[]>> {
-  const apiPayload: ICategoryEditApiPayload = {
-    ...payload,
-    id: payload.id,
-    workspaceId: payload.workspace?.id,
-    boardId: payload.board?.id,
-  }
-
-  const saveResult = await patchCategoryApi(apiPayload)
+  const saveResult = await patchCategoryApi(payload)
 
   return {
     data: saveResult.data.map(transformCategory),
@@ -98,16 +75,9 @@ export async function saveCategory(
 }
 
 export async function saveCategories(
-  payload: ISingleUpdate<CategoryModel>[],
+  payload: ICategoryEditApiPayload[],
 ): Promise<IResponseWithLog<ICategory[]>> {
-  const cleanedPayload: ICategoryEditApiPayload[] = payload.map((item) => ({
-    ...item,
-    id: item.id,
-    workspaceId: item.workspace?.id,
-    boardId: item.board?.id,
-  }))
-
-  const saveResult = await bulkUpdateCategoriesApi(cleanedPayload)
+  const saveResult = await bulkUpdateCategoriesApi(payload)
 
   return {
     data: saveResult.data.map(transformCategory),
@@ -143,7 +113,7 @@ export async function recoverCategory(id: string): Promise<IResponseWithLog<ICat
   }
 }
 
-export async function cloneCategory(id: string) {
+export async function cloneCategory(id: string): Promise<IResponseWithLog<ICategory[]>> {
   const cloneResult = await cloneCategoryApi(id)
 
   return {
