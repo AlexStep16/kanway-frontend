@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
 
 <template>
   <SidebarInset>
-    <div class="min-w-130 flex flex-1 flex-col">
+    <div class="min-w-130 flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
       <ChatDefaultHeader v-if="isMainChat" />
       <ChatSideHeader v-else />
 
@@ -160,6 +160,7 @@ onBeforeUnmount(() => {
             @stop="handleStop"
             ref="aiInputRef"
             :is-disabled="isMessageSending"
+            :is-focused="true"
             :is-last-message-steps="isLastMessageSteps"
           />
         </div>

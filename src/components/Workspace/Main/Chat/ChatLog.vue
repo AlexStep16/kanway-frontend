@@ -263,49 +263,50 @@ watchEffect(() => {
           v-model:selectedIds="selectedIds"
         />
 
-        <div class="flex gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200" v-if="isPending">
-          <button
-            type="button"
-            class="flex items-center justify-center text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none duration-100 relative"
-            @click="handleApproveLog(true)"
-          >
-            <div class="flex items-center justify-center absolute" v-if="isLogApproving">
-              <Spinner class="size-4" />
-            </div>
-            <span :class="{ 'opacity-0': isLogApproving }"> Подтвердить </span>
-          </button>
+        <div class="max-w-lg mt-3 flex" v-if="isPending">
+          <div class="flex gap-x-2 bg-muted p-3 rounded-xl">
+            <button
+              type="button"
+              class="flex items-center justify-center text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none duration-100 relative"
+              @click="handleApproveLog(true)"
+            >
+              <div class="flex items-center justify-center absolute" v-if="isLogApproving">
+                <Spinner class="size-4" />
+              </div>
+              <span :class="{ 'opacity-0': isLogApproving }"> Подтвердить </span>
+            </button>
 
-          <button
-            type="button"
-            class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
-            @click="handleApproveLog(false)"
-          >
-            <div class="flex items-center justify-center absolute" v-if="isLogCancelling">
-              <Spinner class="size-4" />
-            </div>
-            <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
-          </button>
+            <button
+              type="button"
+              class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
+              @click="handleApproveLog(false)"
+            >
+              <div class="flex items-center justify-center absolute" v-if="isLogCancelling">
+                <Spinner class="size-4" />
+              </div>
+              <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
+            </button>
+          </div>
         </div>
 
-        <div
-          class="flex items-center gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200"
-          v-else-if="isApproved"
-        >
-          <div class="flex items-center text-xs gap-x-1 text-green-600">
-            <Check class="size-4" />
-            <span>Подтверждено</span>
-          </div>
-
-          <button
-            type="button"
-            class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
-            @click="handleApproveLog(false)"
-          >
-            <div class="flex items-center justify-center absolute" v-if="isLogCancelling">
-              <Spinner class="size-4" />
+        <div class="max-w-lg mt-3 flex" v-else-if="isApproved">
+          <div class="flex gap-x-2 bg-muted p-3 rounded-xl">
+            <div class="flex items-center text-xs gap-x-1 text-green-600">
+              <Check class="size-4" />
+              <span>Подтверждено</span>
             </div>
-            <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
-          </button>
+
+            <button
+              type="button"
+              class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
+              @click="handleApproveLog(false)"
+            >
+              <div class="flex items-center justify-center absolute" v-if="isLogCancelling">
+                <Spinner class="size-4" />
+              </div>
+              <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
+            </button>
+          </div>
         </div>
       </div>
     </template>

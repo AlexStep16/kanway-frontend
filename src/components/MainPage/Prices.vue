@@ -88,7 +88,7 @@
               >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span class="text-gray-800"> 20 сообщений в месяц </span>
+              <span class="text-gray-800"> 50 кредитов </span>
             </li>
           </ul>
 
@@ -170,7 +170,7 @@
               >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span class="text-gray-800"> 300 сообщений в месяц </span>
+              <span class="text-gray-800"> 500 кредитов </span>
             </li>
           </ul>
 
@@ -246,7 +246,7 @@
               >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span class="text-gray-800"> Неограниченно сообщений </span>
+              <span class="text-gray-800"> 1000 кредитов </span>
             </li>
           </ul>
 

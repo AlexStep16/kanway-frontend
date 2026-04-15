@@ -21,6 +21,7 @@ const messageRef = ref<HTMLTextAreaElement | null>(null)
 
 const props = defineProps<{
   isDisabled?: boolean
+  isFocused?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -74,7 +75,7 @@ function handleTextareaRef(
 ) {
   if (el && el.textareaRef) {
     messageRef.value = el.textareaRef
-    messageRef.value.focus()
+    if (props.isFocused) messageRef.value.focus()
   }
 }
 
@@ -100,7 +101,6 @@ defineExpose({
           placeholder="Опиши проект или просто выгрузи мысли..."
           v-model="message"
           :ref="(el) => handleTextareaRef(el as any)"
-          @click="runSimulatedTyping()"
         />
       </div>
       <div class="flex justify-between items-center gap-2 w-full">
@@ -137,7 +137,6 @@ defineExpose({
         </div>
         <div class="flex shrink-0 items-center gap-x-2">
           <MicButton
-            :isChat="true"
             :isDisabled="isRunButtonDisabled"
             @deltaAdd="
               (deltaText: string) => {
@@ -157,7 +156,7 @@ defineExpose({
           ></MicButton>
           <Button
             size="sm"
-            class="min-w-30"
+            class=""
             :disabled="isRunButtonDisabled"
             v-if="!agentStatusStore.isSSEActive()"
             @click="sendChatMessage()"
@@ -168,7 +167,7 @@ defineExpose({
 
           <Button
             size="sm"
-            class="min-w-30 text-xs font-medium"
+            class="text-xs font-medium"
             v-else-if="!agentStatusStore.isStopped"
             @click="$emit('stop')"
           >

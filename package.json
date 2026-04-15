@@ -38,6 +38,7 @@
     "nouislider": "^15.8.1",
     "p-queue": "^9.0.0",
     "pinia": "^3.0.3",
+    "plyr": "^3.8.4",
     "preline": "^3.2.3",
     "reka-ui": "^2.8.0",
     "showdown": "^2.1.0",

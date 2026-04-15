@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
-import UserBubble from '@components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
-import Confirmation from '@components/Workspace/Main/Chat/Bubbles/Confirmation.vue'
-import AIInput from '@components/Workspace/Main/Chat/AIInput.vue'
-import Task from '@components/Workspace/Main/Task/Task.vue'
-import ColumnsView from '@components/Workspace/Main/ColumnsView.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
+import UserBubble from '@/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
+import AIBubble from '@/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
+import dayjs from 'dayjs'
+import CategoryChange from '@/components/Workspace/Main/Chat/EntityEdit/Changes/CategoryChange.vue'
+import Assistant from '@/components/Workspace/Main/Chat/Bubbles/Assistant.vue'
+import AIInput from '@/components/Workspace/Main/Chat/AIInput.vue'
 
 defineProps<{
   tasks: (ITaskState & { isSelected: boolean })[]
 }>()
 
-const containerRef = ref<HTMLElement | null>(null)
+const getFormattedDate = (date: Date) => {
+  return dayjs(date).calendar() + ' в ' + dayjs(date).format('HH:mm')
+}
+
+const baseBlockBeforeClasses = 'text-red-500 bg-red-200 py-1 px-2 self-start rounded-sm'
+const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start rounded-sm'
 
 onMounted(() => {
   if (window.HSStaticMethods) {
@@ -22,56 +27,147 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col grow gap-2 h-160 overflow-y-auto py-2 px-1">
-    <!-- Body -->
+  <div class="min-w-130 flex flex-1 flex-col justify-between overflow-y-auto overflow-x-hidden">
     <div
-      class="flex flex-col grow gap-2 min-h-0 overflow-y-auto py-2 px-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
-      ref="containerRef"
+      class="flex flex-col-reverse items-center overflow-y-auto overflow-x-hidden min-h-0 max-h-full py-6 px-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+      style="scrollbar-gutter: stable both-edges"
     >
-      <UserBubble
-        text="Поменяй цвет всех задач с #работа на синий и перенеси их в категорию 'Срочное'."
-        date="18 ноября в 14:59"
-      />
+      <div class="w-full flex flex-col items-start gap-2">
+        <UserBubble
+          text="Привет, перемести все задачи из категории Бэклог в категорию В работе"
+          :date="getFormattedDate(new Date())"
+        />
+        <AIBubble :hideAvatar="true" :isContentFullWidth="true">
+          <Assistant class="mb-2" text="Будут изменены следующие задачи:" />
 
-      <AIBubble date="18 ноября в 15:00">
-        <Confirmation text="Следующим задачам будут присвоены значения:" />
+          <div class="flex flex-col gap-2">
+            <div
+              class="flex flex-col shrink-0 shadow-sm rounded-md min-w-60 cursor-pointer border border-gray-200 hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
+            >
+              <div class="flex flex-col gap-y-2 p-3 group/task relative">
+                <!-- Info -->
+                <div class="flex items-center flex-wrap gap-1">
+                  <CategoryChange
+                    :beforeСategory="{
+                      id: 'cat-1',
+                      name: 'Бэклог',
+                    }"
+                    :afterСategory="{
+                      id: 'cat-2',
+                      name: 'В работе',
+                    }"
+                    :baseBlockBeforeClasses="baseBlockBeforeClasses"
+                    :baseBlockAfterClasses="baseBlockAfterClasses"
+                  />
+                </div>
+                <div class="flex flex-col gap-y-1">
+                  <div
+                    class="flex items-center gap-x-1 shrink overflow-hidden min-w-0 text-gray-800"
+                  >
+                    <span class="text-sm overflow-hidden wrap-break-word"
+                      >Определение объёма MVP</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <ColumnsView :items="tasks" :containerRef="containerRef" class="mt-3">
-          <template v-slot:default="slotProps">
-            <Task
-              v-for="task in slotProps.data"
-              :key="task.id"
-              :task="task"
-              :hasBorder="true"
-              :hasCheckbox="true"
-              :isSelected="task.isSelected"
-              :showInfo="true"
-              :isStatic="true"
-              @toggleSelect="task.isSelected = !task.isSelected"
-              taskClasses="self-start"
-            ></Task>
-          </template>
-        </ColumnsView>
+            <div
+              class="flex flex-col shrink-0 shadow-sm rounded-md min-w-60 cursor-pointer border border-gray-200 hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
+            >
+              <div class="flex flex-col gap-y-2 p-3 group/task relative">
+                <!-- Info -->
+                <div class="flex items-center flex-wrap gap-1">
+                  <CategoryChange
+                    :beforeСategory="{
+                      id: 'cat-1',
+                      name: 'Бэклог',
+                    }"
+                    :afterСategory="{
+                      id: 'cat-2',
+                      name: 'В работе',
+                    }"
+                    :baseBlockBeforeClasses="baseBlockBeforeClasses"
+                    :baseBlockAfterClasses="baseBlockAfterClasses"
+                  />
+                </div>
+                <div class="flex flex-col gap-y-1">
+                  <div
+                    class="flex items-center gap-x-1 shrink overflow-hidden min-w-0 text-gray-800"
+                  >
+                    <span class="text-sm overflow-hidden wrap-break-word">Создание прототипа</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <div class="flex gap-x-2 max-w-lg mt-3 pt-3 border-t border-gray-200">
-          <button
-            type="button"
-            class="text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity duration-100"
-          >
-            Подтвердить
-          </button>
+            <div
+              class="flex flex-col shrink-0 shadow-sm rounded-md min-w-60 cursor-pointer border border-gray-200 hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none"
+            >
+              <div class="flex flex-col gap-y-2 p-3 group/task relative">
+                <!-- Info -->
+                <div class="flex items-center flex-wrap gap-1">
+                  <CategoryChange
+                    :beforeСategory="{
+                      id: 'cat-1',
+                      name: 'Бэклог',
+                    }"
+                    :afterСategory="{
+                      id: 'cat-2',
+                      name: 'В работе',
+                    }"
+                    :baseBlockBeforeClasses="baseBlockBeforeClasses"
+                    :baseBlockAfterClasses="baseBlockAfterClasses"
+                  />
+                </div>
+                <div class="flex flex-col gap-y-1">
+                  <div
+                    class="flex items-center gap-x-1 shrink overflow-hidden min-w-0 text-gray-800"
+                  >
+                    <span class="text-sm overflow-hidden wrap-break-word"
+                      >Проработка технической архитектуры</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            class="text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100"
-          >
-            Отклонить
-          </button>
-        </div>
-      </AIBubble>
+          <div class="max-w-lg mt-3 flex">
+            <div class="flex gap-x-2 bg-muted p-3 rounded-xl">
+              <button
+                type="button"
+                class="flex items-center justify-center text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none duration-100 relative"
+              >
+                <span> Подтвердить </span>
+              </button>
+
+              <button
+                type="button"
+                class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
+              >
+                <span> Отменить </span>
+              </button>
+            </div>
+          </div>
+        </AIBubble>
+        <!--
+        <AIBubble
+          :hideAvatar="true"
+          :isContentFullWidth="true"
+          :date="getFormattedDate(new Date())"
+        >
+          <Assistant
+            text="Готово! Все задачи из колонки <b>Бэклог</b> перемещены в колонку <b>В работе</b>"
+          />
+        </AIBubble>
+        -->
+      </div>
     </div>
-
-    <!-- Footer -->
-    <AIInput :isDisabled="true" />
+    <footer class="w-full flex justify-center p-4">
+      <div class="w-full max-w-4xl">
+        <AIInput />
+      </div>
+    </footer>
   </div>
 </template>

@@ -46,7 +46,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <BlueCheck class="size-4" />
-                <span class="text-xs">20 сообщений в месяц</span>
+                <span class="text-xs">50 кредитов</span>
               </div>
 
               <div class="flex gap-x-1 text-gray-500 items-center">
@@ -89,7 +89,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <BlueCheck class="size-4" />
-                <span class="text-xs">300 сообщений в месяц</span>
+                <span class="text-xs">500 кредитов</span>
               </div>
 
               <div class="flex gap-x-1 text-gray-500 items-center">
@@ -132,7 +132,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <div class="flex gap-x-1 text-gray-500 items-center">
                 <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно сообщений в месяц</span>
+                <span class="text-xs">1000 кредитов</span>
               </div>
 
               <div class="flex gap-x-1 text-gray-500 items-center">

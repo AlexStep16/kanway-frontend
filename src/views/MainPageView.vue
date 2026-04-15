@@ -4,7 +4,7 @@ import { onMounted, ref, shallowRef } from 'vue'
 import AOS from 'aos'
 import Header from '@components/MainPage/Header.vue'
 import Hero from '@components/MainPage/Hero.vue'
-import Photo from '@components/MainPage/Photo.vue'
+import Video from '@components/MainPage/Video.vue'
 import Problem from '@components/MainPage/Problem.vue'
 import CommandCenter from '@components/MainPage/CommandCenter.vue'
 import Control from '@components/MainPage/Control/Control.vue'
@@ -92,7 +92,7 @@ onMounted(() => {
     <div class="flex flex-col relative h-full overflow-hidden">
       <Header />
       <Hero />
-      <Photo />
+      <Video />
 
       <div
         class="w-full min-h-140 sm:min-h-200 md:min-h-260 absolute z-0 bottom-0 bg-[linear-gradient(180deg,rgba(122,90,248,0)0%,#5a8bf8_100%)]"
