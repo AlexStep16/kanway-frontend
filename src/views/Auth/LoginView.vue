@@ -73,7 +73,7 @@ onMounted(() => {
             Ещё нет аккаунта?
             <a
               class="text-blue-600 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
-              href="sign-up"
+              href="/sign-up"
             >
               Зарегистрироваться
             </a>
@@ -128,7 +128,11 @@ onMounted(() => {
                     v-bind="emailAttrs"
                   />
                 </div>
-                <ul class="text-xs text-red-600 mt-2" id="email-error" v-if="errors.email">
+                <ul
+                  class="text-xs text-red-600 mt-2"
+                  id="email-error"
+                  v-if="errors.email && submitCount > 0"
+                >
                   <li class="list-disc list-inside">{{ errors.email }}</li>
                 </ul>
               </div>
@@ -140,7 +144,7 @@ onMounted(() => {
                   <label for="password" class="block text-sm mb-2">Пароль</label>
                   <a
                     class="inline-flex items-center gap-x-1 text-sm text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
-                    href="forgot-password"
+                    href="/forgot-password"
                     >Забыли пароль?</a
                   >
                 </div>

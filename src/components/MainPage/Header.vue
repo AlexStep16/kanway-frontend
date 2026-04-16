@@ -124,13 +124,13 @@ import Star from '@assets/star.svg?component'
             <div class="flex flex-wrap items-center gap-x-1.5">
               <a
                 class="py-[7px] px-2.5 inline-flex items-center font-medium text-sm text-gray-800 transition-colors duration-200 hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-                href="sign-in"
+                href="/sign-in"
               >
                 Войти
               </a>
               <a
                 class="py-2.5 px-3.5 inline-flex items-center font-medium text-sm rounded-full bg-blue-500 text-white hover:opacity-90 transition-opacity duration-200 focus:outline-hidden focus:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
-                href="sign-up"
+                href="/sign-up"
               >
                 Начать бесплатно
               </a>

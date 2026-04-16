@@ -71,7 +71,7 @@ onMounted(() => {
             Уже есть аккаунт?
             <a
               class="text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
-              href="sign-in"
+              href="/sign-in"
             >
               Войти
             </a>
