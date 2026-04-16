@@ -22,7 +22,9 @@ export const useTranscriptStore = defineStore('transcript', () => {
     if (isConnected.value || isConnecting.value) return
 
     isConnecting.value = true
-    const proxyUrl = 'ws://localhost:8080'
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+
+    const proxyUrl = `${protocol}//${window.location.host}/ws`
     const newSocket = new WebSocket(proxyUrl)
 
     newSocket.onopen = () => {
