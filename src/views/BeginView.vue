@@ -337,7 +337,11 @@ onMounted(() => {
               </div>
               <div class="flex flex-col items-center gap-y-3 w-full">
                 <div class="w-full flex justify-center">
-                  <Avatar class="size-17" imageClasses="text-3xl sm:text-4xl">
+                  <Avatar
+                    :avatarColor="avatarColor"
+                    class="size-17"
+                    imageClasses="text-3xl sm:text-4xl"
+                  >
                     <Camera class="size-8" />
                   </Avatar>
                 </div>

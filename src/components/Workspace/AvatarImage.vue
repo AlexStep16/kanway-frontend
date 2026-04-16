@@ -3,8 +3,9 @@ import { useUser } from '@/composables/auth/queries/useUser'
 import { AvailableColors } from '@/enums/AvailableColors'
 import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   imageClasses?: string
+  avatarColor?: string
 }>()
 
 const { data: user } = useUser()
@@ -18,7 +19,7 @@ const getAvatarUrl = computed(() => {
 })
 
 const getAvatarColor = computed(() => {
-  return user.value?.avatarColor || AvailableColors.BLUE
+  return user.value?.avatarColor || props.avatarColor || AvailableColors.BLUE
 })
 
 const getUsernameFirstLetter = computed(() => {
