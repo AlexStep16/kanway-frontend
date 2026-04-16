@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import KanwayLogo from '../../../assets/kanway_logo_white.svg?component'
+import KanwayLogo from '@assets/kanway_logo_white.svg?component'
 </script>
 
 <template>
@@ -13,7 +13,7 @@ import KanwayLogo from '../../../assets/kanway_logo_white.svg?component'
             href="#"
             aria-label="Brand"
           >
-            <KanwayLogo class="h-8 sm:h-8.5" />
+            <KanwayLogo class="h-8 sm:h-10" />
           </a>
         </div>
         <!-- End Col -->

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Shield, CreditCard, MessageCircleQuestionMark } from 'lucide-vue-next'
-import KanwayLogo from '../../../assets/kanway_logo.svg?component'
+import KanwayLogo from '@assets/kanway_logo.svg?component'
 import Star from '@assets/star.svg?component'
 </script>
 
@@ -18,7 +18,7 @@ import Star from '@assets/star.svg?component'
           href="#"
           aria-label="Brand"
         >
-          <KanwayLogo class="h-8 sm:h-8.5" />
+          <KanwayLogo class="h-8 sm:h-10" />
         </a>
 
         <!-- Collapse Button -->

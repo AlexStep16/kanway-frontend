@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { START_TILES } from '@/constants/START_TILES'
-import KanwayLogo from '../../../../assets/kanway_logo.svg?component'
+import KanwayLogo from '@assets/kanway_logo.svg?component'
 import Button from '@/components/ui/button/Button.vue'
 import { cn } from '@/lib/utils'
 
