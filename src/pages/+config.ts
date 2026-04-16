@@ -6,7 +6,7 @@ import { Nullable } from '@/types/utils'
 
 export default {
   ssr: false,
-  prerender: false,
+  prerender: true,
   extends: [vikeVue],
   hooksTimeout: false,
   bodyAttributes: { class: 'bg-gray-100 hs-overlay-body-open' },
