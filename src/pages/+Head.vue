@@ -48,7 +48,7 @@
     async
     defer
   ></script>
-  <script :src="`${hostUrl}/assets/scripts/yametrika.js`" async defer></script>
+  <script :src="`/assets/scripts/yametrika.js`" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.3"></script>
   <noscript>
@@ -64,5 +64,4 @@
 
 <script lang="ts" setup>
 const path = import.meta.env.DEV === false ? '/' : '/src/'
-const hostUrl = import.meta.env.VITE_HOST_URL || 'https://kanway.ru'
 </script>
