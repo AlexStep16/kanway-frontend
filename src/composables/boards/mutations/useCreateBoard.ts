@@ -5,7 +5,7 @@ import { queryClient } from '@/plugins/queryClient'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { createBoard } from '@/services/board'
 import { useBoardStore } from '@/stores/board'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 import { IBoardCreateApiPayload } from '@/interfaces/IBoardCreateApiPayload'
 
 interface CreateBoardVars {

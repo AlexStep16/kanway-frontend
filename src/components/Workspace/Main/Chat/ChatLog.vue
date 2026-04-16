@@ -6,7 +6,7 @@ import _ from 'lodash'
 import AIBubble from '@components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import Assistant from '@components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 
-import { useLog } from '@/composables/logs/useLog'
+import { useLog } from '@/composables/log/useLog'
 import { useApproveLog } from '@/composables/chat/mutations/useApproveLog'
 import { useBoardStore } from '@/stores/board'
 import { useWorkspaceStore } from '@/stores/workspace'

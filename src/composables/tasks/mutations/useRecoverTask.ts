@@ -4,7 +4,7 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { recoverTask } from '@/services/task'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 
 export interface RecoverTaskVars {
   task: ITaskState

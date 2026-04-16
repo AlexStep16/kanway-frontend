@@ -4,7 +4,7 @@ import { taskKeys } from '@/keys'
 import { ITask } from '@interfaces/domain/ITask'
 import { createTask } from '@services/task'
 import { queryClient } from '@/plugins/queryClient'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 import { ITaskCreateApiPayload } from '@/interfaces/ITaskCreateApiPayload'
 
 export interface CreateTaskVars {

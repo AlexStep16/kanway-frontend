@@ -5,7 +5,7 @@ import { queryClient } from '@/plugins/queryClient'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { createWorkspace } from '@services/workspace'
 import { useWorkspaceStore } from '@stores/workspace'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 
 interface CreateWorkspaceVars {
   payload: Partial<IWorkspace>

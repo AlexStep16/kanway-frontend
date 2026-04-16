@@ -3,7 +3,7 @@ import { toast } from 'vue-sonner'
 import { workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { cloneWorkspace } from '@services/workspace'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 
 interface CloneWorkspaceVars {
   id: string

@@ -3,7 +3,7 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { toast } from 'vue-sonner'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 import { ICategory } from '@/interfaces/domain/ICategory'
 import { saveCategory } from '@/services/category'
 

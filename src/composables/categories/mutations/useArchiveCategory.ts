@@ -4,7 +4,7 @@ import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { ICategoryState } from '@/stores/interfaces/ICategoryState'
 import { archiveCategory } from '@/services/category'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 
 interface ArchiveCategoryVars {
   category: ICategoryState

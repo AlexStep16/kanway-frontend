@@ -4,7 +4,7 @@ import { categoryKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
 import { ICategory } from '@/interfaces/domain/ICategory'
 import { createCategory } from '@/services/category'
-import { useUndo } from '@/composables/logs/useUndo'
+import { useUndo } from '@/composables/log/useUndo'
 import { ICategoryCreateApiPayload } from '@/interfaces/ICategoryCreateApiPayload'
 
 interface CreateCategoryVars {
