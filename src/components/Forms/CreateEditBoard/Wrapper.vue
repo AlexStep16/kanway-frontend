@@ -84,7 +84,12 @@ async function createBoard() {
   }
 
   await createBoardMutation(
-    { payload: board, workspaceId: activeWorkspaceId.value },
+    {
+      payload: {
+        ...board,
+        workspaceId: activeWorkspaceId.value,
+      },
+    },
     {
       onSuccess: (result) => {
         closeDropdown()
