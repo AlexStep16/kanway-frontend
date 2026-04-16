@@ -126,7 +126,7 @@ import { Check, X, Annoyed } from 'lucide-vue-next'
                   </g>
                 </g>
               </svg>
-              <h3 class="text-lg md:text-xl font-semibold text-blue-500">Kanbar</h3>
+              <h3 class="text-lg md:text-xl font-semibold text-blue-500">Kanway</h3>
             </div>
 
             <p class="text-gray-500 leading-relaxed grow">

@@ -71,7 +71,7 @@ export const useRootStore = defineStore('root', () => {
 
       setTimeout(() => {
         if (selectedWorkspace) {
-          document.title = 'Kanbar | ' + selectedWorkspace.name
+          document.title = 'Kanway | ' + selectedWorkspace.name
         }
       })
     }

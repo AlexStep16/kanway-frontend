@@ -2,7 +2,7 @@ import Layout from '../../layouts/Layout.vue'
 
 export const config = {
   Layout,
-  title: 'Kanbar | Вход',
+  title: 'Kanway | Вход',
   prerender: false,
   ssr: false,
 }

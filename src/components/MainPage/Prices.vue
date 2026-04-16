@@ -192,7 +192,7 @@
         >
           <h4 class="font-medium text-lg text-gray-800">Бизнес</h4>
           <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽999</span>
-          <p class="mt-2 text-sm text-gray-500">Для тех, кто хотят получить максимум от Kanbar</p>
+          <p class="mt-2 text-sm text-gray-500">Для тех, кто хотят получить максимум от Kanway</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
