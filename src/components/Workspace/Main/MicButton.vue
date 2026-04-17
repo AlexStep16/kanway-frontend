@@ -70,13 +70,14 @@ function stopRecording() {
 
 async function toggleRecording() {
   if (props.isDisabled) return
-
+  console.log(1)
   if (transcriptStore.isRecording) {
     stopRecording()
   } else {
     if (!transcriptStore.isConnected) {
       return
     }
+    console.log(2)
 
     emit('clearInput')
 
@@ -86,6 +87,7 @@ async function toggleRecording() {
       })
 
       setupVolumeAnalyser(stream)
+      console.log(3)
       transcriptStore.startRecording(stream)
 
       setTimeout(() => {
