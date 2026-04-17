@@ -42,32 +42,6 @@ function sendChatMessage() {
   message.value = ''
 }
 
-async function typeSimulatedText(
-  text: string,
-  callback: (text: string) => void,
-  minSpeed = 30,
-  maxSpeed = 100,
-) {
-  let currentText = ''
-
-  for (const char of text) {
-    currentText += char
-    callback(currentText) // Передаем обновленную строку наружу
-
-    // Генерируем случайную задержку для эффекта "живого" ввода
-    const randomDelay = Math.floor(Math.random() * (maxSpeed - minSpeed) + minSpeed)
-    await new Promise((resolve) => setTimeout(resolve, randomDelay))
-  }
-}
-
-function runSimulatedTyping() {
-  const prompt = 'Спланируй запуск проекта по разработке мобильного приложения для фитнеса.'
-
-  typeSimulatedText(prompt, (updatedText) => {
-    message.value = updatedText
-  })
-}
-
 function handleTextareaRef(
   el: {
     textareaRef: HTMLTextAreaElement | null
@@ -137,7 +111,6 @@ defineExpose({
         </div>
         <div class="flex shrink-0 items-center gap-x-2">
           <MicButton
-            :isDisabled="isRunButtonDisabled"
             @deltaAdd="
               (deltaText: string) => {
                 message += deltaText

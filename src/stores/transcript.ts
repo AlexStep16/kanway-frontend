@@ -109,7 +109,6 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     workletNode.value.port.onmessage = (event) => {
       const audioData: Float32Array = event.data
-      console.log(4)
 
       if (socket.value?.readyState === WebSocket.OPEN) {
         socket.value.send(audioData.buffer)
