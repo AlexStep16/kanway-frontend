@@ -6,6 +6,7 @@ import { usePayments } from '@/composables/payments/queries/usePayments'
 import { usePaymentMethods } from '@/composables/paymentMethods/queries/usePaymentMethods'
 import PaymentMethod from './PaymentMethod.vue'
 import { useUser } from '@/composables/auth/queries/useUser'
+import { HSStaticMethods } from 'preline'
 
 const { data: user } = useUser()
 
@@ -42,7 +43,7 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
 }
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

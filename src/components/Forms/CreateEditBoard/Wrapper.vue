@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { generateUUID } from '@utils/idGenerator'
 import Body from '@components/Forms/CreateEditBoard/Body.vue'
-import { HSDropdown } from 'preline'
+import { HSDropdown, HSStaticMethods } from 'preline'
 import { computed, onMounted, ref } from 'vue'
 import { boardValidation } from '@helpers/boardValidation'
 import { toast } from 'vue-sonner'
@@ -156,7 +156,7 @@ onClickOutside(dropdownMenu, () => {
 })
 
 onMounted(() => {
-  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (props.item) {
     name.value = props.item.name

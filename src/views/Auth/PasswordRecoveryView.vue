@@ -15,6 +15,7 @@ import Spinner from '@/components/Loader/Spinner.vue'
 import InvalidToken from '../../components/Auth/InvalidToken.vue'
 import { useSendPasswordRecoveryEmailByToken } from '@/composables/auth/mutations/useSendPasswordRecoveryEmailByToken'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
+import { HSStaticMethods } from 'preline'
 
 const { mutate: recover } = usePasswordRecovery()
 const { mutate: resend, isPending: isResending } = useSendPasswordRecoveryEmailByToken()
@@ -69,7 +70,7 @@ validateToken(
 )
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

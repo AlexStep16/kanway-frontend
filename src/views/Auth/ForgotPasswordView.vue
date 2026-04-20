@@ -9,6 +9,7 @@ import { useSendPasswordRecoveryEmail } from '@/composables/auth/mutations/useSe
 import EmailSent from '@/components/Auth/EmailSent.vue'
 import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
+import { HSStaticMethods } from 'preline'
 
 const { mutate: sendEmail, isPending: isSending } = useSendPasswordRecoveryEmail()
 
@@ -43,7 +44,7 @@ function handleResend() {
 }
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

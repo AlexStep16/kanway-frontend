@@ -11,6 +11,7 @@ import { useResumeSubscription } from '@/composables/payments/mutations/useResum
 import { useDowngradeCancelSubscription } from '@/composables/payments/mutations/useDowngradeCancelSubscription'
 import PlanCards from '../Main/Subscription/PlanCards.vue'
 import { useUser } from '@/composables/auth/queries/useUser'
+import { HSStaticMethods } from 'preline'
 
 const { data: user } = useUser()
 
@@ -108,7 +109,7 @@ const isUserHasPending = computed(() => {
 })
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

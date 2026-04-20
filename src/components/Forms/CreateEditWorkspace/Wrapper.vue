@@ -2,7 +2,7 @@
 import { AvailableColors } from '@enums/AvailableColors'
 import { generateUUID } from '@utils/idGenerator'
 import Body from '@components/Forms/CreateEditWorkspace/Body.vue'
-import { HSDropdown } from 'preline'
+import { HSDropdown, HSStaticMethods } from 'preline'
 import { computed, onMounted, ref } from 'vue'
 import { workspaceValidation } from '@helpers/workspaceValidation'
 import { toast } from 'vue-sonner'
@@ -146,7 +146,7 @@ defineExpose({
 })
 
 onMounted(() => {
-  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (props.item) {
     name.value = props.item.name

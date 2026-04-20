@@ -5,7 +5,7 @@ import CategoryEdit from '@components/Workspace/Main/Category/Edit.vue'
 import BoardEdit from '@components/Workspace/Main/Board/Edit.vue'
 import WorkspaceEdit from '@components/Workspace/Edit.vue'
 import { useUIStore } from '@stores/ui'
-import { HSOverlay } from 'preline/dist'
+import { HSOverlay, HSStaticMethods } from 'preline/dist'
 import Settings from '@components/Workspace/Settings/Settings.vue'
 import Tip from '@components/Tip/Tip.vue'
 import MobileSearch from '@components/Workspace/MobileSearch.vue'
@@ -61,7 +61,7 @@ function initPlansModal() {
 }
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   initEditTaskModal()
   initCategoryEditModal()

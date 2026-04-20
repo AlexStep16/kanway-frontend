@@ -176,7 +176,7 @@ watch(
 )
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 
 onUnmounted(() => {

@@ -10,13 +10,14 @@ import Payments from '@components/Workspace/Settings/Payments.vue'
 import { SettingTabs } from '@/enums/SettingTabs'
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { HSStaticMethods } from 'preline'
 
 const uiStore = useUIStore()
 
 const { currentSettingsTab: currentTab } = storeToRefs(uiStore)
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

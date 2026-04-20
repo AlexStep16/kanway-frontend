@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import CategoryChange from '@/components/Workspace/Main/Chat/EntityEdit/Changes/CategoryChange.vue'
 import Assistant from '@/components/Workspace/Main/Chat/Bubbles/Assistant.vue'
 import AIInput from '@/components/Workspace/Main/Chat/AIInput.vue'
+import { HSStaticMethods } from 'preline'
 
 defineProps<{
   tasks: (ITaskState & { isSelected: boolean })[]
@@ -20,9 +21,7 @@ const baseBlockBeforeClasses = 'text-red-500 bg-red-200 py-1 px-2 self-start rou
 const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start rounded-sm'
 
 onMounted(() => {
-  if (window.HSStaticMethods) {
-    window.HSStaticMethods.autoInit()
-  }
+  HSStaticMethods.autoInit()
 })
 </script>
 

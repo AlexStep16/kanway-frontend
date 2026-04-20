@@ -9,6 +9,7 @@ import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import { HttpError } from '@/utils/errors'
 import { toast } from 'vue-sonner'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
+import { HSStaticMethods } from 'preline'
 
 const { mutate: login, isPending: isLogging } = useLogin()
 
@@ -46,7 +47,7 @@ const onSubmit = handleSubmit((values) => {
 })
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

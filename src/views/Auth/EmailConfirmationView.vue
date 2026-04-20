@@ -14,6 +14,7 @@ import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import AlreadyVerified from '@/components/Auth/AlreadyVerified.vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import OTPForm from './OTPForm.vue'
+import { HSStaticMethods } from 'preline'
 
 const { mutate: verifyToken, isPending: isVerifying, error } = useVerificationEmail()
 const { mutate: resend, isPending: isResending } = useSendVerificationEmailByToken()
@@ -41,7 +42,7 @@ watch(isSuccess, (newVal) => {
 })
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (token) {
     verifyToken(

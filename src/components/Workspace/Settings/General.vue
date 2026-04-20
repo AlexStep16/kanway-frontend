@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
-import { HSSelect, ICollectionItem } from 'preline'
+import { HSSelect, HSStaticMethods, ICollectionItem } from 'preline'
 import Spinner from '@/components/Loader/Spinner.vue'
 import { useUpdateUser } from '@/composables/auth/mutations/useUpdateUser'
 import ColorButtons from '@/components/Buttons/ColorButtons.vue'
@@ -128,7 +128,7 @@ const hasUserAvatar = computed((): boolean => {
 })
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (selectTimezoneRef.value) {
     const { element } = HSSelect.getInstance(

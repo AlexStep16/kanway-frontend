@@ -14,6 +14,7 @@ import Ready from '@components/MainPage/Ready.vue'
 import Footer from '@components/MainPage/Footer.vue'
 import Plan from '@components/MainPage/Control/Chat/Plan.vue'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
+import { HSStaticMethods } from 'preline'
 
 const activeTab = shallowRef<typeof Plan>(Plan)
 
@@ -73,7 +74,7 @@ function updateClip() {
 }
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   AOS.init()
 

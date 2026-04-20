@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { HSOverlay } from 'preline'
+import { HSOverlay, HSStaticMethods } from 'preline'
 import { useUpdatePassword } from '@/composables/auth/mutations/useUpdatePassword'
 import { useDeleteUser } from '@/composables/auth/mutations/useDeleteUser'
 import Spinner from '@components/Loader/Spinner.vue'
@@ -68,7 +68,7 @@ function showDeleteUserModal() {
 const handleDeleteAccount = () => deleteAccount()
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

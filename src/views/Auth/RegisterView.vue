@@ -8,6 +8,7 @@ import { toast } from 'vue-sonner'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import OTPForm from './OTPForm.vue'
+import { HSStaticMethods } from 'preline'
 
 const { mutate: register, isPending: isRegistering } = useRegister()
 
@@ -54,7 +55,7 @@ const onSubmit = handleSubmit(
 )
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

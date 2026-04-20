@@ -5,6 +5,7 @@ import Plan from '@components/MainPage/Control/Chat/Plan.vue'
 import Confirmation from '@components/MainPage/Control/Chat/Confirmation.vue'
 import Cancellation from '@components/MainPage/Control/Chat/Cancellation.vue'
 import { ITaskState } from '@/stores/interfaces/ITaskState'
+import { HSStaticMethods } from 'preline'
 
 defineProps<{
   tasks: (ITaskState & { isSelected: boolean })[]
@@ -12,7 +13,7 @@ defineProps<{
 }>()
 
 onMounted(() => {
-  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 })
 </script>
 

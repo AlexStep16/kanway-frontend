@@ -3,7 +3,7 @@ import { navigate } from 'vike/client/router'
 import { LogOut, Camera } from 'lucide-vue-next'
 import ColorButtons from '@/components/Buttons/ColorButtons.vue'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { HSAccordion } from 'preline'
+import { HSAccordion, HSStaticMethods } from 'preline'
 import Avatar from '@components/Workspace/Settings/Avatar.vue'
 import { AvailableColors } from '@enums/AvailableColors'
 import { Nullable } from '@/types/utils'
@@ -178,7 +178,7 @@ async function handleUpdateAvatarColor() {
 watch(getCurrentProgress, () => updateProgressLabel(), { immediate: true })
 
 onMounted(() => {
-  window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (colorsAccordion.value && colorsAccordion.value instanceof HTMLElement) {
     const { element } = HSAccordion.getInstance(colorsAccordion.value, true) as any

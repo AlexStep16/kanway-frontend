@@ -11,7 +11,7 @@ import {
 } from 'lucide-vue-next'
 import { ref, computed, onMounted, MaybeRefOrGetter, toValue } from 'vue'
 import Spinner from '@components/Loader/Spinner.vue'
-import { HSDropdown, ICollectionItem } from 'preline'
+import { HSDropdown, HSStaticMethods, ICollectionItem } from 'preline'
 import { onClickOutside } from '@vueuse/core'
 
 export interface ItemStatus {
@@ -75,7 +75,7 @@ onClickOutside(dropdown, () => {
 })
 
 onMounted(() => {
-  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (dropdown.value) {
     const { element } = HSDropdown.getInstance(dropdown.value, true) as ICollectionItem<HSDropdown>

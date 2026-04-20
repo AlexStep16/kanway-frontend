@@ -9,6 +9,7 @@ import { useSendSupport } from '@/composables/support/useSendSupport'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import { ThemesEnum } from '@/enums/ThemesEnum'
 import { useUser } from '@/composables/auth/queries/useUser'
+import { HSStaticMethods } from 'preline'
 
 const uiStore = useUIStore()
 
@@ -71,7 +72,7 @@ const onSubmit = handleSubmit((values) => {
 })
 
 onMounted(() => {
-  if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+  HSStaticMethods.autoInit()
 
   if (user.value) {
     name.value = user.value.username || ''

@@ -19,7 +19,7 @@ const getAvatarUrl = computed(() => {
 })
 
 const getAvatarColor = computed(() => {
-  return user.value?.avatarColor || props.avatarColor || AvailableColors.BLUE
+  return props.avatarColor || user.value?.avatarColor || AvailableColors.BLUE
 })
 
 const getUsernameFirstLetter = computed(() => {
