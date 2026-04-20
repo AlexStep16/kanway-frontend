@@ -17,6 +17,7 @@ const data = async (pageContext: PageContextClient) => {
     if ((e.status === 401 || e.response?.status === 401) && !token) {
       throw redirect('/sign-in')
     }
+    throw e
   }
 
   return { token }
