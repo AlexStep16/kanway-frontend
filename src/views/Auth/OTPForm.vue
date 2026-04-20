@@ -5,8 +5,10 @@ import { useUser } from '@/composables/auth/queries/useUser'
 import { navigate } from 'vike/client/router'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue'
+import { useSendVerificationEmail } from '@/composables/auth/mutations/useSendVerificationEmail'
 
 const { mutate: verify, isPending: isVerifying } = useVerificationOTP()
+const { mutate: resend, isPending: isResending } = useSendVerificationEmail()
 
 const { data: user } = useUser()
 
@@ -59,6 +61,15 @@ const handleInput = (event: Event, index: number) => {
   if (isComplete.value) {
     handleVerify()
   }
+}
+
+function handleResend() {
+  if (timer.value > 0) return
+
+  resend()
+
+  localStorage.setItem(STORAGE_KEY, Date.now().toString())
+  startTimer(60)
 }
 
 // Обработка удаления (Backspace)
@@ -177,9 +188,9 @@ onUnmounted(() => {
               v-if="timer === 0"
               class="mt-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50"
               :disabled="isVerifying"
-              @click="handleVerify"
+              @click="handleResend"
             >
-              {{ isVerifying ? 'Подтверждение...' : 'Отправить ещё раз' }}
+              {{ isResending ? 'Отправляем...' : 'Отправить ещё раз' }}
             </button>
 
             <span v-else class="mt-1 text-sm text-gray-400">
