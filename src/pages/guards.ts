@@ -19,11 +19,14 @@ export const requireAuth = async () => {
 export const requireGuest = async () => {
   try {
     const user = await meApi()
-    console.log(user)
+
     if (user) {
       throw redirect('/workspace')
     }
-  } catch {
-    return null
+  } catch (e: any) {
+    if (e.status === 401 || e.response?.status === 401) {
+      return null
+    }
+    throw e
   }
 }

@@ -102,7 +102,7 @@ const handlePaste = (event: ClipboardEvent) => {
 }
 
 const handleVerify = () => {
-  if (timer.value > 0 || !isComplete.value) return
+  if (!isComplete.value) return
 
   const finalCode = otp.join('')
 
