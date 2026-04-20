@@ -8,7 +8,11 @@ const data = async (pageContext: PageContextClient) => {
   const token = pageContext.urlParsed.search.token
 
   try {
-    await meApi()
+    const user = await meApi()
+
+    if (user.isConfirmed) {
+      throw redirect('/workspace')
+    }
   } catch (e: any) {
     if ((e.status === 401 || e.response?.status === 401) && !token) {
       throw redirect('/sign-in')

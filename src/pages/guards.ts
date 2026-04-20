@@ -19,7 +19,7 @@ export const requireAuth = async () => {
 export const requireGuest = async () => {
   try {
     const user = await meApi()
-
+    console.log(user)
     if (user) {
       throw redirect('/workspace')
     }
