@@ -11,7 +11,7 @@ import OTPForm from './OTPForm.vue'
 
 const { mutate: register, isPending: isRegistering } = useRegister()
 
-const showOTPInput = ref(true)
+const showOTPInput = ref(false)
 
 const schema = toTypedSchema(
   z.object({
