@@ -23,10 +23,7 @@ export const requireGuest = async () => {
     if (user) {
       throw redirect('/workspace')
     }
-  } catch (e: any) {
-    if (e.status === 401 || e.response?.status === 401) {
-      return null
-    }
-    throw e
+  } catch {
+    return null
   }
 }
