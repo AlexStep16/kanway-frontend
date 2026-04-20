@@ -1,4 +1,4 @@
-import { confirmEmail } from '@/services/auth'
+import { verifyEmailToken } from '@/services/auth'
 import { useMutation } from '@tanstack/vue-query'
 
 export function useVerificationEmail() {
@@ -7,6 +7,6 @@ export function useVerificationEmail() {
     meta: {
       errorMessage: false,
     },
-    mutationFn: ({ token }: { token: string }) => confirmEmail(token),
+    mutationFn: ({ token }: { token: string }) => verifyEmailToken(token),
   })
 }

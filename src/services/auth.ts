@@ -13,7 +13,8 @@ import {
   sendPasswordRecoveryEmailByTokenApi,
   sendVerificationEmailByTokenApi,
   passwordRecoveryApi,
-  confirmEmailApi,
+  verifyEmailOTPApi,
+  verifyEmailTokenApi,
   validateTokenApi,
   logoutApi,
 } from '@api/auth'
@@ -100,8 +101,12 @@ export async function passwordRecovery(token: string, password: string): Promise
   return await passwordRecoveryApi(token, password)
 }
 
-export async function confirmEmail(token: string): Promise<null> {
-  return await confirmEmailApi(token)
+export async function verifyEmailToken(token: string): Promise<null> {
+  return await verifyEmailTokenApi(token)
+}
+
+export async function verifyEmailOTP(code: string): Promise<null> {
+  return await verifyEmailOTPApi(code)
 }
 
 export async function validateToken(token: string, type: TokenTypesEnum): Promise<null> {

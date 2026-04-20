@@ -3,7 +3,6 @@ import { queryClient } from '@/plugins/queryClient'
 import { register } from '@/services/auth'
 import { useMutation } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
-import { navigate } from 'vike/client/router'
 
 export function useRegister() {
   return useMutation({
@@ -12,9 +11,6 @@ export function useRegister() {
         ...credentials,
         timezone: dayjs.tz.guess(),
       }),
-    onSuccess: () => {
-      navigate('/workspace')
-    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,

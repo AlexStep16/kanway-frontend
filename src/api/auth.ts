@@ -106,11 +106,19 @@ export async function sendPasswordRecoveryEmailByTokenApi(token: string) {
   })
 }
 
-export async function confirmEmailApi(token: string) {
+export async function verifyEmailTokenApi(token: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/auth/verify',
+    url: '/auth/verify/token',
     data: { token },
+  })
+}
+
+export async function verifyEmailOTPApi(code: string) {
+  return apiCall<null>({
+    method: 'POST',
+    url: '/me/verify/otp',
+    data: { code },
   })
 }
 

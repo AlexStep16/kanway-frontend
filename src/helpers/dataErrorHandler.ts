@@ -7,10 +7,8 @@ export function dataErrorHandler(_pageContext: PageContextClient, e: any) {
     throw e
   }
 
-  if (e instanceof HttpError) {
-    if (e.status === 403) {
-      throw redirect('/confirmation')
-    }
+  if (e.code === 403 || e.status === 403) {
+    throw redirect('/verify-email')
   }
 
   if (e instanceof BackendError || e instanceof HttpError) {
