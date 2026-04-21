@@ -11,6 +11,8 @@ export const requireAuth = async () => {
   } catch (e: any) {
     if (e.status === 401 || e.response?.status === 401) {
       throw redirect('/sign-in')
+    } else if (e.code === 404) {
+      return null
     }
     throw e
   }
@@ -25,6 +27,8 @@ export const requireGuest = async () => {
     }
   } catch (e: any) {
     if (e.status === 401 || e.response?.status === 401) {
+      return null
+    } else if (e.code === 404) {
       return null
     }
     throw e

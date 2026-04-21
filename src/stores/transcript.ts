@@ -22,9 +22,8 @@ export const useTranscriptStore = defineStore('transcript', () => {
     if (isConnected.value || isConnecting.value) return
 
     isConnecting.value = true
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
 
-    const proxyUrl = `${protocol}//${window.location.host}/ws`
+    const proxyUrl = import.meta.env.VITE_SERVER_WS_URL
     const newSocket = new WebSocket(proxyUrl)
 
     newSocket.onopen = () => {
@@ -111,7 +110,7 @@ export const useTranscriptStore = defineStore('transcript', () => {
       const audioData: Float32Array = event.data
 
       if (socket.value?.readyState === WebSocket.OPEN) {
-        socket.value.send(audioData.buffer)
+        socket.value.send(audioData.buffer as any)
       }
     }
 

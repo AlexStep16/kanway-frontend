@@ -134,7 +134,7 @@ async function handleCreateWorkspace() {
       payload: { name: workspaceName.value, color: workspaceColor.value },
     },
     {
-      onSuccess: () => {
+      onSettled: () => {
         currentTab.value = Tab.USER
       },
     },
@@ -170,6 +170,8 @@ async function handleUpdateAvatarColor() {
     {
       onSuccess: () => {
         oldAvatarColor.value = avatarColor.value
+
+        navigate('/workspace')
       },
     },
   )
