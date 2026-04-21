@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SquarePen, SquareKanban } from 'lucide-vue-next'
+import { SquarePen } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
 import Input from '@/components/ui/input/Input.vue'

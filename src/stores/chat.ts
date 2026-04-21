@@ -30,7 +30,7 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function closeChat() {
-    activeChatId.value = null
+    activeChatId.value = temporaryChatId.value
     uiStore.isChatOpen = false
   }
 

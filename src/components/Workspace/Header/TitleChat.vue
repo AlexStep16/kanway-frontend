@@ -43,7 +43,7 @@ function handleUpdateChatName(newName: string) {
   <div class="flex items-center gap-2" v-else-if="isChatLoading">
     <Skeleton class="w-24 h-5" />
   </div>
-  <div class="flex items-center gap-2" v-else>
+  <div class="px-1.5 flex items-center gap-2" v-else>
     <MessageCircle class="size-4" />
     <span class="text-sm font-medium"> Новый чат </span>
   </div>
