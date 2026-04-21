@@ -29,8 +29,9 @@ const currentSubscription = computed(() => {
   }
 
   return (
-    subscriptions.value.find((subscription) => subscription.id === user.value?.subscriptionId) ||
-    null
+    subscriptions.value.find(
+      (subscription) => subscription.subscriptionId === user.value?.subscriptionId,
+    ) || null
   )
 })
 

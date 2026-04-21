@@ -69,8 +69,8 @@ const planName = computed(() => {
       return 'Базовой'
     case SubscriptionPlanEnum.Premium:
       return 'Премиум'
-    case SubscriptionPlanEnum.Business:
-      return 'Бизнес'
+    case SubscriptionPlanEnum.Architector:
+      return 'Архитектор'
     default:
       return ''
   }

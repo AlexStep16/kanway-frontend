@@ -1,5 +1,6 @@
 export interface ISubscription {
-  id: number
+  id: string
+  subscriptionId: number
   name: string
   price: number
   currency: string

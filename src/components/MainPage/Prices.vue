@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Check, X } from 'lucide-vue-next'
+</script>
 
 <template>
   <section class="relative z-1 overflow-hidden bg-white">
@@ -38,57 +40,33 @@
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
               <span class="text-gray-800"> 1 пространство </span>
             </li>
 
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
               <span class="text-gray-800"> 5 досок </span>
             </li>
 
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span class="text-gray-800"> 50 кредитов </span>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> 20 кредитов </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> Базовая модель: <b>Kanway Lite</b> </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <X class="size-4 text-red-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <X class="size-4 text-red-600 shrink-0 relative top-1" />
+              <span class="text-gray-800"> Режим <b>Критик</b></span>
             </li>
           </ul>
 
@@ -115,62 +93,38 @@
             >
           </p>
           <h4 class="font-medium text-lg text-gray-800">Премиум</h4>
-          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽599</span>
-          <p class="mt-2 text-sm text-gray-500">Для ежедневной продуктивной работы</p>
+          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽999</span>
+          <p class="mt-2 text-sm text-gray-500">Для активной работы и роста проектов</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span class="text-gray-800"> Неограниченно пространств </span>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> 5 пространств </span>
             </li>
 
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span class="text-gray-800"> Неограниченно досок </span>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> 20 досок </span>
             </li>
 
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span class="text-gray-800"> 500 кредитов </span>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> 600 кредитов </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> Приоритетная поддержка </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <X class="size-4 text-red-600 shrink-0 relative top-1" />
+              <span class="text-gray-800"> Режим <b>Критик</b></span>
             </li>
           </ul>
 
@@ -190,63 +144,39 @@
           data-aos-once="true"
           class="flex flex-col border border-gray-200 text-center rounded-xl p-8"
         >
-          <h4 class="font-medium text-lg text-gray-800">Бизнес</h4>
-          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽999</span>
-          <p class="mt-2 text-sm text-gray-500">Для тех, кто хотят получить максимум от Kanway</p>
+          <h4 class="font-medium text-lg text-gray-800">Архитектор</h4>
+          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽2499</span>
+          <p class="mt-2 text-sm text-gray-500">Для проектирования сложных систем и бизнеса</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
               <span class="text-gray-800"> Неограниченно пространств </span>
             </li>
 
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
               <span class="text-gray-800"> Неограниченно досок </span>
             </li>
 
             <li class="flex gap-x-2">
-              <svg
-                class="shrink-0 mt-0.5 size-4 text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span class="text-gray-800"> 1000 кредитов </span>
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> 1300 кредитов </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> Приоритетная поддержка </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+              <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
+            </li>
+
+            <li class="flex gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0 relative top-1" />
+              <span class="text-gray-800"> Режим <b>Критик</b></span>
             </li>
           </ul>
 

@@ -1,15 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { sendMessage as sendMessageApi, stopAgent } from '@services/chat'
+import { sendMessage as sendMessageApi } from '@services/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import { useChatStore } from '@/stores/chat'
 import dayjs from 'dayjs'
 import { chatKeys, chatMessageKeys, userKeys } from '@/keys'
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 import { IUser } from '@/interfaces/domain/IUser'
+import { ModelsEnum } from '@/enums/ModelsEnum'
 
 interface SendMessageVars {
   payload: {
     message: string
+    modelType: ModelsEnum
     boardId: string | null
     workspaceId: string | null
     threadId?: string
@@ -64,6 +66,7 @@ export function useSendMessage() {
       return sendMessageApi(
         {
           message: payload.message,
+          modelType: payload.modelType,
           jobId,
           boardId: payload.boardId || undefined,
           threadId: payload.threadId,

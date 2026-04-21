@@ -1,6 +1,7 @@
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 import { chatKeys, chatMessageKeys } from '@/keys'
 import { resolveAmbiguous } from '@/services/chat'
+import { useChatStore } from '@/stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
@@ -19,6 +20,7 @@ interface ResolveAmbiguousVars {
 export function useResolveAmbiguous() {
   const agentStatusStore = useAgentStatusStore()
   const queryClient = useQueryClient()
+  const chatStore = useChatStore()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'resolveAmbiguous'],
@@ -42,6 +44,7 @@ export function useResolveAmbiguous() {
         callId: payload.callId,
         ids: payload.ids,
         chatId,
+        modelType: chatStore.modelType,
         chatMessageId,
         boardId,
         jobId,

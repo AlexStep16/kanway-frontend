@@ -146,7 +146,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               </div>
             </div>
 
-            <SubscriptionButton :plan="SubscriptionPlanEnum.Business" />
+            <SubscriptionButton :plan="SubscriptionPlanEnum.Architector" />
           </div>
         </div>
       </div>

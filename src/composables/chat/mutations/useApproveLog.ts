@@ -2,6 +2,7 @@ import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 import { chatKeys, logKeys } from '@/keys'
 import { approveToolCall } from '@/services/chat'
 import { useAgentStatusStore } from '@/stores/agentStatus'
+import { useChatStore } from '@/stores/chat'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 
@@ -19,6 +20,7 @@ interface ApproveLogVars {
 export function useApproveLog() {
   const queryClient = useQueryClient()
   const agentStatusStore = useAgentStatusStore()
+  const chatStore = useChatStore()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveLog'],
@@ -43,6 +45,7 @@ export function useApproveLog() {
         selectedIds: payload.selectedIds,
         isConfirmed: payload.isConfirmed,
         chatId: message.chatId,
+        modelType: chatStore.modelType,
         jobId,
         chatMessageId: message.id,
         threadId: message.threadId,

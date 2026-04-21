@@ -33,8 +33,9 @@ const currentSubscription = computed(() => {
   }
 
   return (
-    subscriptions.value.find((subscription) => subscription.id === user.value?.subscriptionId) ||
-    null
+    subscriptions.value.find(
+      (subscription) => subscription.subscriptionId === user.value?.subscriptionId,
+    ) || null
   )
 })
 
@@ -97,8 +98,8 @@ function getPlanText(id: SubscriptionPlanEnum | undefined | null) {
     return 'Базовую'
   } else if (id === SubscriptionPlanEnum.Premium) {
     return 'Премиум'
-  } else if (id === SubscriptionPlanEnum.Business) {
-    return 'Бизнес'
+  } else if (id === SubscriptionPlanEnum.Architector) {
+    return 'Архитектор'
   }
 
   return ''

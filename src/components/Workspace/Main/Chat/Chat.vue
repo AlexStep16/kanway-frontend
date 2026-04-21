@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import { storeToRefs } from 'pinia'
@@ -68,6 +68,7 @@ function send(message: string) {
     {
       payload: {
         message,
+        modelType: chatStore.modelType,
         boardId: activeBoardId.value || '',
         threadId: activeChat.value?.threadId || '',
         workspaceId: activeWorkspaceId.value || '',

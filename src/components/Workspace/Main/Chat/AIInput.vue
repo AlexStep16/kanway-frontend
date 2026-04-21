@@ -13,9 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Zap, Brain } from 'lucide-vue-next'
+import { Feather, Flame } from 'lucide-vue-next'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
 import { cn } from '@/lib/utils'
+import { ModelsEnum } from '@/enums/ModelsEnum'
+import { useChatStore } from '@/stores/chat'
+
+const chatStore = useChatStore()
 
 const messageRef = ref<HTMLTextAreaElement | null>(null)
 
@@ -34,7 +38,6 @@ const message = ref<string>('')
 const agentStatusStore = useAgentStatusStore()
 
 const isModelTypeSelectOpen = ref(false)
-const selectedModelType = ref<'fast' | 'thinking'>('fast')
 
 function sendChatMessage() {
   emit('send', message.value.trim())
@@ -79,7 +82,7 @@ defineExpose({
       </div>
       <div class="flex justify-between items-center gap-2 w-full">
         <div class="flex min-w-0 items-center gap-2">
-          <Select v-model:open="isModelTypeSelectOpen" v-model="selectedModelType">
+          <Select v-model:open="isModelTypeSelectOpen" v-model="chatStore.modelType">
             <SelectTrigger
               :class="
                 cn(
@@ -89,20 +92,23 @@ defineExpose({
               "
               :is-open="isModelTypeSelectOpen"
             >
-              <Zap class="size-4 shrink-0" v-if="selectedModelType === 'fast'" />
-              <Brain class="size-4 shrink-0" v-if="selectedModelType === 'thinking'" />
+              <Feather
+                class="size-4 shrink-0"
+                v-if="chatStore.modelType === ModelsEnum.KANWAY_LITE"
+              />
+              <Flame class="size-4 shrink-0" v-if="chatStore.modelType === ModelsEnum.KANWAY_PRO" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup class="p-0 text-muted-foreground">
-                <SelectItem value="fast" class="focus:text-primary">
+                <SelectItem :value="ModelsEnum.KANWAY_LITE" class="focus:text-primary">
                   <div class="flex items-center gap-x-2">
-                    <Zap class="size-4 shrink-0" /><span>Быстрый</span>
+                    <Feather class="size-4 shrink-0" /><span>Kanway Lite</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="thinking" class="focus:text-primary">
+                <SelectItem :value="ModelsEnum.KANWAY_PRO" class="focus:text-primary">
                   <div class="flex items-center gap-x-2">
-                    <Brain class="size-4 shrink-0" /><span>Думающий</span>
+                    <Flame class="size-4 shrink-0" /><span>Kanway Pro</span>
                   </div>
                 </SelectItem>
               </SelectGroup>

@@ -1,6 +1,7 @@
 import { IChatMessage } from '@/interfaces/domain/IChatMessage'
 import { chatKeys, chatMessageKeys } from '@/keys'
 import { retryAgent } from '@/services/chat'
+import { useChatStore } from '@/stores/chat'
 import { useAgentStatusStore } from '@stores/agentStatus'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
@@ -19,6 +20,7 @@ interface RetryAgentVars {
 export function useRetryAgent() {
   const agentStatusStore = useAgentStatusStore()
   const queryClient = useQueryClient()
+  const chatStore = useChatStore()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveTool'],
@@ -31,6 +33,7 @@ export function useRetryAgent() {
       return retryAgent({
         chatId: payload.chatId,
         threadId: payload.threadId,
+        modelType: chatStore.modelType,
         boardId: payload.boardId,
         workspaceId: payload.workspaceId,
         timezone: dayjs.tz.guess(),
