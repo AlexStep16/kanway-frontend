@@ -12,7 +12,7 @@ import { Nullable } from '@/types/utils'
 import { queryClient } from './plugins/queryClient'
 
 const axiosClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_SERVER_BASE_URL,
+  baseURL: import.meta.env.VITE_SERVER_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

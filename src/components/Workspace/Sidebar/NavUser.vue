@@ -6,7 +6,6 @@ import {
   LogOut,
   Sparkles,
   MessageCircleQuestionMark,
-  Star,
 } from 'lucide-vue-next'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -42,7 +41,7 @@ const { isMobile } = useSidebar()
 
 const avatarUrl = computed(() => {
   if (user.value?.avatarUrl) {
-    return import.meta.env.VITE_SERVER_BASE_URL + '/' + user.value.avatarUrl
+    return import.meta.env.VITE_SERVER_API_URL + '/' + user.value.avatarUrl
   } else {
     return ''
   }

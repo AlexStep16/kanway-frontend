@@ -15,6 +15,7 @@ export interface IUser {
   isSubscriptionActive?: boolean
   credits: number
   avatarColor: AvailableColors
+  audioTokensUsed: number
   isTipsCompleted?: boolean
   paymentMethodId?: string
   pendingChangePlan?: Nullable<SubscriptionPlanEnum>

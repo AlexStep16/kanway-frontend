@@ -44,7 +44,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
     if (eventSource.value) eventSource.value.close()
 
     eventSource.value = new EventSource(
-      import.meta.env.VITE_SERVER_BASE_URL + `/chats/stream/${jobId}/status`,
+      import.meta.env.VITE_SERVER_API_URL + `/chats/stream/${jobId}/status`,
       {
         withCredentials: true,
       },

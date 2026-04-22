@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { io, Socket } from 'socket.io-client'
+import workletRawUrl from '../../audio-worklet.js?url'
 
 export const useTranscriptStore = defineStore('transcript', () => {
-  const socket = ref<WebSocket | null>(null)
+  const socket = ref<Socket | null>(null)
   const audioContext = ref<AudioContext | null>(null)
   const workletNode = ref<AudioWorkletNode | null>(null)
   const mediaStreamSource = ref<MediaStreamAudioSourceNode | null>(null)
@@ -23,18 +25,19 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     isConnecting.value = true
 
-    const proxyUrl = import.meta.env.VITE_SERVER_WS_URL
-    const newSocket = new WebSocket(proxyUrl)
+    const serverUrl = import.meta.env.VITE_SERVER_BASE_URL || 'http://localhost:3333'
 
-    newSocket.onopen = () => {
+    const newSocket = io(serverUrl, {
+      withCredentials: true,
+    })
+
+    newSocket.on('connect', () => {
       isConnecting.value = false
       isConnected.value = true
       socket.value = newSocket
-    }
+    })
 
-    newSocket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log(data)
+    newSocket.on('openai-response', (data) => {
       if (data.type === 'input_audio_buffer.committed') {
         isTranscribing.value = true
         stopRecording()
@@ -46,31 +49,36 @@ export const useTranscriptStore = defineStore('transcript', () => {
       if (data.type === 'input_audio_buffer.speech_ended') {
         speechEndedTime.value = Date.now()
       }
-      if (data.type === 'conversation.item.input_audio_transcription.delta')
+      if (data.type === 'conversation.item.input_audio_transcription.delta') {
         transcriptionDelta.value = data.delta
+      }
       if (data.type === 'conversation.item.input_audio_transcription.completed') {
         isTranscribing.value = false
         transcriptionCompleted.value = data.transcript
         resetSpeechTimes()
       }
-    }
+    })
 
-    newSocket.onerror = (error) => {
-      console.error('Ошибка WebSocket:', error)
+    newSocket.on('connect_error', (error) => {
+      console.error('Ошибка подключения к серверу:', error)
       isConnecting.value = false
       isConnected.value = false
       resetSpeechTimes()
-    }
+    })
 
-    newSocket.onclose = (e) => {
+    newSocket.on('recording-stopped-by-server', () => {
+      stopRecording()
+
+      if (newSocket?.connected) {
+        newSocket.emit('commit-audio')
+      }
+    })
+
+    newSocket.on('disconnect', () => {
       isConnected.value = false
       isConnecting.value = false
       socket.value = null
-
-      if (e.code === 1001) {
-        initialize()
-      }
-    }
+    })
   }
 
   function resetSpeechTimes() {
@@ -89,14 +97,14 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     resetSpeechTimes()
 
-    audioContext.value = new AudioContext({ sampleRate: 16000 })
-    await audioContext.value.audioWorklet.addModule('/audio-worklet.js')
+    audioContext.value = new AudioContext({ sampleRate: 24000 })
+    await audioContext.value.audioWorklet.addModule(workletRawUrl)
 
     mediaStreamSource.value = audioContext.value.createMediaStreamSource(stream)
 
     const workletOptions = {
       processorOptions: {
-        bufferSize: 4000,
+        bufferSize: 2048,
       },
     }
 
@@ -107,10 +115,10 @@ export const useTranscriptStore = defineStore('transcript', () => {
     )
 
     workletNode.value.port.onmessage = (event) => {
-      const audioData: Float32Array = event.data
+      const pcmBuffer: ArrayBuffer = event.data
 
-      if (socket.value?.readyState === WebSocket.OPEN) {
-        socket.value.send(audioData.buffer as any)
+      if (socket.value?.connected) {
+        socket.value.emit('audio-chunk', pcmBuffer)
       }
     }
 
@@ -125,10 +133,6 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     if (workletNode.value) {
       workletNode.value.port.postMessage({ command: 'flush' })
-    }
-
-    if (socket.value?.readyState === WebSocket.OPEN) {
-      socket.value.send(JSON.stringify({ action: 'commit' }))
     }
 
     setTimeout(() => {
