@@ -18,7 +18,7 @@ const uiStore = useUIStore()
   >
     <div class="size-full flex items-center justify-center p-2 md:p-4">
       <div
-        class="flex relative flex-col overflow-auto max-h-full items-center w-full md:w-auto bg-white rounded-sm md:rounded-md pointer-events-auto shadow-xl py-8 px-10"
+        class="flex relative flex-col overflow-auto max-h-full items-center w-full md:w-full md:max-w-250 bg-white rounded-sm md:rounded-md pointer-events-auto shadow-xl py-8 px-10"
       >
         <button
           class="absolute right-4 top-4 transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"

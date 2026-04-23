@@ -1,4 +1,5 @@
 import {
+  buyCreditsApi,
   buySubscriptionApi,
   cancelSubscriptionApi,
   downgradeCancelSubscriptionApi,
@@ -6,6 +7,7 @@ import {
   resumeSubscriptionApi,
   upgradeSubscriptionApi,
 } from '@/api/payments'
+import { PaymentItemIdEnum } from '@/enums/PaymentItemIdEnum'
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
 import { IUser } from '@/interfaces/domain/IUser'
 import { IBuySubscriptionResponse } from '@/interfaces/IBuySubscriptionResponse'
@@ -14,6 +16,10 @@ export async function buySubscription(
   subscriptionId: SubscriptionPlanEnum,
 ): Promise<IBuySubscriptionResponse> {
   return await buySubscriptionApi(subscriptionId)
+}
+
+export async function buyCredits(itemId: PaymentItemIdEnum): Promise<IBuySubscriptionResponse> {
+  return await buyCreditsApi(itemId)
 }
 
 export async function upgradeSubscription(

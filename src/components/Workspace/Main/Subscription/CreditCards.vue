@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useSubscriptions } from '@/composables/subscriptions/queries/useSubscriptions'
 import Button from '@/components/ui/button/Button.vue'
+import { useBuyCredits } from '@/composables/payments/mutations/useBuyCredits'
+import { PaymentItemIdEnum } from '@/enums/PaymentItemIdEnum'
+
+const { mutate: buyCredits, isPending: isBuyingCredits } = useBuyCredits()
 
 const { isPending: isSubscriptionsLoading } = useSubscriptions()
 </script>
@@ -25,7 +29,8 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               variant="default"
               class="text-xs"
               size="sm"
-              @click="$emit('openPurchaseCreditsModal')"
+              :disabled="isBuyingCredits"
+              @click="buyCredits({ itemId: PaymentItemIdEnum.CREDIT_PACK_SMALL })"
             >
               Купить
             </Button>
@@ -45,7 +50,8 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               variant="default"
               class="text-xs"
               size="sm"
-              @click="$emit('openPurchaseCreditsModal')"
+              :disabled="isBuyingCredits"
+              @click="buyCredits({ itemId: PaymentItemIdEnum.CREDIT_PACK_MEDIUM })"
             >
               Купить
             </Button>
@@ -65,7 +71,8 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               variant="default"
               class="text-xs"
               size="sm"
-              @click="$emit('openPurchaseCreditsModal')"
+              :disabled="isBuyingCredits"
+              @click="buyCredits({ itemId: PaymentItemIdEnum.CREDIT_PACK_LARGE })"
             >
               Купить
             </Button>
