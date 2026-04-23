@@ -1,6 +1,6 @@
 {
-  "name": "bordai-frontend-tailwind",
-  "version": "0.0.0",
+  "name": "kanway-frontend",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "engines": {
