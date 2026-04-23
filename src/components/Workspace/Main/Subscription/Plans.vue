@@ -16,9 +16,9 @@ const uiStore = useUIStore()
     "
     class="hs-overlay [--overlay-backdrop:static] hidden fixed z-90 size-full top-0 start-0 overflow-y-auto pointer-events-none"
   >
-    <div class="size-full flex items-center justify-center p-2 sm:p-4">
+    <div class="size-full flex items-center justify-center p-2 md:p-4">
       <div
-        class="flex relative flex-col items-center w-auto bg-white rounded-md pointer-events-auto shadow-xl py-8 px-10"
+        class="flex relative flex-col overflow-auto max-h-full items-center w-full md:w-auto bg-white rounded-sm md:rounded-md pointer-events-auto shadow-xl py-8 px-10"
       >
         <button
           class="absolute right-4 top-4 transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"

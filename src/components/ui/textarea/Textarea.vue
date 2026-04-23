@@ -12,6 +12,7 @@ const props = defineProps<{
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const detach = ref(() => {})
+const update = ref(() => {})
 
 const emits = defineEmits<{
   (e: 'update:modelValue', payload: string | number): void
@@ -24,8 +25,9 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 
 onMounted(() => {
   if (textareaRef.value) {
-    const { detach: detachFn } = attach(textareaRef.value) as any
+    const { detach: detachFn, update: updateFn } = attach(textareaRef.value) as any
     detach.value = detachFn
+    update.value = updateFn
   }
 })
 
@@ -37,6 +39,7 @@ onUnmounted(() => {
 
 defineExpose({
   textareaRef,
+  update,
 })
 </script>
 

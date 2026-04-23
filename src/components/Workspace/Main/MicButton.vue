@@ -3,6 +3,8 @@ import { useTranscriptStore } from '@/stores/transcript'
 import { computed, onMounted, ref, watch } from 'vue'
 import { Mic } from 'lucide-vue-next'
 import Spinner from '@components/Loader/Spinner.vue'
+import { useUser } from '@/composables/auth/queries/useUser'
+import { cn } from '@/lib/utils'
 
 const emit = defineEmits<{
   (e: 'deltaAdd', payload: string): void
@@ -12,6 +14,8 @@ const emit = defineEmits<{
 const props = defineProps<{
   isDisabled?: boolean
 }>()
+
+const { data: user } = useUser()
 
 // Логика для анимации громкости (остается без изменений)
 const audioContextForVolume = ref<AudioContext | null>(null)
@@ -69,7 +73,7 @@ function stopRecording() {
 }
 
 async function toggleRecording() {
-  if (props.isDisabled) return
+  if (props.isDisabled || (userCredits.value <= 0 && userPaidCredits.value <= 0)) return
 
   if (transcriptStore.isRecording) {
     stopRecording()
@@ -82,7 +86,7 @@ async function toggleRecording() {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { channelCount: 1, sampleRate: 16000, echoCancellation: true },
+        audio: { channelCount: 1, sampleRate: 24000, echoCancellation: true },
       })
 
       setupVolumeAnalyser(stream)
@@ -108,6 +112,9 @@ const isMicrophoneActive = computed(() => {
 const getIsMicrophoneInit = computed(() => {
   return transcriptStore.isConnecting
 })
+
+const userCredits = computed(() => user.value?.credits ?? 0)
+const userPaidCredits = computed(() => user.value?.paidCredits ?? 0)
 
 watch(
   () => transcriptStore.transcriptionDelta,
@@ -154,11 +161,14 @@ onMounted(() => {
     <button
       type="button"
       @click="toggleRecording"
-      class="flex items-center justify-center z-2 size-8 rounded-md text-gray-500 transition-colors"
-      :class="{
-        'text-white!': isMicrophoneActive,
-        'hover:bg-gray-100': !isMicrophoneActive,
-      }"
+      :class="
+        cn(
+          'flex items-center justify-center z-2 size-8 rounded-md text-gray-500 transition-colors',
+          isMicrophoneActive && 'text-white',
+          !isMicrophoneActive && 'hover:bg-gray-100',
+          user?.credits === 0 && 'cursor-not-allowed opacity-50 hover:bg-transparent',
+        )
+      "
       title="Голосовой ввод"
       v-if="!getIsMicrophoneInit"
     >

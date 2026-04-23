@@ -74,6 +74,10 @@ const workspacesProgress = computed(() => {
 
   return Math.min((workspaces.value.length / maxWorkspaces.value) * 100, 100)
 })
+
+const userCredits = computed(() => user.value?.credits ?? 0)
+const userPaidCredits = computed(() => user.value?.paidCredits ?? 0)
+const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
 </script>
 
 <template>
@@ -102,9 +106,9 @@ const workspacesProgress = computed(() => {
               <span
                 class="font-medium text-primary"
                 :class="{
-                  'text-red-500': user.credits === 0,
+                  'text-red-500': totalCredits === 0,
                 }"
-                >{{ user.credits }}</span
+                >{{ totalCredits }}</span
               >
             </span>
           </div>

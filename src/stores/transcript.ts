@@ -16,6 +16,9 @@ export const useTranscriptStore = defineStore('transcript', () => {
   const isTranscribing = ref<boolean>(false)
   const speechStartedTime = ref<number>(0)
   const speechEndedTime = ref<number>(0)
+  const endSpeechTimeout = ref<NodeJS.Timeout | null>(null)
+
+  const SILENCE_THRESHOLD = 2000
 
   const transcriptionDelta = ref<string>('')
   const transcriptionCompleted = ref<string>('')
@@ -40,14 +43,18 @@ export const useTranscriptStore = defineStore('transcript', () => {
     newSocket.on('openai-response', (data) => {
       if (data.type === 'input_audio_buffer.committed') {
         isTranscribing.value = true
-        stopRecording()
       }
       if (data.type === 'input_audio_buffer.speech_started') {
         speechStartedTime.value = Date.now()
         speechEndedTime.value = 0
+
+        if (endSpeechTimeout.value) {
+          clearTimeout(endSpeechTimeout.value)
+        }
       }
       if (data.type === 'input_audio_buffer.speech_ended') {
         speechEndedTime.value = Date.now()
+        setEndSpeechTimeout()
       }
       if (data.type === 'conversation.item.input_audio_transcription.delta') {
         transcriptionDelta.value = data.delta
@@ -79,6 +86,16 @@ export const useTranscriptStore = defineStore('transcript', () => {
       isConnecting.value = false
       socket.value = null
     })
+  }
+
+  function setEndSpeechTimeout() {
+    if (endSpeechTimeout.value) {
+      clearTimeout(endSpeechTimeout.value)
+    }
+
+    endSpeechTimeout.value = setTimeout(() => {
+      stopRecording()
+    }, SILENCE_THRESHOLD)
   }
 
   function resetSpeechTimes() {
@@ -154,6 +171,9 @@ export const useTranscriptStore = defineStore('transcript', () => {
     }, 200)
 
     resetSpeechTimes()
+
+    clearTimeout(endSpeechTimeout.value!)
+    endSpeechTimeout.value = null
   }
 
   return {

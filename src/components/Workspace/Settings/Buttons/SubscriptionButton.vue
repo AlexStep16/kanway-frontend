@@ -66,7 +66,7 @@ const isBasic = computed(() => props.plan === SubscriptionPlanEnum.Basic)
 const planName = computed(() => {
   switch (props.plan) {
     case SubscriptionPlanEnum.Basic:
-      return 'Базовой'
+      return 'Базовый'
     case SubscriptionPlanEnum.Premium:
       return 'Премиум'
     case SubscriptionPlanEnum.Architector:
@@ -113,6 +113,6 @@ const planName = computed(() => {
     :disabled="isDowngrading"
   >
     <Spinner class="size-4 absolute" v-if="isDowngrading" />
-    <span :class="{ 'opacity-0': isDowngrading }">Понизить до {{ planName }}</span>
+    <span :class="{ 'opacity-0': isDowngrading }">Перейти на {{ planName }}</span>
   </button>
 </template>

@@ -22,7 +22,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-w-130 flex flex-1 flex-col overflow-y-auto overflow-x-hidden justify-between">
+  <div
+    class="max-w-130 w-full flex flex-1 flex-col overflow-y-auto overflow-x-hidden justify-between"
+  >
     <div
       class="flex flex-col-reverse items-center overflow-y-auto overflow-x-hidden min-h-0 max-h-full py-6 px-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
       style="scrollbar-gutter: stable both-edges"

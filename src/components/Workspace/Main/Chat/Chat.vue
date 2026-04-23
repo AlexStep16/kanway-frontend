@@ -15,6 +15,7 @@ import SidebarInset from '@/components/ui/sidebar/SidebarInset.vue'
 import ChatDefaultHeader from './ChatDefaultHeader.vue'
 import { useUIStore } from '@/stores/ui'
 import { useChat } from '@/composables/chat/queries/useChat'
+import { useMediaQuery } from '@vueuse/core'
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
@@ -29,6 +30,7 @@ const { activeChatId } = storeToRefs(chatStore)
 const { data: activeChat } = useChat(activeChatId, activeWorkspaceId)
 
 const messagesRef = ref<HTMLDivElement | null>(null)
+const chatContainerRef = ref<HTMLDivElement | null>(null)
 const aiInputRef = ref<InstanceType<typeof AIInput> | null>(null)
 const abortController = ref<AbortController | null>(null)
 const savedMessage = ref<string>('')
@@ -126,20 +128,42 @@ const isInitialMessagesLoading = computed(() => {
   return areMessagesLoading.value && messages.value?.length === 0
 })
 
+const isMobile = useMediaQuery('(max-width: 768px)')
+const observer = ref<ResizeObserver | null>(null)
+
 onMounted(() => {
   window.addEventListener('beforeunload', stopActiveAgent)
+
+  observer.value = new ResizeObserver(() => {
+    if (aiInputRef.value) {
+      aiInputRef.value.updateTextarea()
+    }
+  })
+  observer.value.observe(chatContainerRef.value!)
 })
 
 onBeforeUnmount(() => {
   stopActiveAgent()
   window.removeEventListener('beforeunload', stopActiveAgent)
+  if (observer.value) {
+    observer.value.disconnect()
+  }
 })
 </script>
 
 <template>
-  <SidebarInset>
-    <div class="min-w-130 flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-      <ChatDefaultHeader v-if="isMainChat" />
+  <SidebarInset
+    class="z-20"
+    :class="{
+      absolute: isMobile,
+      'max-w-screen w-full': isMobile,
+    }"
+  >
+    <div
+      class="w-full flex flex-1 flex-col overflow-y-auto overflow-x-hidden"
+      ref="chatContainerRef"
+    >
+      <ChatDefaultHeader v-if="isMainChat && !isMobile" />
       <ChatSideHeader v-else />
 
       <ChatMain

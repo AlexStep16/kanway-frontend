@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, MoreHorizontal, KanbanSquare, Plus, Star } from 'lucide-vue-next'
+import { ChevronRight, MoreHorizontal, Plus, Star } from 'lucide-vue-next'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import {
   SidebarMenuButton,
@@ -27,9 +27,12 @@ import CreateBoardForm from '@/components/Forms/CreateBoardForm.vue'
 import { Nullable } from '@/types/utils'
 import { cn } from '@/lib/utils'
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
+import { IBoard } from '@/interfaces/domain/IBoard'
+import { useChatStore } from '@/stores/chat'
 
 const workspaceStore = useWorkspaceStore()
 const boardStore = useBoardStore()
+const chatStore = useChatStore()
 
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 const { activeBoardId } = storeToRefs(boardStore)
@@ -42,7 +45,7 @@ const boards = computed(() => boardsData.value || [])
 const open = ref(true)
 const openOptions = ref<Record<string, boolean>>({})
 
-const { isMobile } = useSidebar()
+const { isMobile, toggleSidebar } = useSidebar()
 
 const inputRef = ref<Nullable<HTMLInputElement>>(null)
 
@@ -85,6 +88,24 @@ const orderedBoards = computed(() => {
   otherBoards.sort((a, b) => a.rank.localeCompare(b.rank))
   return [...favoriteBoards, ...otherBoards]
 })
+
+function handleSelectBoard(board: IBoard) {
+  boardStore.selectBoard(board)
+
+  if (isMobile.value) {
+    toggleSidebar()
+    chatStore.closeChat()
+  }
+}
+
+function handleCloseCreateBoard() {
+  createBoardDropdownOpen.value = false
+
+  if (isMobile.value) {
+    toggleSidebar()
+    chatStore.closeChat()
+  }
+}
 </script>
 
 <template>
@@ -110,7 +131,7 @@ const orderedBoards = computed(() => {
             <Button
               variant="ghost"
               size="icon-xs"
-              class="text-muted-foreground opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-sidebar-accent-foreground data-[state=open]:bg-accent focus-within:opacity-100"
+              class="text-muted-foreground md:opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-sidebar-accent-foreground data-[state=open]:bg-accent focus-within:opacity-100"
               @click.stop
             >
               <Plus class="size-3.5" stroke-width="2.5" />
@@ -125,7 +146,7 @@ const orderedBoards = computed(() => {
             <CreateBoardForm
               :ref="connectExposed"
               :workspace-id="activeWorkspaceId"
-              @close="createBoardDropdownOpen = false"
+              @close="handleCloseCreateBoard"
               v-if="activeWorkspaceId"
             />
           </DropdownMenuContent>
@@ -145,7 +166,7 @@ const orderedBoards = computed(() => {
                 size="md"
                 as-child
                 :is-active="board.id === activeBoardId"
-                @click="boardStore.selectBoard(board)"
+                @click="handleSelectBoard(board)"
               >
                 <div class="flex gap-x-1 items-center">
                   <Star

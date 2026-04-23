@@ -82,7 +82,7 @@ const emit = defineEmits<{
             @click="emit('selectTab', SettingTabs.SUBSCRIPTION)"
           >
             <Gem class="size-4.5" />
-            <span class="hidden sm:inline">Подписка</span>
+            <span class="hidden sm:inline">Тарифы</span>
           </button>
 
           <button

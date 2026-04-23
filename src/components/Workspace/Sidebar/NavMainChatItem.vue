@@ -21,9 +21,12 @@ import { useChats } from '@/composables/chat/queries/useChats'
 import { useChatStore } from '@/stores/chat'
 import { useUIStore } from '@/stores/ui'
 import Skeleton from '@/components/ui/skeleton/Skeleton.vue'
+import { IChat } from '@/interfaces/domain/IChat'
+import { useBoardStore } from '@/stores/board'
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
+const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
 
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
@@ -39,13 +42,31 @@ function toggle() {
   open.value = !open.value
 }
 
-const { isMobile } = useSidebar()
+const { isMobile, toggleSidebar } = useSidebar()
 
 const isChatOpen = computed(() => (id: string) => {
   if (!activeChatId.value) return false
 
   return id === activeChatId.value && uiStore.isChatOpen
 })
+
+function handleSelectChat(chat: IChat) {
+  chatStore.selectChat(chat)
+
+  if (isMobile.value) {
+    toggleSidebar()
+    boardStore.resetBoardSelection()
+  }
+}
+
+function handleNewChat() {
+  chatStore.newChat()
+
+  if (isMobile.value) {
+    toggleSidebar()
+    boardStore.resetBoardSelection()
+  }
+}
 </script>
 
 <template>
@@ -69,8 +90,8 @@ const isChatOpen = computed(() => (id: string) => {
         <Button
           variant="ghost"
           size="icon-xs"
-          class="text-muted-foreground opacity-0 group-hover/menu-item:opacity-100"
-          @click.stop="chatStore.newChat"
+          class="text-muted-foreground md:opacity-0 group-hover/menu-item:opacity-100"
+          @click.stop="handleNewChat"
         >
           <Plus class="size-3.5" stroke-width="2.5" />
           <span class="sr-only">Создать чат</span>
@@ -90,7 +111,7 @@ const isChatOpen = computed(() => (id: string) => {
                 size="md"
                 as-child
                 :is-active="isChatOpen(chat.id)"
-                @click="chatStore.selectChat(chat)"
+                @click="handleSelectChat(chat)"
               >
                 <div>
                   <span class="text-nowrap truncate">{{ chat.name }}</span>

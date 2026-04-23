@@ -18,6 +18,10 @@ import Spinner from '@/components/ui/spinner/Spinner.vue'
 import { cn } from '@/lib/utils'
 import { ModelsEnum } from '@/enums/ModelsEnum'
 import { useChatStore } from '@/stores/chat'
+import { useUser } from '@/composables/auth/queries/useUser'
+import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
+
+const { data: user } = useUser()
 
 const chatStore = useChatStore()
 
@@ -34,6 +38,7 @@ const emit = defineEmits<{
 }>()
 
 const message = ref<string>('')
+const update = ref(() => {})
 
 const agentStatusStore = useAgentStatusStore()
 
@@ -48,10 +53,12 @@ function sendChatMessage() {
 function handleTextareaRef(
   el: {
     textareaRef: HTMLTextAreaElement | null
+    update: () => void
   } | null,
 ) {
   if (el && el.textareaRef) {
     messageRef.value = el.textareaRef
+    update.value = el.update
     if (props.isFocused) messageRef.value.focus()
   }
 }
@@ -60,12 +67,23 @@ function setMessage(newMessage: string) {
   message.value = newMessage
 }
 
+function updateTextarea() {
+  if (update.value) {
+    update.value()
+  }
+}
+
 const isRunButtonDisabled = computed(() => {
   return props.isDisabled || !message.value.trim() || agentStatusStore.isSSEActive()
 })
 
+const isUserBasic = computed(() => {
+  return user.value?.subscriptionId === SubscriptionPlanEnum.Basic
+})
+
 defineExpose({
   setMessage,
+  updateTextarea,
 })
 </script>
 
@@ -86,8 +104,7 @@ defineExpose({
             <SelectTrigger
               :class="
                 cn(
-                  'border flex shadow-none h-8 text-xs text-muted-foreground rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent hover:text-primary justify-start px-2',
-                  isModelTypeSelectOpen && 'text-primary bg-accent',
+                  'border flex shadow-none h-8 text-xs text-muted-foreground rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent justify-start px-2',
                 )
               "
               :is-open="isModelTypeSelectOpen"
@@ -101,14 +118,37 @@ defineExpose({
             </SelectTrigger>
             <SelectContent>
               <SelectGroup class="p-0 text-muted-foreground">
-                <SelectItem :value="ModelsEnum.KANWAY_LITE" class="focus:text-primary">
+                <SelectItem
+                  :value="ModelsEnum.KANWAY_LITE"
+                  :class="
+                    cn(
+                      'focus:text-primary',
+                      chatStore.modelType === ModelsEnum.KANWAY_LITE && 'text-primary',
+                    )
+                  "
+                >
                   <div class="flex items-center gap-x-2">
                     <Feather class="size-4 shrink-0" /><span>Kanway Lite</span>
                   </div>
                 </SelectItem>
-                <SelectItem :value="ModelsEnum.KANWAY_PRO" class="focus:text-primary">
+                <SelectItem
+                  :disabled="isUserBasic"
+                  :value="ModelsEnum.KANWAY_PRO"
+                  :class="
+                    cn(
+                      'focus:text-primary',
+                      chatStore.modelType === ModelsEnum.KANWAY_PRO && 'text-primary',
+                    )
+                  "
+                >
                   <div class="flex items-center gap-x-2">
                     <Flame class="size-4 shrink-0" /><span>Kanway Pro</span>
+                    <span
+                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
+                      v-if="isUserBasic"
+                    >
+                      PRO
+                    </span>
                   </div>
                 </SelectItem>
               </SelectGroup>

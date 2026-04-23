@@ -14,6 +14,7 @@ export interface IUser {
   subscriptionUntil?: Date
   isSubscriptionActive?: boolean
   credits: number
+  paidCredits: number
   avatarColor: AvailableColors
   audioTokensUsed: number
   isTipsCompleted?: boolean

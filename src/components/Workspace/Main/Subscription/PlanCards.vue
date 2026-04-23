@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSubscriptions } from '@/composables/subscriptions/queries/useSubscriptions'
 import { SubscriptionPlanEnum } from '@/enums/SubscriptionPlanEnum'
-import BlueCheck from '@assets/blueCheck.svg?component'
+import { Check, X } from 'lucide-vue-next'
 import SubscriptionButton from '../../Settings/Buttons/SubscriptionButton.vue'
 
 defineProps<{
@@ -14,7 +14,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
 <template>
   <div
-    class="grid gap-2 grid-cols-1 md:grid-cols-2 grid-flow-row auto-rows-max"
+    class="grid gap-2 grid-cols-1 md:grid-cols-2 grid-flow-row auto-rows-max w-full"
     :class="{
       'md:grid-cols-3': isOneRow,
     }"
@@ -33,32 +33,37 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовая</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
-            <div class="flex flex-col mt-1 gap-y-1 grow">
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">1 рабочее пространство</span>
-              </div>
+            <ul class="space-y-2 text-xs text-left grow">
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 1 пространство </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">5 досок</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 5 досок </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">50 кредитов</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 20 кредитов </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно задач</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Базовая модель: <b>Kanway Lite</b> </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Обычная поддержка</span>
-              </div>
-            </div>
+              <li class="flex items-center gap-x-1">
+                <X class="size-3.5 text-red-600 shrink-0" />
+                <span class="text-gray-500"> Доступ к модели <b>Kanway Pro</b> </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <X class="size-3.5 text-red-600 shrink-0" />
+                <span class="text-gray-500"> Режим <b>Критик</b></span>
+              </li>
+            </ul>
 
             <SubscriptionButton :plan="SubscriptionPlanEnum.Basic" />
           </div>
@@ -73,35 +78,40 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Премиум</span>
             <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽599</span>
+              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
               /месяц
             </span>
-            <div class="flex flex-col mt-1 gap-y-1 grow">
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно пространств</span>
-              </div>
+            <ul class="space-y-2 text-xs text-left grow">
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 5 пространств </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно досок</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 20 досок </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">500 кредитов</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 600 кредитов </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно задач</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Приоритетная поддержка </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Приоритетная поддержка</span>
-              </div>
-            </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Доступ к модели <b>Kanway Pro</b> </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <X class="size-3.5 text-red-600 shrink-0" />
+                <span class="text-gray-500"> Режим <b>Критик</b></span>
+              </li>
+            </ul>
 
             <SubscriptionButton :plan="SubscriptionPlanEnum.Premium" />
           </div>
@@ -114,37 +124,42 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
       >
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex flex-col gap-y-1 size-full">
-            <span class="text-sm font-medium text-gray-800">Бизнес</span>
+            <span class="text-sm font-medium text-gray-800">Архитектор</span>
             <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
+              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽2499</span>
               /месяц
             </span>
-            <div class="flex flex-col mt-1 gap-y-1 grow">
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно пространств</span>
-              </div>
+            <ul class="space-y-2 text-xs text-left grow">
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Неограниченно пространств </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно досок</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Неограниченно досок </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">1000 кредитов</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> 1300 кредитов </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Неограниченно задач</span>
-              </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Приоритетная поддержка </span>
+              </li>
 
-              <div class="flex gap-x-1 text-gray-500 items-center">
-                <BlueCheck class="size-4" />
-                <span class="text-xs">Приоритетная поддержка</span>
-              </div>
-            </div>
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Доступ к модели <b>Kanway Pro</b> </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Режим <b>Критик</b></span>
+              </li>
+            </ul>
 
             <SubscriptionButton :plan="SubscriptionPlanEnum.Architector" />
           </div>

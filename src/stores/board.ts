@@ -8,7 +8,7 @@ import { useUIStore } from '@stores/ui'
 export const useBoardStore = (pinia?: Pinia) => {
   return defineStore('board', () => {
     const WORKSPACE_STORE = useWorkspaceStore(pinia)
-    const UI_STORE = useUIStore(pinia)
+    const uiStore = useUIStore(pinia)
 
     const activeBoardId = ref<Nullable<string>>(null)
     const activeWorkspaceId = toRef(WORKSPACE_STORE, 'activeWorkspaceId') as Ref<Nullable<string>>
@@ -29,7 +29,7 @@ export const useBoardStore = (pinia?: Pinia) => {
 
       setTimeout(() => (document.title = 'Kanway | ' + board.name), 0)
 
-      UI_STORE.selectBoard() // Change current UI view to board view
+      uiStore.selectBoard() // Change current UI view to board view
     }
 
     function resetBoardSelection() {

@@ -34,15 +34,15 @@ onMounted(() => {
     tabindex="-1"
     aria-labelledby="hs-task-edit-label"
   >
-    <div class="size-full flex items-center justify-center p-2 sm:p-4">
+    <div class="size-full flex items-center justify-center p-2 md:p-4">
       <div
-        class="flex flex-col size-full max-w-4xl max-h-160 bg-white rounded-md pointer-events-auto px-3 sm:px-4 py-2 sm:py-3 gap-y-2 sm:gap-y-4 overflow-auto"
+        class="flex flex-col size-full max-w-none md:max-w-4xl max-h-screen md:max-h-160 bg-white rounded-sm md:rounded-md pointer-events-auto px-3 md:px-4 py-2 md:py-3 gap-y-2 md:gap-y-4 overflow-auto"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center gap-x-2 pb-1 sm:pb-2 border-b border-gray-200"
+          class="flex justify-between items-center gap-x-2 pb-1 md:pb-2 border-b border-gray-200"
         >
-          <h5 id="hs-task-edit-label" class="sm:text-lg font-semibold text-gray-900">Настройки</h5>
+          <h5 id="hs-task-edit-label" class="md:text-lg font-semibold text-gray-900">Настройки</h5>
           <button
             class="transition-colors duration-100 text-gray-400 hover:bg-gray-200 p-1 rounded-full"
             type="button"
@@ -63,7 +63,7 @@ onMounted(() => {
             :currentTab
           />
           <!-- Content -->
-          <div class="grow flex flex-col gap-y-4 ps-3 sm:ps-6 pe-1 overflow-y-auto">
+          <div class="grow flex flex-col gap-y-4 ps-3 md:ps-6 pe-1 overflow-y-auto">
             <General v-if="currentTab === SettingTabs.GENERAL" />
             <Security v-if="currentTab === SettingTabs.SECURITY" />
             <Assistant v-if="currentTab === SettingTabs.ASSISTANT" />

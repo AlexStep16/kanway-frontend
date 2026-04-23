@@ -7,10 +7,21 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { useUIStore } from '@/stores/ui'
 
 const uiStore = useUIStore()
+
+const { isMobile, toggleSidebar } = useSidebar()
+
+const handleSelectArchive = () => {
+  uiStore.selectArchive()
+
+  if (isMobile.value) {
+    toggleSidebar()
+  }
+}
 </script>
 
 <template>
@@ -18,7 +29,7 @@ const uiStore = useUIStore()
     <SidebarGroupContent>
       <SidebarMenu>
         <SidebarMenuItem class="cursor-default" title="Архив">
-          <SidebarMenuButton @click="uiStore.selectArchive()" as-child>
+          <SidebarMenuButton @click="handleSelectArchive" as-child>
             <div class="flex gap-x-2">
               <Archive class="size-3" />
               <span>Архив</span>

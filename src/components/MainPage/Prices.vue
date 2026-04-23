@@ -39,33 +39,33 @@ import { Check, X } from 'lucide-vue-next'
           <p class="mt-2 text-sm text-gray-500">Для знакомства с ИИ-ассистентом</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 1 пространство </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 5 досок </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 20 кредитов </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Базовая модель: <b>Kanway Lite</b> </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <X class="size-4 text-red-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <X class="size-4 text-red-600 shrink-0" />
               <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <X class="size-4 text-red-600 shrink-0 relative top-1" />
+            <li class="flex items-center gap-x-2">
+              <X class="size-4 text-red-600 shrink-0" />
               <span class="text-gray-800"> Режим <b>Критик</b></span>
             </li>
           </ul>
@@ -97,33 +97,33 @@ import { Check, X } from 'lucide-vue-next'
           <p class="mt-2 text-sm text-gray-500">Для активной работы и роста проектов</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 5 пространств </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 20 досок </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 600 кредитов </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Приоритетная поддержка </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <X class="size-4 text-red-600 shrink-0 relative top-1" />
+            <li class="flex items-center gap-x-2">
+              <X class="size-4 text-red-600 shrink-0" />
               <span class="text-gray-800"> Режим <b>Критик</b></span>
             </li>
           </ul>
@@ -149,33 +149,33 @@ import { Check, X } from 'lucide-vue-next'
           <p class="mt-2 text-sm text-gray-500">Для проектирования сложных систем и бизнеса</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Неограниченно пространств </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Неограниченно досок </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> 1300 кредитов </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Приоритетная поддержка </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-0.5" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
             </li>
 
-            <li class="flex gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0 relative top-1" />
+            <li class="flex items-center gap-x-2">
+              <Check class="size-4 text-blue-600 shrink-0" />
               <span class="text-gray-800"> Режим <b>Критик</b></span>
             </li>
           </ul>

@@ -16,6 +16,7 @@ export default class UserModel implements IUser {
   public isSubscriptionActive?: boolean
   public audioTokensUsed: number
   public credits: number
+  public paidCredits: number
   public avatarColor: AvailableColors
   public isTipsCompleted?: boolean
   public paymentMethodId?: string
@@ -37,6 +38,7 @@ export default class UserModel implements IUser {
     this.isSubscriptionActive = props.isSubscriptionActive
     this.audioTokensUsed = props.audioTokensUsed
     this.credits = props.credits
+    this.paidCredits = props.paidCredits
     this.avatarColor = props.avatarColor
     this.paymentMethodId = props.paymentMethodId
     this.pendingChangePlan = props.pendingChangePlan
