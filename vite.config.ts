@@ -5,6 +5,7 @@ import compressPlugin from 'vite-plugin-compression'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import svgLoader from 'vite-svg-loader'
+import legacy from '@vitejs/plugin-legacy'
 
 export default defineConfig({
   resolve: {
@@ -36,5 +37,8 @@ export default defineConfig({
       deleteOriginFile: false,
     }),
     tailwindcss(),
+    legacy({
+      targets: ['defaults', 'not IE 11'],
+    }),
   ],
 })
