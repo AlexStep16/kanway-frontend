@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { yandexAuthApi } from './api/auth'
 import { YandexAuthPayload } from './interfaces/YandexAuthPayload'
 
@@ -20,7 +21,10 @@ export function initYaAuth() {
   })
     .then(({ handler }: any) => handler())
     .then((data: YandexAuthPayload) => {
-      yandexAuthApi(data).then(() => {
+      yandexAuthApi({
+        ...data,
+        timezone: dayjs.tz.guess(),
+      }).then(() => {
         window.location.reload()
       })
     })
