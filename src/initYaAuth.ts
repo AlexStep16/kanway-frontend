@@ -1,6 +1,6 @@
 export function initYaAuth() {
   const oauthQueryParams = {
-    client_id: 'c46f0c53093440c39f12eff95a9f2f93',
+    client_id: '3b999a918afb4a9085e6238f30ae3df5',
     response_type: 'token',
     redirect_uri: 'https://kanway.ru/suggest/token',
   }
