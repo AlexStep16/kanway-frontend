@@ -24,6 +24,10 @@ export default defineConfig({
       '@models': path.resolve(__dirname, './src/models'),
     },
   },
+  build: {
+    target: 'es2020',
+    cssTarget: 'chrome61',
+  },
   plugins: [
     vue(),
     svgLoader(),
