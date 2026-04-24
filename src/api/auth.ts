@@ -4,12 +4,21 @@ import LoginCredentials from '@interfaces/LoginCredentials'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
 import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
+import { YandexAuthPayload } from '@/interfaces/YandexAuthPayload'
 
 export async function loginApi(credentials: LoginCredentials) {
   return await apiCall<IUser>({
     method: 'POST',
     url: '/auth/login',
     data: credentials,
+  })
+}
+
+export async function yandexAuthApi(payload: YandexAuthPayload) {
+  return await apiCall<null>({
+    method: 'POST',
+    url: '/auth/yandex',
+    data: payload,
   })
 }
 

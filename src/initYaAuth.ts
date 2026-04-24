@@ -1,3 +1,6 @@
+import { yandexAuthApi } from './api/auth'
+import { YandexAuthPayload } from './interfaces/YandexAuthPayload'
+
 export function initYaAuth() {
   const oauthQueryParams = {
     client_id: '3b999a918afb4a9085e6238f30ae3df5',
@@ -16,6 +19,10 @@ export function initYaAuth() {
     buttonIcon: 'ya',
   })
     .then(({ handler }: any) => handler())
-    .then((data: any) => console.log('Сообщение с токеном', data))
+    .then((data: YandexAuthPayload) => {
+      yandexAuthApi(data).then(() => {
+        window.location.reload()
+      })
+    })
     .catch((error: any) => console.log('Обработка ошибки', error))
 }
