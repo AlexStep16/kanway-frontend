@@ -9,7 +9,7 @@ defineProps<{
   <button
     id="hs-dropdown-move"
     type="button"
-    class="min-w-0 py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-gray-100 hover:bg-gray-200 transition-colors duration-100 text-gray-500 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
+    class="min-w-0 py-1.5 px-2 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium rounded-lg border border-transparent bg-gray-100 hover:bg-gray-200 transition-colors duration-100 text-gray-500 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
     aria-haspopup="menu"
     aria-expanded="false"
     aria-label="Dropdown"

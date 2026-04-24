@@ -16,7 +16,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="flex gap-x-3 min-w-0">
+  <div class="flex shrink-0 gap-x-2 sm:gap-x-3 min-w-0">
     <div class="flex items-center transition-all duration-100" v-if="!editableEntity.isDeleted">
       <button
         type="button"

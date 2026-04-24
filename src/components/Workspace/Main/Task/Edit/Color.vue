@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TaskModel } from '@models/TaskModel'
-import { Palette, CircleOff } from 'lucide-vue-next'
+import { Palette, CircleOff, ChevronDown } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { COLOR_NAMES_MAP } from '@/constants/COLOR_NAMES_MAP'
 import { TASK_COLORS_MAP, TASK_COLORS_TITLES } from '@/constants/TASK_COLORS'
@@ -71,7 +71,7 @@ function getGridColorsTemplate() {
   let minRow = 1
   let maxRow = 3
 
-  for (const [colorHex, color] of Object.entries(TASK_COLORS_MAP)) {
+  for (const [, color] of Object.entries(TASK_COLORS_MAP)) {
     colorsTemplate.push({
       col,
       row,
@@ -137,7 +137,7 @@ onMounted(() => {
     <button
       id="hs-dropdown-color"
       type="button"
-      class="hs-dropdown-toggle py-1 px-2 inline-flex items-center gap-x-2 text-custom-sm font-medium border rounded-lg shadow-2xs transition-colors duration-100 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none:"
+      class="hs-dropdown-toggle h-8 px-2 inline-flex items-center gap-x-2 text-xs sm:text-custom-sm font-medium border rounded-lg shadow-2xs transition-colors duration-100 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none:"
       :class="{
         'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200 focus:bg-gray-200 ':
           !task.color,
@@ -148,7 +148,7 @@ onMounted(() => {
       aria-label="Dropdown"
     >
       <div class="flex items-center gap-x-2">
-        <Palette class="size-4" />
+        <Palette class="size-3.5 sm:size-4" />
         <span>{{ colorTitle }}</span>
         <div
           v-if="taskColor"
@@ -156,20 +156,9 @@ onMounted(() => {
           :style="{ backgroundColor: taskColor }"
         ></div>
       </div>
-      <svg
-        class="hs-dropdown-open:rotate-180 size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      <ChevronDown
+        class="inline-flex items-center justify-center size-4 duration-200 hs-dropdown-open:rotate-180"
+      />
     </button>
 
     <div

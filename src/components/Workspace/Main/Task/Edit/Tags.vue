@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TaskModel } from '@models/TaskModel'
-import { Hash, X } from 'lucide-vue-next'
+import { ChevronDown, Hash, X } from 'lucide-vue-next'
 import ButtonCreate from '@components/Buttons/ButtonCreate.vue'
 import { computed, ref } from 'vue'
 
@@ -48,7 +48,7 @@ const getTagsTitle = computed(() => {
     <button
       id="hs-dropdown-tags"
       type="button"
-      class="hs-dropdown-toggle py-1 px-2 inline-flex items-center gap-x-2 text-custom-sm font-medium border rounded-lg shadow-2xs transition-colors duration-100 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none:"
+      class="hs-dropdown-toggle h-8 px-2 inline-flex items-center gap-x-2 text-xs sm:text-custom-sm font-medium border rounded-lg shadow-2xs transition-colors duration-100 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none:"
       :class="{
         'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200 focus:bg-gray-200 ':
           props.task.tags.length === 0,
@@ -60,27 +60,16 @@ const getTagsTitle = computed(() => {
       aria-label="Dropdown"
     >
       <div class="flex items-center gap-x-1">
-        <Hash class="size-4" />
+        <Hash class="size-3.5 sm:size-4" />
         <span>{{ getTagsTitle }}</span>
       </div>
-      <svg
-        class="hs-dropdown-open:rotate-180 size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="m6 9 6 6 6-6" />
-      </svg>
+      <ChevronDown
+        class="inline-flex items-center justify-center size-4 duration-200 hs-dropdown-open:rotate-180"
+      />
     </button>
 
     <div
-      class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden w-65 bg-white shadow-md rounded-lg mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
+      class="hs-dropdown-menu transition-[opacity,margin] z-20 duration hs-dropdown-open:opacity-100 opacity-0 hidden w-65 bg-white shadow-md rounded-lg mt-2 after:h-4 after:absolute after:-bottom-4 after:start-0 after:w-full before:h-4 before:absolute before:-top-4 before:start-0 before:w-full"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="hs-dropdown-tags"

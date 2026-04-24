@@ -211,7 +211,7 @@ onMounted(() => {
             class="w-full truncate border-none bg-gray-100 rounded-md pl-3 pr-9 py-2 text-sm focus:outline-none focus:ring-1 disabled:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Введите E-Mail"
             disabled
-            value="alexander.ivanov@example.com"
+            :value="user?.email"
           />
           <Lock class="size-4 absolute right-3 text-gray-500" />
         </div>

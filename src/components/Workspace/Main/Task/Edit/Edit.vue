@@ -196,29 +196,30 @@ onUnmounted(() => {
     class="hs-overlay [--overlay-backdrop:static] hidden fixed z-90 size-full top-0 start-0 overflow-y-auto pointer-events-none"
   >
     <div class="size-full flex items-center justify-center p-2 sm:p-4">
-      <!-- Работаем напрямую с task из Query -->
       <div
         v-if="task"
         class="flex flex-col w-full max-w-xl bg-white rounded-md pointer-events-auto shadow-xl"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-gray-200">
-          <div class="flex items-center gap-x-1">
+        <div
+          class="flex justify-between items-center gap-x-2 px-2 py-1.5 sm:px-4 sm:py-2 border-b border-gray-200 overflow-hidden"
+        >
+          <div class="flex items-center gap-1 min-w-0">
             <!-- Кнопка статуса -->
             <button
               type="button"
               @click="toggleCompleted"
-              class="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg transition-colors"
+              class="py-1.5 px-2 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium rounded-lg transition-colors"
               :class="
                 task.isCompleted ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
               "
             >
-              <div class="inline-flex items-center size-4">
+              <div class="inline-flex items-center size-3 sm:size-4">
                 <label class="flex items-center relative transition-all" @click.prevent>
                   <input
                     v-model="task.isCompleted"
                     type="checkbox"
-                    class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
+                    class="peer size-3.5 sm:size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
                     id="check-custom-style"
                   />
                   <span
@@ -226,7 +227,7 @@ onUnmounted(() => {
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      class="size-3"
+                      class="size-2.5 sm:size-3"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                       stroke="currentColor"
@@ -252,7 +253,7 @@ onUnmounted(() => {
               :type="EntityType.Task"
               @move="handleMoveTask"
             >
-              <Layers class="size-4 shrink-0" />
+              <Layers class="size-3.5 sm:size-4 shrink-0" />
             </MoveDropdown>
 
             <MoveDropdownButton :title="task.category.name" :disabled="true" v-else>

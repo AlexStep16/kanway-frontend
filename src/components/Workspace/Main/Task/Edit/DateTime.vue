@@ -163,13 +163,13 @@ watch(
         variant="outline"
         :class="
           cn(
-            'w-auto min-w-35 flex gap-x-2 justify-between text-left text-muted-foreground text-custom-sm',
+            'w-auto min-w-35 flex gap-x-2 justify-between text-left text-muted-foreground text-xs sm:text-custom-sm',
             !date && 'text-muted-foreground',
           )
         "
         size="sm"
       >
-        <CalendarIcon />
+        <CalendarIcon class="size-3.5 sm:size-4" />
         {{ date ? dateTitle : 'Выбрать дату' }}
         <ChevronDown
           class="size-4 transition-transform duration-200"
@@ -181,16 +181,16 @@ watch(
     </PopoverTrigger>
     <PopoverContent align="start" class="w-auto overflow-hidden p-0 z-90" @openAutoFocus.prevent>
       <Card class="max-w-xs rounded-0 border-0 shadow-none p-0">
-        <CardHeader class="flex flex-col gap-2 border-b px-4 py-2">
+        <CardHeader class="flex flex-col gap-2 border-b px-3 sm:px-4 py-2">
           <div class="flex justify-between items-center gap-x-2 w-full">
-            <span class="text-custom-sm text-muted-foreground font-medium">Дата</span>
+            <span class="text-xs sm:text-custom-sm text-muted-foreground font-medium">Дата</span>
             <div class="flex items-center relative">
               <Input
                 type="text"
                 v-model="inputDate"
                 :class="
                   cn(
-                    'px-2 w-35 h-8 placeholder:text-muted-foreground/80 text-muted-foreground text-custom-sm! font-medium',
+                    'px-2 w-35 h-8 placeholder:text-muted-foreground/80 text-muted-foreground text-xs sm:text-custom-sm font-medium',
                   )
                 "
                 placeholder="Дата окончания"
@@ -210,13 +210,13 @@ watch(
             </div>
           </div>
           <div class="flex justify-between items-center gap-x-2 w-full">
-            <span class="text-custom-sm text-muted-foreground font-medium">Время</span>
+            <span class="text-xs sm:text-custom-sm text-muted-foreground font-medium">Время</span>
             <div class="flex items-center relative">
               <Input
                 type="text"
                 :class="
                   cn(
-                    'px-2 w-35 h-8 placeholder:text-muted-foreground/80 text-muted-foreground text-custom-sm! font-medium',
+                    'px-2 w-35 h-8 placeholder:text-muted-foreground/80 text-muted-foreground text-xs sm:text-custom-sm font-medium',
                     time && 'pr-7',
                   )
                 "
@@ -242,18 +242,13 @@ watch(
           <Calendar
             v-model="date"
             locale="ru-RU"
-            :class="cn('**:data-[slot=calendar-cell-trigger]:size-12!')"
+            :class="cn('**:data-[slot=calendar-cell-trigger]:size-12! p-2 sm:p-3')"
           />
         </CardContent>
-        <CardFooter class="flex justify-end gap-x-2 border-t p-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            class="w-auto text-xs text-muted-foreground"
-            @click="clearAll"
-          >
+        <CardFooter class="flex justify-end gap-x-2 border-t p-3">
+          <span class="font-medium w-auto text-xs text-muted-foreground" @click="clearAll">
             Очистить всё
-          </Button>
+          </span>
         </CardFooter>
       </Card>
     </PopoverContent>
