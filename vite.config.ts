@@ -38,7 +38,8 @@ export default defineConfig({
     }),
     tailwindcss(),
     legacy({
-      targets: ['defaults', 'not IE 11'],
+      targets: ['iOS >= 12', 'defaults', 'not IE 11'],
+      modernPolyfills: ['es.array.at', 'es.object.from-entries'],
     }),
   ],
 })
