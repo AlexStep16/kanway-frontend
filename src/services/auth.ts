@@ -17,6 +17,7 @@ import {
   verifyEmailTokenApi,
   validateTokenApi,
   logoutApi,
+  checkEmailExistsApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
@@ -49,6 +50,10 @@ export async function register(credentials: RegisterCredentials) {
   const user = await registerApi(credentials)
 
   return transformUser(user)
+}
+
+export async function checkEmailExists(email: string): Promise<boolean> {
+  return await checkEmailExistsApi(email)
 }
 
 export async function getMe(): Promise<UserModel> {

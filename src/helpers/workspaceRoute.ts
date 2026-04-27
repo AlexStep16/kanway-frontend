@@ -20,7 +20,7 @@ export async function redirectToWorkspace(pageContext: PageContextClient) {
     })
 
     if (workspacesPayload.length === 0) {
-      throw redirect('/begin')
+      throw redirect('/welcome')
     }
 
     const workspaceInWorkspaces = params.workspaceId

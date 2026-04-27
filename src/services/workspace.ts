@@ -11,9 +11,11 @@ import {
   recoverWorkspaceApi,
   getWorkspaceApi,
   getWorkspacesCountApi,
+  welcomeApi,
 } from '@api/workspaces'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ISingleUpdate } from '@/interfaces/domain/ISingleUpdate'
+import { WelcomePayload } from '@/interfaces/WelcomePayload'
 
 export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
   return new WorkspaceModel({
@@ -104,4 +106,10 @@ export async function cloneWorkspace(workspaceId: string): Promise<IResponseWith
     data: cloneResult.data.map(transformWorkspace),
     logId: cloneResult.logId,
   }
+}
+
+export async function welcome(payload: WelcomePayload): Promise<IWorkspace> {
+  const workspace = await welcomeApi(payload)
+
+  return transformWorkspace(workspace)
 }

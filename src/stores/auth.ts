@@ -10,7 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       // ignore error
     } finally {
-      await navigate('/sign-in')
+      await navigate('/auth')
 
       queryClient.clear()
       localStorage.clear()

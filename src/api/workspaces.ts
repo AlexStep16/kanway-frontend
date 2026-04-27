@@ -2,6 +2,7 @@ import { apiCall } from '@/apiClient'
 import { IWorkspace } from '@interfaces/domain/IWorkspace'
 import { IResponseWithLog } from '@/interfaces/IResponseWithLog'
 import { ISingleUpdate } from '@interfaces/domain/ISingleUpdate'
+import { WelcomePayload } from '@/interfaces/WelcomePayload'
 
 export async function getWorkspacesApi() {
   return await apiCall<IWorkspace[]>({
@@ -75,5 +76,13 @@ export async function cloneWorkspaceApi(workspaceId: string) {
   return await apiCall<IResponseWithLog<IWorkspace[]>>({
     method: 'POST',
     url: `/workspaces/${workspaceId}/clone`,
+  })
+}
+
+export async function welcomeApi(payload: WelcomePayload) {
+  return await apiCall<IWorkspace>({
+    method: 'POST',
+    url: `/workspaces/welcome`,
+    data: payload,
   })
 }

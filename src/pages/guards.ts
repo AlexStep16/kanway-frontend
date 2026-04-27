@@ -10,7 +10,7 @@ export const requireAuth = async () => {
     return user
   } catch (e: any) {
     if (e.status === 401 || e.response?.status === 401) {
-      throw redirect('/sign-in')
+      throw redirect('/auth')
     } else if (e.code === 404) {
       return null
     }

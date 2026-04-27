@@ -10,6 +10,7 @@ import EmailSent from '@/components/Auth/EmailSent.vue'
 import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { HSStaticMethods } from 'preline'
+import { Mail } from 'lucide-vue-next'
 
 const { mutate: sendEmail, isPending: isSending } = useSendPasswordRecoveryEmail()
 
@@ -78,18 +79,19 @@ onMounted(() => {
         <div class="mt-5" v-if="!isEmailSent">
           <!-- Form -->
           <form @submit.prevent="onSubmit" novalidate>
-            <div class="grid gap-y-4">
+            <div class="grid gap-y-2">
               <!-- Form Group -->
               <div>
-                <label for="email" class="block text-sm mb-2">Почта</label>
-                <div class="relative">
+                <div class="flex items-center relative">
+                  <Mail class="size-4 absolute left-4 text-gray-400" />
                   <input
                     type="email"
                     id="email"
                     name="email"
-                    class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                    class="py-2.5 sm:py-3 pr-4 pl-10 block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                     v-model="email"
                     v-bind="emailAttrs"
+                    placeholder="Введите почту"
                   />
                 </div>
                 <ul
@@ -108,7 +110,7 @@ onMounted(() => {
                 Вспомнили пароль?
                 <a
                   class="text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium"
-                  href="/sign-in"
+                  href="/auth"
                 >
                   Войти
                 </a>

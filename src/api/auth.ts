@@ -37,6 +37,14 @@ export async function registerApi(credentials: RegisterCredentials) {
   })
 }
 
+export async function checkEmailExistsApi(email: string) {
+  return await apiCall<boolean>({
+    method: 'POST',
+    url: '/auth/check-email',
+    data: { email },
+  })
+}
+
 export async function meApi() {
   return await apiCall<IUser>({
     method: 'GET',

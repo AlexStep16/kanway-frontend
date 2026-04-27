@@ -9,7 +9,7 @@ export function useLogin() {
   return useMutation({
     mutationKey: ['user', 'login'],
     mutationFn: (credentials: LoginCredentials) => login(credentials),
-    onSuccess: (user) => {
+    onSuccess: () => {
       navigate('/workspace')
     },
     onSettled: () => {

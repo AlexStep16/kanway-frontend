@@ -14,8 +14,8 @@ const data = async (pageContext: PageContextClient) => {
       throw redirect('/workspace')
     }
   } catch (e: any) {
-    if ((e.status === 401 || e.response?.status === 401) && !token) {
-      throw redirect('/sign-in')
+    if (e.status === 401 || e.response?.status === 401) {
+      throw redirect('/auth')
     }
     throw e
   }

@@ -6,6 +6,7 @@ import { navigate } from 'vike/client/router'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useSendVerificationEmail } from '@/composables/auth/mutations/useSendVerificationEmail'
+import ExitButton from '@/components/Auth/ExitButton.vue'
 
 const { mutate: verify, isPending: isVerifying } = useVerificationOTP()
 const { mutate: resend, isPending: isResending } = useSendVerificationEmail()
@@ -152,9 +153,13 @@ onUnmounted(() => {
   >
     <div class="p-4 pt-7 sm:p-7">
       <div class="text-center flex justify-center flex-col items-center">
-        <a href="/">
-          <KanwayLogo class="h-8 sm:h-10" />
-        </a>
+        <div class="relative flex justify-center items-center w-full">
+          <a href="/">
+            <KanwayLogo class="h-8 sm:h-10" />
+          </a>
+
+          <ExitButton class="absolute top-0 right-0" />
+        </div>
         <h1 class="block mt-4 text-2xl font-bold text-gray-900">Проверьте почту</h1>
         <p class="mt-2 text-sm text-gray-500 leading-relaxed">
           Мы отправили 6-значный код на
