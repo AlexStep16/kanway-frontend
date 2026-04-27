@@ -94,7 +94,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="size-full bg-gray-100 fixed inset-0 flex flex-col">
+  <div class="size-full bg-gray-100 fixed inset-0 flex flex-col px-2">
     <header class="w-full py-5 px-4 sm:px-10 flex justify-between items-center">
       <a @click="navigate('/')" class="cursor-pointer" aria-label="На главную">
         <KanwayLogo class="h-8 sm:h-10" />
@@ -176,7 +176,7 @@ onMounted(() => {
                   :class="{
                     'opacity-0': isWelcomePending,
                   }"
-                  >Сохранить</span
+                  >Начать работу</span
                 >
               </Button>
             </div>
