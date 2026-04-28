@@ -41,7 +41,12 @@ handleCallback()
 
 <template>
   <BackgroundCircles />
-  <div class="size-100 bg-white border border-gray-200 rounded-xl shadow-2xs">
-    <Spinner class="size-5" />
+  <div class="w-full h-screen flex overflow-hidden items-center justify-center p-2">
+    <div
+      class="flex flex-col gap-2 items-center justify-center size-100 bg-white text-gray-400 border border-gray-200 rounded-xl shadow-2xs"
+    >
+      <Spinner class="size-7" />
+      <span class="text-sm">Выполняется вход...</span>
+    </div>
   </div>
 </template>
