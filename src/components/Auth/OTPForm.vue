@@ -100,11 +100,8 @@ const handleKeyDown = (event: KeyboardEvent, index: number) => {
 
 const handlePaste = (event: ClipboardEvent) => {
   event.preventDefault()
-  const pasteData = event.clipboardData
-    ?.getData('text')
-    .replace(/\D/g, '')
-    .slice(0, OTP_LENGTH)
-    .split('') || []
+  const pasteData =
+    event.clipboardData?.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH).split('') || []
 
   pasteData.forEach((char, index) => {
     if (index < OTP_LENGTH) {
@@ -167,7 +164,7 @@ defineExpose({
 
 <template>
   <div
-    class="size-full sm:w-100 sm:h-auto bg-white sm:border sm:border-gray-200 sm:rounded-xl shadow-2xs overflow-y-auto"
+    class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
   >
     <div class="p-4 pt-7 sm:p-7">
       <div class="text-center flex justify-center flex-col items-center">
