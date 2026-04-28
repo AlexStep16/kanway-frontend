@@ -15,6 +15,7 @@ import AlreadyVerified from '@/components/Auth/AlreadyVerified.vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import EmailOTPView from './EmailOTPView.vue'
 import { HSStaticMethods } from 'preline'
+import BackgroundCircles from '@/components/BackgroundCircles.vue'
 
 const { mutate: verifyToken, isPending: isVerifying, error } = useVerificationEmail()
 const { mutate: resend, isPending: isResending } = useSendVerificationEmailByToken()
@@ -59,6 +60,7 @@ onMounted(() => {
 
 <template>
   <div class="w-full h-screen flex items-center justify-center">
+    <BackgroundCircles />
     <div
       class="size-full sm:w-[400px] sm:h-auto bg-white sm:border sm:border-gray-200 sm:rounded-xl shadow-2xs overflow-y-auto"
       v-if="token"
