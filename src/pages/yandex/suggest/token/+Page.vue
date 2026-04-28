@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { yandexAuthApi } from '@/api/auth'
+import BackgroundCircles from '@/components/BackgroundCircles.vue'
+import Spinner from '@/components/ui/spinner/Spinner.vue'
 import dayjs from 'dayjs'
 import { navigate } from 'vike/client/router'
 
@@ -38,5 +40,8 @@ handleCallback()
 </script>
 
 <template>
-  <div></div>
+  <BackgroundCircles />
+  <div class="size-100 bg-white border border-gray-200 rounded-xl shadow-2xs">
+    <Spinner class="size-5" />
+  </div>
 </template>
