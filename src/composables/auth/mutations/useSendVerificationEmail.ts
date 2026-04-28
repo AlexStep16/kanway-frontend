@@ -9,7 +9,10 @@ export function useSendVerificationEmail() {
     meta: {
       errorMessage: false,
     },
-    mutationFn: () => sendVerificationEmail(),
+    mutationFn: () => {
+      localStorage.setItem('resend_timer_verification_email', Date.now().toString())
+      return sendVerificationEmail()
+    },
     onError: (error) => {
       if ((error as BackendError).code === 429) {
         toast.error(error.message)

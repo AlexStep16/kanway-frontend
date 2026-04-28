@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import YandexLogo from '@assets/yandex_logo.svg?component'
+import VkLogo from '@assets/vk_logo.svg?component'
 import { generateRandomString } from '@/utils/generateRandomString'
 import { generateCodeChallenge } from '@/utils/generateCodeChallenge'
 
@@ -8,25 +8,25 @@ async function prepareAuth() {
   const codeChallenge = await generateCodeChallenge(codeVerifier)
   const state = generateRandomString(16)
 
-  localStorage.setItem('yandex_code_verifier', codeVerifier)
-  localStorage.setItem('yandex_auth_state', state)
+  localStorage.setItem('vk_code_verifier', codeVerifier)
+  localStorage.setItem('vk_auth_state', state)
 
   return { codeChallenge, state }
 }
 
-async function startYandexAuth() {
+async function startVkAuth() {
   const { codeChallenge, state } = await prepareAuth()
 
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: '3b999a918afb4a9085e6238f30ae3df5',
-    redirect_uri: 'https://kanway.ru/yandex/suggest/token',
+    client_id: '54569329',
+    redirect_uri: 'https://kanway.ru/vk/suggest/token',
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state: state,
   })
 
-  window.location.href = `https://oauth.yandex.ru/authorize?${params.toString()}`
+  window.location.href = `https://id.vk.ru/authorize?${params.toString()}`
 }
 </script>
 
@@ -34,9 +34,9 @@ async function startYandexAuth() {
   <div class="flex items-center justify-center">
     <button
       class="flex items-center justify-center bg-gray-100 rounded-md size-11 cursor-pointer hover:bg-gray-200 transition-colors"
-      @click="startYandexAuth"
+      @click="startVkAuth"
     >
-      <YandexLogo class="size-7" />
+      <VkLogo class="size-6" />
     </button>
   </div>
 </template>

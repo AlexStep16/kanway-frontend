@@ -9,7 +9,6 @@ import type ApiResponse from '@/interfaces/ApiResponse'
 import { HttpError, BackendError, ClientAbortedError } from '@utils/errors'
 import { ErrorsMessage } from './enums/ErrorsMessage'
 import { Nullable } from '@/types/utils'
-import { queryClient } from './plugins/queryClient'
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_API_URL,
@@ -22,13 +21,6 @@ const axiosClient: AxiosInstance = axios.create({
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiResponse<any>>) => {
-    if (error.response?.status === 401) {
-      queryClient.clear()
-      localStorage.clear()
-
-      return Promise.reject(new HttpError(ErrorsMessage.UNAUTHORIZED, 401))
-    }
-
     const responseData = error.response?.data
 
     if (responseData && responseData.error) {

@@ -91,7 +91,7 @@ onMounted(() => {
         data-aos="fade"
         data-aos-duration="1000"
         data-aos-once="true"
-        class="sm:p-5 bg-white/10 mx-auto max-w-180 rounded-2xl"
+        class="sm:p-5 bg-white/10 mx-auto max-w-130 rounded-2xl"
       >
         <div class="h-160 overflow-hidden flex flex-1 flex-col bg-background rounded-xl">
           <Transition name="fade" mode="out-in">

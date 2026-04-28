@@ -18,6 +18,8 @@ import {
   validateTokenApi,
   logoutApi,
   checkEmailExistsApi,
+  verifyLoginOTPApi,
+  sendMagicLinkApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
@@ -90,6 +92,10 @@ export async function sendVerificationEmail(): Promise<null> {
   return await sendVerificationEmailApi()
 }
 
+export async function sendMagicLink(email: string): Promise<null> {
+  return await sendMagicLinkApi(email)
+}
+
 export async function sendPasswordRecoveryEmailByToken(token: string): Promise<null> {
   return await sendPasswordRecoveryEmailByTokenApi(token)
 }
@@ -112,6 +118,10 @@ export async function verifyEmailToken(token: string): Promise<null> {
 
 export async function verifyEmailOTP(code: string): Promise<null> {
   return await verifyEmailOTPApi(code)
+}
+
+export async function verifyLoginOTP(code: string, email: string): Promise<null> {
+  return await verifyLoginOTPApi(code, email)
 }
 
 export async function validateToken(token: string, type: TokenTypesEnum): Promise<null> {

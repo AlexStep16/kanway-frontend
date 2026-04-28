@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import LoginView from '@views/Auth/LoginView.vue'
+import AuthView from '@views/Auth/AuthView.vue'
 </script>
 
 <template>
-  <LoginView></LoginView>
+  <AuthView></AuthView>
 </template>

@@ -16,6 +16,7 @@ import InvalidToken from '../../components/Auth/InvalidToken.vue'
 import { useSendPasswordRecoveryEmailByToken } from '@/composables/auth/mutations/useSendPasswordRecoveryEmailByToken'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { HSStaticMethods } from 'preline'
+import BackgroundCircles from '@/components/BackgroundCircles.vue'
 
 const { mutate: recover } = usePasswordRecovery()
 const { mutate: resend, isPending: isResending } = useSendPasswordRecoveryEmailByToken()
@@ -76,6 +77,7 @@ onMounted(() => {
 
 <template>
   <div class="w-full h-screen flex items-center justify-center">
+    <BackgroundCircles />
     <div
       class="size-full sm:w-[400px] sm:h-auto bg-white sm:border sm:border-gray-200 sm:rounded-xl shadow-2xs overflow-y-auto"
     >
@@ -115,7 +117,7 @@ onMounted(() => {
                       id="password"
                       type="password"
                       name="password"
-                      class="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                      class="py-2.5 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                       v-model="password"
                       v-bind="passwordAttrs"
                     />

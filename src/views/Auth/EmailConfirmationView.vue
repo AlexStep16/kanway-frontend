@@ -13,7 +13,7 @@ import { navigate } from 'vike/client/router'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import AlreadyVerified from '@/components/Auth/AlreadyVerified.vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
-import OTPView from './OTPView.vue'
+import EmailOTPView from './EmailOTPView.vue'
 import { HSStaticMethods } from 'preline'
 
 const { mutate: verifyToken, isPending: isVerifying, error } = useVerificationEmail()
@@ -101,6 +101,6 @@ onMounted(() => {
       </div>
     </div>
 
-    <OTPView v-else />
+    <EmailOTPView v-else />
   </div>
 </template>

@@ -5,11 +5,23 @@ import { useForm } from 'vee-validate'
 import { navigate } from 'vike/client/router'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import z from 'zod'
-import { ArrowLeft, KeyRound, Lock, Mail } from 'lucide-vue-next'
+import { ArrowLeft, KeyRound } from 'lucide-vue-next'
 import { useRegister } from '@/composables/auth/mutations/useRegister'
-import { toast } from 'vue-sonner'
+import { onMounted, ref, watch } from 'vue'
+import { HSStaticMethods } from 'preline'
 
-const { mutate: register, isPending: isRegistering } = useRegister()
+const props = withDefaults(
+  defineProps<{
+    initialEmail?: string
+  }>(),
+  {
+    initialEmail: '',
+  },
+)
+
+const { mutate: register, isPending: isRegistering, error: registerError } = useRegister()
+
+const isPasswordDirty = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -18,52 +30,44 @@ const schema = toTypedSchema(
   }),
 )
 
-const { handleSubmit, defineField } = useForm({
+const { errors, handleSubmit, defineField, submitCount } = useForm({
   validationSchema: schema,
   initialValues: {
-    email: sessionStorage.getItem('saved_auth_email') || '',
+    email: props.initialEmail || '',
     password: '',
   },
 })
 
-const [email, emailAttrs] = defineField('email')
+const [email] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 
-const onSubmit = handleSubmit(
-  (values) => {
-    register(
-      { email: values.email.trim(), password: values.password },
-      {
-        onSuccess: () => {
-          navigate('/verify-email')
-        },
-      },
-    )
-  },
-  (values) => {
-    if (values.errors.password) toast.error(values.errors.password)
+watch(
+  () => props.initialEmail,
+  (newEmail) => {
+    email.value = newEmail
   },
 )
+
+const onSubmit = handleSubmit((values) => {
+  isPasswordDirty.value = false
+  register(
+    { email: values.email.trim(), password: values.password },
+    {
+      onSuccess: () => {
+        navigate('/verify-email')
+      },
+    },
+  )
+})
+
+onMounted(() => {
+  HSStaticMethods.autoInit()
+})
 </script>
 
 <template>
   <form @submit.prevent="onSubmit" novalidate>
     <div class="grid gap-y-2">
-      <div class="flex items-center relative">
-        <Mail class="size-4 absolute left-4 text-gray-400" />
-        <input
-          type="email"
-          id="email"
-          disabled
-          name="email"
-          class="py-2.5 sm:py-3 px-10 block w-full border-gray-200 hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none"
-          v-model="email"
-          v-bind="emailAttrs"
-          placeholder="Введите почту"
-        />
-        <Lock class="size-4 absolute right-4 text-gray-400" />
-      </div>
-
       <div class="flex flex-col gap-y-2">
         <div class="flex items-center relative">
           <KeyRound class="size-4 absolute left-4 text-gray-400" />
@@ -71,7 +75,8 @@ const onSubmit = handleSubmit(
             type="password"
             id="password"
             name="password"
-            class="py-2.5 pr-4 pl-10 block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+            @input="isPasswordDirty = true"
+            class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
             v-model="password"
             v-bind="passwordAttrs"
             placeholder="Пароль"
@@ -79,8 +84,8 @@ const onSubmit = handleSubmit(
           <button
             type="button"
             data-hs-toggle-password='{
-                      "target": "#password"
-                    }'
+              "target": "#password"
+            }'
             class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden"
           >
             <svg
@@ -112,6 +117,20 @@ const onSubmit = handleSubmit(
             </svg>
           </button>
         </div>
+        <ul
+          class="text-xs text-red-600"
+          id="password-validation-error"
+          v-if="errors.password && submitCount > 0"
+        >
+          <li class="list-inside">{{ errors.password }}</li>
+        </ul>
+        <ul
+          class="text-xs text-red-600"
+          id="password-register-error"
+          v-if="registerError && !isPasswordDirty"
+        >
+          <li class="list-inside">{{ registerError.message }}</li>
+        </ul>
       </div>
 
       <RegisterButton :isProcessing="isRegistering" text="Создать аккаунт" />

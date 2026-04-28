@@ -3,11 +3,23 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
-import { ArrowLeft, KeyRound, Mail } from 'lucide-vue-next'
+import { ArrowLeft, KeyRound } from 'lucide-vue-next'
 import z from 'zod'
 import { useLogin } from '@/composables/auth/mutations/useLogin'
+import { ref, watch } from 'vue'
 
-const { mutate: login, isPending: isLogging } = useLogin()
+const props = withDefaults(
+  defineProps<{
+    initialEmail?: string
+  }>(),
+  {
+    initialEmail: '',
+  },
+)
+
+const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
+
+const isPasswordDirty = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -19,15 +31,23 @@ const schema = toTypedSchema(
 const { errors, handleSubmit, submitCount, defineField } = useForm({
   validationSchema: schema,
   initialValues: {
-    email: sessionStorage.getItem('saved_auth_email') || '',
+    email: props.initialEmail || '',
     password: '',
   },
 })
 
-const [email, emailAttrs] = defineField('email')
+const [email] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 
+watch(
+  () => props.initialEmail,
+  (newEmail) => {
+    email.value = newEmail
+  },
+)
+
 const onSubmit = handleSubmit((values) => {
+  isPasswordDirty.value = false
   login({ email: values.email.trim(), password: values.password })
 })
 </script>
@@ -35,32 +55,8 @@ const onSubmit = handleSubmit((values) => {
 <template>
   <form @submit.prevent="onSubmit" novalidate>
     <div class="grid gap-y-2">
-      <!-- Form Group -->
-      <div>
-        <div class="flex items-center relative">
-          <Mail class="size-4 absolute left-4 text-gray-400" />
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="py-2.5 sm:py-3 pr-4 pl-10 block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-            v-model="email"
-            v-bind="emailAttrs"
-            placeholder="Введите почту"
-          />
-        </div>
-        <ul
-          class="text-xs text-red-600 mt-2"
-          id="email-error"
-          v-if="errors.email && submitCount > 0"
-        >
-          <li class="list-disc list-inside">{{ errors.email }}</li>
-        </ul>
-      </div>
-      <!-- End Form Group -->
-
       <!-- Form Group  -->
-      <div>
+      <div class="flex flex-col gap-y-2">
         <div class="flex items-center relative">
           <KeyRound class="size-4 absolute left-4 text-gray-400" />
           <input
@@ -68,17 +64,25 @@ const onSubmit = handleSubmit((values) => {
             id="password"
             name="password"
             placeholder="Введите пароль"
-            class="py-2.5 sm:py-3 pr-4 pl-10 block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+            @input="isPasswordDirty = true"
+            class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
             v-model="password"
             v-bind="passwordAttrs"
           />
         </div>
         <ul
-          class="text-xs text-red-600 mt-2"
-          id="password-error"
+          class="text-xs text-red-600"
+          id="password-validation-error"
           v-if="errors.password && submitCount > 0"
         >
-          <li class="list-disc list-inside">{{ errors.password }}</li>
+          <li class="list-inside">{{ errors.password }}</li>
+        </ul>
+        <ul
+          class="text-xs text-red-600"
+          id="password-auth-error"
+          v-if="loginError && !isPasswordDirty"
+        >
+          <li class="list-inside">{{ loginError.message }}</li>
         </ul>
       </div>
       <!-- End Form Group -->

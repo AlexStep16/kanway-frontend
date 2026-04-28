@@ -1,24 +1,45 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
-import { useVerificationOTP } from '@/composables/auth/mutations/useVerificationOTP'
-import { useUser } from '@/composables/auth/queries/useUser'
-import { navigate } from 'vike/client/router'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue'
-import { useSendVerificationEmail } from '@/composables/auth/mutations/useSendVerificationEmail'
 import ExitButton from '@/components/Auth/ExitButton.vue'
+import { useUser } from '@/composables/auth/queries/useUser'
 
-const { mutate: verify, isPending: isVerifying } = useVerificationOTP()
-const { mutate: resend, isPending: isResending } = useSendVerificationEmail()
+const OTP_LENGTH = 6
+
+interface OTPFormProps {
+  targetEmail?: string
+  title?: string
+  descriptionPrefix?: string
+  isVerifying: boolean
+  isResending?: boolean
+  resendStorageKey?: string
+  resendCooldownSeconds?: number
+}
+
+const emit = defineEmits<{
+  (e: 'resend'): void
+  (e: 'verify', code: string): void
+}>()
+
+const props = withDefaults(defineProps<OTPFormProps>(), {
+  targetEmail: '',
+  title: 'Проверьте почту',
+  descriptionPrefix: 'Мы отправили 6-значный код на',
+  isResending: false,
+  resendStorageKey: '',
+  resendCooldownSeconds: 60,
+})
 
 const { data: user } = useUser()
 
-const otp = reactive(['', '', '', '', '', ''])
+const otp = reactive(Array.from({ length: OTP_LENGTH }, () => ''))
 const inputRefs = ref<HTMLInputElement[]>([])
 
 const timer = ref(0)
 const timerId = ref<NodeJS.Timeout | null>(null)
-const STORAGE_KEY = `resend_timer_verification`
+
+const isComplete = computed(() => otp.every((digit) => digit !== ''))
 
 const startTimer = (seconds: number) => {
   if (timerId.value) clearInterval(timerId.value)
@@ -35,66 +56,63 @@ const startTimer = (seconds: number) => {
 
 const stopTimer = () => {
   if (timerId.value) clearInterval(timerId.value)
+  timerId.value = null
   timer.value = 0
-  localStorage.removeItem(STORAGE_KEY)
+
+  if (props.resendStorageKey) {
+    localStorage.removeItem(props.resendStorageKey)
+  }
 }
 
-const isComplete = computed(() => otp.every((digit) => digit !== ''))
+const clearOtp = () => {
+  for (let i = 0; i < OTP_LENGTH; i++) {
+    otp[i] = ''
+  }
+}
 
-// Обработка ввода цифры
 const handleInput = (event: Event, index: number) => {
   const input = event.target as HTMLInputElement
-  const value = input.value
+  const value = input.value.replace(/\D/g, '')
+  otp[index] = value.slice(-1)
 
-  // Оставляем только последнюю введенную цифру (если ввели больше одной)
-  if (value.length > 1) {
-    otp[index] = value.slice(-1)
-  }
-
-  // Если введена цифра, прыгаем вперед
-  if (value && index < 5) {
+  if (otp[index] && index < OTP_LENGTH - 1) {
     nextTick(() => {
       inputRefs.value[index + 1]?.focus()
     })
   }
 
-  // Если всё заполнено, можно вызывать проверку
   if (isComplete.value) {
     handleVerify()
   }
 }
 
 function handleResend() {
-  if (timer.value > 0) return
-
-  resend()
-
-  localStorage.setItem(STORAGE_KEY, Date.now().toString())
-  startTimer(60)
+  emit('resend')
+  startTimer(props.resendCooldownSeconds)
 }
 
-// Обработка удаления (Backspace)
 const handleKeyDown = (event: KeyboardEvent, index: number) => {
   if (event.key === 'Backspace' && !otp[index] && index > 0) {
-    // Если текущее поле пустое и нажат Backspace, прыгаем назад
     otp[index - 1] = ''
     inputRefs.value[index - 1]?.focus()
   }
 }
 
-// Обработка вставки (Paste)
 const handlePaste = (event: ClipboardEvent) => {
   event.preventDefault()
-  const pasteData = event.clipboardData?.getData('text').slice(0, 6).split('') || []
+  const pasteData = event.clipboardData
+    ?.getData('text')
+    .replace(/\D/g, '')
+    .slice(0, OTP_LENGTH)
+    .split('') || []
 
   pasteData.forEach((char, index) => {
-    if (index < 6) {
+    if (index < OTP_LENGTH) {
       otp[index] = char
     }
   })
 
-  // Ставим фокус на последнее заполненное поле или на кнопку
-  const nextIndex = Math.min(pasteData.length, 5)
+  const nextIndex = Math.min(pasteData.length, OTP_LENGTH - 1)
   inputRefs.value[nextIndex]?.focus()
 
   if (isComplete.value) {
@@ -107,43 +125,43 @@ const handleVerify = () => {
 
   const finalCode = otp.join('')
 
-  verify(
-    { code: finalCode },
-    {
-      onSuccess: () => {
-        // Очистка OTP после успешной проверки
-        for (let i = 0; i < 6; i++) {
-          otp[i] = ''
-        }
-
-        navigate('/workspace')
-      },
-      onError: () => {
-        for (let i = 0; i < 6; i++) {
-          otp[i] = ''
-        }
-        inputRefs.value[0]?.focus()
-      },
-    },
-  )
+  emit('verify', finalCode)
 }
 
 onMounted(() => {
-  const savedTimestamp = localStorage.getItem(STORAGE_KEY)
+  if (!props.resendStorageKey) return
 
-  if (savedTimestamp) {
-    const diff = Math.floor((Date.now() - parseInt(savedTimestamp)) / 1000)
-    const remaining = 60 - diff
-    if (remaining > 0) {
-      startTimer(remaining)
-    } else {
-      localStorage.removeItem(STORAGE_KEY)
-    }
+  const savedTimestamp = localStorage.getItem(props.resendStorageKey)
+
+  if (!savedTimestamp) return
+
+  const savedTimeMs = Number(savedTimestamp)
+
+  if (!Number.isFinite(savedTimeMs)) {
+    localStorage.removeItem(props.resendStorageKey)
+    return
+  }
+
+  const diff = Math.floor((Date.now() - savedTimeMs) / 1000)
+  const remaining = props.resendCooldownSeconds - diff
+
+  if (remaining > 0) {
+    startTimer(remaining)
+  } else {
+    localStorage.removeItem(props.resendStorageKey)
   }
 })
 
 onUnmounted(() => {
-  if (timerId.value) clearInterval(timerId.value)
+  if (timerId.value) {
+    clearInterval(timerId.value)
+    timerId.value = null
+  }
+})
+
+defineExpose({
+  clearOtp,
+  inputRefs,
 })
 </script>
 
@@ -158,15 +176,14 @@ onUnmounted(() => {
             <KanwayLogo class="h-8 sm:h-10" />
           </a>
 
-          <ExitButton class="absolute top-0 right-0" />
+          <ExitButton class="absolute top-0 right-0" v-if="user" />
         </div>
-        <h1 class="block mt-4 text-2xl font-bold text-gray-900">Проверьте почту</h1>
+        <h1 class="block mt-4 text-2xl font-bold text-gray-900">{{ title }}</h1>
         <p class="mt-2 text-sm text-gray-500 leading-relaxed">
-          Мы отправили 6-значный код на
-          <span class="font-medium text-gray-900">{{ user?.email }}</span>
+          {{ descriptionPrefix }}
+          <span class="font-medium text-gray-900">{{ targetEmail }}</span>
         </p>
 
-        <!-- Поля ввода OTP -->
         <div class="mt-8 flex flex-col items-center gap-y-6 w-full">
           <div class="flex gap-x-2 sm:gap-x-3">
             <input
@@ -198,10 +215,12 @@ onUnmounted(() => {
               {{ isResending ? 'Отправляем...' : 'Отправить ещё раз' }}
             </button>
 
-            <span v-else class="mt-1 text-sm text-gray-400">
-              Повторная отправка через {{ timer }} сек.
-            </span>
+            <span v-else class="mt-1 text-sm text-gray-400"
+              >Повторная отправка через {{ timer }} сек.</span
+            >
           </div>
+
+          <slot name="footer" />
         </div>
       </div>
     </div>

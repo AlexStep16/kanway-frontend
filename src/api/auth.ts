@@ -5,6 +5,7 @@ import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
 import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 import { YandexAuthDTO } from '@/interfaces/YandexAuthDTO'
+import { VkAuthDTO } from '@/interfaces/VkAuthDTO'
 
 export async function loginApi(credentials: LoginCredentials) {
   return await apiCall<IUser>({
@@ -18,6 +19,14 @@ export async function yandexAuthApi(payload: YandexAuthDTO) {
   return await apiCall<null>({
     method: 'POST',
     url: '/auth/yandex',
+    data: payload,
+  })
+}
+
+export async function vkAuthApi(payload: VkAuthDTO) {
+  return await apiCall<null>({
+    method: 'POST',
+    url: '/auth/vk',
     data: payload,
   })
 }
@@ -100,6 +109,14 @@ export async function sendVerificationEmailApi() {
   })
 }
 
+export async function sendMagicLinkApi(email: string) {
+  return apiCall<null>({
+    method: 'POST',
+    url: '/auth/send/magic-link',
+    data: { email },
+  })
+}
+
 export async function sendVerificationEmailByTokenApi(token: string) {
   return apiCall<null>({
     method: 'POST',
@@ -134,8 +151,16 @@ export async function verifyEmailTokenApi(token: string) {
 export async function verifyEmailOTPApi(code: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/me/verify/otp',
+    url: '/me/verify/otp-email-confirm',
     data: { code },
+  })
+}
+
+export async function verifyLoginOTPApi(code: string, email: string) {
+  return apiCall<null>({
+    method: 'POST',
+    url: '/auth/verify/otp-login',
+    data: { code, email },
   })
 }
 

@@ -15,6 +15,5 @@ import { Toaster } from 'vue-sonner'
     }"
   />
   <VueQueryDevtools />
-
   <slot />
 </template>

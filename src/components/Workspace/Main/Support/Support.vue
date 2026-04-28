@@ -142,7 +142,7 @@ onUnmounted(() => {
                       id="email-error"
                       v-if="errors.name && submitCount > 0"
                     >
-                      <li class="list-disc list-inside">{{ errors.name }}</li>
+                      <li class="list-inside">{{ errors.name }}</li>
                     </ul>
                   </div>
                 </div>
@@ -169,7 +169,7 @@ onUnmounted(() => {
                     id="email-error"
                     v-if="errors.email && submitCount > 0"
                   >
-                    <li class="list-disc list-inside">{{ errors.email }}</li>
+                    <li class="list-inside">{{ errors.email }}</li>
                   </ul>
                 </div>
 
@@ -207,7 +207,7 @@ onUnmounted(() => {
                     id="theme-error"
                     v-if="errors.theme && submitCount > 0"
                   >
-                    <li class="list-disc list-inside">{{ errors.theme }}</li>
+                    <li class="list-inside">{{ errors.theme }}</li>
                   </ul>
                 </div>
 
@@ -231,7 +231,7 @@ onUnmounted(() => {
                     id="details-error"
                     v-if="errors.details && submitCount > 0"
                   >
-                    <li class="list-disc list-inside">{{ errors.details }}</li>
+                    <li class="list-inside">{{ errors.details }}</li>
                   </ul>
                 </div>
               </div>
