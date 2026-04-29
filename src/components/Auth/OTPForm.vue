@@ -121,7 +121,7 @@ const handleVerify = () => {
   if (!isComplete.value) return
 
   const finalCode = otp.join('')
-
+  alert(finalCode)
   emit('verify', finalCode)
 }
 
@@ -190,7 +190,8 @@ defineExpose({
               v-model="otp[index]"
               type="text"
               maxlength="1"
-              class="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all uppercase"
+              :disabled="isVerifying"
+              class="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all uppercase disabled:opacity-50 disabled:pointer-events-none"
               @input="handleInput($event, index)"
               @keydown="handleKeyDown($event, index)"
               @paste="handlePaste"

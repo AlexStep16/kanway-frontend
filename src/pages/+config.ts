@@ -9,7 +9,7 @@ export default {
   prerender: true,
   extends: [vikeVue],
   hooksTimeout: false,
-  bodyAttributes: { class: 'bg-slate-50' },
+  bodyAttributes: { class: 'bg-slate-100' },
 } satisfies Config
 
 declare global {

@@ -94,7 +94,7 @@ onMounted(() => {
       </div>
 
       <div
-        class="size-full sm:h-[400px] flex flex-col gap-y-2 items-center justify-center text-gray-500"
+        class="size-full sm:h-100 flex flex-col gap-y-2 items-center justify-center text-gray-500"
         v-else
       >
         <Spinner class="size-7" />
