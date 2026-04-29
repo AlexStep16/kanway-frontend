@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import EmailConfirmationView from '@views/Auth/EmailConfirmationView.vue'
+import VerifyEmailView from '@views/Auth/VerifyEmailView.vue'
 </script>
 
 <template>
-  <EmailConfirmationView></EmailConfirmationView>
+  <VerifyEmailView></VerifyEmailView>
 </template>

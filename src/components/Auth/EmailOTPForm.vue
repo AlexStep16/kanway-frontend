@@ -15,7 +15,7 @@ function handleVerifyEmailOTP(code: string) {
   verifyEmail(
     { code },
     {
-      onSettled() {
+      onError() {
         otpFormRef.value?.clearOtp()
         otpFormRef.value?.inputRefs?.[0]?.focus()
       },

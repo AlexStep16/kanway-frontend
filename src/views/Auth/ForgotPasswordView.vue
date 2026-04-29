@@ -6,8 +6,6 @@ import { useForm } from 'vee-validate'
 import { z } from 'zod'
 import { toast } from 'vue-sonner'
 import { useSendPasswordRecoveryEmail } from '@/composables/auth/mutations/useSendPasswordRecoveryEmail'
-import EmailSent from '@/components/Auth/EmailSent.vue'
-import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { HSStaticMethods } from 'preline'
 import { Mail } from 'lucide-vue-next'
@@ -34,16 +32,20 @@ const [email, emailAttrs] = defineField('email')
 
 const onSubmit = handleSubmit(
   () => {
-    isEmailSent.value = true
+    sendEmail(
+      { email: email.value! },
+      {
+        onSuccess: () => {
+          isEmailSent.value = true
+          localStorage.removeItem('saved_auth_email')
+        },
+      },
+    )
   },
   (values) => {
     if (values.errors.email) toast.error(values.errors.email)
   },
 )
-
-function handleResend() {
-  sendEmail({ email: email.value! })
-}
 
 onMounted(() => {
   HSStaticMethods.autoInit()
@@ -51,7 +53,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-screen flex items-center justify-center">
+  <div class="w-full h-screen flex items-center justify-center p-2">
     <BackgroundCircles />
     <div
       class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
@@ -69,13 +71,7 @@ onMounted(() => {
               Введите вашу почту и мы отправим вам ссылку для восстановления пароля.
             </p>
           </template>
-          <template v-else>
-            <EmailSent
-              :type="TokenTypesEnum.RESET_PASSWORD"
-              :isResending="isSending"
-              @resend="handleResend"
-            />
-          </template>
+          <template v-else> </template>
         </div>
 
         <div class="mt-5" v-if="!isEmailSent">

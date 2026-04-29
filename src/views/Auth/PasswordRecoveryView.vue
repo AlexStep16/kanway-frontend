@@ -7,20 +7,15 @@ import { z } from 'zod'
 import { toast } from 'vue-sonner'
 import { useData } from 'vike-vue/useData'
 import { usePasswordRecovery } from '@/composables/auth/mutations/usePasswordRecovery'
-import { useValidateToken } from '@/composables/auth/mutations/useValidateToken'
-import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
-import { BackendError } from '@/utils/errors'
-import ExpiredToken from '../../components/Auth/ExpiredToken.vue'
+import { useValidateRecoveryToken } from '@/composables/auth/mutations/useValidateToken'
 import Spinner from '@/components/Loader/Spinner.vue'
-import InvalidToken from '../../components/Auth/InvalidToken.vue'
-import { useSendPasswordRecoveryEmailByToken } from '@/composables/auth/mutations/useSendPasswordRecoveryEmailByToken'
+import InvalidToken from '../../components/Auth/InvalidLink.vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { HSStaticMethods } from 'preline'
 import BackgroundCircles from '@/components/BackgroundCircles.vue'
 
 const { mutate: recover } = usePasswordRecovery()
-const { mutate: resend, isPending: isResending } = useSendPasswordRecoveryEmailByToken()
-const { mutate: validateToken, isPending: isValidating, error } = useValidateToken()
+const { mutate: validateToken, isPending: isValidating, error } = useValidateRecoveryToken()
 
 const isTokenValid = ref(false)
 
@@ -43,26 +38,15 @@ const [password, passwordAttrs] = defineField('password')
 
 const onSubmit = handleSubmit(
   (values) => {
-    recover(
-      { password: values.password, token },
-      {
-        onSuccess: () => {
-          // Handle successful registration, e.g., redirect to dashboard
-        },
-      },
-    )
+    recover({ password: values.password, token })
   },
   (values) => {
     if (values.errors.password) toast.error(values.errors.password)
   },
 )
 
-async function handleResend() {
-  resend({ token })
-}
-
 validateToken(
-  { token, type: TokenTypesEnum.RESET_PASSWORD },
+  { token },
   {
     onSuccess: () => {
       isTokenValid.value = true
@@ -76,10 +60,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-screen flex items-center justify-center">
+  <div class="w-full h-screen flex items-center justify-center p-2">
     <BackgroundCircles />
     <div
       class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
+      v-if="!error"
     >
       <div class="p-4 pt-7 sm:p-7" v-if="!isValidating">
         <div class="text-center flex justify-center flex-col items-center">
@@ -91,16 +76,6 @@ onMounted(() => {
             <h1 class="block text-2xl font-bold text-gray-800">Восстановление пароля</h1>
 
             <p class="mt-2 text-sm text-gray-600">Придумайте новый пароль</p>
-          </template>
-
-          <template v-else-if="error">
-            <ExpiredToken
-              :type="TokenTypesEnum.RESET_PASSWORD"
-              :isResending="isResending"
-              @resend="handleResend"
-              v-if="(error as BackendError).code === 410"
-            />
-            <InvalidToken v-if="(error as BackendError).code === 404" />
           </template>
         </div>
 
@@ -194,7 +169,7 @@ onMounted(() => {
       </div>
 
       <div
-        class="size-full sm:h-[400px] flex flex-col gap-y-2 items-center justify-center text-gray-500"
+        class="size-full sm:h-100 flex flex-col gap-y-2 items-center justify-center text-gray-500"
         v-else
       >
         <Spinner class="size-7" />
@@ -202,5 +177,7 @@ onMounted(() => {
         <p class="text-sm">Проверяем ссылку</p>
       </div>
     </div>
+
+    <InvalidToken v-else />
   </div>
 </template>

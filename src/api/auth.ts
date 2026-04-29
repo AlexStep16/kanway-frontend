@@ -3,7 +3,6 @@ import IUser from '@models/UserModel'
 import LoginCredentials from '@interfaces/LoginCredentials'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
-import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 import { YandexAuthDTO } from '@/interfaces/YandexAuthDTO'
 import { VkAuthDTO } from '@/interfaces/VkAuthDTO'
 
@@ -117,13 +116,6 @@ export async function sendMagicLinkApi(email: string) {
   })
 }
 
-export async function sendVerificationEmailByTokenApi(token: string) {
-  return apiCall<null>({
-    method: 'POST',
-    url: '/auth/send/verify/' + token,
-  })
-}
-
 export async function sendPasswordRecoveryEmailApi(email: string) {
   return apiCall<null>({
     method: 'POST',
@@ -132,18 +124,18 @@ export async function sendPasswordRecoveryEmailApi(email: string) {
   })
 }
 
-export async function sendPasswordRecoveryEmailByTokenApi(token: string) {
+export async function verifyEmailTokenApi(token: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/auth/send/password/recovery/' + token,
+    url: '/auth/verify/token/email',
     data: { token },
   })
 }
 
-export async function verifyEmailTokenApi(token: string) {
+export async function verifyLoginTokenApi(token: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/auth/verify/token',
+    url: '/auth/verify/token/login',
     data: { token },
   })
 }
@@ -151,7 +143,7 @@ export async function verifyEmailTokenApi(token: string) {
 export async function verifyEmailOTPApi(code: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/me/verify/otp-email-confirm',
+    url: '/me/verify/otp/email',
     data: { code },
   })
 }
@@ -159,7 +151,7 @@ export async function verifyEmailOTPApi(code: string) {
 export async function verifyLoginOTPApi(code: string, email: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/auth/verify/otp-login',
+    url: '/auth/verify/otp/login',
     data: { code, email },
   })
 }
@@ -172,10 +164,10 @@ export async function passwordRecoveryApi(token: string, password: string) {
   })
 }
 
-export async function validateTokenApi(token: string, type: TokenTypesEnum) {
+export async function validateRecoveryTokenApi(token: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/auth/verify/token',
-    data: { token, type },
+    url: '/auth/validate/token/recovery',
+    data: { token },
   })
 }

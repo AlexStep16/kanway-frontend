@@ -10,22 +10,20 @@ import {
   resetAvatarApi,
   sendVerificationEmailApi,
   sendPasswordRecoveryEmailApi,
-  sendPasswordRecoveryEmailByTokenApi,
-  sendVerificationEmailByTokenApi,
   passwordRecoveryApi,
   verifyEmailOTPApi,
   verifyEmailTokenApi,
-  validateTokenApi,
   logoutApi,
   checkEmailExistsApi,
   verifyLoginOTPApi,
   sendMagicLinkApi,
+  verifyLoginTokenApi,
+  validateRecoveryTokenApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
-import { TokenTypesEnum } from '@/enums/TokenTypesEnum'
 
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({
@@ -96,14 +94,6 @@ export async function sendMagicLink(email: string): Promise<null> {
   return await sendMagicLinkApi(email)
 }
 
-export async function sendPasswordRecoveryEmailByToken(token: string): Promise<null> {
-  return await sendPasswordRecoveryEmailByTokenApi(token)
-}
-
-export async function sendVerificationEmailByToken(token: string): Promise<null> {
-  return await sendVerificationEmailByTokenApi(token)
-}
-
 export async function sendPasswordRecoveryEmail(email: string): Promise<null> {
   return await sendPasswordRecoveryEmailApi(email)
 }
@@ -116,6 +106,10 @@ export async function verifyEmailToken(token: string): Promise<null> {
   return await verifyEmailTokenApi(token)
 }
 
+export async function verifyLoginToken(token: string): Promise<null> {
+  return await verifyLoginTokenApi(token)
+}
+
 export async function verifyEmailOTP(code: string): Promise<null> {
   return await verifyEmailOTPApi(code)
 }
@@ -124,6 +118,6 @@ export async function verifyLoginOTP(code: string, email: string): Promise<null>
   return await verifyLoginOTPApi(code, email)
 }
 
-export async function validateToken(token: string, type: TokenTypesEnum): Promise<null> {
-  return await validateTokenApi(token, type)
+export async function validateRecoveryToken(token: string): Promise<null> {
+  return await validateRecoveryTokenApi(token)
 }

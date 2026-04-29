@@ -14,7 +14,6 @@ import Button from '@/components/ui/button/Button.vue'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
 import { ArrowLeft, Link } from 'lucide-vue-next'
 import { useStorage } from '@vueuse/core'
-import { navigate } from 'vike/client/router'
 import VkAuth from './VkAuth.vue'
 import BackgroundCircles from '@/components/BackgroundCircles.vue'
 
@@ -43,12 +42,9 @@ function handleVerifyLoginOTP(code: string) {
   verifyLoginOTP(
     { code, email: savedEmail.value },
     {
-      onSettled() {
+      onError() {
         otpFormRef.value?.clearOtp()
         otpFormRef.value?.inputRefs?.[0]?.focus()
-      },
-      onSuccess() {
-        navigate('/workspace')
       },
     },
   )

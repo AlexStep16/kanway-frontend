@@ -2,8 +2,6 @@
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue'
-import ExitButton from '@/components/Auth/ExitButton.vue'
-import { useUser } from '@/composables/auth/queries/useUser'
 
 const OTP_LENGTH = 6
 
@@ -30,8 +28,6 @@ const props = withDefaults(defineProps<OTPFormProps>(), {
   resendStorageKey: '',
   resendCooldownSeconds: 60,
 })
-
-const { data: user } = useUser()
 
 const otp = reactive(Array.from({ length: OTP_LENGTH }, () => ''))
 const inputRefs = ref<HTMLInputElement[]>([])
@@ -192,8 +188,6 @@ defineExpose({
           <a href="/">
             <KanwayLogo class="h-8 sm:h-10" />
           </a>
-
-          <ExitButton class="absolute top-0 right-0" v-if="user" />
         </div>
         <h1 class="block mt-4 text-2xl font-bold text-gray-900">{{ title }}</h1>
         <p class="mt-2 text-sm text-gray-500 leading-relaxed">
