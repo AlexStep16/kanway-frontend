@@ -73,12 +73,32 @@ const clearOtp = () => {
 const handleInput = (event: Event, index: number) => {
   const input = event.target as HTMLInputElement
   const value = input.value.replace(/\D/g, '')
-  otp[index] = value.slice(-1)
 
-  if (otp[index] && index < OTP_LENGTH - 1) {
-    nextTick(() => {
-      inputRefs.value[index + 1]?.focus()
+  if (!value) {
+    otp[index] = ''
+    return
+  }
+
+  if (value.length > 1) {
+    const chars = value.split('')
+    chars.forEach((char, i) => {
+      const targetIndex = index + i
+      if (targetIndex < OTP_LENGTH) {
+        otp[targetIndex] = char
+      }
     })
+
+    const lastIndex = Math.min(index + value.length, OTP_LENGTH - 1)
+    nextTick(() => {
+      inputRefs.value[lastIndex]?.focus()
+    })
+  } else {
+    otp[index] = value
+    if (index < OTP_LENGTH - 1) {
+      nextTick(() => {
+        inputRefs.value[index + 1]?.focus()
+      })
+    }
   }
 
   if (isComplete.value) {
@@ -100,8 +120,8 @@ const handleKeyDown = (event: KeyboardEvent, index: number) => {
 
 const handlePaste = (event: ClipboardEvent) => {
   event.preventDefault()
-  const pasteData =
-    event.clipboardData?.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH).split('') || []
+  const text = event.clipboardData?.getData('text') || ''
+  const pasteData = text.replace(/\D/g, '').slice(0, OTP_LENGTH).split('')
 
   pasteData.forEach((char, index) => {
     if (index < OTP_LENGTH) {
@@ -189,7 +209,10 @@ defineExpose({
               :id="'otp-' + index"
               v-model="otp[index]"
               type="text"
-              maxlength="1"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              pattern="\d*"
+              maxlength="6"
               :disabled="isVerifying"
               class="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all uppercase disabled:opacity-50 disabled:pointer-events-none"
               @input="handleInput($event, index)"
