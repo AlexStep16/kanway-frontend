@@ -19,8 +19,8 @@ async function startYandexAuth() {
 
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: '3b999a918afb4a9085e6238f30ae3df5',
-    redirect_uri: 'https://kanway.ru/yandex/suggest/token',
+    client_id: import.meta.env.VITE_YANDEX_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_YANDEX_REDIRECT_URI,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state: state,

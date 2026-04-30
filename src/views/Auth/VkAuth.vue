@@ -19,8 +19,8 @@ async function startVkAuth() {
 
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: '54569329',
-    redirect_uri: 'https://kanway.ru/vk/suggest/token',
+    client_id: import.meta.env.VITE_VK_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_VK_REDIRECT_URI,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state: state,
