@@ -5,7 +5,7 @@ export function useSendMagicLink() {
   return useMutation({
     mutationKey: ['user'],
     mutationFn: async (email: string) => {
-      localStorage.setItem('resend_timer_login_email', Date.now().toString())
+      localStorage.setItem('resend_timer_verification_login', Date.now().toString())
       return sendMagicLink(email)
     },
   })
