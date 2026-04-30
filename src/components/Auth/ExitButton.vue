@@ -1,11 +1,20 @@
 <script setup lang="ts">
+import { IUser } from '@/interfaces/domain/IUser'
+import { getMe } from '@/services/auth'
 import { useAuthStore } from '@/stores/auth'
 import { LogOut } from 'lucide-vue-next'
-import { useUser } from '@/composables/auth/queries/useUser'
+import { onMounted, ref } from 'vue'
 
 const authStore = useAuthStore()
+const user = ref<IUser | null>(null)
 
-const { data: user } = useUser()
+onMounted(async () => {
+  try {
+    user.value = await getMe()
+  } catch {
+    return null
+  }
+})
 </script>
 
 <template>

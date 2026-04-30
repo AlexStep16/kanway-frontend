@@ -137,7 +137,7 @@ const handleVerify = () => {
   if (!isComplete.value) return
 
   const finalCode = otp.join('')
-  alert(finalCode)
+
   emit('verify', finalCode)
 }
 

@@ -67,6 +67,17 @@ function showDeleteUserModal() {
 
 const handleDeleteAccount = () => deleteAccount()
 
+const requirements = [
+  { label: 'Минимальное количество символов: 10', check: (val: string) => val.length >= 10 },
+]
+
+const checklist = computed(() => {
+  return requirements.map((req) => ({
+    label: req.label,
+    isMet: req.check(password.value || ''),
+  }))
+})
+
 onMounted(() => {
   HSStaticMethods.autoInit()
 })
@@ -200,9 +211,20 @@ onMounted(() => {
                     </button>
                   </div>
 
-                  <span v-if="errors?.password && submitCount > 0" class="text-red-500 text-xs">
-                    {{ errors.password }}
-                  </span>
+                  <ul class="text-xs my-2" v-if="password && password.length > 0">
+                    <li
+                      v-for="(item, index) in checklist"
+                      :key="index"
+                      class="text-xs transition-colors duration-300 list-disc list-inside"
+                      :class="{
+                        'text-green-600': item.isMet,
+                        'text-gray-400': !item.isMet,
+                        'text-red-500': errors.password && submitCount > 0,
+                      }"
+                    >
+                      <span>{{ item.label }}</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>

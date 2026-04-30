@@ -2,18 +2,20 @@
 import OTPForm from '@/components/Auth/OTPForm.vue'
 import { useSendVerificationEmail } from '@/composables/auth/mutations/useSendVerificationEmail'
 import { useVerificationEmailOTP } from '@/composables/auth/mutations/useVerificationEmailOTP'
-import { useUser } from '@/composables/auth/queries/useUser'
 import { ref } from 'vue'
 
 const otpFormRef = ref<InstanceType<typeof OTPForm> | null>(null)
 
-const { data: user } = useUser()
+const props = defineProps<{
+  email: string
+}>()
+
 const { mutate: verifyEmail, isPending: isVerifying } = useVerificationEmailOTP()
 const { mutate: resendEmail, isPending: isResending } = useSendVerificationEmail()
 
 function handleVerifyEmailOTP(code: string) {
   verifyEmail(
-    { code },
+    { code, email: props.email },
     {
       onError() {
         otpFormRef.value?.clearOtp()
@@ -35,7 +37,7 @@ function handleResendEmail() {
 <template>
   <OTPForm
     ref="otpFormRef"
-    :target-email="user?.email || ''"
+    :target-email="props.email"
     @verify="handleVerifyEmailOTP"
     @resend="handleResendEmail"
     :is-verifying="isVerifying"

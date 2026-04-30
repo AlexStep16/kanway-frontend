@@ -96,11 +96,12 @@ const onSubmit = handleSubmit((values) => {
           <ArrowLeft class="size-4" /> Назад
         </a>
 
-        <a
+        <button
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
-          href="/forgot-password"
-          >Забыли пароль?</a
+          @click.prevent="$emit('forgot-password')"
         >
+          Забыли пароль?
+        </button>
       </div>
     </div>
   </form>

@@ -140,11 +140,19 @@ export async function verifyLoginTokenApi(token: string) {
   })
 }
 
-export async function verifyEmailOTPApi(code: string) {
+export async function verifyPasswordTokenApi(token: string) {
   return apiCall<null>({
     method: 'POST',
-    url: '/me/verify/otp/email',
-    data: { code },
+    url: '/auth/verify/token/password',
+    data: { token },
+  })
+}
+
+export async function verifyEmailOTPApi(code: string, email: string) {
+  return apiCall<null>({
+    method: 'POST',
+    url: '/auth/verify/otp/email',
+    data: { code, email },
   })
 }
 
@@ -156,18 +164,18 @@ export async function verifyLoginOTPApi(code: string, email: string) {
   })
 }
 
-export async function passwordRecoveryApi(token: string, password: string) {
-  return apiCall<IUser>({
+export async function verifyPasswordOTPApi(code: string, email: string) {
+  return apiCall<null>({
     method: 'POST',
-    url: '/auth/password/recovery',
-    data: { password, token },
+    url: '/auth/verify/otp/password',
+    data: { code, email },
   })
 }
 
-export async function validateRecoveryTokenApi(token: string) {
-  return apiCall<null>({
+export async function passwordRecoveryApi(password: string) {
+  return apiCall<IUser>({
     method: 'POST',
-    url: '/auth/validate/token/recovery',
-    data: { token },
+    url: '/auth/password/recovery',
+    data: { password },
   })
 }

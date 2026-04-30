@@ -7,8 +7,10 @@ import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import z from 'zod'
 import { ArrowLeft, KeyRound } from 'lucide-vue-next'
 import { useRegister } from '@/composables/auth/mutations/useRegister'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { HSStaticMethods } from 'preline'
+import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
+import { getSafeBase64String } from '@/utils/getSafeBase64String'
 
 const props = withDefaults(
   defineProps<{
@@ -54,10 +56,23 @@ const onSubmit = handleSubmit((values) => {
     { email: values.email.trim(), password: values.password },
     {
       onSuccess: () => {
-        navigate('/verify-email')
+        navigate(
+          '/' + AllowedAuthStepsEnum.VERIFY_EMAIL + '/' + getSafeBase64String(values.email.trim()),
+        )
       },
     },
   )
+})
+
+const requirements = [
+  { label: 'Минимальное количество символов: 10', check: (val: string) => val.length >= 10 },
+]
+
+const checklist = computed(() => {
+  return requirements.map((req) => ({
+    label: req.label,
+    isMet: req.check(password.value || ''),
+  }))
 })
 
 onMounted(() => {
@@ -117,12 +132,19 @@ onMounted(() => {
             </svg>
           </button>
         </div>
-        <ul
-          class="text-xs text-red-600"
-          id="password-validation-error"
-          v-if="errors.password && submitCount > 0"
-        >
-          <li class="list-inside">{{ errors.password }}</li>
+        <ul class="text-xs my-2" v-if="password && password.length > 0">
+          <li
+            v-for="(item, index) in checklist"
+            :key="index"
+            class="text-xs transition-colors duration-300 list-disc list-inside"
+            :class="{
+              'text-green-600': item.isMet,
+              'text-gray-400': !item.isMet,
+              'text-red-500': errors.password && submitCount > 0,
+            }"
+          >
+            <span>{{ item.label }}</span>
+          </li>
         </ul>
         <ul
           class="text-xs text-red-600"

@@ -8,10 +8,8 @@ import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import { Mail } from 'lucide-vue-next'
 import z from 'zod'
 import { checkEmailExists } from '@/services/auth'
-
-const emit = defineEmits<{
-  (e: 'setEmail', email: string): void
-}>()
+import { getSafeBase64String } from '@/utils/getSafeBase64String'
+import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
 
 const props = withDefaults(
   defineProps<{
@@ -51,10 +49,15 @@ const onSubmit = handleSubmit(async (values) => {
 
   try {
     const isEmailExists = await checkEmailExists(normalizedEmail)
-    const nextStep = isEmailExists ? 'password' : 'create'
 
-    emit('setEmail', normalizedEmail)
-    return navigate(`?step=${nextStep}`)
+    if (isEmailExists)
+      return navigate(
+        `/auth/${AllowedAuthStepsEnum.SIGN_IN}/${getSafeBase64String(normalizedEmail)}`,
+      )
+    else
+      return navigate(
+        `/auth/${AllowedAuthStepsEnum.SIGN_UP}/${getSafeBase64String(normalizedEmail)}`,
+      )
   } finally {
     isCheckingEmail.value = false
   }

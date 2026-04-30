@@ -18,7 +18,8 @@ import {
   verifyLoginOTPApi,
   sendMagicLinkApi,
   verifyLoginTokenApi,
-  validateRecoveryTokenApi,
+  verifyPasswordTokenApi,
+  verifyPasswordOTPApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
@@ -98,8 +99,8 @@ export async function sendPasswordRecoveryEmail(email: string): Promise<null> {
   return await sendPasswordRecoveryEmailApi(email)
 }
 
-export async function passwordRecovery(token: string, password: string): Promise<IUser> {
-  return await passwordRecoveryApi(token, password)
+export async function passwordRecovery(password: string): Promise<IUser> {
+  return await passwordRecoveryApi(password)
 }
 
 export async function verifyEmailToken(token: string): Promise<null> {
@@ -110,14 +111,18 @@ export async function verifyLoginToken(token: string): Promise<null> {
   return await verifyLoginTokenApi(token)
 }
 
-export async function verifyEmailOTP(code: string): Promise<null> {
-  return await verifyEmailOTPApi(code)
+export async function verifyPasswordToken(token: string): Promise<null> {
+  return await verifyPasswordTokenApi(token)
+}
+
+export async function verifyEmailOTP(code: string, email: string): Promise<null> {
+  return await verifyEmailOTPApi(code, email)
 }
 
 export async function verifyLoginOTP(code: string, email: string): Promise<null> {
   return await verifyLoginOTPApi(code, email)
 }
 
-export async function validateRecoveryToken(token: string): Promise<null> {
-  return await validateRecoveryTokenApi(token)
+export async function verifyPasswordOTP(code: string, email: string): Promise<null> {
+  return await verifyPasswordOTPApi(code, email)
 }

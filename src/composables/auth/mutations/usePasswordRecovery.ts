@@ -5,8 +5,8 @@ import { navigate } from 'vike/client/router'
 export function usePasswordRecovery() {
   return useMutation({
     mutationKey: ['user'],
-    mutationFn: async ({ password, token }: { password: string; token: string }) => {
-      const result = await passwordRecovery(token, password)
+    mutationFn: async ({ password }: { password: string }) => {
+      const result = await passwordRecovery(password)
       await navigate('/login')
       return result
     },

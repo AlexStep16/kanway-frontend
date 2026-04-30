@@ -1,6 +1,6 @@
-import Layout from '../../layouts/Layout.vue'
+import Layout from '@/layouts/Layout.vue'
 
 export const config = {
   Layout,
-  title: 'Kanway | Вход',
+  title: 'Kanway | Добро пожаловать',
 }

@@ -5,8 +5,8 @@ import { navigate } from 'vike/client/router'
 export function useVerificationEmailOTP() {
   return useMutation({
     mutationKey: ['user'],
-    mutationFn: async ({ code }: { code: string }) => {
-      const result = await verifyEmailOTP(code)
+    mutationFn: async ({ code, email }: { code: string; email: string }) => {
+      const result = await verifyEmailOTP(code, email)
       await navigate('/workspace')
       return result
     },
