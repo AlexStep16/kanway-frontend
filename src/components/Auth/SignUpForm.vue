@@ -146,11 +146,7 @@ onMounted(() => {
             <span>{{ item.label }}</span>
           </li>
         </ul>
-        <ul
-          class="text-xs text-red-600"
-          id="password-register-error"
-          v-if="registerError && !isPasswordDirty"
-        >
+        <ul class="text-xs text-red-600" v-if="registerError && !isPasswordDirty">
           <li class="list-inside">{{ registerError.message }}</li>
         </ul>
       </div>

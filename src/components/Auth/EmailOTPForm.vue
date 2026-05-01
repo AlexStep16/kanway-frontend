@@ -2,6 +2,7 @@
 import OTPForm from '@/components/Auth/OTPForm.vue'
 import { useSendVerificationEmail } from '@/composables/auth/mutations/useSendVerificationEmail'
 import { useVerificationEmailOTP } from '@/composables/auth/mutations/useVerificationEmailOTP'
+import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 import { ref } from 'vue'
 
 const otpFormRef = ref<InstanceType<typeof OTPForm> | null>(null)
@@ -42,6 +43,6 @@ function handleResendEmail() {
     @resend="handleResendEmail"
     :is-verifying="isVerifying"
     :is-resending="isResending"
-    resend-storage-key="resend_timer_verification_email"
+    :resend-storage-key="ResendStorageKeysEnum.EMAIL_VERIFICATION"
   />
 </template>

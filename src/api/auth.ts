@@ -5,11 +5,12 @@ import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
 import { YandexAuthDTO } from '@/interfaces/YandexAuthDTO'
 import { VkAuthDTO } from '@/interfaces/VkAuthDTO'
+import { FinishRegistrationDTO } from '@/interfaces/FinishRegistrationDTO'
 
 export async function loginApi(credentials: LoginCredentials) {
   return await apiCall<IUser>({
     method: 'POST',
-    url: '/auth/login',
+    url: '/auth/sign-in',
     data: credentials,
   })
 }
@@ -40,8 +41,23 @@ export async function logoutApi() {
 export async function registerApi(credentials: RegisterCredentials) {
   return await apiCall<IUser>({
     method: 'POST',
-    url: '/auth/register',
+    url: '/auth/sign-up',
     data: credentials,
+  })
+}
+
+export async function finishSignupApi(data: FinishRegistrationDTO) {
+  return await apiCall<IUser>({
+    method: 'POST',
+    url: '/auth/sign-up/finish',
+    data,
+  })
+}
+
+export async function checkSignupTokenApi() {
+  return await apiCall<null>({
+    method: 'GET',
+    url: '/auth/sign-up/check',
   })
 }
 

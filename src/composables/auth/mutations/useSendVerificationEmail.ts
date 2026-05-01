@@ -1,3 +1,4 @@
+import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 import { sendVerificationEmail } from '@/services/auth'
 import { BackendError } from '@/utils/errors'
 import { useMutation } from '@tanstack/vue-query'
@@ -9,9 +10,9 @@ export function useSendVerificationEmail() {
     meta: {
       errorMessage: false,
     },
-    mutationFn: () => {
-      localStorage.setItem('resend_timer_verification_email', Date.now().toString())
-      return sendVerificationEmail()
+    mutationFn: () => sendVerificationEmail(),
+    onSuccess: () => {
+      localStorage.setItem(ResendStorageKeysEnum.EMAIL_VERIFICATION, Date.now().toString())
     },
     onError: (error) => {
       if ((error as BackendError).code === 429) {

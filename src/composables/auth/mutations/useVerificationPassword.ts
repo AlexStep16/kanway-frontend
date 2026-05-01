@@ -9,10 +9,9 @@ export function useVerificationPassword() {
     meta: {
       errorMessage: false,
     },
-    mutationFn: async ({ token }: { token: string }) => {
-      const result = await verifyPasswordToken(token)
-      await navigate(`/auth/${AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE}`)
-      return result
+    mutationFn: async ({ token }: { token: string }) => verifyPasswordToken(token),
+    onSuccess: () => {
+      navigate(`/auth/${AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE}`)
     },
   })
 }

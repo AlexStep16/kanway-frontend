@@ -20,11 +20,14 @@ import {
   verifyLoginTokenApi,
   verifyPasswordTokenApi,
   verifyPasswordOTPApi,
+  finishSignupApi,
+  checkSignupTokenApi,
 } from '@api/auth'
 import IUser from '@models/UserModel'
 import UserModel from '@models/UserModel'
 import RegisterCredentials from '@interfaces/RegisterCredentials'
 import { UpdatePasswordVars } from '@/composables/auth/mutations/useUpdatePassword'
+import { FinishRegistrationDTO } from '@/interfaces/FinishRegistrationDTO'
 
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({
@@ -51,6 +54,16 @@ export async function register(credentials: RegisterCredentials) {
   const user = await registerApi(credentials)
 
   return transformUser(user)
+}
+
+export async function finishSignup(credentials: FinishRegistrationDTO) {
+  const user = await finishSignupApi(credentials)
+
+  return transformUser(user)
+}
+
+export async function checkFinishSignupToken(): Promise<null> {
+  return await checkSignupTokenApi()
 }
 
 export async function checkEmailExists(email: string): Promise<boolean> {

@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
+import { getRemainingResend } from '@/helpers/getRemainigResend'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue'
 
@@ -144,19 +145,7 @@ const handleVerify = () => {
 onMounted(() => {
   if (!props.resendStorageKey) return
 
-  const savedTimestamp = localStorage.getItem(props.resendStorageKey)
-
-  if (!savedTimestamp) return
-
-  const savedTimeMs = Number(savedTimestamp)
-
-  if (!Number.isFinite(savedTimeMs)) {
-    localStorage.removeItem(props.resendStorageKey)
-    return
-  }
-
-  const diff = Math.floor((Date.now() - savedTimeMs) / 1000)
-  const remaining = props.resendCooldownSeconds - diff
+  const remaining = getRemainingResend(props.resendStorageKey, props.resendCooldownSeconds)
 
   if (remaining > 0) {
     startTimer(remaining)

@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-vue-next'
 import { useVerificationPasswordOTP } from '@/composables/auth/mutations/useVerificationPasswordOTP'
 import { useSendVerificationPasswordEmail } from '@/composables/auth/mutations/useSendVerificationPasswordEmail'
 import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
+import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 
 const otpFormRef = ref<InstanceType<typeof OTPForm> | null>(null)
 
@@ -49,7 +50,7 @@ function handleResendPasswordEmail() {
     @resend="handleResendPasswordEmail"
     :is-verifying="isVerifyingPasswordOTP"
     :is-resending="isSendingPasswordEmail || props.isEmailSending"
-    resend-storage-key="resend_timer_verification_password"
+    :resend-storage-key="ResendStorageKeysEnum.PASSWORD_VERIFICATION"
   >
     <template #footer>
       <div class="flex flex-wrap justify-start items-center gap-2 w-full">

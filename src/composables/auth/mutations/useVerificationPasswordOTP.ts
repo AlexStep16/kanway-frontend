@@ -6,10 +6,10 @@ import { navigate } from 'vike/client/router'
 export function useVerificationPasswordOTP() {
   return useMutation({
     mutationKey: ['user'],
-    mutationFn: async ({ code, email }: { code: string; email: string }) => {
-      const result = await verifyPasswordOTP(code, email)
-      await navigate(`/auth/${AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE}`)
-      return result
+    mutationFn: ({ code, email }: { code: string; email: string }) =>
+      verifyPasswordOTP(code, email),
+    onSuccess: () => {
+      navigate(`/auth/${AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE}`)
     },
   })
 }

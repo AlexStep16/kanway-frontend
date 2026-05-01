@@ -1,7 +1,18 @@
 import { meApi } from '@/api/auth'
+import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
 import { userKeys } from '@/keys'
 import { queryClient } from '@/plugins/queryClient'
+import { checkFinishSignupToken } from '@/services/auth'
 import { redirect } from 'vike/abort'
+
+export const requireFinishedSignup = async () => {
+  try {
+    await checkFinishSignupToken()
+    throw redirect(`/auth/${AllowedAuthStepsEnum.FINISH_SIGN_UP}`)
+  } catch {
+    return null
+  }
+}
 
 export const requireAuth = async () => {
   try {

@@ -25,6 +25,9 @@ import LoginLink from '@/components/Auth/LoginLink.vue'
 import PasswordLink from '@/components/Auth/PasswordLink.vue'
 import { useSendVerificationPasswordEmail } from '@/composables/auth/mutations/useSendVerificationPasswordEmail'
 import ExitButton from '@/components/Auth/ExitButton.vue'
+import { getRemainingResend } from '@/helpers/getRemainigResend'
+import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
+import FinishSignUpForm from '@/components/Auth/FinishSignUpForm.vue'
 
 const data = useData<{
   email?: string
@@ -45,23 +48,50 @@ const isVerifyPasswordStep = computed(() => data.step === AllowedAuthStepsEnum.V
 const isPasswordResetCompleteStep = computed(
   () => data.step === AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE,
 )
+const isFinishSignUpStep = computed(() => data.step === AllowedAuthStepsEnum.FINISH_SIGN_UP)
+
+function navigateToPasswordVerify() {
+  if (!data.email) return
+
+  navigate(`/auth/${AllowedAuthStepsEnum.VERIFY_PASSWORD}/${getSafeBase64String(data.email)}`)
+}
 
 function handleForgotPassword() {
   if (!data.email) return
 
+  const remainingResend = getRemainingResend(ResendStorageKeysEnum.PASSWORD_VERIFICATION)
+
+  if (remainingResend > 0) {
+    navigateToPasswordVerify()
+    return
+  }
+
   sendVerificationPasswordEmail(data.email, {
     onSuccess() {
-      navigate(`/auth/${AllowedAuthStepsEnum.VERIFY_PASSWORD}/${getSafeBase64String(data.email!)}`)
+      navigateToPasswordVerify()
     },
   })
+}
+
+function navigateToLoginVerify() {
+  if (!data.email) return
+
+  navigate(`/auth/${AllowedAuthStepsEnum.VERIFY_LOGIN}/${getSafeBase64String(data.email)}`)
 }
 
 function handleSendMagicLink() {
   if (!data.email) return
 
+  const remainingResend = getRemainingResend(ResendStorageKeysEnum.LOGIN_VERIFICATION)
+
+  if (remainingResend > 0) {
+    navigateToLoginVerify()
+    return
+  }
+
   sendMagicLink(data.email, {
     onSuccess() {
-      navigate(`/auth/${AllowedAuthStepsEnum.VERIFY_LOGIN}/${getSafeBase64String(data.email!)}`)
+      navigateToLoginVerify()
     },
   })
 }
@@ -126,6 +156,14 @@ onMounted(() => {
                       data.email
                     }}</span>
                   </div>
+                  <div v-else-if="isFinishSignUpStep" key="finish-sign-up">
+                    <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
+                      Завершение регистрации
+                    </h1>
+                    <p class="text-muted-foreground text-sm mt-2">
+                      Осталось указать почту чтобы не потерять доступ к аккаунту
+                    </p>
+                  </div>
                 </Transition>
               </div>
             </div>
@@ -138,6 +176,7 @@ onMounted(() => {
                 @forgot-password="handleForgotPassword"
               />
               <SignUpForm :initial-email="data.email" v-else-if="isSignUpStep" />
+              <FinishSignUpForm v-else-if="isFinishSignUpStep" />
               <PasswordRecoveryForm :email="data.email" v-else-if="isPasswordResetCompleteStep" />
               <div v-if="isAuthStep || isSignInStep">
                 <div

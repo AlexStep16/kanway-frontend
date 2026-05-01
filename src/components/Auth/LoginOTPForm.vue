@@ -7,6 +7,7 @@ import { navigate } from 'vike/client/router'
 import { ref } from 'vue'
 import { ArrowLeft } from 'lucide-vue-next'
 import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
+import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 
 const otpFormRef = ref<InstanceType<typeof OTPForm> | null>(null)
 
@@ -47,7 +48,7 @@ function handleResendMagicLink() {
     @resend="handleResendMagicLink"
     :is-verifying="isVerifyingLoginOTP"
     :is-resending="isSendingMagicLink || props.isEmailSending"
-    resend-storage-key="resend_timer_verification_login"
+    :resend-storage-key="ResendStorageKeysEnum.LOGIN_VERIFICATION"
   >
     <template #footer>
       <div class="flex flex-wrap justify-start items-center gap-2 w-full">

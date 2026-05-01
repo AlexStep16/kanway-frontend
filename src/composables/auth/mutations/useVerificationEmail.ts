@@ -5,10 +5,9 @@ import { navigate } from 'vike/client/router'
 export function useVerificationEmail() {
   return useMutation({
     mutationKey: ['user'],
-    mutationFn: async ({ token }: { token: string }) => {
-      const result = await verifyEmailToken(token)
-      await navigate('/workspace')
-      return result
+    mutationFn: ({ token }: { token: string }) => verifyEmailToken(token),
+    onSuccess: () => {
+      navigate('/workspace')
     },
   })
 }

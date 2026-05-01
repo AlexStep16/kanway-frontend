@@ -8,10 +8,9 @@ export function useVerificationLogin() {
     meta: {
       errorMessage: false,
     },
-    mutationFn: async ({ token }: { token: string }) => {
-      const result = await verifyLoginToken(token)
-      await navigate('/workspace')
-      return result
+    mutationFn: ({ token }: { token: string }) => verifyLoginToken(token),
+    onSuccess: () => {
+      navigate('/workspace')
     },
   })
 }

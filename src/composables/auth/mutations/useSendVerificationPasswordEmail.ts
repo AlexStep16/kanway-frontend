@@ -1,3 +1,4 @@
+import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 import { sendPasswordRecoveryEmail } from '@/services/auth'
 import { BackendError } from '@/utils/errors'
 import { useMutation } from '@tanstack/vue-query'
@@ -9,9 +10,9 @@ export function useSendVerificationPasswordEmail() {
     meta: {
       errorMessage: false,
     },
-    mutationFn: async (email: string) => {
-      localStorage.setItem('resend_timer_verification_password', Date.now().toString())
-      return sendPasswordRecoveryEmail(email)
+    mutationFn: async (email: string) => sendPasswordRecoveryEmail(email),
+    onSuccess: () => {
+      localStorage.setItem(ResendStorageKeysEnum.PASSWORD_VERIFICATION, Date.now().toString())
     },
     onError: (error) => {
       if ((error as BackendError).code === 429) {
