@@ -6,7 +6,9 @@ import { Nullable } from '@/types/utils'
 
 export default {
   ssr: false,
-  prerender: true,
+  prerender: {
+    partial: true,
+  },
   extends: [vikeVue],
   hooksTimeout: false,
   bodyAttributes: { class: 'bg-slate-100' },
