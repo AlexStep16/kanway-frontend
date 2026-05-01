@@ -21,9 +21,9 @@ async function startYandexAuth() {
     response_type: 'code',
     client_id: import.meta.env.VITE_YANDEX_CLIENT_ID,
     redirect_uri: import.meta.env.VITE_YANDEX_REDIRECT_URI,
-    code_challenge: codeChallenge,
+    code_challenge: encodeURIComponent(codeChallenge),
     code_challenge_method: 'S256',
-    state: state,
+    state: encodeURIComponent(state),
   })
 
   window.location.href = `https://oauth.yandex.ru/authorize?${params.toString()}`
