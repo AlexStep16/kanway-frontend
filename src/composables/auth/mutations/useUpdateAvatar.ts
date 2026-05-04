@@ -12,7 +12,7 @@ export function useUpdateAvatar() {
   return useMutation({
     mutationKey: ['user'],
     mutationFn: (payload: UpdateAvatarVars) => updateAvatar(payload.data),
-    onSuccess: (result) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,
       })

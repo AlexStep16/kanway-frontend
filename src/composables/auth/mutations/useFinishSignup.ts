@@ -7,6 +7,9 @@ import dayjs from 'dayjs'
 
 export function useFinishSignup() {
   return useMutation({
+    meta: {
+      errorMessage: false,
+    },
     mutationFn: (data: Omit<FinishRegistrationDTO, 'timezone'>) =>
       finishSignup({
         ...data,
