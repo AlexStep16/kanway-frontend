@@ -1,6 +1,7 @@
 import { redirect, render } from 'vike/abort'
 import { BackendError, HttpError } from '@utils/errors'
 import { PageContextClient } from 'vike/types'
+import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
 
 export function dataErrorHandler(_pageContext: PageContextClient, e: any) {
   if (e instanceof Error && e.message.includes('AbortRender')) {
@@ -8,7 +9,7 @@ export function dataErrorHandler(_pageContext: PageContextClient, e: any) {
   }
 
   if (e.code === 403 || e.status === 403) {
-    throw redirect('/verify-email')
+    throw redirect('/auth?step=' + AllowedAuthStepsEnum.VERIFY_EMAIL)
   }
 
   if (e instanceof BackendError || e instanceof HttpError) {

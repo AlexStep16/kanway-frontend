@@ -13,7 +13,7 @@ import { workspaceKeys } from '@/keys'
 export async function redirectToWorkspace(pageContext: PageContextClient) {
   try {
     const params = pageContext.routeParams
-
+    console.log(params)
     const workspacesPayload = await queryClient.fetchQuery({
       queryKey: workspaceKeys.lists(),
       queryFn: fetchWorkspaces,
