@@ -3,7 +3,6 @@ import { onMounted } from 'vue'
 import { useVerificationEmail } from '@/composables/auth/mutations/useVerificationEmail'
 import Spinner from '@/components/Loader/Spinner.vue'
 import InvalidToken from '../../components/Auth/InvalidLink.vue'
-import { HSStaticMethods } from 'preline'
 
 const { mutate: verifyToken, error } = useVerificationEmail()
 
@@ -12,8 +11,6 @@ const props = defineProps<{
 }>()
 
 onMounted(() => {
-  HSStaticMethods.autoInit()
-
   if (props.token) {
     verifyToken({ token: props.token })
   }

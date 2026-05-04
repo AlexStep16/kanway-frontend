@@ -57,7 +57,7 @@ export async function finishSignupApi(data: FinishRegistrationDTO) {
 export async function checkSignupTokenApi() {
   return await apiCall<null>({
     method: 'GET',
-    url: '/auth/sign-up/check',
+    url: '/auth/sign-up/finish/check',
   })
 }
 

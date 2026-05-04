@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 import Spinner from '@/components/Loader/Spinner.vue'
 import InvalidLink from '../../components/Auth/InvalidLink.vue'
-import { HSStaticMethods } from 'preline'
 import { useVerificationPassword } from '@/composables/auth/mutations/useVerificationPassword'
 
 const { mutate: verifyToken, error } = useVerificationPassword()
@@ -12,8 +11,6 @@ const props = defineProps<{
 }>()
 
 onMounted(() => {
-  HSStaticMethods.autoInit()
-
   if (props.token) {
     verifyToken({ token: props.token })
   }

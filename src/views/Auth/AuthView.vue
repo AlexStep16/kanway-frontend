@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { HSStaticMethods } from 'preline'
+import { computed } from 'vue'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import YandexAuth from '@/views/Auth/YandexAuth.vue'
 import { useSendMagicLink } from '@/composables/auth/mutations/useSendMagicLink'
@@ -25,7 +24,7 @@ import LoginLink from '@/components/Auth/LoginLink.vue'
 import PasswordLink from '@/components/Auth/PasswordLink.vue'
 import { useSendVerificationPasswordEmail } from '@/composables/auth/mutations/useSendVerificationPasswordEmail'
 import ExitButton from '@/components/Auth/ExitButton.vue'
-import { getRemainingResend } from '@/helpers/getRemainigResend'
+import { getRemainingResend } from '@/helpers/getRemainingResend'
 import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 import FinishSignUpForm from '@/components/Auth/FinishSignUpForm.vue'
 
@@ -96,9 +95,9 @@ function handleSendMagicLink() {
   })
 }
 
-onMounted(() => {
-  HSStaticMethods.autoInit()
-})
+const isVerfiyStep = computed(
+  () => isVerifyEmailStep.value || isVerifyLoginStep.value || isVerifyPasswordStep.value,
+)
 </script>
 
 <template>
@@ -111,7 +110,7 @@ onMounted(() => {
       <TransitionGroup name="slide-left">
         <div
           class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
-          v-if="!isVerifyEmailStep && !isVerifyLoginStep && !isVerifyPasswordStep"
+          v-if="!isVerfiyStep"
           key="auth-forms"
         >
           <div class="p-4 pt-7 sm:p-7">
@@ -123,7 +122,7 @@ onMounted(() => {
               </a>
 
               <div
-                class="overflow-hidden relative w-full min-h-8 flex justify-center items-center text-nowrap mt-4"
+                class="overflow-hidden relative w-full min-h-8 flex justify-center items-center mt-4"
               >
                 <Transition name="slide-up">
                   <h1
@@ -161,7 +160,7 @@ onMounted(() => {
                       Завершение регистрации
                     </h1>
                     <p class="text-muted-foreground text-sm mt-2">
-                      Осталось указать почту чтобы не потерять доступ к аккаунту
+                      Осталось указать почту, чтобы не потерять доступ к аккаунту
                     </p>
                   </div>
                 </Transition>

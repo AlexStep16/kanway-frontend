@@ -6,8 +6,7 @@ import { navigate } from 'vike/client/router'
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
 import z from 'zod'
 import { Mail } from 'lucide-vue-next'
-import { onMounted, ref } from 'vue'
-import { HSStaticMethods } from 'preline'
+import { ref } from 'vue'
 import { AllowedAuthStepsEnum } from '@/enums/AllowedAuthStepsEnum'
 import { getSafeBase64String } from '@/utils/getSafeBase64String'
 import { useFinishSignup } from '@/composables/auth/mutations/useFinishSignup'
@@ -43,10 +42,6 @@ const onSubmit = handleSubmit((values) => {
       },
     },
   )
-})
-
-onMounted(() => {
-  HSStaticMethods.autoInit()
 })
 </script>
 

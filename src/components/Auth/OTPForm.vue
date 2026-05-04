@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import RegisterButton from '@/components/Buttons/RegisterButton.vue'
-import { getRemainingResend } from '@/helpers/getRemainigResend'
+import { getRemainingResend } from '@/helpers/getRemainingResend'
 import KanwayLogo from '@assets/kanway_logo.svg?component'
 import { ref, reactive, computed, nextTick, onMounted, onUnmounted } from 'vue'
 

@@ -7,6 +7,7 @@ import { ArrowLeft, KeyRound } from 'lucide-vue-next'
 import z from 'zod'
 import { useLogin } from '@/composables/auth/mutations/useLogin'
 import { ref, watch } from 'vue'
+import ShowPasswordButton from './ShowPasswordButton.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -20,6 +21,7 @@ const props = withDefaults(
 const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
 
 const isPasswordDirty = ref(false)
+const passwordRef = ref<HTMLInputElement | null>(null)
 
 const schema = toTypedSchema(
   z.object({
@@ -50,6 +52,20 @@ const onSubmit = handleSubmit((values) => {
   isPasswordDirty.value = false
   login({ email: values.email.trim(), password: values.password })
 })
+
+const isPasswordVisible = ref(false)
+
+function handleTogglePasswordVisibility() {
+  if (!passwordRef.value) return
+
+  if (passwordRef.value.type === 'password') {
+    passwordRef.value.type = 'text'
+    isPasswordVisible.value = true
+  } else {
+    passwordRef.value.type = 'password'
+    isPasswordVisible.value = false
+  }
+}
 </script>
 
 <template>
@@ -63,11 +79,16 @@ const onSubmit = handleSubmit((values) => {
             type="password"
             id="password"
             name="password"
+            ref="passwordRef"
             placeholder="Введите пароль"
             @input="isPasswordDirty = true"
             class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
             v-model="password"
             v-bind="passwordAttrs"
+          />
+          <ShowPasswordButton
+            :isPasswordVisible="isPasswordVisible"
+            @toggle-password-visibility="handleTogglePasswordVisibility"
           />
         </div>
         <ul
