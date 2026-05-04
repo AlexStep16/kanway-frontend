@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { Nullable } from '@/types/utils'
 import { useBoardStore } from './board'
 import { queryClient } from '@/plugins/queryClient'
-import { boardKeys, workspaceKeys } from '@/keys'
+import { boardKeys } from '@/keys'
 import { fetchBoards } from '@/services/board'
 
 export const useWorkspaceStore = (pinia?: Pinia) => {

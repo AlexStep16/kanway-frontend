@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { boardKeys, categoryKeys, taskKeys, workspaceKeys } from '@/keys'
+import { boardKeys, categoryKeys, taskKeys } from '@/keys'
 import { requestQueueService } from '@/utils/RequestQueueService'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { recoverBoard } from '@/services/board'

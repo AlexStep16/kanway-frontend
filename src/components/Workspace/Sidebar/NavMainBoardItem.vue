@@ -90,7 +90,7 @@ const orderedBoards = computed(() => {
 })
 
 function handleSelectBoard(board: IBoard) {
-  boardStore.selectBoard(board)
+  boardStore.selectBoard(board, true)
 
   if (isMobile.value) {
     toggleSidebar()
