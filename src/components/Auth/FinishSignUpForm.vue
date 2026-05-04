@@ -37,7 +37,7 @@ const onSubmit = handleSubmit((values) => {
     {
       onSuccess: () => {
         navigate(
-          '/' + AllowedAuthStepsEnum.VERIFY_EMAIL + '/' + getSafeBase64String(values.email.trim()),
+          `/auth?step=${AllowedAuthStepsEnum.VERIFY_EMAIL}&payload=${getSafeBase64String(values.email.trim())}`,
         )
       },
     },

@@ -52,7 +52,9 @@ const isFinishSignUpStep = computed(() => data.step === AllowedAuthStepsEnum.FIN
 function navigateToPasswordVerify() {
   if (!data.email) return
 
-  navigate(`/auth/${AllowedAuthStepsEnum.VERIFY_PASSWORD}/${getSafeBase64String(data.email)}`)
+  navigate(
+    `/auth?step=${AllowedAuthStepsEnum.VERIFY_PASSWORD}&payload=${getSafeBase64String(data.email)}`,
+  )
 }
 
 function handleForgotPassword() {
@@ -75,7 +77,9 @@ function handleForgotPassword() {
 function navigateToLoginVerify() {
   if (!data.email) return
 
-  navigate(`/auth/${AllowedAuthStepsEnum.VERIFY_LOGIN}/${getSafeBase64String(data.email)}`)
+  navigate(
+    `/auth?step=${AllowedAuthStepsEnum.VERIFY_LOGIN}&payload=${getSafeBase64String(data.email)}`,
+  )
 }
 
 function handleSendMagicLink() {

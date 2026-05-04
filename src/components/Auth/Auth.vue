@@ -52,11 +52,11 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (isEmailExists)
       return navigate(
-        `/auth/${AllowedAuthStepsEnum.SIGN_IN}/${getSafeBase64String(normalizedEmail)}`,
+        `/auth?step=${AllowedAuthStepsEnum.SIGN_IN}&payload=${getSafeBase64String(normalizedEmail)}`,
       )
     else
       return navigate(
-        `/auth/${AllowedAuthStepsEnum.SIGN_UP}/${getSafeBase64String(normalizedEmail)}`,
+        `/auth?step=${AllowedAuthStepsEnum.SIGN_UP}&payload=${getSafeBase64String(normalizedEmail)}`,
       )
   } finally {
     isCheckingEmail.value = false
