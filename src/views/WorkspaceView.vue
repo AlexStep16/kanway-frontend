@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import TaskEdit from '@components/Workspace/Main/Task/Edit/Edit.vue'
 import CategoryEdit from '@components/Workspace/Main/Category/Edit.vue'
 import BoardEdit from '@components/Workspace/Main/Board/Edit.vue'
@@ -9,14 +9,30 @@ import { HSOverlay, HSStaticMethods } from 'preline/dist'
 import Settings from '@components/Workspace/Settings/Settings.vue'
 import Tip from '@components/Tip/Tip.vue'
 import MobileSearch from '@components/Workspace/MobileSearch.vue'
-import { useRootStore } from '@/stores/root'
 import Support from '@/components/Workspace/Main/Support/Support.vue'
 import Plans from '@/components/Workspace/Main/Subscription/Plans.vue'
 import Sidebar from '@/components/Workspace/Sidebar/Sidebar.vue'
 import WorkspaceDialog from '@/components/Workspace/WorkspaceDialog.vue'
+import { useData } from 'vike-vue/useData'
+import { useBoardStore } from '@/stores/board'
+import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
+import { useWorkspaceStore } from '@/stores/workspace'
+import { useBoards } from '@/composables/boards/queries/useBoards'
 
-const rootStore = useRootStore()
 const uiStore = useUIStore()
+const boardStore = useBoardStore()
+const workspaceStore = useWorkspaceStore()
+
+const data = useData<{
+  workspaceId: string
+  boardId: string | null
+}>()
+
+const { data: workspacesData } = useWorkspaces()
+const { data: boardsData } = useBoards(data.workspaceId)
+
+const workspaces = computed(() => workspacesData.value || [])
+const boards = computed(() => boardsData.value || [])
 
 function initEditTaskModal() {
   if (uiStore.editTaskModalRef) {
@@ -71,7 +87,17 @@ onMounted(() => {
   initSupportModal()
   initPlansModal()
 
-  rootStore.updateWorkspaceFromRoute()
+  const targetWorkspace = workspaces.value.find((w) => w.id === data.workspaceId)
+
+  if (targetWorkspace) {
+    workspaceStore.selectWorkspace(targetWorkspace, false, false)
+
+    const board = boards.value.find((b) => b.id === data.boardId)
+
+    if (board) {
+      boardStore.selectBoard(board)
+    }
+  }
 })
 </script>
 
