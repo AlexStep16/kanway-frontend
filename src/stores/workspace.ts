@@ -6,6 +6,7 @@ import { useBoardStore } from './board'
 import { queryClient } from '@/plugins/queryClient'
 import { boardKeys } from '@/keys'
 import { fetchBoards } from '@/services/board'
+import { navigate } from 'vike/client/router'
 
 export const useWorkspaceStore = (pinia?: Pinia) => {
   return defineStore('workspace', () => {
@@ -35,7 +36,7 @@ export const useWorkspaceStore = (pinia?: Pinia) => {
         await boardStore.selectBoard(boards[0], shouldNavigate)
       } else {
         if (shouldNavigate) {
-          window.history.pushState({ triggeredBy: 'user' }, '', `/workspace/${newWorkspace.id}`)
+          navigate(`/workspace/${newWorkspace.id}`)
         }
       }
     }
