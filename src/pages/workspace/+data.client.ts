@@ -11,7 +11,7 @@ const data = async (pageContext: PageContextClient) => {
     await requireAuth()
 
     const currentPath = pageContext.urlPathname
-
+    console.log(currentPath)
     return await handleWorkspaceRoute(null, null, currentPath)
   } catch (e) {
     dataErrorHandler(pageContext, e)

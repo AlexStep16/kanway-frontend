@@ -13,7 +13,7 @@ const data = async (pageContext: PageContextClient) => {
       pageContext.urlPathname,
     )
     const { workspaceId, boardId } = routeParams
-
+    console.log(workspaceId)
     await requireFinishedSignup()
     await requireAuth()
 
