@@ -83,7 +83,7 @@ onMounted(() => {
   initSettingsModal()
   initSupportModal()
   initPlansModal()
-
+  console.log(route.params)
   const targetWorkspace = workspaces.value.find((w) => w.id === route.params.workspaceId)
 
   if (targetWorkspace) {
