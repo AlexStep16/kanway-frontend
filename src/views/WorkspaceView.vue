@@ -26,7 +26,10 @@ const workspaceStore = useWorkspaceStore()
 const route = useRoute()
 
 const { data: workspacesData } = useWorkspaces()
-const { data: boardsData } = useBoards(route.params.workspaceId as string)
+const { data: boardsData } = useBoards(
+  route.params.workspaceId as string,
+  !!route.params.workspaceId,
+)
 
 const workspaces = computed(() => workspacesData.value || [])
 const boards = computed(() => boardsData.value || [])
