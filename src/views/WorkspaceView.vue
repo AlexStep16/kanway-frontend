@@ -86,9 +86,9 @@ onMounted(() => {
   initSettingsModal()
   initSupportModal()
   initPlansModal()
-  console.log(data)
-  const targetWorkspace = workspaces.value.find((w) => w.id === data.workspaceId)
 
+  const targetWorkspace = workspaces.value.find((w) => w.id === data.workspaceId)
+  console.log(targetWorkspace)
   if (targetWorkspace) {
     workspaceStore.selectWorkspace(targetWorkspace, false, false)
 

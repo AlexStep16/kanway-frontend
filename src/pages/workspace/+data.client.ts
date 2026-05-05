@@ -10,10 +10,9 @@ const data = async (pageContext: PageContextClient) => {
     await requireFinishedSignup()
     await requireAuth()
 
-    const { workspaceId: urlWorkspaceId, boardId: urlBoardId } = pageContext.routeParams
     const currentPath = pageContext.urlPathname
 
-    return await handleWorkspaceRoute(urlWorkspaceId, urlBoardId, currentPath)
+    return await handleWorkspaceRoute(null, null, currentPath)
   } catch (e) {
     dataErrorHandler(pageContext, e)
   }
