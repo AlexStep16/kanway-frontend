@@ -16,8 +16,10 @@ import WorkspaceDialog from '@/components/Workspace/WorkspaceDialog.vue'
 import { useBoardStore } from '@/stores/board'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
 import { useWorkspaceStore } from '@/stores/workspace'
-import { useBoards } from '@/composables/boards/queries/useBoards'
 import { useRoute } from 'vue-router'
+import { queryClient } from '@/plugins/queryClient'
+import { boardKeys } from '@/keys'
+import { fetchBoards } from '@/services/board'
 
 const uiStore = useUIStore()
 const boardStore = useBoardStore()
@@ -26,10 +28,8 @@ const workspaceStore = useWorkspaceStore()
 const route = useRoute()
 
 const { data: workspacesData } = useWorkspaces()
-const { data: boardsData } = useBoards(route.params.workspaceId as string)
 
 const workspaces = computed(() => workspacesData.value || [])
-const boards = computed(() => boardsData.value || [])
 
 function initEditTaskModal() {
   if (uiStore.editTaskModalRef) {
@@ -73,7 +73,7 @@ function initPlansModal() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   HSStaticMethods.autoInit()
 
   initEditTaskModal()
@@ -83,13 +83,17 @@ onMounted(() => {
   initSettingsModal()
   initSupportModal()
   initPlansModal()
-  console.log(route.params)
+
   const targetWorkspace = workspaces.value.find((w) => w.id === route.params.workspaceId)
+  const boards = await queryClient.fetchQuery({
+    queryKey: boardKeys.byWorkspace(route.params.workspaceId as string),
+    queryFn: () => fetchBoards(route.params.workspaceId as string),
+  })
 
   if (targetWorkspace) {
     workspaceStore.selectWorkspace(targetWorkspace, false, false)
 
-    const board = boards.value.find((b) => b.id === route.params.boardId)
+    const board = boards.find((b) => b.id === route.params.boardId)
 
     if (board) {
       boardStore.selectBoard(board)
