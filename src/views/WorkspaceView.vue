@@ -13,23 +13,20 @@ import Support from '@/components/Workspace/Main/Support/Support.vue'
 import Plans from '@/components/Workspace/Main/Subscription/Plans.vue'
 import Sidebar from '@/components/Workspace/Sidebar/Sidebar.vue'
 import WorkspaceDialog from '@/components/Workspace/WorkspaceDialog.vue'
-import { useData } from 'vike-vue/useData'
 import { useBoardStore } from '@/stores/board'
 import { useWorkspaces } from '@/composables/workspaces/queries/useWorkspaces'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useBoards } from '@/composables/boards/queries/useBoards'
+import { useRoute } from 'vue-router'
 
 const uiStore = useUIStore()
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
 
-const data = useData<{
-  workspaceId: string
-  boardId: string | null
-}>()
+const route = useRoute()
 
 const { data: workspacesData } = useWorkspaces()
-const { data: boardsData } = useBoards(data.workspaceId)
+const { data: boardsData } = useBoards(route.params.workspaceId as string)
 
 const workspaces = computed(() => workspacesData.value || [])
 const boards = computed(() => boardsData.value || [])
@@ -87,12 +84,12 @@ onMounted(() => {
   initSupportModal()
   initPlansModal()
 
-  const targetWorkspace = workspaces.value.find((w) => w.id === data.workspaceId)
+  const targetWorkspace = workspaces.value.find((w) => w.id === route.params.workspaceId)
 
   if (targetWorkspace) {
     workspaceStore.selectWorkspace(targetWorkspace, false, false)
 
-    const board = boards.value.find((b) => b.id === data.boardId)
+    const board = boards.value.find((b) => b.id === route.params.boardId)
 
     if (board) {
       boardStore.selectBoard(board)
