@@ -26,6 +26,7 @@ import '../styles/spinner.css'
 import '../styles/transitions.css'
 import '../styles/fonts.css'
 import { queryClient } from '@/plugins/queryClient'
+import { getWorkspaceRouter } from './router'
 
 function onCreateApp(pageContext: PageContext) {
   if (pageContext.isRenderingHead) {
@@ -56,7 +57,10 @@ function onCreateApp(pageContext: PageContext) {
   })
 
   if (app) {
+    const router = getWorkspaceRouter()
+
     if (pageContext.pinia) app.use(pageContext.pinia)
+    app.use(router)
     app.use(VueInputAutowidth)
     app.use(VueTheMask as any)
     app.use(VueQueryPlugin, { queryClient })

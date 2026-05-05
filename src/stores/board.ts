@@ -4,7 +4,7 @@ import { Nullable } from '@/types/utils'
 import { useWorkspaceStore } from '@stores/workspace'
 import { IBoard } from '@/interfaces/domain/IBoard'
 import { useUIStore } from '@stores/ui'
-import { navigate } from 'vike/client/router'
+import { workspaceNavigate } from '@/pages/router'
 
 export const useBoardStore = (pinia?: Pinia) => {
   return defineStore('board', () => {
@@ -18,7 +18,7 @@ export const useBoardStore = (pinia?: Pinia) => {
       if (!board || board.id === activeBoardId.value) return
 
       if (activeWorkspaceId.value && shouldNavigate) {
-        navigate(`/workspace/${activeWorkspaceId.value}/${board.id}`)
+        await workspaceNavigate(`/workspace/${activeWorkspaceId.value}/${board.id}`)
       }
 
       activeBoardId.value = board.id

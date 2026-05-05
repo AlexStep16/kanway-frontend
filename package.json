@@ -58,6 +58,7 @@
     "vite-plugin-compression": "^0.5.1",
     "vue": "^3.5.18",
     "vue-input-autowidth": "^2.2.1",
+    "vue-router": "^5.0.6",
     "vue-sonner": "^2.0.9",
     "vue-the-mask": "^0.11.1",
     "vuedraggable": "^4.1.0",

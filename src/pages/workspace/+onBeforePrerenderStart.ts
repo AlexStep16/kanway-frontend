@@ -1,3 +1,3 @@
 export function onBeforePrerenderStart() {
-  return ['/workspace/all']
+  return ['/workspace']
 }
