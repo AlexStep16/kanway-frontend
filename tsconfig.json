@@ -1,37 +1,8 @@
 {
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
-    "jsx": "react",
     "strict": true,
-    "module": "ES2020",
-    "target": "ES2020",
-    // Doesn't apply to server/, see ts-node config down below and server/tsconfig.json
-    "moduleResolution": "Bundler",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["vite/client"],
     "skipLibCheck": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@helpers/*": ["./src/helpers/*"],
-      "@views/*": ["./src/views/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@interfaces/*": ["./src/interfaces/*"],
-      "@stores/*": ["./src/stores/*"],
-      "@api/*": ["./src/api/*"],
-      "@services/*": ["./src/services/*"],
-      "@enums/*": ["./src/enums/*"],
-      "@models/*": ["./src/models/*"]
-    }
   },
-  "ts-node": {
-    "transpileOnly": true,
-    "esm": true,
-    "compilerOptions": {
-      "module": "Node16",
-      "moduleResolution": "Node16"
-    }
-  }
 }

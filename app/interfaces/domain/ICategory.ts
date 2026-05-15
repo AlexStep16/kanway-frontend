@@ -1,0 +1,15 @@
+import type { IParent } from '~/interfaces/IParent'
+
+export interface ICategory {
+  id: string
+  name: string
+  workspace: IParent
+  board: IParent
+  userId: string
+  rank: string
+  isDeleted: boolean
+  isDeletedExternal: boolean
+  deletedTime?: Date | null
+  createdAt: Date
+  updatedAt: Date
+}

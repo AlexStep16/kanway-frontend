@@ -1,0 +1,47 @@
+import type { IPayment } from '~/interfaces/domain/IPayment'
+import type { IPaymentMethod } from '~/interfaces/domain/IPaymentMethod'
+import type { ISubscription } from '~/interfaces/domain/ISubscription'
+import type { ISetting } from '~/interfaces/domain/ISetting'
+
+export async function getSettingApi() {
+  return await apiCall<ISetting[]>({
+    method: 'GET',
+    url: '/settings',
+  })
+}
+
+export async function patchSettingApi(payload: Partial<ISetting>) {
+  return apiCall<ISetting[]>({
+    method: 'PATCH',
+    url: '/settings',
+    data: payload,
+  })
+}
+
+export async function getSubscriptionsApi() {
+  return await apiCall<ISubscription[]>({
+    method: 'GET',
+    url: '/subscriptions',
+  })
+}
+
+export async function getPaymentsApi() {
+  return await apiCall<IPayment[]>({
+    method: 'GET',
+    url: '/payments',
+  })
+}
+
+export async function getPaymentMethodsApi() {
+  return await apiCall<IPaymentMethod[]>({
+    method: 'GET',
+    url: '/payment-methods',
+  })
+}
+
+export async function deletePaymentMethodApi(id: string) {
+  return await apiCall<void>({
+    method: 'DELETE',
+    url: `/payment-methods/${id}`,
+  })
+}
