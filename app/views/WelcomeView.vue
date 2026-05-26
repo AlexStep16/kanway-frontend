@@ -27,7 +27,7 @@ const schema = toTypedSchema(
   }),
 )
 
-const openItem = ref('') 
+const openItem = ref('')
 
 function toggleColors() {
   openItem.value = openItem.value === 'colors' ? '' : 'colors'
@@ -77,9 +77,13 @@ const onSubmit = handleSubmit(
 </script>
 
 <template>
-  <div class="size-full bg-gray-100 fixed inset-0 flex flex-col px-2">
+  <div class="size-full bg-gray-100 min-h-screen flex flex-col px-2">
     <header class="w-full py-5 px-4 sm:px-10 flex justify-between items-center">
-      <NuxtLink to="/" class="cursor-pointer" aria-label="На главную">
+      <NuxtLink
+        to="/"
+        class="cursor-pointer"
+        aria-label="На главную"
+      >
         <KanwayLogo class="h-8 sm:h-10" />
       </NuxtLink>
 
@@ -90,7 +94,10 @@ const onSubmit = handleSubmit(
       <div class="flex flex-col gap-4 w-full max-w-100">
         <h2 class="text-center text-2xl text-gray-700 font-bold">Давайте начнем!</h2>
         <div class="bg-white rounded-md border border-gray-200 p-4 justify-between w-full">
-          <form @submit.prevent="onSubmit" novalidate>
+          <form
+            @submit.prevent="onSubmit"
+            novalidate
+          >
             <div class="flex flex-col gap-y-2">
               <div class="flex flex-col gap-y-2">
                 <span class="text-sm font-medium text-gray-700"
@@ -109,10 +116,17 @@ const onSubmit = handleSubmit(
                     placeholder="Маркетинг"
                   />
                 </div>
-                <Accordion v-model="openItem" type="single" collapsible class="w-full border-none">
-                  <AccordionItem value="color-selection" class="border-none">
-                    
-                    <AccordionTrigger class="hidden" /> 
+                <Accordion
+                  v-model="openItem"
+                  type="single"
+                  collapsible
+                  class="w-full border-none"
+                >
+                  <AccordionItem
+                    value="color-selection"
+                    class="border-none"
+                  >
+                    <AccordionTrigger class="hidden" />
 
                     <AccordionContent class="pb-2">
                       <div class="flex flex-col items-start gap-y-1 w-full p-1">
@@ -128,7 +142,6 @@ const onSubmit = handleSubmit(
                         </ColorButtons>
                       </div>
                     </AccordionContent>
-
                   </AccordionItem>
                 </Accordion>
               </div>
@@ -149,8 +162,15 @@ const onSubmit = handleSubmit(
                 </div>
               </div>
 
-              <Button variant="default" size="default" class="text-xs mt-2">
-                <Spinner class="size-4 absolute" v-if="isWelcomePending" />
+              <Button
+                variant="default"
+                size="default"
+                class="text-xs mt-2"
+              >
+                <Spinner
+                  class="size-4 absolute"
+                  v-if="isWelcomePending"
+                />
                 <span
                   :class="{
                     'opacity-0': isWelcomePending,

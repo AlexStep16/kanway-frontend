@@ -15,7 +15,7 @@ const currentTab = computed(() => uiStore.currentSettingsTab)
 <template>
   <Dialog v-model:open="uiStore.isSettingsModalOpen">
     <DialogContent
-      class="flex flex-col size-full max-w-none md:max-w-4xl max-h-screen md:max-h-160 bg-white rounded-sm md:rounded-md pointer-events-auto px-3 md:px-4 py-2 md:py-3 gap-y-2 md:gap-y-4 overflow-auto"
+      class="flex flex-col size-full sm:max-w-[calc(100%-2rem)] md:max-w-2xl lg:max-w-4xl max-h-[95svh] md:max-h-160 bg-white rounded-sm md:rounded-md pointer-events-auto px-3 md:px-4 py-2 md:py-3 gap-y-2 md:gap-y-4 overflow-auto"
     >
       <div class="flex justify-between items-center gap-x-2 pb-1 md:pb-2 border-b border-gray-200">
         <DialogTitle class="text-lg font-semibold text-foreground">Настройки</DialogTitle>
@@ -27,7 +27,7 @@ const currentTab = computed(() => uiStore.currentSettingsTab)
           @selectTab="(tab: SettingTabs) => (uiStore.currentSettingsTab = tab)"
         />
 
-        <div class="grow flex flex-col gap-y-4 ps-3 md:ps-6 pe-1 overflow-y-auto">
+        <div class="grow flex flex-col gap-y-4 ps-3 md:ps-6 pe-1 overflow-y-auto custom-scrollbar">
           <SettingsGeneral v-if="currentTab === SettingTabs.GENERAL" />
           <SettingsSecurity v-if="currentTab === SettingTabs.SECURITY" />
           <SettingsAssistant v-if="currentTab === SettingTabs.ASSISTANT" />

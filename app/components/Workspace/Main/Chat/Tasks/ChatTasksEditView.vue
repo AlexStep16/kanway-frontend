@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ColumnsView from '~/components/Workspace/Main/ColumnsView.vue'
 import type { ITask } from '~/interfaces/domain/ITask'
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import type { IParent } from '~/interfaces/IParent'
 import ChatTaskEdit from '../EntityEdit/ChatTaskEdit.vue'
@@ -14,7 +13,6 @@ export type BeforeAfterTask = ISingleUpdate<ITask> & {
 }
 
 const props = defineProps<{
-  message: IChatMessage
   before: BeforeAfterTask[]
   after: BeforeAfterTask[]
   isSelectable: boolean
@@ -27,7 +25,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
+const containerRef = ref<HTMLElement | null>(null)
 
 const selectedTasksCount = computed(() => {
   return selectedIds.value.length
@@ -70,16 +68,12 @@ const beforeAfterArray = computed(() => {
 <template>
   <div
     class="flex gap-2 w-full"
-    :ref="
-      (el) => {
-        messagesContainerRefMap[message.id] = el as HTMLElement
-      }
-    "
+    ref="containerRef"
   >
     <ColumnsView
       :initialCountShown="10"
       :items="beforeAfterArray"
-      :containerRef="messagesContainerRefMap[message.id]!"
+      :containerRef="containerRef"
     >
       <template v-slot:default="slotProps">
         <ChatTaskEdit

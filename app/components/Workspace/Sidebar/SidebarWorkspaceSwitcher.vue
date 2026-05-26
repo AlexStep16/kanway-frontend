@@ -98,7 +98,7 @@ const openWorkspaceDialog = () => {
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          class="w-[--reka-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+          class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg"
           align="start"
           :side="isMobile ? 'bottom' : 'right'"
           :side-offset="4"

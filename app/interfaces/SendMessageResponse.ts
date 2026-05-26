@@ -4,7 +4,7 @@ import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 export interface SendMessageResponse {
   jobId: string
   userMessage: IChatMessage
-  stepMessage: IChatMessage
+  statusMessage: IChatMessage
   chat: IChat
   threadId: string
 }

@@ -168,6 +168,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scroll-padding-top: 5rem;
   }
   body {
     @apply bg-background text-foreground;

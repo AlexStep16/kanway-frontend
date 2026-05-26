@@ -129,7 +129,7 @@ onUnmounted(() => {
     >
       <div
         v-if="task"
-        class="flex flex-col bg-background"
+        class="flex flex-col bg-background overflow-hidden"
       >
         <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-border">
           <div class="flex items-center gap-2 min-w-0">
@@ -183,7 +183,7 @@ onUnmounted(() => {
               :type="EntityType.Task"
               @move="handleMoveTask"
             >
-              <Layers class="size-3.5" />
+              <Layers class="size-3.5 shrink-0" />
             </MoveDropdown>
           </div>
 

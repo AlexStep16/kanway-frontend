@@ -67,7 +67,6 @@ const isUserHasPending = computed(() => {
 const userCredits = computed(() => user.value?.credits ?? 0)
 const userPaidCredits = computed(() => user.value?.paidCredits ?? 0)
 const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
-
 </script>
 
 <template>
@@ -132,14 +131,20 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
                 >Переход на {{ getPlanText(user!.pendingChangePlan) }}:
                 {{ getSubscriptionUntil }}</span
               >
-              <div class="flex gap-x-1" v-if="user?.isSubscriptionActive">
+              <div
+                class="flex gap-x-1"
+                v-if="user?.isSubscriptionActive"
+              >
                 <button
                   type="button"
                   class="text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none"
                   @click="cancelSubscription()"
                   :disabled="isCancelling"
                 >
-                  <Spinner class="size-4 absolute" v-if="isCancelling" />
+                  <Spinner
+                    class="size-4 absolute"
+                    v-if="isCancelling"
+                  />
                   <span :class="{ 'opacity-0': isCancelling }">Отменить</span>
                 </button>
                 <button
@@ -149,7 +154,10 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
                   @click="handleDowngradeCancelSubscription()"
                   :disabled="isDowngradingCancel"
                 >
-                  <Spinner class="size-4 absolute" v-if="isDowngradingCancel" />
+                  <Spinner
+                    class="size-4 absolute"
+                    v-if="isDowngradingCancel"
+                  />
                   <span :class="{ 'opacity-0': isDowngradingCancel }"
                     >Остаться на {{ getPlanText(user!.subscriptionId) }}</span
                   >
@@ -162,7 +170,10 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
                 @click="resumeSubscription()"
                 :disabled="isResuming"
               >
-                <Spinner class="size-4 absolute" v-if="isResuming" />
+                <Spinner
+                  class="size-4 absolute"
+                  v-if="isResuming"
+                />
                 <span :class="{ 'opacity-0': isResuming }">Восстановить</span>
               </button>
             </div>
@@ -241,6 +252,6 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
       Доступные планы
     </h3>
 
-    <PlanCards />
+    <PlanCards class="grid-cols-1 sm:grid-cols-2" />
   </div>
 </template>

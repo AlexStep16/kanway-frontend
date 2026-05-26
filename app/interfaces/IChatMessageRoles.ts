@@ -4,6 +4,6 @@ export type IChatMessageRoles =
   | 'preview'
   | 'error'
   | 'operation'
-  | 'steps'
+  | 'status'
   | 'ambiguous'
   | 'display'

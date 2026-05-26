@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     '/': { ssr: false },
     '/workspace/**': { ssr: false },
     '/auth/**': { ssr: false },
+    '/privacy': { ssr: false },
   },
   svgo: {
     dts: true,

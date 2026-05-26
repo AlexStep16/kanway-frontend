@@ -33,6 +33,9 @@ function create() {
         name.value = ''
         emit('close')
       },
+      onError: () => {
+        emit('close')
+      },
     },
   )
 }
@@ -51,7 +54,10 @@ onMounted(() => {
     class="flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden shadow-sm undraggable"
   >
     <div class="flex gap-x-2 p-3 relative">
-      <div class="flex items-center gap-x-2 shrink min-w-0 text-gray-800" v-if="isTaskAdding">
+      <div
+        class="flex items-center gap-x-2 shrink min-w-0 text-gray-800"
+        v-if="isTaskAdding"
+      >
         <div class="flex items-center justify-center">
           <Spinner class="size-3.5 text-gray-600" />
         </div>

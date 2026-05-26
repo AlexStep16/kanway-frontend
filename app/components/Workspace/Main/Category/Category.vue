@@ -231,7 +231,10 @@ const otherBoards = computed(() => {
           :delay="300"
           :delayOnTouchOnly="true"
           itemKey="id"
-          class="flex flex-col gap-y-2 grow"
+          class="flex flex-col gap-y-2"
+          :class="{
+            grow: !isTaskAddFormShown,
+          }"
           group="tasks"
           :animation="150"
           ghostClass="ghost-class"

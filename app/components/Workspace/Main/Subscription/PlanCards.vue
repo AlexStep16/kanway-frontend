@@ -4,7 +4,6 @@ import { Check, X } from 'lucide-vue-next'
 import SettingsSubscriptionButton from '../../Settings/Buttons/SettingsSubscriptionButton.vue'
 
 defineProps<{
-  isOneRow?: boolean
   isHeightIncreased?: boolean
 }>()
 
@@ -12,12 +11,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 </script>
 
 <template>
-  <div
-    class="grid gap-2 grid-cols-1 md:grid-cols-2 grid-flow-row auto-rows-max w-full"
-    :class="{
-      'md:grid-cols-3': isOneRow,
-    }"
-  >
+  <div class="grid gap-2 grid-flow-row auto-rows-max w-full">
     <template v-if="isSubscriptionsLoading">
       <div class="rounded-md bg-gray-300 grow animate-pulse h-58 w-40"></div>
       <div class="rounded-md bg-gray-300 grow animate-pulse h-58 w-40"></div>

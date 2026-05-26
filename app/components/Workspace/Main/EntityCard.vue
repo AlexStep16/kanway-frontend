@@ -301,10 +301,16 @@ const isEntityCompletable = computed(
 
       <!-- Теги -->
       <div
-        class="flex flex-wrap text-xs text-gray-500 gap-1"
-        v-if="entity.tags && entity.tags.length"
+        v-if="entity.tags?.length"
+        class="flex flex-wrap gap-1.5"
       >
-        {{ entity.tags.map((t) => '#' + t).join(' ') }}
+        <span
+          v-for="tag in entity.tags"
+          :key="tag"
+          class="text-xs font-medium text-primary/70 bg-primary-muted px-1.5 py-0.5 rounded"
+        >
+          #{{ tag }}
+        </span>
       </div>
 
       <!-- Дата выполнения -->

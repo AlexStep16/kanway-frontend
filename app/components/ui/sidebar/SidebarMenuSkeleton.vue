@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { computed } from "vue"
-import { cn } from "~/lib/utils"
+import type { HTMLAttributes } from 'vue'
+import { computed } from 'vue'
+import { cn } from '~/lib/utils'
 import { Skeleton } from '~/components/ui/skeleton'
 
 const props = defineProps<{
   showIcon?: boolean
-  class?: HTMLAttributes["class"]
+  class?: HTMLAttributes['class']
 }>()
 
 const width = computed(() => {
@@ -26,7 +26,7 @@ const width = computed(() => {
     />
 
     <Skeleton
-      class="h-4 flex-1 max-w-[--skeleton-width]"
+      class="h-4 flex-1 max-w-(--skeleton-width)"
       data-sidebar="menu-skeleton-text"
       :style="{ '--skeleton-width': width }"
     />

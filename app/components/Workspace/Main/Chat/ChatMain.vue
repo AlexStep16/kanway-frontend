@@ -5,7 +5,7 @@ import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import AIBubbleSkeleton from '~/components/Workspace/Main/Chat/Bubbles/AIBubbleSkeleton.vue'
 import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
 import ChatDisplay from './ChatDisplay.vue'
-import ChatThinking from './ChatThinking.vue'
+import ChatStatus from './ChatStatus/ChatStatus.vue'
 import { CustomEventsEnum } from '~/enums/CustomEventsEnum'
 import ChatLog from './ChatLog.vue'
 import ChatAmbiguous from './ChatAmbiguous.vue'
@@ -134,11 +134,11 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
                 :date="getFormattedDate(message.createdAt)"
               />
 
-              <AIBubble v-else-if="message.role === 'steps' && message.content?.length > 0">
-                <ChatThinking
+              <AIBubble v-else-if="message.role === 'status' && message.content">
+                <ChatStatus
                   :is-content-full-width="isContentFullWidth"
-                  :steps="message.content"
-                  :creditsUsed="message.creditsUsed"
+                  :status="message.content"
+                  :credits-used="message.creditsUsed"
                 />
               </AIBubble>
 

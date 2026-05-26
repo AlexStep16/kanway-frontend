@@ -112,7 +112,7 @@ const isVerfiyStep = computed(
 </script>
 
 <template>
-  <div class="size-full bg-gray-100 overflow-hidden fixed inset-0 flex flex-col px-2">
+  <div class="size-full bg-gray-100 overflow-hidden min-h-screen flex flex-col px-2">
     <BackgroundCircles />
     <header class="w-full py-5 px-4 sm:px-10 flex justify-end items-center">
       <ExitButton />

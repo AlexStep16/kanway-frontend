@@ -2,10 +2,8 @@
 import _ from 'lodash'
 
 import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
-import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
 import { OperationLogStatusesEnum } from '~/enums/OperationLogStatusesEnum'
 import { OperationTypesEnum } from '~/enums/OperationTypesEnum'
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import ChatTasksView from './Tasks/ChatTasksView.vue'
 import ChatTasksEditView from './Tasks/ChatTasksEditView.vue'
 import ChatCategoriesView from './Categories/ChatCategoriesView.vue'
@@ -14,7 +12,6 @@ import ChatWorkspacesView from './Workspaces/ChatWorkspacesView.vue'
 import ChatCategoriesEditView from './Categories/ChatCategoriesEditView.vue'
 import ChatBoardsEditView from './Boards/ChatBoardsEditView.vue'
 import ChatWorkspacesEditView from './Workspaces/ChatWorkspacesEditView.vue'
-import { Check } from 'lucide-vue-next'
 import { transformTask } from '@/services/task'
 import { transformCategory } from '@/services/category'
 import { transformBoard } from '@/services/board'
@@ -22,22 +19,13 @@ import { transformWorkspace } from '@/services/workspace'
 import type { IOperationLog } from '~/interfaces/domain/IOperationLog'
 
 const props = defineProps<{
-  message: IChatMessage
+  logId: string
 }>()
 
 /**
  * Data
  */
-const { data: log, isPending: isLogLoading } = useLog(props.message.content)
-
-const boardStore = useBoardStore()
-const workspaceStore = useWorkspaceStore()
-
-const activeBoardId = computed(() => boardStore.activeBoardId)
-const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
-
-const { mutate: approveLog, isPending: isLogApproving } = useApproveLog()
-const { mutate: cancelLog, isPending: isLogCancelling } = useApproveLog()
+const { data: log, isPending: isLogLoading } = useLog(props.logId)
 
 const logCopy = ref<IOperationLog | null>(null)
 const selectedIds = ref<string[]>([])
@@ -72,15 +60,6 @@ const ENTITY_CONFIG = {
   },
 } as const
 
-const OPERATION_VERBS: Record<string, string> = {
-  ARCHIVE: 'архивированы',
-  RECOVER: 'восстановлены',
-  DELETE: 'удалены',
-  UPDATE: 'обновлены',
-  CREATE: 'созданы',
-  CLONE: 'скопированы',
-}
-
 const SELECTS_FROM_AFTER = new Set([
   OperationTypesEnum.CREATE,
   OperationTypesEnum.UPDATE,
@@ -93,7 +72,6 @@ const SELECTS_FROM_AFTER = new Set([
  * Derived state
  */
 const isPending = computed(() => logCopy.value?.status === OperationLogStatusesEnum.PENDING)
-const isApproved = computed(() => logCopy.value?.status === OperationLogStatusesEnum.APPROVED)
 const isSuccess = computed(() => logCopy.value?.status === OperationLogStatusesEnum.SUCCESS)
 
 const logEntities = computed<any[]>(() => {
@@ -106,26 +84,8 @@ const logEntities = computed<any[]>(() => {
   return []
 })
 
-const headerTitle = computed(() => {
-  if (!logCopy.value) return ''
-
-  const config = ENTITY_CONFIG[logCopy.value.collectionName as keyof typeof ENTITY_CONFIG]
-  if (!config) return ''
-
-  const verb = OPERATION_VERBS[logCopy.value.operationType] || ''
-  const prefix =
-    logCopy.value.status === OperationLogStatusesEnum.PENDING
-      ? 'Будут'
-      : logCopy.value.status === OperationLogStatusesEnum.SUCCESS
-        ? 'Были'
-        : ''
-
-  return prefix ? `${prefix} ${verb} следующие ${config.labels.nom}:` : ''
-})
-
 type RenderBlock = {
   id: string
-  title: string
   items?: any[]
   before?: any[]
   after?: any[]
@@ -142,8 +102,7 @@ const renderBlocks = computed<RenderBlock[]>(() => {
   const config = ENTITY_CONFIG[collection as keyof typeof ENTITY_CONFIG]
   if (!config) return []
 
-  const id = `${props.message.id}-${collection}-${operationType}`
-  const title = headerTitle.value
+  const id = `${props.logId}-${collection}-${operationType}`
 
   // UPDATE
   if (operationType === OperationTypesEnum.UPDATE) {
@@ -153,7 +112,6 @@ const renderBlocks = computed<RenderBlock[]>(() => {
     return [
       {
         id,
-        title,
         before: before.map((entity: any) => config.transformFn(entity)),
         after: after.map((entity: any) => config.transformFn(entity)),
         component: config.componentUpdate,
@@ -166,7 +124,6 @@ const renderBlocks = computed<RenderBlock[]>(() => {
     return [
       {
         id,
-        title,
         items: logEntities.value.map((entity: any) => config.transformFn(entity)),
         component: config.component,
         isTemp: status === OperationLogStatusesEnum.SUCCESS ? false : true,
@@ -176,7 +133,6 @@ const renderBlocks = computed<RenderBlock[]>(() => {
     return [
       {
         id,
-        title,
         items: logEntities.value.map((entity: any) => config.transformFn(entity)),
         component: config.component,
         isTemp: status === OperationLogStatusesEnum.SUCCESS ? true : false,
@@ -188,32 +144,11 @@ const renderBlocks = computed<RenderBlock[]>(() => {
   return [
     {
       id,
-      title,
       items: logEntities.value.map((entity: any) => config.transformFn(entity)),
       component: config.component,
     },
   ]
 })
-
-/**
- * Actions
- */
-function handleApproveLog(isConfirmed: boolean) {
-  const mutate = isConfirmed ? approveLog : cancelLog
-
-  if (!logCopy.value) return
-
-  mutate({
-    payload: {
-      id: logCopy.value.id,
-      selectedIds: selectedIds.value,
-      isConfirmed,
-    },
-    boardId: activeBoardId.value,
-    workspaceId: activeWorkspaceId.value,
-    message: props.message,
-  })
-}
 
 /**
  * Sync + selection initialization
@@ -248,15 +183,8 @@ watchEffect(() => {
         :key="block.id"
         class="mb-4 last:mb-0"
       >
-        <AssistantBubble
-          class="mb-2"
-          :text="block.title"
-          v-if="block.title"
-        />
-
         <component
           :is="block.component"
-          :message="message"
           :items="block.items"
           :before="block.before"
           :after="block.after"
@@ -264,67 +192,6 @@ watchEffect(() => {
           :isSelectable="isPending && !isSuccess"
           v-model:selectedIds="selectedIds"
         />
-
-        <div
-          class="max-w-lg mt-3 flex"
-          v-if="isPending"
-        >
-          <div class="flex gap-x-2 bg-muted p-3 rounded-xl">
-            <button
-              type="button"
-              class="flex items-center justify-center text-xs rounded-md text-white py-1.5 px-2.5 bg-blue-500 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none duration-100 relative"
-              @click="handleApproveLog(true)"
-            >
-              <div
-                class="flex items-center justify-center absolute"
-                v-if="isLogApproving"
-              >
-                <Spinner class="size-4" />
-              </div>
-              <span :class="{ 'opacity-0': isLogApproving }"> Подтвердить </span>
-            </button>
-
-            <button
-              type="button"
-              class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
-              @click="handleApproveLog(false)"
-            >
-              <div
-                class="flex items-center justify-center absolute"
-                v-if="isLogCancelling"
-              >
-                <Spinner class="size-4" />
-              </div>
-              <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="max-w-lg mt-3 flex"
-          v-else-if="isApproved"
-        >
-          <div class="flex gap-x-2 bg-muted p-3 rounded-xl">
-            <div class="flex items-center text-xs gap-x-1 text-green-600">
-              <Check class="size-4" />
-              <span>Подтверждено</span>
-            </div>
-
-            <button
-              type="button"
-              class="flex items-center justify-center text-xs rounded-md text-red-500 py-1.5 px-2.5 bg-red-100 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none relative"
-              @click="handleApproveLog(false)"
-            >
-              <div
-                class="flex items-center justify-center absolute"
-                v-if="isLogCancelling"
-              >
-                <Spinner class="size-4" />
-              </div>
-              <span :class="{ 'opacity-0': isLogCancelling }"> Отменить </span>
-            </button>
-          </div>
-        </div>
       </div>
     </template>
 

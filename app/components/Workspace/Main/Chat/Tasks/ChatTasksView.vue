@@ -3,10 +3,8 @@ import ChatTask from '~/components/Workspace/Main/Chat/Tasks/ChatTask.vue'
 import ChatTaskTemp from '~/components/Workspace/Main/Chat/Tasks/ChatTaskTemp.vue'
 import ColumnsView from '~/components/Workspace/Main/ColumnsView.vue'
 import type { ITask } from '~/interfaces/domain/ITask'
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 
 const props = defineProps<{
-  message: IChatMessage
   items: ITask[]
   isSelectable?: boolean
   isTemporary?: boolean
@@ -19,7 +17,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
+const messagesContainerRef = ref<HTMLElement | null>(null)
 
 const selectedTasksCount = computed(() => {
   return selectedIds.value.length
@@ -43,16 +41,12 @@ function hasCheckbox(task: ITask) {
 <template>
   <div
     class="flex gap-2 w-full"
-    :ref="
-      (el) => {
-        messagesContainerRefMap[message.id] = el as HTMLElement
-      }
-    "
+    ref="messagesContainerRef"
   >
     <ColumnsView
       :initialCountShown="10"
       :items="items"
-      :containerRef="messagesContainerRefMap[message.id]!"
+      :containerRef="messagesContainerRef"
     >
       <template v-slot:default="slotProps">
         <template v-if="!isTemporary">
