@@ -37,18 +37,26 @@ const pluralizedProcessTitle = computed(() => {
         :pluralized-title="pluralizedProcessTitle"
         :human-readable-updates="props.content.filters"
         :state-classes="stateClasses"
-      />
+      >
+        <template #icon>
+          <RefreshCcw
+            class="size-3"
+            :class="props.stateClasses"
+          />
+        </template>
+      </UpdateInProgress>
     </template>
     <template v-else>
-      <RefreshCcw
-        class="size-3"
-        :class="stateClasses"
-      />
-
       <UpdateCompletedDropdown
         v-if="props.state === StatusStatesEnum.COMPLETED && ids.length"
         :pluralized-title="pluralizedCompletedTitle"
       >
+        <template #icon>
+          <RefreshCcw
+            class="size-3"
+            :class="props.stateClasses"
+          />
+        </template>
         <ChatLog
           :logId="props.content.logId"
           v-if="props.content.logId"
@@ -58,7 +66,14 @@ const pluralizedProcessTitle = computed(() => {
       <UpdateCompletedStatic
         v-else-if="props.state === StatusStatesEnum.COMPLETED"
         :pluralized-title="pluralizedCompletedTitle"
-      />
+      >
+        <template #icon>
+          <RefreshCcw
+            class="size-3"
+            :class="props.stateClasses"
+          />
+        </template>
+      </UpdateCompletedStatic>
     </template>
   </div>
 </template>

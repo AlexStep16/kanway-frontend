@@ -1,4 +1,6 @@
+import type { ITextValue } from './ITextValue.js'
+
 export interface ISearchEntitiesContent {
   ids?: string[]
-  filterText?: string
+  filters: ITextValue[]
 }

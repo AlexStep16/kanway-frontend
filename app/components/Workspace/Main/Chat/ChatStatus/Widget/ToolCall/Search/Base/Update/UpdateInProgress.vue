@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import { RefreshCcw } from 'lucide-vue-next'
-import type { IUpdateEntitiesFilters } from '~/interfaces/Statuses/Content/IUpdateEntitiesContent'
+import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue'
 
 const props = defineProps<{
   pluralizedTitle: string
   stateClasses: Record<string, boolean>
-  humanReadableUpdates: IUpdateEntitiesFilters[]
+  humanReadableUpdates: ITextValue[]
 }>()
 </script>
 
 <template>
   <div class="flex flex-col gap-y-1 transition-all duration-300 cursor-pointer select-none min-w-0">
     <div class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0">
-      <RefreshCcw
-        class="size-3"
-        :class="props.stateClasses"
-      />
+      <slot name="icon" />
       <span
         class="shrink-0"
         :class="props.stateClasses"

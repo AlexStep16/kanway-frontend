@@ -1,10 +1,7 @@
-export interface IUpdateEntitiesFilters {
-  text: string
-  value?: string
-}
+import type { ITextValue } from './ITextValue.js'
 
 export interface IUpdateEntitiesContent {
   ids: string[]
-  filters: IUpdateEntitiesFilters[]
+  filters: ITextValue[]
   logId?: string
 }

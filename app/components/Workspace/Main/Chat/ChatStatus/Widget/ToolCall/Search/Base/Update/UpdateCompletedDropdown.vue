@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { ChevronDown } from 'lucide-vue-next'
-
 defineProps<{
   pluralizedTitle: string
 }>()
-
-const isDropdownOpen = ref(false)
 </script>
 
 <template>
-  <DropdownMenu v-model:open="isDropdownOpen">
-    <DropdownMenuTrigger as-child>
-      <div
-        v-bind="$attrs"
-        class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0 cursor-pointer"
-      >
-        <span class="truncate">
-          {{ pluralizedTitle }}
-        </span>
-        <ChevronDown
-          class="shrink-0 size-4 text-muted-foreground transition-transform duration-300"
-          :class="{ 'rotate-180': isDropdownOpen }"
-        />
-      </div>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent
-      align="start"
-      class="w-[min(42rem,calc(100vw-2rem))] max-h-100 overflow-y-auto p-3"
+  <Accordion
+    type="single"
+    collapsible
+    class="min-w-0"
+  >
+    <AccordionItem
+      value="update-completed"
+      class="border-none"
     >
-      <slot />
-    </DropdownMenuContent>
-  </DropdownMenu>
+      <AccordionTrigger
+        v-bind="$attrs"
+        class="flex text-xs font-normal items-center justify-start gap-x-1 p-0 transition-all duration-300 select-none min-w-0 cursor-pointer hover:no-underline"
+      >
+        <div class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0">
+          <slot name="icon" />
+          <span class="shrink-0 truncate">
+            {{ pluralizedTitle }}
+          </span>
+        </div>
+      </AccordionTrigger>
+
+      <AccordionContent class="max-h-100 overflow-y-auto p-3">
+        <slot />
+      </AccordionContent>
+    </AccordionItem>
+  </Accordion>
 </template>

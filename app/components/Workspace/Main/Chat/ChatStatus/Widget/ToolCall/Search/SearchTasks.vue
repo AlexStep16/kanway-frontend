@@ -31,29 +31,44 @@ const tasks = computed(() => {
 
 <template>
   <div class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0">
-    <SearchIcon
-      class="size-3"
-      :class="stateClasses"
-    />
+    <template v-if="props.state === StatusStatesEnum.IN_PROGRESS">
+      <SearchInProgress
+        :human-readable-filters="props.content.filters"
+        :state-classes="stateClasses"
+      >
+        <template #icon>
+          <SearchIcon
+            class="size-3"
+            :class="props.stateClasses"
+          />
+        </template>
+      </SearchInProgress>
+    </template>
+    <template v-else>
+      <SearchCompletedDropdown
+        v-if="props.state === StatusStatesEnum.COMPLETED && ids.length"
+        :pluralized-title="pluralizedCompletedTitle"
+      >
+        <template #icon>
+          <SearchIcon
+            class="size-3"
+            :class="props.stateClasses"
+          />
+        </template>
+        <ChatTasksView :items="tasks" />
+      </SearchCompletedDropdown>
 
-    <SearchInProgress
-      v-if="props.state === StatusStatesEnum.IN_PROGRESS"
-      :filter-text="props.content.filterText"
-      :state-classes="stateClasses"
-    />
-
-    <SearchCompletedDropdown
-      v-else-if="props.state === StatusStatesEnum.COMPLETED && ids.length"
-      :filter-text="props.content.filterText"
-      :pluralized-title="pluralizedCompletedTitle"
-    >
-      <ChatTasksView :items="tasks" />
-    </SearchCompletedDropdown>
-
-    <SearchCompletedStatic
-      v-else-if="props.state === StatusStatesEnum.COMPLETED"
-      :filter-text="props.content.filterText"
-      :pluralized-title="pluralizedCompletedTitle"
-    />
+      <SearchCompletedStatic
+        v-else-if="props.state === StatusStatesEnum.COMPLETED"
+        :pluralized-title="pluralizedCompletedTitle"
+      >
+        <template #icon>
+          <SearchIcon
+            class="size-3"
+            :class="props.stateClasses"
+          />
+        </template>
+      </SearchCompletedStatic>
+    </template>
   </div>
 </template>

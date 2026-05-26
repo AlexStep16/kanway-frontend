@@ -98,7 +98,12 @@ function getAgentName(agent: AgentsEnum) {
           <div class="w-0.5 bg-gray-300 h-full"></div>
         </div>
 
-        <div class="flex flex-col gap-y-1 text-muted-foreground">
+        <div
+          class="flex flex-col gap-y-1 text-muted-foreground"
+          :class="{
+            'py-1': props.status.logs.length > 0,
+          }"
+        >
           <StatusLog
             v-for="log in props.status.logs"
             :key="log.id"
