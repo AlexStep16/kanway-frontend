@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, X, Square } from 'lucide-vue-next'
+import { Check, X, Square, CircleAlert } from 'lucide-vue-next'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import type { IStatus } from '~/interfaces/Statuses/IStatus'
 import { AgentsEnum } from '~/enums/AgentsEnum'
@@ -9,6 +9,8 @@ const props = defineProps<{
   status: IStatus
   isContentFullWidth?: boolean
   creditsUsed?: number
+  chatId: string
+  threadId: string
 }>()
 
 function getAgentName(agent: AgentsEnum) {
@@ -21,6 +23,15 @@ function getAgentName(agent: AgentsEnum) {
       return 'Агент'
   }
 }
+
+const statusText = computed(() => {
+  switch (props.status.state) {
+    case StatusStatesEnum.AWAITING_CONFIRMATION:
+      return 'Ожидаю подтверждения'
+    default:
+      return props.status.statusText
+  }
+})
 </script>
 
 <template>
@@ -34,30 +45,35 @@ function getAgentName(agent: AgentsEnum) {
     <div class="flex flex-col gap-1.5 min-w-0 text-xs">
       <div class="flex items-center gap-1">
         <div class="shrink-0 flex items-center justify-center size-4">
-          <Transition name="slide-up">
+          <TransitionGroup name="slide-up">
+            <CircleAlert
+              v-if="props.status.state === StatusStatesEnum.AWAITING_CONFIRMATION"
+              class="size-3.5 text-yellow-500"
+            />
+
             <Check
-              v-if="props.status.state === 'completed'"
+              v-if="props.status.state === StatusStatesEnum.COMPLETED"
               class="size-3.5 text-emerald-500"
               stroke-width="3"
             />
 
             <X
-              v-else-if="props.status.state === 'failed'"
+              v-else-if="props.status.state === StatusStatesEnum.FAILED"
               class="size-3.5 text-red-500"
               stroke-width="3"
             />
 
             <Square
-              v-else-if="props.status.state === 'cancelled'"
+              v-else-if="props.status.state === StatusStatesEnum.CANCELLED"
               class="size-2.5 text-muted-foreground"
               fill="currentColor"
             />
 
             <Spinner
-              v-else-if="props.status.state === 'in_progress'"
+              v-else-if="props.status.state === StatusStatesEnum.IN_PROGRESS"
               class="size-3.5 text-muted-foreground"
             />
-          </Transition>
+          </TransitionGroup>
         </div>
 
         <div class="relative">
@@ -84,9 +100,10 @@ function getAgentName(agent: AgentsEnum) {
                   'text-red-500': props.status.state === StatusStatesEnum.FAILED,
                   'shimmer-text text-foreground':
                     props.status.state === StatusStatesEnum.IN_PROGRESS,
+                  'text-yellow-500': props.status.state === StatusStatesEnum.AWAITING_CONFIRMATION,
                 }"
               >
-                {{ props.status.statusText }}
+                {{ statusText }}
               </span>
             </div>
           </Transition>
@@ -99,7 +116,7 @@ function getAgentName(agent: AgentsEnum) {
         </div>
 
         <div
-          class="flex flex-col gap-y-1 text-muted-foreground"
+          class="flex flex-col gap-y-2 text-muted-foreground"
           :class="{
             'py-1': props.status.logs.length > 0,
           }"
@@ -108,6 +125,8 @@ function getAgentName(agent: AgentsEnum) {
             v-for="log in props.status.logs"
             :key="log.id"
             :log="log"
+            :chat-id="props.chatId"
+            :thread-id="props.threadId"
           />
         </div>
       </div>

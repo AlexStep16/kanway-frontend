@@ -1,7 +1,10 @@
+import type { ModelsEnum } from '~/enums/ModelsEnum'
+
 export interface IBaseAgentPayload {
   chatId: string
-  chatMessageId: string
+  jobId: string
   boardId?: string
   workspaceId: string
+  modelType: ModelsEnum
   timezone: string
 }

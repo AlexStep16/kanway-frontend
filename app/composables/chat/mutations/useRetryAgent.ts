@@ -25,7 +25,7 @@ export function useRetryAgent() {
     mutationKey: [...chatKeys.all, 'approveTool'],
 
     mutationFn: async ({ payload }: RetryAgentVars) => {
-      const jobId = crypto.randomUUID()
+      const jobId = window.crypto.randomUUID()
 
       agentStatusStore.connectSSE(jobId)
 

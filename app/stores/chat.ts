@@ -7,14 +7,14 @@ import { ModelsEnum } from '~/enums/ModelsEnum'
 export const useChatStore = defineStore('chat', () => {
   const uiStore = useUIStore()
 
-  const temporaryChatId = ref(crypto.randomUUID())
+  const temporaryChatId = ref(window.crypto.randomUUID())
   const activeChatId = ref<string | null>(null)
   const modelType = ref<ModelsEnum>(ModelsEnum.KANWAY_LITE)
 
   const isActiveChatTemporary = computed(() => activeChatId.value === temporaryChatId.value)
 
   function newChat() {
-    temporaryChatId.value = crypto.randomUUID()
+    temporaryChatId.value = window.crypto.randomUUID()
     activeChatId.value = temporaryChatId.value
 
     uiStore.isChatOpen = true

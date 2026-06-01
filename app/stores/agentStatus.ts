@@ -55,7 +55,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
   function handleIncomingEvent(event: Event) {
     const { $queryClient } = useNuxtApp()
-    
+
     if (event.status === 'completed' || event.status === 'failed') {
       closeSSE()
 

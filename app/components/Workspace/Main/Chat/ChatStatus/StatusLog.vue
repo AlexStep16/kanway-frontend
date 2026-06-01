@@ -4,6 +4,8 @@ import StatusToolWidget from './Widget/StatusToolWidget.vue'
 
 const props = defineProps<{
   log: StatusLog
+  chatId: string
+  threadId: string
 }>()
 </script>
 
@@ -12,5 +14,8 @@ const props = defineProps<{
     v-if="props.log.type === 'tool'"
     :tool="props.log.content"
     :state="props.log.state"
+    :chat-id="props.chatId"
+    :thread-id="props.threadId"
+    :status-log-id="props.log.id"
   />
 </template>

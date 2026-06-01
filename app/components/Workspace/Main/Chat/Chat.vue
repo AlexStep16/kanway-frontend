@@ -39,11 +39,8 @@ function stopActiveAgent() {
 function handleStop() {
   if (isMessageSending.value) {
     abortController.value?.abort()
-  } else if (activeChatId.value && agentStatusStore.activeJobId) {
-    stopAgent({
-      chatId: activeChatId.value,
-      jobId: agentStatusStore.activeJobId,
-    })
+  } else {
+    stopActiveAgent()
   }
 }
 
@@ -96,14 +93,6 @@ function sendAgain() {
     send(lastHumanMessage.content)
   }
 }
-
-const isLastMessageSteps = computed(() => {
-  const lastMessage = messages.value?.at(-1) || null
-
-  if (lastMessage && lastMessage.role === 'steps') {
-    return true
-  } else return false
-})
 
 const isMainChat = computed(() => {
   return (
@@ -173,7 +162,6 @@ onBeforeUnmount(() => {
             ref="aiInputRef"
             :is-disabled="isMessageSending"
             :is-focused="true"
-            :is-last-message-steps="isLastMessageSteps"
           />
         </div>
       </footer>

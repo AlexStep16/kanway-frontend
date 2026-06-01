@@ -4,11 +4,7 @@ import UserBubbleSkeleton from '~/components/Workspace/Main/Chat/Bubbles/UserBub
 import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import AIBubbleSkeleton from '~/components/Workspace/Main/Chat/Bubbles/AIBubbleSkeleton.vue'
 import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
-import ChatDisplay from './ChatDisplay.vue'
 import ChatStatus from './ChatStatus/ChatStatus.vue'
-import { CustomEventsEnum } from '~/enums/CustomEventsEnum'
-import ChatLog from './ChatLog.vue'
-import ChatAmbiguous from './ChatAmbiguous.vue'
 import ErrorBubble from './Bubbles/ErrorBubble.vue'
 import StartChatTitle from './StartChatTitle.vue'
 import { cn } from '~/lib/utils'
@@ -102,7 +98,7 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
       >
         <template v-if="!areMessagesLoading">
           <div v-if="isSending">
-            <div class="text-sm overflow-hidden relative">
+            <div class="text-xs overflow-hidden relative">
               <span class="shimmer-text_muted">Устанавливаю связь...</span>
             </div>
           </div>
@@ -139,20 +135,10 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
                   :is-content-full-width="isContentFullWidth"
                   :status="message.content"
                   :credits-used="message.creditsUsed"
+                  :chat-id="message.chatId"
+                  :thread-id="message.threadId"
                 />
               </AIBubble>
-
-              <template v-else-if="message.role === CustomEventsEnum.OPERATION">
-                <ChatLog :message="message" />
-              </template>
-
-              <template v-else-if="message.role === CustomEventsEnum.DISPLAY">
-                <ChatDisplay :message="message" />
-              </template>
-
-              <template v-else-if="message.role === CustomEventsEnum.AMBIGUOUS">
-                <ChatAmbiguous :message="message" />
-              </template>
 
               <AIBubble
                 v-else-if="['assistant', 'error'].includes(message.role) && message.content.trim()"

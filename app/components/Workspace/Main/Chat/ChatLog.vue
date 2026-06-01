@@ -175,9 +175,8 @@ watchEffect(() => {
   <AIBubble
     :hideAvatar="true"
     :isContentFullWidth="true"
-    v-if="logCopy"
   >
-    <template v-if="!isLogLoading">
+    <template v-if="!isLogLoading && logCopy">
       <div
         v-for="block in renderBlocks"
         :key="block.id"

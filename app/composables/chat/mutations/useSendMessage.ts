@@ -34,7 +34,7 @@ export function useSendMessage() {
       const chatMessageKey = chatMessageKeys.byChat(chatId)
 
       const userMessage: IChatMessage = {
-        id: crypto.randomUUID(),
+        id: window.crypto.randomUUID(),
         chatId,
         threadId: payload.threadId || '',
         content: payload.message,
@@ -58,7 +58,7 @@ export function useSendMessage() {
         throw new Error('Нет активного пространства')
       }
 
-      const jobId = crypto.randomUUID()
+      const jobId = window.crypto.randomUUID()
 
       agentStatusStore.connectSSE(jobId)
 

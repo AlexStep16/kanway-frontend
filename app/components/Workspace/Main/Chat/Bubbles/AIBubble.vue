@@ -60,9 +60,5 @@ defineProps<{
     >
       <span class="text-xs text-gray-500">{{ date }}</span>
     </div>
-    <div
-      class="h-4"
-      v-else
-    ></div>
   </div>
 </template>

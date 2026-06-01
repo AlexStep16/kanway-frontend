@@ -1,11 +1,5 @@
-import { ModelsEnum } from '~/enums/ModelsEnum'
+import type { IBaseAgentPayload } from './IBaseAgentPayload'
 
-export interface RetryAgentPayload {
-  chatId: string
+export interface RetryAgentPayload extends IBaseAgentPayload {
   threadId: string
-  modelType: ModelsEnum
-  jobId: string
-  boardId: string
-  workspaceId: string
-  timezone: string
 }

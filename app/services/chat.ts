@@ -2,10 +2,9 @@ import type { IChat } from '~/interfaces/domain/IChat'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
 import ChatModel from '~/models/ChatModel'
 import type { SendMessagePayload } from '~/interfaces/SendMessagePayload'
-import type { IApproveEntityActionToolCallPayload } from '~/interfaces/IApproveEntityActionToolCallPayload'
+import type { IApproveToolPayload } from '~/interfaces/IApproveToolPayload'
 import type { RetryAgentPayload } from '~/interfaces/RetryAgentPayload'
 import type { StopAgentPayload } from '~/interfaces/StopAgentPayload'
-import type { ResolveAmbiguous } from '~/interfaces/ResolveAmbiguous'
 import type { IChatEditPayload } from '~/interfaces/IChatEditPayload'
 
 export function transformChat(raw: IChat): ChatModel {
@@ -51,17 +50,8 @@ export async function removeChat(id: string) {
   await deleteChatApi(id)
 }
 
-export async function approveToolCall(data: IApproveEntityActionToolCallPayload) {
+export async function approveToolCall(data: IApproveToolPayload) {
   return await approveToolCallApi(data)
-}
-
-export async function resolveAmbiguous(data: ResolveAmbiguous) {
-  const result = await resolveAmbiguousApi(data)
-
-  return {
-    jobId: result.jobId,
-    chatMessage: result.chatMessage,
-  }
 }
 
 export async function cloneChat(id: string): Promise<IResponseWithLog<IChat>> {

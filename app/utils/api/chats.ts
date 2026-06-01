@@ -2,12 +2,10 @@ import type { IChat } from '~/interfaces/domain/IChat'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
 import type { SendMessagePayload } from '~/interfaces/SendMessagePayload'
 import type { SendMessageResponse } from '~/interfaces/SendMessageResponse'
-import type { IApproveEntityActionToolCallPayload } from '~/interfaces/IApproveEntityActionToolCallPayload'
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import type { RetryAgentPayload } from '~/interfaces/RetryAgentPayload'
 import type { StopAgentPayload } from '~/interfaces/StopAgentPayload'
-import type { ResolveAmbiguous } from '~/interfaces/ResolveAmbiguous'
 import type { IChatEditPayload } from '~/interfaces/IChatEditPayload'
+import type { IApproveToolPayload } from '~/interfaces/IApproveToolPayload'
 
 export async function getChatsApi(workspaceId?: string) {
   const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
@@ -56,18 +54,10 @@ export async function cloneChatApi(id: string) {
   })
 }
 
-export async function approveToolCallApi(data: IApproveEntityActionToolCallPayload) {
+export async function approveToolCallApi(data: IApproveToolPayload) {
   return await apiCall<{ jobId: string | null }>({
     method: 'POST',
-    url: `/chats/log/approve`,
-    data,
-  })
-}
-
-export async function resolveAmbiguousApi(data: ResolveAmbiguous) {
-  return await apiCall<{ jobId: string | null; chatMessage: IChatMessage }>({
-    method: 'POST',
-    url: `/chats/tools/resolve-ambiguous`,
+    url: `/chats/tool/approve`,
     data,
   })
 }

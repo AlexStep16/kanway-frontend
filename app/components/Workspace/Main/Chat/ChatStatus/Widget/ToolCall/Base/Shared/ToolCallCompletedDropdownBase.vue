@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   pluralizedTitle: string
+  accordionItemValue: string
 }>()
 </script>
 
@@ -11,7 +12,7 @@ defineProps<{
     class="min-w-0"
   >
     <AccordionItem
-      value="search-completed"
+      :value="accordionItemValue"
       class="border-none"
     >
       <AccordionTrigger
@@ -26,7 +27,7 @@ defineProps<{
         </div>
       </AccordionTrigger>
 
-      <AccordionContent class="max-h-100 overflow-y-auto p-3">
+      <AccordionContent class="max-h-100 overflow-y-auto overflow-x-hidden p-3">
         <slot />
       </AccordionContent>
     </AccordionItem>
