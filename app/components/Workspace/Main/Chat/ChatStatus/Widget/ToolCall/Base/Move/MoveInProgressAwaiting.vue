@@ -2,9 +2,9 @@
 import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue'
 
 defineProps<{
+  pluralizedTitle: string
   stateClasses: Record<string, boolean>
   humanReadableFilters: ITextValue[]
-  pluralizedTitle: string
 }>()
 </script>
 
@@ -16,6 +16,9 @@ defineProps<{
   >
     <template #icon>
       <slot name="icon" />
+    </template>
+    <template #actions>
+      <slot name="actions" />
     </template>
   </ToolCallInProgressBase>
 </template>

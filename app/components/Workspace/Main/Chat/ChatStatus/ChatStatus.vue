@@ -18,7 +18,13 @@ function getAgentName(agent: AgentsEnum) {
     case AgentsEnum.ORCHESTRATOR:
       return 'Оркестратор'
     case AgentsEnum.TASK_MANAGER:
-      return 'Задачи'
+      return 'Менеджер задач'
+    case AgentsEnum.CATEGORY_MANAGER:
+      return 'Менеджер категорий'
+    case AgentsEnum.BOARD_MANAGER:
+      return 'Менеджер досок'
+    case AgentsEnum.WORKSPACE_MANAGER:
+      return 'Менеджер пространств'
     default:
       return 'Агент'
   }

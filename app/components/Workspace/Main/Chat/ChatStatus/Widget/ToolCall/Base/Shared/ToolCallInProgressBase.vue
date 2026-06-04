@@ -21,30 +21,7 @@ defineProps<{
     </div>
 
     <div class="ml-5">
-      <ul
-        v-if="items.length"
-        class="flex flex-col gap-y-1 max-h-48 overflow-auto"
-      >
-        <li
-          v-for="(item, index) in items"
-          :key="index"
-          class="flex items-center gap-x-1 relative before:content-['•'] before:absolute before:left-0 before:inline-block ps-4"
-        >
-          <span
-            class="shrink-0"
-            v-if="item.text"
-            >{{ item.text }}</span
-          >
-          <Badge
-            variant="outline"
-            class="min-w-0 text-primary truncate"
-            v-if="item.value"
-          >
-            <span class="truncate">{{ item.value }}</span>
-          </Badge>
-        </li>
-      </ul>
-
+      <ToolCallFiltersList :items="items" />
       <slot name="actions" />
     </div>
   </div>

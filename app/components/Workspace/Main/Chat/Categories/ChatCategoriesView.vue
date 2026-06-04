@@ -4,10 +4,8 @@ import ChatCategory from '~/components/Workspace/Main/Chat/Categories/ChatCatego
 import ChatCategoryTemp from '~/components/Workspace/Main/Chat/Categories/ChatCategoryTemp.vue'
 import ColumnsView from '~/components/Workspace/Main/ColumnsView.vue'
 import type { ICategory } from '~/interfaces/domain/ICategory'
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 
 const props = defineProps<{
-  message: IChatMessage
   items: ICategory[]
   isSelectable?: boolean
   isTemporary?: boolean
@@ -20,7 +18,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
+const messagesContainerRef = ref<HTMLElement | null>(null)
 
 const selectedCategoriesCount = computed(() => {
   return selectedIds.value.length
@@ -44,16 +42,12 @@ function hasCheckbox(category: ICategory) {
 <template>
   <div
     class="flex gap-2 w-full"
-    :ref="
-      (el) => {
-        messagesContainerRefMap[message.id] = el as HTMLElement
-      }
-    "
+    ref="messagesContainerRef"
   >
     <ColumnsView
       :initialCountShown="10"
       :items="items"
-      :containerRef="messagesContainerRefMap[message.id]!"
+      :containerRef="messagesContainerRef"
     >
       <template v-slot:default="slotProps">
         <template v-if="!isTemporary">

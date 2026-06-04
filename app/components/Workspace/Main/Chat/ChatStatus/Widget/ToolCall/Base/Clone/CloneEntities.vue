@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import { RefreshCcw, CircleAlert, Square } from 'lucide-vue-next'
+import { Copy, CircleAlert, Square } from 'lucide-vue-next'
 import type { ICloneEntitiesContent } from '~/interfaces/Statuses/Content/ICloneEntitiesContent'
-import ApproveButtons from './ApproveButtons.vue'
+import ChatLog from '../../../../../ChatLog.vue'
+import ApproveButtons from '../../ApproveButtons.vue'
 
 const props = defineProps<{
   toolId: string
@@ -12,13 +13,12 @@ const props = defineProps<{
   state: StatusStatesEnum
   content: ICloneEntitiesContent
   stateClasses: Record<string, boolean>
+  nounTitlesProcessing: [string, string, string]
+  nounTitlesCompleted: [string, string, string]
 }>()
 
 const processingTitles = ['Копирую', 'Копирую', 'Копирую']
-const tasksProcessingTitles = ['задачу', 'задачи', 'задач']
-
 const completedTitles = ['Скопирована', 'Скопированы', 'Скопировано']
-const tasksCompletedTitles = ['задача', 'задачи', 'задач']
 
 const ids = computed(() => {
   return props.content.ids || []
@@ -27,11 +27,11 @@ const ids = computed(() => {
 const idsCount = computed(() => ids.value.length)
 
 const pluralizedCompletedTitle = computed(() => {
-  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, tasksCompletedTitles)}`
+  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesCompleted)}`
 })
 
 const pluralizedProcessTitle = computed(() => {
-  return `${pluralize(idsCount.value, processingTitles)} ${idsCount.value} ${pluralize(idsCount.value, tasksProcessingTitles)}`
+  return `${pluralize(idsCount.value, processingTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesProcessing)}`
 })
 </script>
 
@@ -44,7 +44,7 @@ const pluralizedProcessTitle = computed(() => {
       :state-classes="stateClasses"
     >
       <template #icon>
-        <RefreshCcw
+        <Copy
           class="size-3"
           :class="props.stateClasses"
         />
@@ -78,7 +78,7 @@ const pluralizedProcessTitle = computed(() => {
       :pluralized-title="pluralizedCompletedTitle"
     >
       <template #icon>
-        <RefreshCcw
+        <Copy
           class="size-3"
           :class="props.stateClasses"
         />
@@ -94,7 +94,7 @@ const pluralizedProcessTitle = computed(() => {
       :pluralized-title="pluralizedCompletedTitle"
     >
       <template #icon>
-        <RefreshCcw
+        <Copy
           class="size-3"
           :class="props.stateClasses"
         />

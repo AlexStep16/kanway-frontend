@@ -2,9 +2,9 @@
 import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue'
 
 defineProps<{
+  pluralizedTitle: string
   stateClasses: Record<string, boolean>
   humanReadableFilters: ITextValue[]
-  pluralizedTitle: string
 }>()
 </script>
 

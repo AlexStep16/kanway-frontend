@@ -3,10 +3,8 @@ import ChatBoard from '~/components/Workspace/Main/Chat/Boards/ChatBoard.vue'
 import ChatBoardTemp from '~/components/Workspace/Main/Chat/Boards/ChatBoardTemp.vue'
 import ColumnsView from '~/components/Workspace/Main/ColumnsView.vue'
 import type { IBoard } from '~/interfaces/domain/IBoard'
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 
 const props = defineProps<{
-  message: IChatMessage
   items: IBoard[]
   isSelectable?: boolean
   isTemporary?: boolean
@@ -19,7 +17,7 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
+const messagesContainerRef = ref<HTMLElement | null>(null)
 
 const selectedBoardsCount = computed(() => {
   return selectedIds.value.length
@@ -43,16 +41,12 @@ function hasCheckbox(board: IBoard) {
 <template>
   <div
     class="flex gap-2 w-full"
-    :ref="
-      (el) => {
-        messagesContainerRefMap[message.id] = el as HTMLElement | null
-      }
-    "
+    ref="messagesContainerRef"
   >
     <ColumnsView
       :initialCountShown="10"
       :items="items"
-      :containerRef="messagesContainerRefMap[message.id]!"
+      :containerRef="messagesContainerRef"
     >
       <template v-slot:default="slotProps">
         <template v-if="!isTemporary">

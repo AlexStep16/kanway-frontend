@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import { RefreshCcw, CircleAlert, Square } from 'lucide-vue-next'
-import type { IUpdateEntitiesContent } from '~/interfaces/Statuses/Content/IUpdateEntitiesContent'
-import ApproveButtons from './ApproveButtons.vue'
+import { CircleAlert, Square, ArrowLeftRight } from 'lucide-vue-next'
+import type { IMoveEntitiesContent } from '~/interfaces/Statuses/Content/IMoveEntitiesContent'
+import ChatLog from '../../../../../ChatLog.vue'
+import ApproveButtons from '../../ApproveButtons.vue'
 
 const props = defineProps<{
   toolId: string
@@ -10,15 +11,14 @@ const props = defineProps<{
   statusLogId: string
   threadId: string
   state: StatusStatesEnum
-  content: IUpdateEntitiesContent
+  content: IMoveEntitiesContent
   stateClasses: Record<string, boolean>
+  nounTitlesProcessing: [string, string, string]
+  nounTitlesCompleted: [string, string, string]
 }>()
 
-const processingTitles = ['Обновляю', 'Обновляю', 'Обновляю']
-const tasksProcessingTitles = ['задачу', 'задачи', 'задач']
-
-const completedTitles = ['Обновлена', 'Обновлены', 'Обновлено']
-const tasksCompletedTitles = ['задача', 'задачи', 'задач']
+const processingTitles = ['Перемещаю', 'Перемещаю', 'Перемещаю']
+const completedTitles = ['Перемещена', 'Перемещены', 'Перемещено']
 
 const ids = computed(() => {
   return props.content.ids || []
@@ -27,34 +27,34 @@ const ids = computed(() => {
 const idsCount = computed(() => ids.value.length)
 
 const pluralizedCompletedTitle = computed(() => {
-  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, tasksCompletedTitles)}`
+  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesCompleted)}`
 })
 
 const pluralizedProcessTitle = computed(() => {
-  return `${pluralize(idsCount.value, processingTitles)} ${idsCount.value} ${pluralize(idsCount.value, tasksProcessingTitles)}`
+  return `${pluralize(idsCount.value, processingTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesProcessing)}`
 })
 </script>
 
 <template>
   <div class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0">
-    <UpdateInProgress
+    <MoveInProgress
       v-if="props.state === StatusStatesEnum.IN_PROGRESS"
       :pluralized-title="pluralizedProcessTitle"
-      :human-readable-updates="props.content.filters"
+      :human-readable-filters="props.content.filters"
       :state-classes="stateClasses"
     >
       <template #icon>
-        <RefreshCcw
+        <ArrowLeftRight
           class="size-3"
           :class="props.stateClasses"
         />
       </template>
-    </UpdateInProgress>
+    </MoveInProgress>
 
-    <UpdateInProgressAwaiting
+    <MoveInProgressAwaiting
       v-else-if="props.state === StatusStatesEnum.AWAITING_CONFIRMATION"
       :pluralized-title="pluralizedProcessTitle"
-      :human-readable-updates="props.content.filters"
+      :human-readable-filters="props.content.filters"
       :state-classes="stateClasses"
     >
       <template #icon>
@@ -71,14 +71,14 @@ const pluralizedProcessTitle = computed(() => {
           :status-log-id="props.statusLogId"
         />
       </template>
-    </UpdateInProgressAwaiting>
+    </MoveInProgressAwaiting>
 
-    <UpdateCompletedDropdown
+    <MoveCompletedDropdown
       v-else-if="props.state === StatusStatesEnum.COMPLETED && ids.length"
       :pluralized-title="pluralizedCompletedTitle"
     >
       <template #icon>
-        <RefreshCcw
+        <ArrowLeftRight
           class="size-3"
           :class="props.stateClasses"
         />
@@ -87,21 +87,21 @@ const pluralizedProcessTitle = computed(() => {
         :logId="props.content.logId"
         v-if="props.content.logId"
       />
-    </UpdateCompletedDropdown>
+    </MoveCompletedDropdown>
 
-    <UpdateCompletedStatic
+    <MoveCompletedStatic
       v-else-if="props.state === StatusStatesEnum.COMPLETED"
       :pluralized-title="pluralizedCompletedTitle"
     >
       <template #icon>
-        <RefreshCcw
+        <ArrowLeftRight
           class="size-3"
           :class="props.stateClasses"
         />
       </template>
-    </UpdateCompletedStatic>
+    </MoveCompletedStatic>
 
-    <UpdateCompletedStatic
+    <MoveCompletedStatic
       v-else-if="props.state === StatusStatesEnum.CANCELLED"
       :pluralized-title="pluralizedProcessTitle"
     >
@@ -111,6 +111,6 @@ const pluralizedProcessTitle = computed(() => {
           fill="currentColor"
         />
       </template>
-    </UpdateCompletedStatic>
+    </MoveCompletedStatic>
   </div>
 </template>

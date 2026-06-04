@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import ChatTasksView from '~/components/Workspace/Main/Chat/Tasks/ChatTasksView.vue'
-import type { ISearchEntitiesContent } from '~/interfaces/Statuses/Content/ISearchEntitiesContent'
-import type { ITask } from '~/interfaces/domain/ITask'
-import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
+import type { Component } from 'vue'
 import { SearchIcon, Square } from 'lucide-vue-next'
+import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
+import type { ISearchEntitiesContent } from '~/interfaces/Statuses/Content/ISearchEntitiesContent'
 
 const props = defineProps<{
   state: StatusStatesEnum
   content: ISearchEntitiesContent
   stateClasses: Record<string, boolean>
+  nounTitlesProcessing: string
+  nounTitlesCompleted: [string, string, string]
+  viewComponent: Component
 }>()
 
 const completedTitles = ['Найдена', 'Найдены', 'Найдено']
-const tasksTitles = ['задача', 'задачи', 'задач']
 
 const ids = computed(() => {
   return props.content.ids || []
@@ -21,11 +22,15 @@ const ids = computed(() => {
 const idsCount = computed(() => ids.value.length)
 
 const pluralizedCompletedTitle = computed(() => {
-  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, tasksTitles)}`
+  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesCompleted)}`
 })
 
-const tasks = computed(() => {
-  return ids.value.map((id) => ({ id })) as ITask[]
+const pluralizedProcessTitle = computed(() => {
+  return `Ищу ${props.nounTitlesProcessing}`
+})
+
+const entities = computed(() => {
+  return ids.value.map((id) => ({ id }))
 })
 </script>
 
@@ -33,6 +38,7 @@ const tasks = computed(() => {
   <div class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0">
     <SearchInProgress
       v-if="props.state === StatusStatesEnum.IN_PROGRESS"
+      :pluralized-title="pluralizedProcessTitle"
       :human-readable-filters="props.content.filters"
       :state-classes="stateClasses"
     >
@@ -54,7 +60,10 @@ const tasks = computed(() => {
           :class="props.stateClasses"
         />
       </template>
-      <ChatTasksView :items="tasks" />
+      <component
+        :is="props.viewComponent"
+        :items="entities"
+      />
     </SearchCompletedDropdown>
 
     <SearchCompletedStatic
@@ -71,7 +80,7 @@ const tasks = computed(() => {
 
     <SearchCompletedStatic
       v-else-if="props.state === StatusStatesEnum.CANCELLED"
-      pluralized-title="Ищу задачи"
+      :pluralized-title="pluralizedProcessTitle"
     >
       <template #icon>
         <Square
