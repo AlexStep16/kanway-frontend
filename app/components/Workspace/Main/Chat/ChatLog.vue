@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import _ from 'lodash'
 
-import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import { OperationLogStatusesEnum } from '~/enums/OperationLogStatusesEnum'
 import { OperationTypesEnum } from '~/enums/OperationTypesEnum'
 import ChatTasksView from './Tasks/ChatTasksView.vue'
@@ -172,30 +171,25 @@ watchEffect(() => {
 </script>
 
 <template>
-  <AIBubble
-    :hideAvatar="true"
-    :isContentFullWidth="true"
-  >
-    <template v-if="!isLogLoading && logCopy">
-      <div
-        v-for="block in renderBlocks"
-        :key="block.id"
-        class="mb-4 last:mb-0"
-      >
-        <component
-          :is="block.component"
-          :items="block.items"
-          :before="block.before"
-          :after="block.after"
-          :isTemporary="block.isTemp"
-          :isSelectable="isPending && !isSuccess"
-          v-model:selectedIds="selectedIds"
-        />
-      </div>
-    </template>
+  <template v-if="!isLogLoading && logCopy">
+    <div
+      v-for="block in renderBlocks"
+      :key="block.id"
+      class="mb-4 last:mb-0"
+    >
+      <component
+        :is="block.component"
+        :items="block.items"
+        :before="block.before"
+        :after="block.after"
+        :isTemporary="block.isTemp"
+        :isSelectable="isPending && !isSuccess"
+        v-model:selectedIds="selectedIds"
+      />
+    </div>
+  </template>
 
-    <template v-else>
-      <Skeleton class="h-30 bg-gray-200 rounded-sm w-80"></Skeleton>
-    </template>
-  </AIBubble>
+  <template v-else>
+    <Skeleton class="h-30 bg-gray-200 rounded-sm w-80"></Skeleton>
+  </template>
 </template>

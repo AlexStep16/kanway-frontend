@@ -4,7 +4,7 @@ import UserBubble from '~/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import dayjs from 'dayjs'
 import CategoryChange from '~/components/Workspace/Main/Chat/EntityEdit/Changes/CategoryChange.vue'
-import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
+import MarkdownContent from '~/components/Workspace/Main/Chat/Bubbles/MarkdownContent.vue'
 import AIInput from '~/components/Workspace/Main/Chat/AIInput.vue'
 
 defineProps<{
@@ -32,8 +32,14 @@ const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start 
           text="Привет, перемести все задачи из категории Бэклог в категорию В работе"
           :date="getFormattedDate(new Date())"
         />
-        <AIBubble :hideAvatar="true" :isContentFullWidth="true">
-          <AssistantBubble class="mb-2" text="Будут изменены следующие задачи:" />
+        <AIBubble
+          :hideAvatar="true"
+          :isContentFullWidth="true"
+        >
+          <MarkdownContent
+            class="mb-2"
+            text="Будут изменены следующие задачи:"
+          />
 
           <div class="flex flex-col gap-2">
             <div
@@ -146,17 +152,6 @@ const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start 
             </div>
           </div>
         </AIBubble>
-        <!--
-        <AIBubble
-          :hideAvatar="true"
-          :isContentFullWidth="true"
-          :date="getFormattedDate(new Date())"
-        >
-          <Assistant
-            text="Готово! Все задачи из колонки <b>Бэклог</b> перемещены в колонку <b>В работе</b>"
-          />
-        </AIBubble>
-        -->
       </div>
     </div>
     <footer class="w-full flex justify-center p-4">

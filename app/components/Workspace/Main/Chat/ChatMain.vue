@@ -3,9 +3,9 @@ import UserBubble from '~/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import UserBubbleSkeleton from '~/components/Workspace/Main/Chat/Bubbles/UserBubbleSkeleton.vue'
 import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import AIBubbleSkeleton from '~/components/Workspace/Main/Chat/Bubbles/AIBubbleSkeleton.vue'
-import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
+import AIResponseActions from '~/components/Workspace/Main/Chat/Bubbles/AIResponseActions.vue'
+import MarkdownContent from '~/components/Workspace/Main/Chat/Bubbles/MarkdownContent.vue'
 import ChatStatus from './ChatStatus/ChatStatus.vue'
-import ErrorBubble from './Bubbles/ErrorBubble.vue'
 import StartChatTitle from './StartChatTitle.vue'
 import { cn } from '~/lib/utils'
 import AIInput from './AIInput.vue'
@@ -15,38 +15,11 @@ import { START_TILES } from '~/constants/START_TILES'
 
 const props = defineProps<{
   isMainChat?: boolean
-  isError?: boolean
-  error: Error | null
   isSending?: boolean
   aiInputRef?: InstanceType<typeof AIInput> | null
   reversedMessages: ChatMessageModel[]
   areMessagesLoading: boolean
 }>()
-
-const chatStore = useChatStore()
-const boardStore = useBoardStore()
-const workspaceStore = useWorkspaceStore()
-
-const activeBoardId = computed(() => boardStore.activeBoardId)
-const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
-const activeChatId = computed(() => chatStore.activeChatId)
-
-const { data: activeChat } = useChat(chatStore.activeChatId, activeWorkspaceId)
-
-const { mutate: retryAgent } = useRetryAgent()
-
-function handleRetryAgent(messageId: string) {
-  retryAgent({
-    payload: {
-      chatId: activeChatId.value || '',
-      threadId: activeChat.value?.threadId || '',
-      chatMessageId: messageId,
-      boardId: activeBoardId.value || '',
-      workspaceId: activeWorkspaceId.value || '',
-    },
-    chatId: activeChatId.value ?? '',
-  })
-}
 
 const getFormattedDate = (date: Date) => {
   return dayjs(date).calendar() + ' в ' + dayjs(date).format('HH:mm')
@@ -58,10 +31,6 @@ const isContentFullWidth = computed(() => {
 
 const isChatEmpty = computed(() => {
   return props.reversedMessages.length === 0 && !props.areMessagesLoading
-})
-
-const isAbortedError = computed(() => {
-  return props.error instanceof ClientAbortedError
 })
 
 function handleTileClick(tile: (typeof START_TILES)[number]) {
@@ -110,16 +79,6 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
             />
           </template>
           <template v-else>
-            <AIBubble
-              v-if="isError && !isAbortedError"
-              :is-content-full-width="isContentFullWidth"
-              :isError="true"
-              :error="error"
-              @tryAgain="$emit('sendAgain')"
-            >
-              <ErrorBubble />
-            </AIBubble>
-
             <template
               v-for="message in reversedMessages"
               :key="message.id"
@@ -130,31 +89,28 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
                 :date="getFormattedDate(message.createdAt)"
               />
 
-              <AIBubble v-else-if="message.role === 'status' && message.content">
-                <ChatStatus
-                  :is-content-full-width="isContentFullWidth"
-                  :status="message.content"
-                  :credits-used="message.creditsUsed"
-                  :chat-id="message.chatId"
-                  :thread-id="message.threadId"
-                />
-              </AIBubble>
+              <ChatStatus
+                v-else-if="message.role === 'status' && message.content"
+                :is-content-full-width="isContentFullWidth"
+                :status="message.content"
+                :message="message"
+                :chat-id="message.chatId"
+                :thread-id="message.threadId"
+              />
 
               <AIBubble
-                v-else-if="['assistant', 'error'].includes(message.role) && message.content.trim()"
+                v-else-if="message.role === 'assistant' && message.content.trim()"
                 :date="getFormattedDate(message.createdAt)"
                 :is-content-full-width="isContentFullWidth"
-                :isError="message.role === 'error'"
-                @tryAgain="handleRetryAgent(message.id)"
               >
-                <AssistantBubble
-                  :text="message.content"
-                  v-if="message.role === 'assistant'"
-                />
-                <ErrorBubble
-                  :text="message.content"
-                  v-else
-                />
+                <MarkdownContent :text="message.content" />
+
+                <template #actions>
+                  <AIResponseActions
+                    :credits-used="message.creditsUsed"
+                    :message="message"
+                  />
+                </template>
               </AIBubble>
             </template>
           </template>

@@ -10,8 +10,11 @@ export const useChatStore = defineStore('chat', () => {
   const temporaryChatId = ref(window.crypto.randomUUID())
   const activeChatId = ref<string | null>(null)
   const modelType = ref<ModelsEnum>(ModelsEnum.KANWAY_LITE)
+  const renamingChatSet = ref(new Set<string>())
+  const aiInputMessage = ref<string>('')
 
   const isActiveChatTemporary = computed(() => activeChatId.value === temporaryChatId.value)
+  const isChatRenaming = (chatId: string) => renamingChatSet.value.has(chatId)
 
   function newChat() {
     temporaryChatId.value = window.crypto.randomUUID()
@@ -34,13 +37,25 @@ export const useChatStore = defineStore('chat', () => {
     uiStore.isChatOpen = false
   }
 
+  function startRenamingChat(chatId: string) {
+    renamingChatSet.value.add(chatId)
+  }
+
+  function stopRenamingChat(chatId: string) {
+    renamingChatSet.value.delete(chatId)
+  }
+
   return {
     activeChatId,
     modelType,
     temporaryChatId,
     isActiveChatTemporary,
+    aiInputMessage,
+    isChatRenaming,
     newChat,
     selectChat,
     closeChat,
+    startRenamingChat,
+    stopRenamingChat,
   }
 })

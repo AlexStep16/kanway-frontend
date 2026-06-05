@@ -6,6 +6,7 @@ import type { RetryAgentPayload } from '~/interfaces/RetryAgentPayload'
 import type { StopAgentPayload } from '~/interfaces/StopAgentPayload'
 import type { IChatEditPayload } from '~/interfaces/IChatEditPayload'
 import type { IApproveToolPayload } from '~/interfaces/IApproveToolPayload'
+import type { UpdateChatNamePayload } from '~/interfaces/UpdateChatNamePayload'
 
 export async function getChatsApi(workspaceId?: string) {
   const queryParams = workspaceId ? `?workspaceId=${workspaceId}` : ''
@@ -29,6 +30,14 @@ export async function sendMessageApi(data: SendMessagePayload, signal?: AbortSig
     url: `/chats/send`,
     data,
     signal,
+  })
+}
+
+export async function updateChatNameApi(data: UpdateChatNamePayload) {
+  return await apiCall<IChat>({
+    method: 'PATCH',
+    url: `/chats/${data.chatId}/update-name`,
+    data,
   })
 }
 

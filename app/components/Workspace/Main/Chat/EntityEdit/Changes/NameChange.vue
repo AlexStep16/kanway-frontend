@@ -16,12 +16,15 @@ const hasNameChange = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-1" v-if="hasNameChange">
+  <div
+    class="flex flex-wrap gap-1"
+    v-if="hasNameChange"
+  >
     <div
       class="flex items-center gap-x-1 shrink overflow-hidden min-w-0"
       :class="baseBlockBeforeClasses"
     >
-      <span class="text-sm overflow-hidden wrap-break-word">
+      <span class="text-xs overflow-hidden wrap-break-word">
         {{ before.name }}
       </span>
     </div>
@@ -30,12 +33,15 @@ const hasNameChange = computed(() => {
       class="flex items-center gap-x-1 shrink overflow-hidden min-w-0"
       :class="baseBlockAfterClasses"
     >
-      <span class="text-sm overflow-hidden wrap-break-word">
+      <span class="text-xs overflow-hidden wrap-break-word">
         {{ after.name }}
       </span>
     </div>
   </div>
-  <div class="flex flex-col gap-y-1" v-else>
+  <div
+    class="flex flex-col gap-y-1"
+    v-else
+  >
     <div class="flex items-center gap-x-1 shrink overflow-hidden min-w-0 text-gray-800">
       <span class="text-sm overflow-hidden wrap-break-word">
         {{ before.name }}

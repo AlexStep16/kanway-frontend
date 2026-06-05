@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <ul
     v-if="items.length"
-    class="flex flex-col gap-y-1 max-h-48 overflow-auto"
+    class="flex flex-col gap-y-1 max-h-48 overflow-auto custom-scrollbar"
   >
     <li
       v-for="(item, index) in items"

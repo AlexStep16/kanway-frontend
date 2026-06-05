@@ -4,4 +4,5 @@ export enum AgentsEnum {
   CATEGORY_MANAGER = 'category_manager',
   BOARD_MANAGER = 'board_manager',
   WORKSPACE_MANAGER = 'workspace_manager',
+  SUMMARIZER = 'summarizer',
 }

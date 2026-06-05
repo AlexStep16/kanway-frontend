@@ -6,6 +6,7 @@ import type { IApproveToolPayload } from '~/interfaces/IApproveToolPayload'
 import type { RetryAgentPayload } from '~/interfaces/RetryAgentPayload'
 import type { StopAgentPayload } from '~/interfaces/StopAgentPayload'
 import type { IChatEditPayload } from '~/interfaces/IChatEditPayload'
+import type { UpdateChatNamePayload } from '~/interfaces/UpdateChatNamePayload'
 
 export function transformChat(raw: IChat): ChatModel {
   return new ChatModel({
@@ -23,6 +24,12 @@ export async function updateChat(payload: IChatEditPayload, id: string) {
 
 export async function sendMessage(payload: SendMessagePayload, signal?: AbortSignal) {
   const result = await sendMessageApi(payload, signal)
+
+  return result
+}
+
+export async function updateChatName(payload: UpdateChatNamePayload) {
+  const result = await updateChatNameApi(payload)
 
   return result
 }

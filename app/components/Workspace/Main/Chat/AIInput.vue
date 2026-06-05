@@ -10,7 +10,9 @@ const { data: user } = useUser()
 
 const chatStore = useChatStore()
 
-const messageRef = ref<HTMLTextAreaElement | null>(null)
+const { aiInputMessage } = storeToRefs(chatStore)
+
+const aiInputMessageRef = ref<HTMLTextAreaElement | null>(null)
 
 const props = defineProps<{
   isDisabled?: boolean
@@ -18,11 +20,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'send', message: string): void
+  (e: 'send', aiInputMessage: string): void
   (e: 'stop'): void
 }>()
 
-const message = ref<string>('')
 const update = ref(() => {})
 
 const agentStatusStore = useAgentStatusStore()
@@ -30,10 +31,10 @@ const agentStatusStore = useAgentStatusStore()
 const isModelTypeSelectOpen = ref(false)
 
 function sendChatMessage() {
-  emit('send', message.value.trim())
+  emit('send', aiInputMessage.value.trim())
 
-  message.value = ''
-  if (messageRef.value) messageRef.value.blur()
+  aiInputMessage.value = ''
+  if (aiInputMessageRef.value) aiInputMessageRef.value.blur()
 }
 
 function handleTextareaRef(
@@ -43,14 +44,14 @@ function handleTextareaRef(
   } | null,
 ) {
   if (el && el.textareaRef) {
-    messageRef.value = el.textareaRef
+    aiInputMessageRef.value = el.textareaRef
     update.value = el.update
-    if (props.isFocused) messageRef.value.focus()
+    if (props.isFocused) aiInputMessageRef.value.focus()
   }
 }
 
 function setMessage(newMessage: string) {
-  message.value = newMessage
+  aiInputMessage.value = newMessage
 }
 
 function updateTextarea() {
@@ -60,7 +61,7 @@ function updateTextarea() {
 }
 
 const isRunButtonDisabled = computed(() => {
-  return props.isDisabled || !message.value.trim() || agentStatusStore.isSSEActive()
+  return props.isDisabled || !aiInputMessage.value.trim() || agentStatusStore.isSSEActive()
 })
 
 const isUserBasic = computed(() => {
@@ -80,7 +81,7 @@ defineExpose({
         <Textarea
           class="p-0 border-none shadow-none min-h-12"
           placeholder="Опиши проект или просто выгрузи мысли..."
-          v-model="message"
+          v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
         />
       </div>
@@ -151,17 +152,17 @@ defineExpose({
           <MicButton
             @deltaAdd="
               (deltaText: string) => {
-                message += deltaText
+                aiInputMessage += deltaText
               }
             "
             @transcriptionCompleted="
               (finalText: string) => {
-                message = finalText
+                aiInputMessage = finalText
               }
             "
             @clearInput="
               () => {
-                message = ''
+                aiInputMessage = ''
               }
             "
           ></MicButton>

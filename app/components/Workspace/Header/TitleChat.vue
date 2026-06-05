@@ -10,6 +10,10 @@ const workspaceStore = useWorkspaceStore()
 
 const activeChatId = computed(() => chatStore.activeChatId)
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
+const isChatRenaming = computed(() => {
+  if (!activeChatId.value) return false
+  return chatStore.isChatRenaming(activeChatId.value)
+})
 
 const { data: activeChat, isPending: isChatLoading } = useChat(activeChatId, activeWorkspaceId)
 
@@ -32,7 +36,14 @@ function handleUpdateChatName(newName: string) {
     @updateName="handleUpdateChatName"
     v-if="activeChat && !chatStore.isActiveChatTemporary && !isChatLoading"
   >
-    <MessageCircle class="size-4" />
+    <MessageCircle
+      class="size-4"
+      v-if="!isChatRenaming"
+    />
+    <Spinner
+      class="size-4"
+      v-else
+    />
   </Title>
   <div
     class="flex items-center gap-2"

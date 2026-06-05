@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import type { ITaskState } from '~/stores/interfaces/ITaskState'
 import UserBubble from '~/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
-import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
+import MarkdownContent from '~/components/Workspace/Main/Chat/Bubbles/MarkdownContent.vue'
 import AIInput from '~/components/Workspace/Main/Chat/AIInput.vue'
 
 defineProps<{
@@ -33,7 +33,7 @@ const getFormattedDate = (date: Date) => {
           :isContentFullWidth="true"
           :date="getFormattedDate(new Date())"
         >
-          <AssistantBubble text="Операция была отменена. Ни одна из задач не была изменена." />
+          <MarkdownContent text="Операция была отменена. Ни одна из задач не была изменена." />
         </AIBubble>
       </div>
     </div>

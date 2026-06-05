@@ -1,17 +1,30 @@
 <script setup lang="ts">
-import { Check, X, Square, CircleAlert } from 'lucide-vue-next'
+import { Check, X, Square, CircleAlert, RotateCcw } from 'lucide-vue-next'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import type { IStatus } from '~/interfaces/Statuses/IStatus'
 import { AgentsEnum } from '~/enums/AgentsEnum'
 import StatusLog from './StatusLog.vue'
+import type { IChatMessage } from '~/interfaces/domain/IChatMessage.js'
 
 const props = defineProps<{
   status: IStatus
+  message: IChatMessage
   isContentFullWidth?: boolean
-  creditsUsed?: number
   chatId: string
   threadId: string
 }>()
+
+const chatStore = useChatStore()
+const boardStore = useBoardStore()
+const workspaceStore = useWorkspaceStore()
+
+const activeBoardId = computed(() => boardStore.activeBoardId)
+const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
+const activeChatId = computed(() => chatStore.activeChatId)
+
+const { data: activeChat } = useChat(chatStore.activeChatId, activeWorkspaceId)
+
+const { mutate: retryAgent } = useRetryAgent()
 
 function getAgentName(agent: AgentsEnum) {
   switch (agent) {
@@ -25,6 +38,8 @@ function getAgentName(agent: AgentsEnum) {
       return 'Менеджер досок'
     case AgentsEnum.WORKSPACE_MANAGER:
       return 'Менеджер пространств'
+    case AgentsEnum.SUMMARIZER:
+      return 'Оптимизатор'
     default:
       return 'Агент'
   }
@@ -38,6 +53,19 @@ const statusText = computed(() => {
       return props.status.statusText
   }
 })
+
+function handleRetryAgent() {
+  retryAgent({
+    payload: {
+      chatId: activeChatId.value || '',
+      threadId: activeChat.value?.threadId || '',
+      statusMessage: props.message,
+      boardId: activeBoardId.value || '',
+      workspaceId: activeWorkspaceId.value || '',
+    },
+    chatId: activeChatId.value ?? '',
+  })
+}
 </script>
 
 <template>
@@ -134,14 +162,26 @@ const statusText = computed(() => {
             :chat-id="props.chatId"
             :thread-id="props.threadId"
           />
+
+          <span
+            v-if="props.status.error"
+            class="text-red-500 text-xs"
+            >{{ props.status.error }}</span
+          >
         </div>
       </div>
 
-      <div
-        v-if="props.creditsUsed"
-        class="pt-1 text-[11px] text-muted-foreground/70"
-      >
-        {{ props.creditsUsed }} {{ getCreditsDeclension(props.creditsUsed) }}
+      <div class="flex flex-wrap items-center justify-start gap-1">
+        <button
+          v-if="props.status.state === StatusStatesEnum.FAILED"
+          type="button"
+          title="Повторить"
+          aria-label="Повторить"
+          class="text-xs flex items-center justify-center rounded-md text-gray-500 p-1.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100"
+          @click="handleRetryAgent"
+        >
+          <RotateCcw class="size-3" />
+        </button>
       </div>
     </div>
   </div>

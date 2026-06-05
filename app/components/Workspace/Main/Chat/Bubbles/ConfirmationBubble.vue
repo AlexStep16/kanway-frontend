@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AssistantBubble from '~/components/Workspace/Main/Chat/Bubbles/AssistantBubble.vue'
+import MarkdownContent from '~/components/Workspace/Main/Chat/Bubbles/MarkdownContent.vue'
 import dayjs from 'dayjs'
 
 interface StringModification {
@@ -165,9 +165,12 @@ function prepareChangesText(changes: Changes): { field: string; action: string }
 </script>
 
 <template>
-  <AssistantBubble :text />
+  <MarkdownContent :text />
 
-  <ul class="text-sm text-gray-700 mt-2" v-if="changes && Object.keys(changes).length > 0">
+  <ul
+    class="text-sm text-gray-700 mt-2"
+    v-if="changes && Object.keys(changes).length > 0"
+  >
     <li
       class="relative before:content-['•'] before:absolute before:left-0 before:inline-block ps-4"
       v-for="(change, index) in prepareChangesText(changes)"

@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { sendMessage as sendMessageApi } from '~/services/chat'
+import { sendMessage } from '~/services/chat'
+import { updateChatName } from '~/services/chat'
 import { useAgentStatusStore } from '~/stores/agentStatus'
 import { useChatStore } from '~/stores/chat'
 import dayjs from 'dayjs'
 import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import type { IUser } from '~/interfaces/domain/IUser'
 import { ModelsEnum } from '~/enums/ModelsEnum'
+import { toast } from 'vue-sonner'
 
 interface SendMessageVars {
   payload: {
@@ -62,7 +64,7 @@ export function useSendMessage() {
 
       agentStatusStore.connectSSE(jobId)
 
-      return sendMessageApi(
+      return sendMessage(
         {
           message: payload.message,
           modelType: payload.modelType,
@@ -76,7 +78,7 @@ export function useSendMessage() {
       )
     },
 
-    onSuccess: (result, _v, context) => {
+    onSuccess: (result, vars, context) => {
       const realChatId = result.chat.id
       const originalChatId = context?.originalChatId
       const optimisticUserMessage = context?.userMessage
@@ -100,6 +102,27 @@ export function useSendMessage() {
       if (originalChatId && originalChatId !== realChatId) {
         queryClient.removeQueries({ queryKey: chatMessageKeys.byChat(originalChatId) })
       }
+
+      if (!vars.payload.threadId) {
+        chatStore.startRenamingChat(realChatId)
+
+        updateChatName({
+          userMessage: vars.payload.message,
+          chatId: realChatId,
+        })
+          .then(() => {
+            queryClient.invalidateQueries({
+              queryKey: chatKeys.byWorkspace(result.chat.workspaceId),
+            })
+            queryClient.invalidateQueries({ queryKey: chatKeys.detailed(result.chat.id) })
+          })
+          .catch(() => {
+            toast.error('Не удалось обновить название чата')
+          })
+          .finally(() => {
+            chatStore.stopRenamingChat(realChatId)
+          })
+      }
     },
 
     onError: (error, _v, context) => {
@@ -115,6 +138,8 @@ export function useSendMessage() {
             return oldMessages.filter((msg) => msg.id !== optimisticUserMessage?.id)
           },
         )
+
+        chatStore.aiInputMessage = optimisticUserMessage?.content || ''
       }
     },
   })

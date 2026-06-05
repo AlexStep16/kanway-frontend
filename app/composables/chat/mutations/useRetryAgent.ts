@@ -1,14 +1,14 @@
-import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { retryAgent } from '~/services/chat'
 import { useChatStore } from '~/stores/chat'
 import { useAgentStatusStore } from '~/stores/agentStatus'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import dayjs from 'dayjs'
 
 interface RetryAgentVars {
   payload: {
-    chatMessageId: string
     chatId: string
+    statusMessage: IChatMessage
     threadId: string
     boardId: string
     workspaceId: string
@@ -18,8 +18,8 @@ interface RetryAgentVars {
 
 export function useRetryAgent() {
   const agentStatusStore = useAgentStatusStore()
-  const queryClient = useQueryClient()
   const chatStore = useChatStore()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: [...chatKeys.all, 'approveTool'],
@@ -40,13 +40,13 @@ export function useRetryAgent() {
       })
     },
 
-    onSuccess: (result, { chatId, payload }) => {
+    onSuccess: (_result, { payload }) => {
       queryClient.setQueryData<IChatMessage[]>(
-        chatMessageKeys.byChat(chatId),
-        (oldChatMessages: IChatMessage[] | undefined) => {
-          return oldChatMessages
-            ? oldChatMessages.filter((c) => c.id !== payload.chatMessageId)
-            : []
+        chatMessageKeys.byChat(payload.chatId),
+        (oldMessages = []) => {
+          return oldMessages.filter(
+            (message) => message.createdAt <= payload.statusMessage.createdAt,
+          )
         },
       )
     },

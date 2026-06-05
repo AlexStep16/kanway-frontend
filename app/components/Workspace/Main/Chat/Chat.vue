@@ -23,7 +23,7 @@ const abortController = ref<AbortController | null>(null)
 const savedMessage = ref<string>('')
 
 const { data: messages, isFetching: areMessagesLoading } = useChatMessages(activeChatId)
-const { mutate: sendMessage, isPending: isMessageSending, isError, error } = useSendMessage()
+const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
 
 const { mutate: stopAgent } = useStopAgent()
 
@@ -145,8 +145,6 @@ onBeforeUnmount(() => {
       <ChatMain
         :isMainChat="isMainChat"
         :isSending="isMessageSending"
-        :isError="isError"
-        :error="error"
         :aiInputRef="aiInputRef"
         :reversedMessages="reversedMessages"
         :areMessagesLoading="isInitialMessagesLoading"

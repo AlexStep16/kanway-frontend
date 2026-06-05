@@ -9,7 +9,6 @@ import ChatMessageModel from '~/models/ChatMessageModel'
 
 import type { IOperationLog } from '~/interfaces/domain/IOperationLog'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
-import type { IChat } from '~/interfaces/domain/IChat'
 import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 
 export interface Event {
@@ -124,11 +123,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       )
     } else if (event.role === CustomEventsEnum.UNDO) {
       invalidateUndo(event.data as IResponseWithLog<any>[])
-    } else if (event.role === CustomEventsEnum.CHAT_UPDATED) {
-      const data = event.data as IChat
-
-      $queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(data.workspaceId) })
-      $queryClient.invalidateQueries({ queryKey: chatKeys.detailed(data.id) })
     }
   }
 
