@@ -173,7 +173,7 @@ const otherBoards = computed(() => {
           :value="column.name"
           @change="updateColumnName"
           @blur="isInputVisible = false"
-          placeholder="Название категории"
+          placeholder="Название колонки"
           ref="inputEditRef"
         />
         <div class="shrink-0 absolute -bottom-0.5 w-full left-0">

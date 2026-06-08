@@ -74,7 +74,7 @@ onMounted(() => {
             @keydown.esc="$emit('close')"
             :disabled="isColumnAdding"
             ref="nameInputRef"
-            placeholder="Название категории"
+            placeholder="Название колонки"
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import type { ICloneEntitiesContent } from '~/interfaces/Statuses/Content/ICloneEntitiesContent'
-import CloneEntities from '../Base/Clone/CloneEntities.vue'
+import type { ICreateEntitiesContent } from '~/interfaces/Statuses/Content/ICreateEntitiesContent'
+import CreateEntities from '../Base/Create/CreateEntities.vue'
 
 const props = defineProps<{
   toolId: string
@@ -9,13 +9,13 @@ const props = defineProps<{
   statusLogId: string
   threadId: string
   state: StatusStatesEnum
-  content: ICloneEntitiesContent
+  content: ICreateEntitiesContent
   stateClasses: Record<string, boolean>
 }>()
 </script>
 
 <template>
-  <CloneEntities
+  <CreateEntities
     :tool-id="props.toolId"
     :chat-id="props.chatId"
     :thread-id="props.threadId"
@@ -23,7 +23,7 @@ const props = defineProps<{
     :state="props.state"
     :content="props.content"
     :state-classes="props.stateClasses"
-    :noun-titles-processing="['категорию', 'категории', 'категорий']"
-    :noun-titles-completed="['категория', 'категории', 'категорий']"
+    :noun-titles-processing="['колонку', 'колонки', 'колонок']"
+    :noun-titles-completed="['колонка', 'колонки', 'колонок']"
   />
 </template>

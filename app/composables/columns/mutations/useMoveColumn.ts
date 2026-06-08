@@ -27,7 +27,7 @@ export function useMoveColumn() {
 
       queryClient.invalidateQueries({ queryKey: columnKeys.detailed(payload.id) })
 
-      toast.success('Категория успешно перемещена', {
+      toast.success('Колонка успешно перемещена', {
         action: {
           label: 'Отменить',
           onClick: () => {

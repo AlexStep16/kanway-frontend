@@ -144,7 +144,7 @@ function prepareChangesText(changes: Changes): { field: string; action: string }
       lines.push({ field: 'Теги', action: getTagsModificationText(value as ArrayModification) })
     }
     if (key === 'columnId') {
-      lines.push({ field: 'Категория', action: value as string })
+      lines.push({ field: 'Колонка', action: value as string })
     }
     if (key === 'boardId') {
       lines.push({ field: 'Доска', action: value as string })

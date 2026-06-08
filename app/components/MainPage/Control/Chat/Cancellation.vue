@@ -25,7 +25,7 @@ const getFormattedDate = (date: Date) => {
     >
       <div class="w-full flex flex-col items-start gap-2">
         <UserBubble
-          text="Привет, перемести все задачи из категории Бэклог в категорию В работе"
+          text="Привет, перемести все задачи из колонки Бэклог в колонку В работе"
           :date="getFormattedDate(new Date())"
         />
         <AIBubble

@@ -63,7 +63,7 @@ export function useArchiveColumn() {
     },
 
     onSuccess: (result) => {
-      toast.success('Категория архивирована', {
+      toast.success('Колонка архивирована', {
         action: {
           label: 'Отменить',
           onClick: () => {

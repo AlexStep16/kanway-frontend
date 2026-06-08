@@ -144,7 +144,7 @@ const isEntityCompletable = computed(
           v-if="entity.column"
         >
           <Layers class="size-3 shrink-0" /><span class="text-xs truncate">{{
-            entity.column.name ?? 'Без категории'
+            entity.column.name ?? 'Без колонки'
           }}</span>
         </div>
         <div

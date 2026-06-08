@@ -56,7 +56,7 @@ export function useDeleteColumn() {
     },
 
     onSuccess: () => {
-      toast.success('Категория успешно удалена')
+      toast.success('Колонка успешно удалена')
     },
   })
 }

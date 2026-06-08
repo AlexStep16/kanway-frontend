@@ -70,7 +70,7 @@ export function useRecoverColumn() {
     },
 
     onSuccess: (result) => {
-      toast.success('Категория восстановлена', {
+      toast.success('Колонка восстановлена', {
         action: {
           label: 'Отменить',
           onClick: () => {

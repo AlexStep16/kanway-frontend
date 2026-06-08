@@ -17,7 +17,7 @@ const schema = toTypedSchema(
     aiConfirmationType: z.nativeEnum(AiConfirmationTypeEnum, {
       error: () => ({ message: 'Выберите режим подтверждения действий' }),
     }),
-    aiDefaultColumn: z.string().max(100, 'Имя категории не должно превышать 100 символов'),
+    aiDefaultColumn: z.string().max(100, 'Имя колонки не должно превышать 100 символов'),
     aiDefaultBoard: z.string().max(100, 'Имя доски не должно превышать 100 символов'),
   }),
 )
@@ -196,7 +196,7 @@ const isButtonDisabled = computed(() => {
       <div class="flex flex-col gap-y-3">
         <div class="flex flex-col gap-y-1">
           <label class="text-custom-sm font-medium text-gray-500"
-            >Категория по умолчанию для новых задач</label
+            >Колонка по умолчанию для новых задач</label
           >
           <Skeleton
             v-if="isSettingLoading"
@@ -209,7 +209,7 @@ const isButtonDisabled = computed(() => {
             name="name"
             type="text"
             maxlength="100"
-            placeholder="Введите имя категории"
+            placeholder="Введите имя колонки"
             class="max-w-80 border-none bg-gray-100 shadow-none"
             :class="{
               'ring-1 ring-red-500 focus-visible:ring-red-500':
@@ -229,7 +229,7 @@ const isButtonDisabled = computed(() => {
 
         <div class="flex flex-col gap-y-1">
           <label class="text-custom-sm font-medium text-gray-500"
-            >Доска по умолчанию для новых категорий</label
+            >Доска по умолчанию для новых колонок</label
           >
           <Skeleton
             v-if="isSettingLoading"

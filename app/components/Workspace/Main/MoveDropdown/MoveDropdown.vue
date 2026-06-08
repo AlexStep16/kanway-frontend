@@ -71,7 +71,7 @@ const isMoveDisabled = computed(() => {
 })
 
 const getButtonTitle = computed(() => {
-  if (props.type === EntityType.Task) return props.entity.column?.name || 'Без категории'
+  if (props.type === EntityType.Task) return props.entity.column?.name || 'Без колонки'
   if (props.type === EntityType.Column) return props.entity.board?.name || 'Без доски'
   return props.entity.workspace?.name || 'Без пространства'
 })
@@ -172,7 +172,7 @@ function handleMove() {
           class="flex flex-col gap-y-1.5 relative"
         >
           <label class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider"
-            >Категория</label
+            >Колонка</label
           >
 
           <Skeleton
@@ -191,7 +191,7 @@ function handleMove() {
               :is-open="isColumnsSelectOpen"
             >
               <SelectValue
-                :placeholder="columns.length === 0 ? 'Нет категорий...' : 'Выберите категорию...'"
+                :placeholder="columns.length === 0 ? 'Нет колонок...' : 'Выберите колонку...'"
               />
             </SelectTrigger>
             <SelectContent>

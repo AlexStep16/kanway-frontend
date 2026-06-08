@@ -42,7 +42,7 @@ const ENTITY_CONFIG = {
   columns: {
     component: markRaw(ChatColumnsView),
     componentUpdate: markRaw(ChatColumnsEditView),
-    labels: { nom: 'категории', gen: 'категорий' },
+    labels: { nom: 'колонки', gen: 'колонок' },
     transformFn: transformColumn,
   },
   boards: {

@@ -29,7 +29,7 @@ const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start 
     >
       <div class="w-full flex flex-col items-start gap-2">
         <UserBubble
-          text="Привет, перемести все задачи из категории Бэклог в категорию В работе"
+          text="Привет, перемести все задачи из колонки Бэклог в колонку В работе"
           :date="getFormattedDate(new Date())"
         />
         <AIBubble

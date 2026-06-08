@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import type { IUpdateEntitiesContent } from '~/interfaces/Statuses/Content/IUpdateEntitiesContent'
-import UpdateEntities from '../Base/Update/UpdateEntities.vue'
+import type { IRecoverEntitiesContent } from '~/interfaces/Statuses/Content/IRecoverEntitiesContent'
+import RecoverEntities from '../Base/Recover/RecoverEntities.vue'
 
 const props = defineProps<{
   toolId: string
@@ -9,13 +9,13 @@ const props = defineProps<{
   statusLogId: string
   threadId: string
   state: StatusStatesEnum
-  content: IUpdateEntitiesContent
+  content: IRecoverEntitiesContent
   stateClasses: Record<string, boolean>
 }>()
 </script>
 
 <template>
-  <UpdateEntities
+  <RecoverEntities
     :tool-id="props.toolId"
     :chat-id="props.chatId"
     :thread-id="props.threadId"
@@ -23,7 +23,7 @@ const props = defineProps<{
     :state="props.state"
     :content="props.content"
     :state-classes="props.stateClasses"
-    :noun-titles-processing="['категорию', 'категории', 'категорий']"
-    :noun-titles-completed="['категория', 'категории', 'категорий']"
+    :noun-titles-processing="['колонку', 'колонки', 'колонок']"
+    :noun-titles-completed="['колонка', 'колонки', 'колонок']"
   />
 </template>

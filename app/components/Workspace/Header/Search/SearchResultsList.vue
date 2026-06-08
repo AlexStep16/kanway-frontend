@@ -34,12 +34,12 @@ defineEmits(['select-task', 'select-column'])
       />
     </template>
 
-    <!-- Секция Категории -->
+    <!-- Секция Колонки -->
     <template v-if="columns.length > 0">
       <div
         class="px-2.5 pt-4 mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider border-t mt-2 first:border-t-0 first:pt-2 first:mt-0"
       >
-        Категории
+        Колонки
       </div>
       <SearchResultItem
         v-for="column in columns"

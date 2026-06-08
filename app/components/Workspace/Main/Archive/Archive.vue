@@ -81,7 +81,7 @@ const workspaces = computed(() => workspacesData.value || [])
           <div class="text-gray-500"><Archive class="size-10" /></div>
           <div class="text-lg text-gray-500 font-medium">Архив пуст</div>
           <div class="text-sm text-gray-400 max-w-xs text-center">
-            Здесь будут храниться все архивированные задачи, категории, доски и пространства.
+            Здесь будут храниться все архивированные задачи, колонки, доски и пространства.
           </div>
         </div>
       </div>
@@ -164,7 +164,7 @@ const workspaces = computed(() => workspacesData.value || [])
         >
           <template v-if="!isColumnsLoading">
             <TitleWithBadge
-              title="Категории"
+              title="Колонки"
               :number="columns.length"
             >
               <div class="w-full h-[.5px] bg-gray-200"></div>
@@ -197,7 +197,7 @@ const workspaces = computed(() => workspacesData.value || [])
 
           <template v-else>
             <TitleWithBadge
-              title="Категории"
+              title="Колонки"
               :number="columns.length"
               :isLoading="isColumnsLoading"
             />

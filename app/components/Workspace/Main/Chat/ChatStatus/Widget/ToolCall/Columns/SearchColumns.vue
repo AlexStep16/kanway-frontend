@@ -16,8 +16,8 @@ const props = defineProps<{
     :state="props.state"
     :content="props.content"
     :state-classes="props.stateClasses"
-    noun-titles-processing="категории"
-    :noun-titles-completed="['категория', 'категории', 'категорий']"
+    noun-titles-processing="колонки"
+    :noun-titles-completed="['колонка', 'колонки', 'колонок']"
     :view-component="ChatColumnsView"
   />
 </template>

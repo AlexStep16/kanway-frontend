@@ -33,7 +33,7 @@ function getAgentName(agent: AgentsEnum) {
     case AgentsEnum.TASK_MANAGER:
       return 'Менеджер задач'
     case AgentsEnum.COLUMN_MANAGER:
-      return 'Менеджер категорий'
+      return 'Менеджер колонок'
     case AgentsEnum.BOARD_MANAGER:
       return 'Менеджер досок'
     case AgentsEnum.WORKSPACE_MANAGER:

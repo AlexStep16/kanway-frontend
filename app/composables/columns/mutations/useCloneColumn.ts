@@ -21,7 +21,7 @@ export function useCloneColumn() {
         queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(newColumn.board.id) })
       }
 
-      toast.success('Категория скопирована', {
+      toast.success('Колонка скопирована', {
         action: {
           label: 'Отменить',
           onClick: () => {

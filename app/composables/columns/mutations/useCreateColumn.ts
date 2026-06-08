@@ -26,7 +26,7 @@ export function useCreateColumn() {
         },
       )
 
-      toast.success('Категория успешно создана', {
+      toast.success('Колонка успешно создана', {
         action: {
           label: 'Отменить',
           onClick: () => {

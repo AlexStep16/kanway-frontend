@@ -97,7 +97,7 @@ const focusOutsideHandler = (event: any) => {
               class="flex flex-col gap-y-2"
               v-if="columns.length > 0"
             >
-              <span class="px-3 text-xs font-medium text-muted-foreground">Категории</span>
+              <span class="px-3 text-xs font-medium text-muted-foreground">Колонки</span>
 
               <div class="flex flex-col gap-y-1">
                 <Button
