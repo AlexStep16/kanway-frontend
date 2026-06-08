@@ -1,51 +1,51 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { saveCategory } from '~/services/category'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
-import type { ICategoryEditApiPayload } from '~/interfaces/ICategoryEditApiPayload'
+import { saveColumn } from '~/services/column'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
+import type { IColumnEditApiPayload } from '~/interfaces/IColumnEditApiPayload'
 
-interface UpdateCategoryVars {
-  payload: ICategoryEditApiPayload
+interface UpdateColumnVars {
+  payload: IColumnEditApiPayload
   boardId: string | null
 }
 
-export function useUpdateCategory() {
+export function useUpdateColumn() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'update'],
-    mutationFn: ({ payload }: UpdateCategoryVars) =>
-      requestQueueService.enqueue(payload.id, () => saveCategory(payload)),
+    mutationKey: [...columnKeys.all, 'update'],
+    mutationFn: ({ payload }: UpdateColumnVars) =>
+      requestQueueService.enqueue(payload.id, () => saveColumn(payload)),
 
     onMutate: async (vars) => {
-      const queryKey = vars.boardId ? categoryKeys.byBoard(vars.boardId) : categoryKeys.all
+      const queryKey = vars.boardId ? columnKeys.byBoard(vars.boardId) : columnKeys.all
 
       await queryClient.cancelQueries({ queryKey })
 
-      const previousCategories = queryClient.getQueryData<ICategoryState[]>(queryKey)
+      const previousColumns = queryClient.getQueryData<IColumnState[]>(queryKey)
 
-      if (previousCategories) {
-        queryClient.setQueryData<ICategoryState[]>(queryKey, (old) => {
+      if (previousColumns) {
+        queryClient.setQueryData<IColumnState[]>(queryKey, (old) => {
           if (!old) return []
           return old.map((t) => (t.id === vars.payload.id ? { ...t, ...vars.payload } : t))
         })
       }
 
-      return { previousCategories, queryKey }
+      return { previousColumns, queryKey }
     },
 
     onSettled: (data, error, { boardId, payload }) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(boardId) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(payload.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.detailed(payload.id) })
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousCategories) {
-        const originalCategory = context.previousCategories.find((c) => c.id === vars.payload.id)
+      if (context?.previousColumns) {
+        const originalColumn = context.previousColumns.find((c) => c.id === vars.payload.id)
 
-        if (originalCategory) {
-          queryClient.setQueryData<ICategoryState[]>(context.queryKey, (current) => {
-            return current?.map((c) => (c.id === vars.payload.id ? originalCategory : c)) ?? []
+        if (originalColumn) {
+          queryClient.setQueryData<IColumnState[]>(context.queryKey, (current) => {
+            return current?.map((c) => (c.id === vars.payload.id ? originalColumn : c)) ?? []
           })
         }
       }

@@ -1,6 +1,5 @@
-export interface ICategoryEditApiPayload {
+export interface IColumnEditApiPayload {
   id: string
   name?: string
   boardId?: string
-  workspaceId?: string
 }

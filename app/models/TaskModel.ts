@@ -12,7 +12,7 @@ export class TaskModel implements ITask {
     id: string
     name: string
   }
-  public category: {
+  public column: {
     id: string
     name: string
   }
@@ -39,7 +39,7 @@ export class TaskModel implements ITask {
     this.name = props.name
     this.workspace = props.workspace
     this.board = props.board
-    this.category = props.category
+    this.column = props.column
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal
     this.rank = props.rank

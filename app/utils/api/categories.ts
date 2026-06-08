@@ -1,88 +1,88 @@
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
-import type { ICategoryCreateApiPayload } from '~/interfaces/ICategoryCreateApiPayload'
-import type { ICategoryMoveApiPayload } from '~/interfaces/ICategoryMoveApiPayload'
+import type { IColumnCreateApiPayload } from '~/interfaces/IColumnCreateApiPayload'
+import type { IColumnMoveApiPayload } from '~/interfaces/IColumnMoveApiPayload'
 
-export async function getCategoriesApi(boardId?: string) {
+export async function getColumnsApi(boardId?: string) {
   const queryParams = boardId ? `?boardId=${boardId}` : ''
 
-  return await apiCall<ICategory[]>({
+  return await apiCall<IColumn[]>({
     method: 'GET',
-    url: `/categories${queryParams}`,
+    url: `/columns${queryParams}`,
   })
 }
 
-export async function getCategoryApi(id: string) {
-  return await apiCall<ICategory[]>({
+export async function getColumnApi(id: string) {
+  return await apiCall<IColumn[]>({
     method: 'GET',
-    url: `/categories/${id}`,
+    url: `/columns/${id}`,
   })
 }
 
-export async function getArchivedCategoriesApi() {
-  return await apiCall<ICategory[]>({
+export async function getArchivedColumnsApi() {
+  return await apiCall<IColumn[]>({
     method: 'GET',
-    url: `/archive/categories`,
+    url: `/archive/columns`,
   })
 }
 
-export async function postCategoryApi(payload: ICategoryCreateApiPayload) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function postColumnApi(payload: IColumnCreateApiPayload) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'POST',
-    url: `/categories`,
+    url: `/columns`,
     data: payload,
   })
 }
 
-export async function patchCategoryApi(payload: ISingleUpdate<ICategory>) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function patchColumnApi(payload: ISingleUpdate<IColumn>) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'PATCH',
-    url: `/categories/${payload.id}`,
+    url: `/columns/${payload.id}`,
     data: payload,
   })
 }
 
-export async function bulkUpdateCategoriesApi(payload: ISingleUpdate<ICategory>[]) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function bulkUpdateColumnsApi(payload: ISingleUpdate<IColumn>[]) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'PATCH',
-    url: `/categories/bulk`,
+    url: `/columns/bulk`,
     data: payload,
   })
 }
 
-export async function moveCategoryApi(payload: ICategoryMoveApiPayload) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function moveColumnApi(payload: IColumnMoveApiPayload) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'PATCH',
-    url: `/categories/move`,
+    url: `/columns/move`,
     data: payload,
   })
 }
 
-export async function deleteCategoryApi(id: string) {
+export async function deleteColumnApi(id: string) {
   return await apiCall<IResponseWithLog<null>>({
     method: 'DELETE',
-    url: `/categories/${id}`,
+    url: `/columns/${id}`,
   })
 }
 
-export async function archiveCategoryApi(id: string) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function archiveColumnApi(id: string) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'PATCH',
-    url: `/categories/${id}/archive`,
+    url: `/columns/${id}/archive`,
   })
 }
 
-export async function recoverCategoryApi(id: string) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function recoverColumnApi(id: string) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'PATCH',
-    url: `/categories/${id}/recover`,
+    url: `/columns/${id}/recover`,
   })
 }
 
-export async function cloneCategoryApi(id: string) {
-  return await apiCall<IResponseWithLog<ICategory[]>>({
+export async function cloneColumnApi(id: string) {
+  return await apiCall<IResponseWithLog<IColumn[]>>({
     method: 'POST',
-    url: `/categories/${id}/clone`,
+    url: `/columns/${id}/clone`,
   })
 }

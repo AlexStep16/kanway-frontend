@@ -6,6 +6,7 @@ import type { ITaskCreateApiPayload } from '~/interfaces/ITaskCreateApiPayload'
 
 export interface CreateTaskVars {
   payload: ITaskCreateApiPayload
+  boardId: string
 }
 
 export function useCreateTask() {
@@ -16,15 +17,12 @@ export function useCreateTask() {
     mutationKey: [...taskKeys.all, 'create'],
     mutationFn: async ({ payload }: CreateTaskVars) => createTask(payload),
 
-    onSuccess: async (result, { payload }) => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(payload.boardId) })
+    onSuccess: async (result, { boardId }) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
 
-      queryClient.setQueryData(
-        taskKeys.byBoard(payload.boardId),
-        (oldTasks: ITask[] | undefined) => {
-          return oldTasks ? [...oldTasks, ...result.data] : result.data
-        },
-      )
+      queryClient.setQueryData(taskKeys.byBoard(boardId), (oldTasks: ITask[] | undefined) => {
+        return oldTasks ? [...oldTasks, ...result.data] : result.data
+      })
 
       toast.success('Задача успешно создана', {
         action: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ChatCategoriesView from '~/components/Workspace/Main/Chat/Categories/ChatCategoriesView.vue'
+import ChatColumnsView from '~/components/Workspace/Main/Chat/Columns/ChatColumnsView.vue'
 import type { ISearchEntitiesContent } from '~/interfaces/Statuses/Content/ISearchEntitiesContent'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import SearchEntities from '../Base/Search/SearchEntities.vue'
@@ -18,6 +18,6 @@ const props = defineProps<{
     :state-classes="props.stateClasses"
     noun-titles-processing="доски"
     :noun-titles-completed="['доска', 'доски', 'досок']"
-    :view-component="ChatCategoriesView"
+    :view-component="ChatColumnsView"
   />
 </template>

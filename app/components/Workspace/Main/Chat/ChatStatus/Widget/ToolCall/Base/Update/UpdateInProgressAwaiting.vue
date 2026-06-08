@@ -9,16 +9,20 @@ defineProps<{
 </script>
 
 <template>
-  <ToolCallInProgressBase
+  <ToolCallInProgressAwaitingBase
     :title="pluralizedTitle"
     :state-classes="stateClasses"
     :items="humanReadableUpdates"
+    accordion-item-value="update-in-progress-awaiting"
   >
     <template #icon>
       <slot name="icon" />
     </template>
+    <template #log>
+      <slot name="log" />
+    </template>
     <template #actions>
       <slot name="actions" />
     </template>
-  </ToolCallInProgressBase>
+  </ToolCallInProgressAwaitingBase>
 </template>

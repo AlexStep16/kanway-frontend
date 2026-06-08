@@ -3,20 +3,20 @@ import dayjs from 'dayjs'
 
 export function useVisibleTasks(
   boardId: MaybeRef<string | null>,
-  categoryId: MaybeRef<string | null>,
+  columnId: MaybeRef<string | null>,
 ) {
   const { data: tasks } = useTasks(boardId)
 
-  const categoryTasks = computed(
-    () => tasks.value?.filter((t) => t.category.id === toValue(categoryId)) || [],
+  const columnTasks = computed(
+    () => tasks.value?.filter((t) => t.column.id === toValue(columnId)) || [],
   )
 
   const filterStore = useTaskFilterStore()
 
   const filteredTasks = computed(() => {
-    if (!categoryTasks.value) return []
+    if (!columnTasks.value) return []
 
-    let result = categoryTasks.value.filter((t) => !t.isDeleted)
+    let result = columnTasks.value.filter((t) => !t.isDeleted)
 
     const f = filterStore.filters
 
@@ -97,23 +97,23 @@ export function useVisibleTasks(
     return result
   })
 
-  function getTasksByCategoryId(categoryId: string) {
-    const tasks = filteredTasks.value.filter((t) => t.category.id === categoryId)
+  function getTasksByColumnId(columnId: string) {
+    const tasks = filteredTasks.value.filter((t) => t.column.id === columnId)
 
     return tasks.sort((a, b) => a.rank.localeCompare(b.rank))
   }
 
   const availableTags = computed(() => {
-    if (!categoryTasks.value) return []
+    if (!columnTasks.value) return []
 
     const tags = new Set<string>()
-    categoryTasks.value.forEach((t) => t.tags.forEach((tag) => tags.add(tag)))
+    columnTasks.value.forEach((t) => t.tags.forEach((tag) => tags.add(tag)))
     return Array.from(tags)
   })
 
   return {
     tasks: filteredTasks,
-    getTasksByCategoryId,
+    getTasksByColumnId,
     availableTags,
   }
 }

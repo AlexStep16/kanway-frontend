@@ -1,7 +1,7 @@
 import { useMutationState } from '@tanstack/vue-query'
 
-export function useCategoryMutationStatus(categoryId: MaybeRef<string | null>) {
-  if (!toValue(categoryId))
+export function useColumnMutationStatus(columnId: MaybeRef<string | null>) {
+  if (!toValue(columnId))
     return {
       isArchiving: computed(() => false),
       isRecovering: computed(() => false),
@@ -13,12 +13,12 @@ export function useCategoryMutationStatus(categoryId: MaybeRef<string | null>) {
       isBusy: computed(() => false),
     }
 
-  const pendingCategoryMutations = useMutationState({
+  const pendingColumnMutations = useMutationState({
     filters: {
       status: 'pending',
       predicate: (mutation) => {
         const key = mutation.options.mutationKey as string[]
-        return key?.includes(categoryKeys.all[0]!)
+        return key?.includes(columnKeys.all[0]!)
       },
     },
     select: (mutation) => ({
@@ -27,15 +27,15 @@ export function useCategoryMutationStatus(categoryId: MaybeRef<string | null>) {
     }),
   })
 
-  const checkStatus = (action: string, type: 'category' | 'payload' | 'array' = 'category') => {
+  const checkStatus = (action: string, type: 'column' | 'payload' | 'array' = 'column') => {
     return computed(() => {
-      return pendingCategoryMutations.value.some((m) => {
+      return pendingColumnMutations.value.some((m) => {
         if (!m.key.includes(action)) return false
 
         const v = m.variables
-        if (type === 'category') return v?.category?.id === toValue(categoryId)
-        if (type === 'payload') return v?.payload?.id === toValue(categoryId)
-        if (type === 'array') return v?.payload?.some((p: any) => p.id === toValue(categoryId))
+        if (type === 'column') return v?.column?.id === toValue(columnId)
+        if (type === 'payload') return v?.payload?.id === toValue(columnId)
+        if (type === 'array') return v?.payload?.some((p: any) => p.id === toValue(columnId))
         return false
       })
     })

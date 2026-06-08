@@ -5,14 +5,14 @@ import { OperationLogStatusesEnum } from '~/enums/OperationLogStatusesEnum'
 import { OperationTypesEnum } from '~/enums/OperationTypesEnum'
 import ChatTasksView from './Tasks/ChatTasksView.vue'
 import ChatTasksEditView from './Tasks/ChatTasksEditView.vue'
-import ChatCategoriesView from './Categories/ChatCategoriesView.vue'
+import ChatColumnsView from './Columns/ChatColumnsView.vue'
 import ChatBoardsView from './Boards/ChatBoardsView.vue'
 import ChatWorkspacesView from './Workspaces/ChatWorkspacesView.vue'
-import ChatCategoriesEditView from './Categories/ChatCategoriesEditView.vue'
+import ChatColumnsEditView from './Columns/ChatColumnsEditView.vue'
 import ChatBoardsEditView from './Boards/ChatBoardsEditView.vue'
 import ChatWorkspacesEditView from './Workspaces/ChatWorkspacesEditView.vue'
 import { transformTask } from '@/services/task'
-import { transformCategory } from '@/services/category'
+import { transformColumn } from '@/services/column'
 import { transformBoard } from '@/services/board'
 import { transformWorkspace } from '@/services/workspace'
 import type { IOperationLog } from '~/interfaces/domain/IOperationLog'
@@ -39,11 +39,11 @@ const ENTITY_CONFIG = {
     labels: { nom: 'задачи', gen: 'задач' },
     transformFn: transformTask,
   },
-  categories: {
-    component: markRaw(ChatCategoriesView),
-    componentUpdate: markRaw(ChatCategoriesEditView),
+  columns: {
+    component: markRaw(ChatColumnsView),
+    componentUpdate: markRaw(ChatColumnsEditView),
     labels: { nom: 'категории', gen: 'категорий' },
-    transformFn: transformCategory,
+    transformFn: transformColumn,
   },
   boards: {
     component: markRaw(ChatBoardsView),
@@ -175,7 +175,6 @@ watchEffect(() => {
     <div
       v-for="block in renderBlocks"
       :key="block.id"
-      class="mb-4 last:mb-0"
     >
       <component
         :is="block.component"

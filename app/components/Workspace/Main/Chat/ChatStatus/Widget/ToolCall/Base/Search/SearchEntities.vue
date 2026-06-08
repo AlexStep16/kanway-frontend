@@ -53,6 +53,7 @@ const entities = computed(() => {
     <SearchCompletedDropdown
       v-else-if="props.state === StatusStatesEnum.COMPLETED && ids.length"
       :pluralized-title="pluralizedCompletedTitle"
+      :state-classes="stateClasses"
     >
       <template #icon>
         <SearchIcon
@@ -89,5 +90,11 @@ const entities = computed(() => {
         />
       </template>
     </SearchCompletedStatic>
+
+    <ToolCallFailedBase
+      v-else-if="props.state === StatusStatesEnum.FAILED"
+      :title="pluralizedProcessTitle"
+      :state-classes="stateClasses"
+    />
   </div>
 </template>

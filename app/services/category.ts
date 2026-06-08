@@ -1,13 +1,13 @@
-import CategoryModel from '~/models/CategoryModel'
-import type { ICategory } from '~/interfaces/domain/ICategory'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
+import ColumnModel from '~/models/ColumnModel'
+import type { IColumn } from '~/interfaces/domain/IColumn'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
-import type { ICategoryCreateApiPayload } from '~/interfaces/ICategoryCreateApiPayload'
-import type { ICategoryEditApiPayload } from '~/interfaces/ICategoryEditApiPayload'
-import type { ICategoryMoveApiPayload } from '~/interfaces/ICategoryMoveApiPayload'
+import type { IColumnCreateApiPayload } from '~/interfaces/IColumnCreateApiPayload'
+import type { IColumnEditApiPayload } from '~/interfaces/IColumnEditApiPayload'
+import type { IColumnMoveApiPayload } from '~/interfaces/IColumnMoveApiPayload'
 
-export function transformCategory(raw: ICategory): ICategoryState {
-  const categoryModel = new CategoryModel({
+export function transformColumn(raw: IColumn): IColumnState {
+  const columnModel = new ColumnModel({
     ...raw,
     deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
     createdAt: new Date(raw.createdAt),
@@ -15,96 +15,96 @@ export function transformCategory(raw: ICategory): ICategoryState {
   })
 
   return {
-    ...categoryModel,
+    ...columnModel,
     tempId: (raw as any).tempClientId,
   }
 }
 
-export async function fetchCategories(boardId?: string) {
-  const categories = await getCategoriesApi(boardId)
+export async function fetchColumns(boardId?: string) {
+  const columns = await getColumnsApi(boardId)
 
-  return categories.map(transformCategory)
+  return columns.map(transformColumn)
 }
 
-export async function fetchCategory(id: string) {
-  const categories = await getCategoryApi(id)
-  const category = categories.length > 0 ? categories[0] : null
+export async function fetchColumn(id: string) {
+  const columns = await getColumnApi(id)
+  const column = columns.length > 0 ? columns[0] : null
 
-  return category ? transformCategory(category) : null
+  return column ? transformColumn(column) : null
 }
 
-export async function fetchArchivedCategories() {
-  const categories = await getArchivedCategoriesApi()
+export async function fetchArchivedColumns() {
+  const columns = await getArchivedColumnsApi()
 
-  return categories.map(transformCategory)
+  return columns.map(transformColumn)
 }
 
-export async function createCategory(
-  payload: ICategoryCreateApiPayload,
-): Promise<IResponseWithLog<ICategory[]>> {
-  const newCategory = await postCategoryApi(payload)
+export async function createColumn(
+  payload: IColumnCreateApiPayload,
+): Promise<IResponseWithLog<IColumn[]>> {
+  const newColumn = await postColumnApi(payload)
 
   return {
-    data: newCategory.data.map(transformCategory),
-    logId: newCategory.logId,
+    data: newColumn.data.map(transformColumn),
+    logId: newColumn.logId,
   }
 }
 
-export async function saveCategory(
-  payload: ICategoryEditApiPayload,
-): Promise<IResponseWithLog<ICategory[]>> {
-  const saveResult = await patchCategoryApi(payload)
+export async function saveColumn(
+  payload: IColumnEditApiPayload,
+): Promise<IResponseWithLog<IColumn[]>> {
+  const saveResult = await patchColumnApi(payload)
 
   return {
-    data: saveResult.data.map(transformCategory),
+    data: saveResult.data.map(transformColumn),
     logId: saveResult.logId,
   }
 }
 
-export async function saveCategories(
-  payload: ICategoryEditApiPayload[],
-): Promise<IResponseWithLog<ICategory[]>> {
-  const saveResult = await bulkUpdateCategoriesApi(payload)
+export async function saveColumns(
+  payload: IColumnEditApiPayload[],
+): Promise<IResponseWithLog<IColumn[]>> {
+  const saveResult = await bulkUpdateColumnsApi(payload)
 
   return {
-    data: saveResult.data.map(transformCategory),
+    data: saveResult.data.map(transformColumn),
     logId: saveResult.logId,
   }
 }
 
-export async function removeCategory(id: string): Promise<IResponseWithLog<null>> {
-  return await deleteCategoryApi(id)
+export async function removeColumn(id: string): Promise<IResponseWithLog<null>> {
+  return await deleteColumnApi(id)
 }
 
-export async function archiveCategory(id: string): Promise<IResponseWithLog<ICategory[]>> {
-  const archiveResult = await archiveCategoryApi(id)
+export async function archiveColumn(id: string): Promise<IResponseWithLog<IColumn[]>> {
+  const archiveResult = await archiveColumnApi(id)
 
   return {
-    data: archiveResult.data.map(transformCategory),
+    data: archiveResult.data.map(transformColumn),
     logId: archiveResult.logId,
   }
 }
 
-export async function moveCategory(
-  payload: ICategoryMoveApiPayload,
-): Promise<IResponseWithLog<ICategory[]>> {
-  return await moveCategoryApi(payload)
+export async function moveColumn(
+  payload: IColumnMoveApiPayload,
+): Promise<IResponseWithLog<IColumn[]>> {
+  return await moveColumnApi(payload)
 }
 
-export async function recoverCategory(id: string): Promise<IResponseWithLog<ICategory[]>> {
-  const recoverResult = await recoverCategoryApi(id)
+export async function recoverColumn(id: string): Promise<IResponseWithLog<IColumn[]>> {
+  const recoverResult = await recoverColumnApi(id)
 
   return {
-    data: recoverResult.data.map(transformCategory),
+    data: recoverResult.data.map(transformColumn),
     logId: recoverResult.logId,
   }
 }
 
-export async function cloneCategory(id: string): Promise<IResponseWithLog<ICategory[]>> {
-  const cloneResult = await cloneCategoryApi(id)
+export async function cloneColumn(id: string): Promise<IResponseWithLog<IColumn[]>> {
+  const cloneResult = await cloneColumnApi(id)
 
   return {
-    data: cloneResult.data.map(transformCategory),
+    data: cloneResult.data.map(transformColumn),
     logId: cloneResult.logId,
   }
 }

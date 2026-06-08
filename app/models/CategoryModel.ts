@@ -1,6 +1,6 @@
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 
-export default class CategoryModel implements ICategory {
+export default class ColumnModel implements IColumn {
   public id: string
   public name: string
   public workspace: {
@@ -19,7 +19,7 @@ export default class CategoryModel implements ICategory {
   public createdAt: Date
   public updatedAt: Date
 
-  constructor(props: ICategory) {
+  constructor(props: IColumn) {
     this.id = props.id
     this.name = props.name
     this.workspace = props.workspace

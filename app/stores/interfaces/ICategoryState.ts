@@ -1,5 +1,5 @@
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 
-export interface ICategoryState extends ICategory {
+export interface IColumnState extends IColumn {
   tempId?: string
 }

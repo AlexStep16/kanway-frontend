@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-1 transition-all duration-300 cursor-pointer select-none min-w-0">
+  <div class="flex flex-col gap-y-1 transition-all duration-300 select-none min-w-0">
     <div class="flex items-center gap-x-1 transition-all duration-300 select-none min-w-0">
       <slot name="icon" />
       <span
@@ -22,7 +22,6 @@ defineProps<{
 
     <div class="ml-5">
       <ToolCallFiltersList :items="items" />
-      <slot name="actions" />
     </div>
   </div>
 </template>

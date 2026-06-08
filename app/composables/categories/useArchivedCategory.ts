@@ -1,10 +1,10 @@
-export function useArchivedCategory(
+export function useArchivedColumn(
   id: MaybeRef<string | null>,
   isEnabled: MaybeRef<boolean> = true,
 ) {
-  const { data: archivedCategoriesData } = useArchivedCategories(isEnabled)
+  const { data: archivedColumnsData } = useArchivedColumns(isEnabled)
 
   return computed(() => {
-    return archivedCategoriesData.value?.find((c) => c.id === toValue(id)) || null
+    return archivedColumnsData.value?.find((c) => c.id === toValue(id)) || null
   })
 }

@@ -7,9 +7,7 @@ export interface ITaskEditApiPayload {
   dueDate?: string | null
   dueHours?: number | null
   dueMinutes?: number | null
-  categoryId?: string
-  boardId?: string
-  workspaceId?: string
+  columnId?: string
   color?: {
     value: (typeof TASK_COLORS_TITLES)[number]
     tone: 'light' | 'medium' | 'dark'

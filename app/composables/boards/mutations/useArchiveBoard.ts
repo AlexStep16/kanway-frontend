@@ -99,7 +99,7 @@ export function useArchiveBoard() {
         queryKey: [...boardKeys.count(), board.workspace.id],
       })
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(board.workspace.id) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(board.id) })
     },

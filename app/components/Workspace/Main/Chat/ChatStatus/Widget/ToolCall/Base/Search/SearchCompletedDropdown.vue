@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   pluralizedTitle: string
+  stateClasses: Record<string, boolean>
 }>()
 </script>
 
@@ -8,6 +9,7 @@ defineProps<{
   <ToolCallCompletedDropdownBase
     :pluralized-title="pluralizedTitle"
     accordion-item-value="search-completed"
+    :state-classes="stateClasses"
   >
     <template #icon>
       <slot name="icon" />

@@ -36,7 +36,7 @@ export function useUpdateBoard() {
     onSettled: (result, error, variables) => {
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(variables.workspaceId) })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(variables.payload.id) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(variables.payload.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(variables.payload.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(variables.payload.id) })
     },
 

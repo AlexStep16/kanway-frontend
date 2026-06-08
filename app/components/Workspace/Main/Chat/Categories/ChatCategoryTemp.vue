@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import ChatEntityTempWrapper from '../ChatEntityTempWrapper.vue'
-import CategoryCard from '~/components/Workspace/Main/Category/CategoryCard.vue'
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import ColumnCard from '~/components/Workspace/Main/Column/ColumnCard.vue'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 
 const props = defineProps<{
-  category: ICategory
+  column: IColumn
   hasCheckbox?: boolean
 }>()
 
@@ -15,10 +15,13 @@ const selectedIds = defineModel('selectedIds', {
 </script>
 
 <template>
-  <ChatEntityTempWrapper :entity="category" v-model:selected-ids="selectedIds">
+  <ChatEntityTempWrapper
+    :entity="column"
+    v-model:selected-ids="selectedIds"
+  >
     <template #default="{ entity }">
-      <CategoryCard
-        :category="entity"
+      <ColumnCard
+        :column="entity"
         :options="{
           hasBorder: true,
           hasCheckbox: hasCheckbox,

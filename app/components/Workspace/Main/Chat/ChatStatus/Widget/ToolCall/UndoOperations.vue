@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import { CircleAlert, Square, Undo2 } from 'lucide-vue-next'
-import ApproveButtons from './ApproveButtons.vue'
 import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue.js'
 
 const props = defineProps<{
-  toolId: string
-  chatId: string
-  statusLogId: string
-  threadId: string
   state: StatusStatesEnum
   content: ITextValue[]
   stateClasses: Record<string, boolean>
@@ -45,18 +40,11 @@ const completedTitle = 'Операции отменены'
           :class="props.stateClasses"
         />
       </template>
-      <template #actions>
-        <ApproveButtons
-          :tool-id="props.toolId"
-          :chat-id="props.chatId"
-          :thread-id="props.threadId"
-          :status-log-id="props.statusLogId"
-        />
-      </template>
     </ToolCallInProgressBase>
 
     <ToolCallCompletedDropdownBase
       :pluralized-title="completedTitle"
+      :state-classes="stateClasses"
       accordion-item-value="undo-completed"
       v-else-if="props.state === StatusStatesEnum.COMPLETED"
     >
@@ -71,6 +59,7 @@ const completedTitle = 'Операции отменены'
 
     <ToolCallCompletedDropdownBase
       :pluralized-title="completedTitle"
+      :state-classes="stateClasses"
       accordion-item-value="undo-completed"
       v-else-if="props.state === StatusStatesEnum.CANCELLED"
     >

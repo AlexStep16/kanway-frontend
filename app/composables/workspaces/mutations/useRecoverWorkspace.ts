@@ -77,7 +77,7 @@ export function useRecoverWorkspace() {
 
       if (availableBoards && availableBoards.length > 0) {
         availableBoards.forEach((board) => {
-          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+          queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(board.id) })
           queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
         })
       }

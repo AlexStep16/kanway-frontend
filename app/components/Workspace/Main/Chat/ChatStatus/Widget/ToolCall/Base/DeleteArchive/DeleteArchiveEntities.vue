@@ -23,26 +23,20 @@ const processingArchiveTitles = ['Архивирую', 'Архивирую', 'А
 const completedDeleteTitles = ['Удалена', 'Удалены', 'Удалено']
 const completedArchiveTitles = ['Архивирована', 'Архивированы', 'Архивировано']
 
-const ids = computed(() => {
-  return props.content.ids || []
-})
-
-const idsCount = computed(() => ids.value.length)
-
 const pluralizedCompletedDeleteTitle = computed(() => {
-  return `${pluralize(idsCount.value, completedDeleteTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesCompleted)}`
+  return `${pluralize(props.content.count, completedDeleteTitles)} ${props.content.count} ${pluralize(props.content.count, props.nounTitlesCompleted)}`
 })
 
 const pluralizedCompletedArchiveTitle = computed(() => {
-  return `${pluralize(idsCount.value, completedArchiveTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesCompleted)}`
+  return `${pluralize(props.content.count, completedArchiveTitles)} ${props.content.count} ${pluralize(props.content.count, props.nounTitlesCompleted)}`
 })
 
 const pluralizedProcessingDeleteTitle = computed(() => {
-  return `${pluralize(idsCount.value, processingDeleteTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesProcessing)}`
+  return `${pluralize(props.content.count, processingDeleteTitles)} ${props.content.count} ${pluralize(props.content.count, props.nounTitlesProcessing)}`
 })
 
 const pluralizedProcessingArchiveTitle = computed(() => {
-  return `${pluralize(idsCount.value, processingArchiveTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesProcessing)}`
+  return `${pluralize(props.content.count, processingArchiveTitles)} ${props.content.count} ${pluralize(props.content.count, props.nounTitlesProcessing)}`
 })
 
 const pluralizedProcessingTitle = computed(() => {
@@ -92,6 +86,12 @@ const pluralizedCompletedTitle = computed(() => {
           :class="props.stateClasses"
         />
       </template>
+      <template #log>
+        <ChatLog
+          :logId="props.content.logId"
+          v-if="props.content.logId"
+        />
+      </template>
       <template #actions>
         <ApproveButtons
           :tool-id="props.toolId"
@@ -104,9 +104,12 @@ const pluralizedCompletedTitle = computed(() => {
 
     <DeleteArchiveCompletedDropdown
       v-else-if="
-        props.state === StatusStatesEnum.COMPLETED && ids.length && props.content.isSoftDelete
+        props.state === StatusStatesEnum.COMPLETED &&
+        props.content.count &&
+        props.content.isSoftDelete
       "
       :pluralized-title="pluralizedCompletedTitle"
+      :state-classes="props.stateClasses"
     >
       <template #icon>
         <Trash2
@@ -155,5 +158,11 @@ const pluralizedCompletedTitle = computed(() => {
         />
       </template>
     </DeleteArchiveCompletedStatic>
+
+    <ToolCallFailedBase
+      v-else-if="props.state === StatusStatesEnum.FAILED"
+      :title="pluralizedProcessingTitle"
+      :state-classes="stateClasses"
+    />
   </div>
 </template>

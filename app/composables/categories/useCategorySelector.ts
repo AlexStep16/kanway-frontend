@@ -1,11 +1,11 @@
-export function useCategorySelector(
+export function useColumnSelector(
   id: MaybeRef<string | null>,
   boardId: MaybeRef<string | null>,
   isEnabled: MaybeRef<boolean> = true,
 ) {
-  const { data: categoriesData } = useCategories(boardId, isEnabled)
+  const { data: columnsData } = useColumns(boardId, isEnabled)
 
   return computed(() => {
-    return categoriesData.value?.find((c) => c.id === toValue(id)) || null
+    return columnsData.value?.find((c) => c.id === toValue(id)) || null
   })
 }

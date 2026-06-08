@@ -36,8 +36,8 @@ export function transformTask(raw: ITask): ITaskState {
   }
 }
 
-export async function fetchTasks(boardId?: string, categoryId?: string) {
-  const tasks = await getTasksApi(boardId, categoryId)
+export async function fetchTasks(boardId?: string, columnId?: string) {
+  const tasks = await getTasksApi(boardId, columnId)
 
   return tasks.map(transformTask)
 }

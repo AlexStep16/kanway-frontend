@@ -1,72 +1,72 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
-import { recoverCategory } from '~/services/category'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
+import { recoverColumn } from '~/services/column'
 
-interface RecoverCategoryVars {
-  category: ICategoryState
+interface RecoverColumnVars {
+  column: IColumnState
 }
 
-export function useRecoverCategory() {
+export function useRecoverColumn() {
   const queryClient = useQueryClient()
   const { mutate: undo } = useUndo()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'recover'],
+    mutationKey: [...columnKeys.all, 'recover'],
     meta: {
-      keysToInvalidate: [categoryKeys.archived()],
+      keysToInvalidate: [columnKeys.archived()],
     },
-    mutationFn: ({ category }: RecoverCategoryVars) =>
-      requestQueueService.enqueue(category.id, () => recoverCategory(category.id)),
+    mutationFn: ({ column }: RecoverColumnVars) =>
+      requestQueueService.enqueue(column.id, () => recoverColumn(column.id)),
 
-    onMutate: async ({ category }) => {
-      const actualCategoriesKey = categoryKeys.byBoard(category.board.id)
-      const archivedCategoriesKey = categoryKeys.archived()
+    onMutate: async ({ column }) => {
+      const actualColumnsKey = columnKeys.byBoard(column.board.id)
+      const archivedColumnsKey = columnKeys.archived()
 
-      await queryClient.cancelQueries({ queryKey: actualCategoriesKey })
-      await queryClient.cancelQueries({ queryKey: archivedCategoriesKey })
+      await queryClient.cancelQueries({ queryKey: actualColumnsKey })
+      await queryClient.cancelQueries({ queryKey: archivedColumnsKey })
 
-      const prevArchived = queryClient.getQueryData<ICategoryState[]>(archivedCategoriesKey)
-      const prevCategories = queryClient.getQueryData<ICategoryState[]>(actualCategoriesKey)
+      const prevArchived = queryClient.getQueryData<IColumnState[]>(archivedColumnsKey)
+      const prevColumns = queryClient.getQueryData<IColumnState[]>(actualColumnsKey)
 
       if (prevArchived) {
-        queryClient.setQueryData<ICategoryState[]>(archivedCategoriesKey, (old) =>
-          old ? old.filter((c) => c.id !== category.id) : [],
+        queryClient.setQueryData<IColumnState[]>(archivedColumnsKey, (old) =>
+          old ? old.filter((c) => c.id !== column.id) : [],
         )
       }
 
-      if (prevCategories) {
-        queryClient.setQueryData<ICategoryState[]>(actualCategoriesKey, (old) =>
-          old ? [...old, { ...category, isDeleted: false }] : [{ ...category, isDeleted: false }],
+      if (prevColumns) {
+        queryClient.setQueryData<IColumnState[]>(actualColumnsKey, (old) =>
+          old ? [...old, { ...column, isDeleted: false }] : [{ ...column, isDeleted: false }],
         )
       }
 
-      return { prevArchived, prevCategories, archivedCategoriesKey, actualCategoriesKey }
+      return { prevArchived, prevColumns, archivedColumnsKey, actualColumnsKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.actualCategoriesKey) {
-        queryClient.setQueryData<ICategoryState[]>(context.actualCategoriesKey, (current) => {
-          return current?.filter((c) => c.id !== vars.category.id) || []
+      if (context?.actualColumnsKey) {
+        queryClient.setQueryData<IColumnState[]>(context.actualColumnsKey, (current) => {
+          return current?.filter((c) => c.id !== vars.column.id) || []
         })
       }
 
       if (context?.prevArchived) {
-        const categoryToRestore = context.prevArchived.find((c) => c.id === vars.category.id)
+        const columnToRestore = context.prevArchived.find((c) => c.id === vars.column.id)
 
-        if (categoryToRestore) {
-          queryClient.setQueryData<ICategoryState[]>(context.archivedCategoriesKey, (current) => {
-            if (current?.some((c) => c.id === vars.category.id)) return current
-            return [categoryToRestore, ...(current || [])]
+        if (columnToRestore) {
+          queryClient.setQueryData<IColumnState[]>(context.archivedColumnsKey, (current) => {
+            if (current?.some((c) => c.id === vars.column.id)) return current
+            return [columnToRestore, ...(current || [])]
           })
         }
       }
     },
 
-    onSettled: (result, error, { category }) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
-      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
+    onSettled: (result, error, { column }) => {
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(column.board.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(column.board.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.detailed(column.id) })
     },
 
     onSuccess: (result) => {

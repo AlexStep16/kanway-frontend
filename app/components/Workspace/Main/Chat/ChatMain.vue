@@ -36,6 +36,10 @@ const isChatEmpty = computed(() => {
 function handleTileClick(tile: (typeof START_TILES)[number]) {
   props.aiInputRef?.setMessage(tile.query)
 }
+
+const statusMessage = computed(() => {
+  return props.reversedMessages.find((message) => message.role === 'status')
+})
 </script>
 
 <template>
@@ -107,7 +111,7 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
 
                 <template #actions>
                   <AIResponseActions
-                    :credits-used="message.creditsUsed"
+                    :credits-used="statusMessage?.creditsUsed"
                     :message="message"
                   />
                 </template>

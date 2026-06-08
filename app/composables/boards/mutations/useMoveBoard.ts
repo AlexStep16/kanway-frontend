@@ -40,8 +40,8 @@ export function useMoveBoard() {
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(payload.id) })
 
-      // Invalidate related categories and tasks to update their workspace references
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(payload.id) })
+      // Invalidate related columns and tasks to update their workspace references
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(payload.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(payload.id) })
     },
   })

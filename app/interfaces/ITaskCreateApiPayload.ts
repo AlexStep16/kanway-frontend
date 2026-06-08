@@ -7,9 +7,7 @@ export interface ITaskCreateApiPayload {
   dueDate?: string
   dueHours?: number
   dueMinutes?: number
-  categoryId: string
-  boardId: string
-  workspaceId: string
+  columnId: string
   color?: {
     value: (typeof TASK_COLORS_TITLES)[number]
     tone: 'light' | 'medium' | 'dark'

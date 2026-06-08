@@ -1,23 +1,23 @@
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { fetchCategory } from '~/services/category'
+import { fetchColumn } from '~/services/column'
 
-export function useCategory(id: MaybeRef<string>, boardId?: MaybeRef<string | null>) {
+export function useColumn(id: MaybeRef<string>, boardId?: MaybeRef<string | null>) {
   const queryClient = useQueryClient()
 
   return useQuery({
-    queryKey: categoryKeys.detailed(id),
-    queryFn: () => fetchCategory(toValue(id)),
+    queryKey: columnKeys.detailed(id),
+    queryFn: () => fetchColumn(toValue(id)),
     enabled: !!toValue(id),
 
     initialData: () => {
       if (!boardId) return undefined
 
-      return useCategorySelector(id, boardId).value ?? undefined
+      return useColumnSelector(id, boardId).value ?? undefined
     },
 
     initialDataUpdatedAt: () => {
       return boardId
-        ? queryClient.getQueryState(categoryKeys.byBoard(boardId))?.dataUpdatedAt
+        ? queryClient.getQueryState(columnKeys.byBoard(boardId))?.dataUpdatedAt
         : undefined
     },
 

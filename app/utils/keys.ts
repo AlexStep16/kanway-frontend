@@ -6,16 +6,12 @@ export const taskKeys = {
   detailed: (taskId: MaybeRef<string | null>) => [...taskKeys.all, 'detailed', { taskId }],
 }
 
-export const categoryKeys = {
-  all: ['categories'],
-  lists: () => [...categoryKeys.all, 'list'],
-  byBoard: (boardId: MaybeRef<string | null>) => [...categoryKeys.lists(), { boardId }],
-  archived: () => [...categoryKeys.all, 'archived'],
-  detailed: (categoryId: MaybeRef<string | null>) => [
-    ...categoryKeys.all,
-    'detailed',
-    { categoryId },
-  ],
+export const columnKeys = {
+  all: ['columns'],
+  lists: () => [...columnKeys.all, 'list'],
+  byBoard: (boardId: MaybeRef<string | null>) => [...columnKeys.lists(), { boardId }],
+  archived: () => [...columnKeys.all, 'archived'],
+  detailed: (columnId: MaybeRef<string | null>) => [...columnKeys.all, 'detailed', { columnId }],
 }
 
 export const boardKeys = {

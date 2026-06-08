@@ -3,11 +3,11 @@ import SearchResultItem from './SearchResultItem.vue'
 
 defineProps<{
   tasks: any[]
-  categories: any[]
+  columns: any[]
   isEmpty: boolean
 }>()
 
-defineEmits(['select-task', 'select-category'])
+defineEmits(['select-task', 'select-column'])
 </script>
 
 <template>
@@ -29,24 +29,24 @@ defineEmits(['select-task', 'select-category'])
         v-for="task in tasks"
         :key="task.id"
         :title="task.name"
-        :subtitle="task.category?.name"
+        :subtitle="task.column?.name"
         @click="$emit('select-task', task)"
       />
     </template>
 
     <!-- Секция Категории -->
-    <template v-if="categories.length > 0">
+    <template v-if="columns.length > 0">
       <div
         class="px-2.5 pt-4 mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider border-t mt-2 first:border-t-0 first:pt-2 first:mt-0"
       >
         Категории
       </div>
       <SearchResultItem
-        v-for="category in categories"
-        :key="category.id"
-        :title="category.name"
-        :subtitle="category.board?.name"
-        @click="$emit('select-category', category)"
+        v-for="column in columns"
+        :key="column.id"
+        :title="column.name"
+        :subtitle="column.board?.name"
+        @click="$emit('select-column', column)"
       />
     </template>
   </div>

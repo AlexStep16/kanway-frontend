@@ -5,11 +5,11 @@ import type { ITaskCreateApiPayload } from '~/interfaces/ITaskCreateApiPayload'
 import type { ITaskEditApiPayload } from '~/interfaces/ITaskEditApiPayload'
 import type { ITaskMoveApiPayload } from '~/interfaces/ITaskMoveApiPayload'
 
-export async function getTasksApi(boardId?: string, categoryId?: string) {
+export async function getTasksApi(boardId?: string, columnId?: string) {
   let queryParams = boardId ? `?boardId=${boardId}` : ''
 
-  if (categoryId) {
-    queryParams += boardId ? `&categoryId=${categoryId}` : `?categoryId=${categoryId}`
+  if (columnId) {
+    queryParams += boardId ? `&columnId=${columnId}` : `?columnId=${columnId}`
   }
 
   return await apiCall<ITask[]>({

@@ -17,9 +17,7 @@ const schema = toTypedSchema(
     aiConfirmationType: z.nativeEnum(AiConfirmationTypeEnum, {
       error: () => ({ message: 'Выберите режим подтверждения действий' }),
     }),
-    aiDefaultCategory: z
-      .string()
-      .max(100, 'Имя категории не должно превышать 100 символов'),
+    aiDefaultColumn: z.string().max(100, 'Имя категории не должно превышать 100 символов'),
     aiDefaultBoard: z.string().max(100, 'Имя доски не должно превышать 100 символов'),
   }),
 )
@@ -29,14 +27,14 @@ const { errors, handleSubmit, defineField, resetForm, meta, submitCount } = useF
   initialValues: {
     aiName: '',
     aiConfirmationType: AiConfirmationTypeEnum.ALWAYS,
-    aiDefaultCategory: '',
+    aiDefaultColumn: '',
     aiDefaultBoard: '',
   },
 })
 
 const [aiName, aiNameAttrs] = defineField('aiName')
 const [aiConfirmationType] = defineField('aiConfirmationType')
-const [aiDefaultCategory, aiDefaultCategoryAttrs] = defineField('aiDefaultCategory')
+const [aiDefaultColumn, aiDefaultColumnAttrs] = defineField('aiDefaultColumn')
 const [aiDefaultBoard, aiDefaultBoardAttrs] = defineField('aiDefaultBoard')
 
 watch(
@@ -50,7 +48,7 @@ watch(
       values: {
         aiName: newSetting.aiName ?? '',
         aiConfirmationType: newSetting.aiConfirmationType,
-        aiDefaultCategory: newSetting.aiDefaultCategory ?? '',
+        aiDefaultColumn: newSetting.aiDefaultColumn ?? '',
         aiDefaultBoard: newSetting.aiDefaultBoard ?? '',
       },
     })
@@ -72,19 +70,22 @@ const handleSaveSetting = handleSubmit((values) => {
     return
   }
 
-  updateSetting({
-    payload: {
-      id: setting.value.id,
-      aiName: values.aiName,
-      aiConfirmationType: values.aiConfirmationType,
-      aiDefaultCategory: values.aiDefaultCategory,
-      aiDefaultBoard: values.aiDefaultBoard,
+  updateSetting(
+    {
+      payload: {
+        id: setting.value.id,
+        aiName: values.aiName,
+        aiConfirmationType: values.aiConfirmationType,
+        aiDefaultColumn: values.aiDefaultColumn,
+        aiDefaultBoard: values.aiDefaultBoard,
+      },
     },
-  }, {
-    onSuccess: () => {
-      resetForm({ values })
+    {
+      onSuccess: () => {
+        resetForm({ values })
+      },
     },
-  })
+  )
 })
 
 const isButtonDisabled = computed(() => {
@@ -93,7 +94,10 @@ const isButtonDisabled = computed(() => {
 </script>
 
 <template>
-  <form class="contents" @submit="handleSaveSetting">
+  <form
+    class="contents"
+    @submit="handleSaveSetting"
+  >
     <div class="flex flex-col gap-y-2">
       <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
         Персонализация ассистента
@@ -102,7 +106,10 @@ const isButtonDisabled = computed(() => {
       <div class="flex flex-col gap-y-3">
         <div class="flex flex-col gap-y-1">
           <label class="text-custom-sm font-medium text-gray-500">Имя ассистента</label>
-          <Skeleton v-if="isSettingLoading" class="h-9 w-full max-w-80" />
+          <Skeleton
+            v-if="isSettingLoading"
+            class="h-9 w-full max-w-80"
+          />
           <Input
             v-else
             id="settings-ai-name"
@@ -112,12 +119,17 @@ const isButtonDisabled = computed(() => {
             maxlength="50"
             placeholder="Введите имя"
             class="max-w-80 border-none bg-gray-100 shadow-none"
-            :class="{ 'ring-1 ring-red-500 focus-visible:ring-red-500': errors.aiName && submitCount > 0 }"
+            :class="{
+              'ring-1 ring-red-500 focus-visible:ring-red-500': errors.aiName && submitCount > 0,
+            }"
             :aria-invalid="Boolean(errors.aiName && submitCount > 0)"
             v-bind="aiNameAttrs"
           />
 
-          <div v-if="errors.aiName && submitCount > 0" class="text-red-500 text-xs">
+          <div
+            v-if="errors.aiName && submitCount > 0"
+            class="text-red-500 text-xs"
+          >
             {{ errors.aiName }}
           </div>
         </div>
@@ -132,12 +144,23 @@ const isButtonDisabled = computed(() => {
       </h3>
       <div class="flex flex-col gap-y-3">
         <div class="flex flex-col max-w-80 gap-y-1">
-          <label class="text-custom-sm font-medium text-gray-500">Режим подтверждения действий</label>
-          <Skeleton v-if="isSettingLoading" class="h-9 w-full max-w-80" />
-          <Select v-else v-model="aiConfirmationTypeValue">
+          <label class="text-custom-sm font-medium text-gray-500"
+            >Режим подтверждения действий</label
+          >
+          <Skeleton
+            v-if="isSettingLoading"
+            class="h-9 w-full max-w-80"
+          />
+          <Select
+            v-else
+            v-model="aiConfirmationTypeValue"
+          >
             <SelectTrigger
               class="max-w-80 bg-white text-sm shadow-none"
-              :class="{ 'ring-1 ring-red-500 focus-visible:ring-red-500': errors.aiConfirmationType && submitCount > 0 }"
+              :class="{
+                'ring-1 ring-red-500 focus-visible:ring-red-500':
+                  errors.aiConfirmationType && submitCount > 0,
+              }"
             >
               <SelectValue placeholder="Выберите действие по умолчанию..." />
             </SelectTrigger>
@@ -154,7 +177,10 @@ const isButtonDisabled = computed(() => {
             </SelectContent>
           </Select>
 
-          <div v-if="errors.aiConfirmationType && submitCount > 0" class="text-red-500 text-xs">
+          <div
+            v-if="errors.aiConfirmationType && submitCount > 0"
+            class="text-red-500 text-xs"
+          >
             {{ errors.aiConfirmationType }}
           </div>
         </div>
@@ -172,25 +198,32 @@ const isButtonDisabled = computed(() => {
           <label class="text-custom-sm font-medium text-gray-500"
             >Категория по умолчанию для новых задач</label
           >
-          <Skeleton v-if="isSettingLoading" class="h-9 w-full max-w-80" />
+          <Skeleton
+            v-if="isSettingLoading"
+            class="h-9 w-full max-w-80"
+          />
           <Input
             v-else
-            id="settings-ai-category-name"
-            v-model="aiDefaultCategory"
+            id="settings-ai-column-name"
+            v-model="aiDefaultColumn"
             name="name"
             type="text"
             maxlength="100"
             placeholder="Введите имя категории"
             class="max-w-80 border-none bg-gray-100 shadow-none"
             :class="{
-              'ring-1 ring-red-500 focus-visible:ring-red-500': errors.aiDefaultCategory && submitCount > 0,
+              'ring-1 ring-red-500 focus-visible:ring-red-500':
+                errors.aiDefaultColumn && submitCount > 0,
             }"
-            :aria-invalid="Boolean(errors.aiDefaultCategory && submitCount > 0)"
-            v-bind="aiDefaultCategoryAttrs"
+            :aria-invalid="Boolean(errors.aiDefaultColumn && submitCount > 0)"
+            v-bind="aiDefaultColumnAttrs"
           />
 
-          <div v-if="errors.aiDefaultCategory && submitCount > 0" class="text-red-500 text-xs">
-            {{ errors.aiDefaultCategory }}
+          <div
+            v-if="errors.aiDefaultColumn && submitCount > 0"
+            class="text-red-500 text-xs"
+          >
+            {{ errors.aiDefaultColumn }}
           </div>
         </div>
 
@@ -198,7 +231,10 @@ const isButtonDisabled = computed(() => {
           <label class="text-custom-sm font-medium text-gray-500"
             >Доска по умолчанию для новых категорий</label
           >
-          <Skeleton v-if="isSettingLoading" class="h-9 w-full max-w-80" />
+          <Skeleton
+            v-if="isSettingLoading"
+            class="h-9 w-full max-w-80"
+          />
           <Input
             v-else
             id="settings-ai-board-name"
@@ -208,12 +244,18 @@ const isButtonDisabled = computed(() => {
             maxlength="100"
             placeholder="Введите имя доски"
             class="max-w-80 border-none bg-gray-100 shadow-none"
-            :class="{ 'ring-1 ring-red-500 focus-visible:ring-red-500': errors.aiDefaultBoard && submitCount > 0 }"
+            :class="{
+              'ring-1 ring-red-500 focus-visible:ring-red-500':
+                errors.aiDefaultBoard && submitCount > 0,
+            }"
             :aria-invalid="Boolean(errors.aiDefaultBoard && submitCount > 0)"
             v-bind="aiDefaultBoardAttrs"
           />
 
-          <div v-if="errors.aiDefaultBoard && submitCount > 0" class="text-red-500 text-xs">
+          <div
+            v-if="errors.aiDefaultBoard && submitCount > 0"
+            class="text-red-500 text-xs"
+          >
             {{ errors.aiDefaultBoard }}
           </div>
         </div>
@@ -227,7 +269,10 @@ const isButtonDisabled = computed(() => {
         class="gap-x-2 text-xs"
         :disabled="isButtonDisabled && !isSettingUpdating"
       >
-        <Spinner v-if="isSettingUpdating" class="size-3" />
+        <Spinner
+          v-if="isSettingUpdating"
+          class="size-3"
+        />
         <span>Сохранить</span>
       </Button>
     </div>

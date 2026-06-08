@@ -95,7 +95,7 @@ export function useRecoverBoard() {
       })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(board.id) })
 
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(board.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(board.id) })
     },
   })

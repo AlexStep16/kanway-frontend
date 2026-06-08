@@ -22,7 +22,7 @@ const isDropdownOpen = computed(() => {
   return props.variant === 'dropdown' && searchModel.value.length > 0 && isFocused.value
 })
 
-const { tasks, categories, isEmpty } = useBoardSearch(searchModel, activeBoardId)
+const { tasks, columns, isEmpty } = useBoardSearch(searchModel, activeBoardId)
 
 const connectExposed = (exposed: any) => {
   if (exposed?.inputRef) inputRef.value = exposed.inputRef
@@ -73,7 +73,7 @@ const handleSelectTask = (task: ITaskState) => {
         <div class="max-h-125 overflow-y-auto custom-scrollbar">
           <SearchResultsList
             :tasks="tasks"
-            :categories="categories"
+            :columns="columns"
             :is-empty="isEmpty"
             @selectTask="handleSelectTask"
           />
@@ -87,7 +87,7 @@ const handleSelectTask = (task: ITaskState) => {
     >
       <SearchResultsList
         :tasks="tasks"
-        :categories="categories"
+        :columns="columns"
         :is-empty="isEmpty"
         @selectTask="handleSelectTask"
       />

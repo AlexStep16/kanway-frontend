@@ -3,7 +3,7 @@ import ButtonCreate from '~/components/Buttons/ButtonCreate.vue'
 import Options from '~/components/Options/Options.vue'
 import Task from '../Task/Task.vue'
 import { ListFilter, SquarePen } from 'lucide-vue-next'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
 import draggable from 'vuedraggable'
 import type { ITaskState } from '~/stores/interfaces/ITaskState'
 import _ from 'lodash'
@@ -13,28 +13,28 @@ import TransferForm from '~/components/Options/TransferForm.vue'
 import EntityCardSkeleton from '../EntityCardSkeleton.vue'
 
 const props = defineProps<{
-  category: ICategoryState
+  column: IColumnState
 }>()
 
 const taskFilterStore = useTaskFilterStore()
 
-const { isPending: areTasksLoading } = useTasks(props.category.board.id)
+const { isPending: areTasksLoading } = useTasks(props.column.board.id)
 
 const { tasks } = useVisibleTasks(
-  computed(() => props.category.board.id),
-  computed(() => props.category.id),
+  computed(() => props.column.board.id),
+  computed(() => props.column.id),
 )
-const { data: boardsData } = useBoards(computed(() => props.category.workspace.id))
+const { data: boardsData } = useBoards(computed(() => props.column.workspace.id))
 
 const { mutate: moveTaskCard } = useMoveTaskCard()
-const { mutate: updateCategory } = useUpdateCategory()
-const { mutate: moveCategory } = useMoveCategory()
-const { mutate: cloneCategory } = useCloneCategory()
-const { mutate: archiveCategory } = useArchiveCategory()
+const { mutate: updateColumn } = useUpdateColumn()
+const { mutate: moveColumn } = useMoveColumn()
+const { mutate: cloneColumn } = useCloneColumn()
+const { mutate: archiveColumn } = useArchiveColumn()
 
 const boards = computed(() => boardsData.value || [])
 
-const status = useCategoryMutationStatus(props.category.id)
+const status = useColumnMutationStatus(props.column.id)
 
 const isInputVisible = ref(false)
 const inputEditRef = ref<HTMLInputElement | null>(null)
@@ -66,8 +66,8 @@ function draggableChange(event: any) {
     id: movedTask.id,
     beforeId,
     afterId,
-    newCategoryId: props.category.id,
-    boardId: props.category.board.id,
+    newColumnId: props.column.id,
+    boardId: props.column.board.id,
   })
 }
 
@@ -83,17 +83,17 @@ function showInput() {
   })
 }
 
-function updateCategoryName(event: Event) {
+function updateColumnName(event: Event) {
   const target = event.target as HTMLInputElement
   const newName = target.value.trim()
 
   if (newName) {
-    updateCategory({
+    updateColumn({
       payload: {
-        id: props.category.id,
+        id: props.column.id,
         name: newName,
       },
-      boardId: props.category.board.id,
+      boardId: props.column.board.id,
     })
   }
 
@@ -104,27 +104,27 @@ function handleMove(newBoardId: string) {
   const board = boards.value.find((b) => b.id === newBoardId)
 
   if (board) {
-    moveCategory({
-      payload: props.category,
-      oldBoardId: props.category.board.id,
+    moveColumn({
+      payload: props.column,
+      oldBoardId: props.column.board.id,
       newBoardId: board.id,
     })
   }
 }
 
 function handleCopy() {
-  if (!props.category) return
+  if (!props.column) return
 
-  cloneCategory({
-    id: props.category.id,
+  cloneColumn({
+    id: props.column.id,
   })
 }
 
 function handleArchive() {
-  if (!props.category) return
+  if (!props.column) return
 
-  archiveCategory({
-    category: props.category,
+  archiveColumn({
+    column: props.column,
   })
 }
 
@@ -135,13 +135,13 @@ function getRandomTasksNumber() {
 }
 
 const otherBoards = computed(() => {
-  return boards.value.filter((board) => board.id !== props.category.board.id)
+  return boards.value.filter((board) => board.id !== props.column.board.id)
 })
 </script>
 
 <template>
   <div
-    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 rounded-md h-full w-70 sm:w-75 group/category select-none"
+    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 rounded-md h-full w-70 sm:w-75 group/column select-none"
   >
     <!-- Header -->
     <div class="flex w-full px-4 justify-between items-center">
@@ -157,7 +157,7 @@ const otherBoards = computed(() => {
         >
           <ListFilter class="size-4 text-blue-500" />
         </div>
-        <span class="font-semibold group-hover:text-gray-600 truncate">{{ category.name }}</span>
+        <span class="font-semibold group-hover:text-gray-600 truncate">{{ column.name }}</span>
         <SquarePen
           class="size-3.5 shrink-0 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         />
@@ -170,8 +170,8 @@ const otherBoards = computed(() => {
         <input
           type="text"
           class="text-sm h-full font-semibold p-0 text-gray-800 bg-transparent border-none focus:outline-none focus:ring-0 transition-colors duration-100"
-          :value="category.name"
-          @change="updateCategoryName"
+          :value="column.name"
+          @change="updateColumnName"
           @blur="isInputVisible = false"
           placeholder="Название категории"
           ref="inputEditRef"
@@ -188,10 +188,10 @@ const otherBoards = computed(() => {
           archive: true,
         }"
         :status="status"
-        :item="category"
+        :item="column"
         :isAlwaysVisible="true"
-        :entityType="EntityType.Category"
-        groupName="category"
+        :entityType="EntityType.Column"
+        groupName="column"
         class="text-gray-600 undraggable"
         @archive="handleArchive"
         @copy="handleCopy"
@@ -263,10 +263,9 @@ const otherBoards = computed(() => {
         </template>
 
         <CreateTaskForm
-          v-if="isTaskAddFormShown && category.id && category.board.id && category.workspace.id"
-          :categoryId="category.id"
-          :boardId="category.board.id"
-          :workspaceId="category.workspace.id"
+          v-if="isTaskAddFormShown && column.id && column.board.id"
+          :columnId="column.id"
+          :boardId="column.board.id"
           @close="isTaskAddFormShown = false"
         />
       </div>

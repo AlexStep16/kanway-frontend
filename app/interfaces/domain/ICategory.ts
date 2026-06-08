@@ -1,6 +1,6 @@
 import type { IParent } from '~/interfaces/IParent'
 
-export interface ICategory {
+export interface IColumn {
   id: string
   name: string
   workspace: IParent

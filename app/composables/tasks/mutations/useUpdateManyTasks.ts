@@ -19,7 +19,7 @@ export function useUpdateManyTasks() {
       ),
     onMutate: async (vars) => {
       const tKey = taskKeys.all
-      const cKey = categoryKeys.all
+      const cKey = columnKeys.all
       const bKey = boardKeys.all
       const wKey = workspaceKeys.lists()
 
@@ -32,7 +32,7 @@ export function useUpdateManyTasks() {
 
       const snapshots = {
         tasks: queryClient.getQueryData<ITaskState[]>(tKey),
-        categories: queryClient.getQueryData(cKey),
+        columns: queryClient.getQueryData(cKey),
         boards: queryClient.getQueryData(bKey),
         workspaces: queryClient.getQueryData(wKey),
       }

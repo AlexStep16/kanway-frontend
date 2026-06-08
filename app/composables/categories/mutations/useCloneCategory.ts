@@ -1,25 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { cloneCategory } from '~/services/category'
+import { cloneColumn } from '~/services/column'
 
-interface CloneCategoryVars {
+interface CloneColumnVars {
   id: string
 }
 
-export function useCloneCategory() {
+export function useCloneColumn() {
   const { mutate: undo } = useUndo()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'clone'],
-    mutationFn: ({ id }: CloneCategoryVars) =>
-      requestQueueService.enqueue(id, () => cloneCategory(id)),
+    mutationKey: [...columnKeys.all, 'clone'],
+    mutationFn: ({ id }: CloneColumnVars) => requestQueueService.enqueue(id, () => cloneColumn(id)),
 
     onSuccess: async (result) => {
-      const newCategory = result.data[0]
+      const newColumn = result.data[0]
 
-      if (newCategory) {
-        queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newCategory.board.id) })
+      if (newColumn) {
+        queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(newColumn.board.id) })
       }
 
       toast.success('Категория скопирована', {

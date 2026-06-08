@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { moveCategory } from '~/services/category'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
+import { moveColumn } from '~/services/column'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
 
-export interface MoveCategoryCardVars {
+export interface MoveColumnCardVars {
   id: string
   beforeId?: string | null
   afterId?: string | null
@@ -10,43 +10,43 @@ export interface MoveCategoryCardVars {
   boardId: MaybeRef<string | null>
 }
 
-export function useMoveCategoryCard() {
+export function useMoveColumnCard() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'move-card'],
-    mutationFn: async ({ id, beforeId, afterId, newBoardId }: MoveCategoryCardVars) =>
-      moveCategory({ id, beforeId, afterId, newBoardId }),
+    mutationKey: [...columnKeys.all, 'move-card'],
+    mutationFn: async ({ id, beforeId, afterId, newBoardId }: MoveColumnCardVars) =>
+      moveColumn({ id, beforeId, afterId, newBoardId }),
 
     onMutate: async (vars) => {
-      const queryKey = categoryKeys.byBoard(vars.boardId)
+      const queryKey = columnKeys.byBoard(vars.boardId)
 
       await queryClient.cancelQueries({ queryKey })
 
-      const previousCategories = queryClient.getQueryData<ICategoryState[]>(queryKey)
+      const previousColumns = queryClient.getQueryData<IColumnState[]>(queryKey)
 
-      queryClient.setQueryData(queryKey, (oldCategories: ICategoryState[] | undefined) => {
-        if (!oldCategories) return []
+      queryClient.setQueryData(queryKey, (oldColumns: IColumnState[] | undefined) => {
+        if (!oldColumns) return []
 
-        oldCategories.map((category) => {
-          if (category.id === vars.id) {
-            return { ...category, board: vars.newBoardId ?? category.board }
+        oldColumns.map((column) => {
+          if (column.id === vars.id) {
+            return { ...column, board: vars.newBoardId ?? column.board }
           }
-          return category
+          return column
         })
       })
 
-      return { previousCategories, queryKey }
+      return { previousColumns, queryKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousCategories) {
-        queryClient.setQueryData(context.queryKey, context.previousCategories)
+      if (context?.previousColumns) {
+        queryClient.setQueryData(context.queryKey, context.previousColumns)
       }
     },
 
     onSettled: (data, error, { boardId }) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(boardId) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(boardId) })
     },
   })
 }

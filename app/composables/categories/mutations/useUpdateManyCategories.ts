@@ -1,25 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { saveCategories } from '~/services/category'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
-import type { ICategoryEditApiPayload } from '~/interfaces/ICategoryEditApiPayload'
+import { saveColumns } from '~/services/column'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
+import type { IColumnEditApiPayload } from '~/interfaces/IColumnEditApiPayload'
 
 interface UpdateManyVars {
-  payload: ICategoryEditApiPayload[]
+  payload: IColumnEditApiPayload[]
 }
 
-export function useUpdateManyCategories() {
+export function useUpdateManyColumns() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'updateMany'],
+    mutationKey: [...columnKeys.all, 'updateMany'],
     mutationFn: ({ payload }: UpdateManyVars) =>
       requestQueueService.enqueueBulk(
         payload.map((p) => p.id),
-        () => saveCategories(payload),
+        () => saveColumns(payload),
       ),
 
     onMutate: async (vars) => {
-      const cKey = categoryKeys.all
+      const cKey = columnKeys.all
       const bKey = boardKeys.all
       const wKey = workspaceKeys.lists()
 
@@ -30,13 +30,13 @@ export function useUpdateManyCategories() {
       ])
 
       const snapshots = {
-        categories: queryClient.getQueryData<ICategoryState[]>(cKey),
+        columns: queryClient.getQueryData<IColumnState[]>(cKey),
         boards: queryClient.getQueryData(bKey),
         workspaces: queryClient.getQueryData(wKey),
       }
 
-      if (snapshots.categories) {
-        queryClient.setQueryData<ICategoryState[]>(cKey, (old) => {
+      if (snapshots.columns) {
+        queryClient.setQueryData<IColumnState[]>(cKey, (old) => {
           if (!old) return []
           const updatesMap = new Map(vars.payload.map((p) => [p.id, p]))
 
@@ -53,17 +53,17 @@ export function useUpdateManyCategories() {
     onError: (err, vars, context) => {
       if (!context?.snapshots) return
 
-      const { categories } = context.snapshots
+      const { columns } = context.snapshots
 
-      if (categories) {
+      if (columns) {
         const failedIds = new Set(vars.payload.map((p) => p.id))
-        const categoriesSnapshotMap = new Map(categories.map((c) => [c.id, c]))
+        const columnsSnapshotMap = new Map(columns.map((c) => [c.id, c]))
 
-        queryClient.setQueryData<ICategoryState[]>(categoryKeys.all, (current) => {
+        queryClient.setQueryData<IColumnState[]>(columnKeys.all, (current) => {
           return (
             current?.map((item) => {
               if (failedIds.has(item.id)) {
-                return categoriesSnapshotMap.get(item.id) || item
+                return columnsSnapshotMap.get(item.id) || item
               }
               return item
             }) || []
@@ -75,13 +75,13 @@ export function useUpdateManyCategories() {
     onSettled: (result) => {
       if (!result) return
 
-      const updatedCategories = result.data
+      const updatedColumns = result.data
 
-      if (updatedCategories) {
-        updatedCategories.forEach((category) => {
-          queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(category.board.id) })
-          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
-          queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
+      if (updatedColumns) {
+        updatedColumns.forEach((column) => {
+          queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(column.board.id) })
+          queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(column.board.id) })
+          queryClient.invalidateQueries({ queryKey: columnKeys.detailed(column.id) })
         })
       }
     },

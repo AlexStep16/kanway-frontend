@@ -1,6 +1,6 @@
 export interface IEntityActionConfirmationContent {
   id: string
-  entityType: 'task' | 'category' | 'board' | 'workspace'
+  entityType: 'task' | 'column' | 'board' | 'workspace'
   action: 'create' | 'update' | 'delete'
   entities: any[]
   isConfirmed: boolean

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CategoryChange from './Changes/CategoryChange.vue'
+import ColumnChange from './Changes/ColumnChange.vue'
 import BoardChange from './Changes/BoardChange.vue'
 import WorkspaceChange from './Changes/WorkspaceChange.vue'
 import StatusChange from './Changes/StatusChange.vue'
@@ -58,9 +58,9 @@ const isSelected = computed(() => selectedIds.value.includes(props.after.id || p
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
       <!-- Info -->
       <div class="flex items-center flex-wrap gap-1">
-        <CategoryChange
-          :beforeСategory="before.category"
-          :afterСategory="after.category"
+        <ColumnChange
+          :beforeСategory="before.column"
+          :afterСategory="after.column"
           :baseBlockBeforeClasses="baseBlockBeforeClasses"
           :baseBlockAfterClasses="baseBlockAfterClasses"
         />

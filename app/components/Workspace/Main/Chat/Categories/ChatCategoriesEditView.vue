@@ -3,10 +3,10 @@ import ColumnsView from '~/components/Workspace/Main/ColumnsView.vue'
 import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import type { IParent } from '~/interfaces/IParent'
-import ChatCategoryEdit from '../EntityEdit/ChatCategoryEdit.vue'
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import ChatColumnEdit from '../EntityEdit/ChatColumnEdit.vue'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 
-export type BeforeAfterCategory = ISingleUpdate<ICategory> & {
+export type BeforeAfterColumn = ISingleUpdate<IColumn> & {
   board: IParent
   workspace: IParent
   name: string
@@ -14,8 +14,8 @@ export type BeforeAfterCategory = ISingleUpdate<ICategory> & {
 
 const props = defineProps<{
   message: IChatMessage
-  before: BeforeAfterCategory[]
-  after: BeforeAfterCategory[]
+  before: BeforeAfterColumn[]
+  after: BeforeAfterColumn[]
   isSelectable: boolean
   minSelect?: number
   maxSelect?: number
@@ -28,18 +28,18 @@ const selectedIds = defineModel('selectedIds', {
 
 const messagesContainerRefMap = ref<Record<string, HTMLElement | null>>({})
 
-const selectedCategoriesCount = computed(() => {
+const selectedColumnsCount = computed(() => {
   return selectedIds.value.length
 })
 
-const hasCheckbox = computed(() => (category: ICategory) => {
+const hasCheckbox = computed(() => (column: IColumn) => {
   if (!props.isSelectable) return false
   if ((props.minSelect ?? 0) > 0 || (props.maxSelect ?? 0) > 0) {
-    if ((props.minSelect ?? 0) > 0 && selectedCategoriesCount.value < (props.minSelect ?? 0)) {
+    if ((props.minSelect ?? 0) > 0 && selectedColumnsCount.value < (props.minSelect ?? 0)) {
       return true
     }
-    if ((props.maxSelect ?? 0) > 0 && selectedCategoriesCount.value >= (props.maxSelect ?? 0)) {
-      return selectedIds.value.includes(category.id)
+    if ((props.maxSelect ?? 0) > 0 && selectedColumnsCount.value >= (props.maxSelect ?? 0)) {
+      return selectedIds.value.includes(column.id)
     }
     return true
   }
@@ -50,7 +50,7 @@ const beforeAfterArray = computed(() => {
   const afterMap = new Map(props.after.map((item) => [item.id, item]))
 
   const allIds = new Set([...beforeMap.keys(), ...afterMap.keys()])
-  const result: BeforeAfterCategory[][] = []
+  const result: BeforeAfterColumn[][] = []
 
   allIds.forEach((id) => {
     if (beforeMap.has(id) && afterMap.has(id)) {
@@ -81,7 +81,7 @@ const beforeAfterArray = computed(() => {
       :containerRef="messagesContainerRefMap[message.id]!"
     >
       <template v-slot:default="slotProps">
-        <ChatCategoryEdit
+        <ChatColumnEdit
           v-for="[before, after] in slotProps.data"
           :key="before?.id ?? after?.id"
           :before="before"

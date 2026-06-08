@@ -2,13 +2,10 @@ export function useBoardSearch(searchQuery: Ref<string>, boardId: Ref<string | n
   const isLoadNeeded = computed(() => searchQuery.value.trim().length > 0)
 
   const { data: tasksData, isLoading: isTasksPending } = useTasks(boardId, isLoadNeeded)
-  const { data: categoriesData, isLoading: isCategoriesPending } = useCategories(
-    boardId,
-    isLoadNeeded,
-  )
+  const { data: columnsData, isLoading: isColumnsPending } = useColumns(boardId, isLoadNeeded)
 
   const tasks = computed(() => tasksData.value || [])
-  const categories = computed(() => categoriesData.value || [])
+  const columns = computed(() => columnsData.value || [])
 
   const filterByName = <T extends { name: string }>(list: T[] | undefined) => {
     const query = searchQuery.value.toLowerCase().trim()
@@ -18,14 +15,12 @@ export function useBoardSearch(searchQuery: Ref<string>, boardId: Ref<string | n
   }
 
   const filteredTasks = computed(() => filterByName([...tasks.value]))
-  const filteredCategories = computed(() => filterByName([...categories.value]))
+  const filteredColumns = computed(() => filterByName([...columns.value]))
 
   return {
     tasks: filteredTasks,
-    categories: filteredCategories,
-    isEmpty: computed(
-      () => filteredTasks.value.length === 0 && filteredCategories.value.length === 0,
-    ),
-    isPending: computed(() => isTasksPending.value || isCategoriesPending.value),
+    columns: filteredColumns,
+    isEmpty: computed(() => filteredTasks.value.length === 0 && filteredColumns.value.length === 0),
+    isPending: computed(() => isTasksPending.value || isColumnsPending.value),
   }
 }

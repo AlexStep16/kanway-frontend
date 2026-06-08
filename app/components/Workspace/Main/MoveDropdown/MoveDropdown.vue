@@ -12,7 +12,7 @@ const emit = defineEmits<{
     e: 'move',
     data: {
       id: string
-      newCategoryId: string | null
+      newColumnId: string | null
       newBoardId: string | null
       newWorkspaceId: string
     },
@@ -22,32 +22,32 @@ const emit = defineEmits<{
 const isPopoverOpen = ref(false)
 const isWorkspacesSelectOpen = ref(false)
 const isBoardsSelectOpen = ref(false)
-const isCategoriesSelectOpen = ref(false)
+const isColumnsSelectOpen = ref(false)
 
 const selectedWorkspaceId = ref<string>(props.entity.workspace?.id || '')
 const selectedBoardId = ref<string | null>(props.entity.board?.id || null)
-const selectedCategoryId = ref<string | null>(props.entity.category?.id || null)
+const selectedColumnId = ref<string | null>(props.entity.column?.id || null)
 
 const { data: workspacesData } = useWorkspaces()
 const { data: boardsData, isFetching: isBoardsLoading } = useBoards(
   computed(() => selectedWorkspaceId.value),
 )
-const { data: categoriesData, isFetching: isCategoriesLoading } = useCategories(
+const { data: columnsData, isFetching: isColumnsLoading } = useColumns(
   computed(() => selectedBoardId.value),
 )
 
 const workspaces = computed(() => workspacesData.value || [])
 const boards = computed(() => boardsData.value || [])
-const categories = computed(() => categoriesData.value || [])
+const columns = computed(() => columnsData.value || [])
 
 watch(selectedWorkspaceId, (newId, oldId) => {
   if (newId !== oldId) {
     if (props.entity.workspace?.id === newId) {
       selectedBoardId.value = props.entity.board?.id || null
-      selectedCategoryId.value = props.entity.category?.id || null
+      selectedColumnId.value = props.entity.column?.id || null
     } else {
       selectedBoardId.value = null
-      selectedCategoryId.value = null
+      selectedColumnId.value = null
     }
   }
 })
@@ -55,9 +55,9 @@ watch(selectedWorkspaceId, (newId, oldId) => {
 watch(selectedBoardId, (newId, oldId) => {
   if (newId !== oldId) {
     if (props.entity.board?.id === newId) {
-      selectedCategoryId.value = props.entity.category?.id || null
+      selectedColumnId.value = props.entity.column?.id || null
     } else {
-      selectedCategoryId.value = null
+      selectedColumnId.value = null
     }
   }
 })
@@ -65,21 +65,21 @@ watch(selectedBoardId, (newId, oldId) => {
 const isMoveDisabled = computed(() => {
   if (props.type === EntityType.Board)
     return selectedWorkspaceId.value === props.entity.workspace?.id || !selectedWorkspaceId.value
-  if (props.type === EntityType.Category)
+  if (props.type === EntityType.Column)
     return selectedBoardId.value === props.entity.board?.id || !selectedBoardId.value
-  return selectedCategoryId.value === props.entity.category?.id || !selectedCategoryId.value
+  return selectedColumnId.value === props.entity.column?.id || !selectedColumnId.value
 })
 
 const getButtonTitle = computed(() => {
-  if (props.type === EntityType.Task) return props.entity.category?.name || 'Без категории'
-  if (props.type === EntityType.Category) return props.entity.board?.name || 'Без доски'
+  if (props.type === EntityType.Task) return props.entity.column?.name || 'Без категории'
+  if (props.type === EntityType.Column) return props.entity.board?.name || 'Без доски'
   return props.entity.workspace?.name || 'Без пространства'
 })
 
 function handleMove() {
   emit('move', {
     id: props.entity.id,
-    newCategoryId: selectedCategoryId.value,
+    newColumnId: selectedColumnId.value,
     newBoardId: selectedBoardId.value,
     newWorkspaceId: selectedWorkspaceId.value,
   })
@@ -176,29 +176,27 @@ function handleMove() {
           >
 
           <Skeleton
-            v-if="isCategoriesLoading"
+            v-if="isColumnsLoading"
             class="h-8 w-full rounded-md"
           />
 
           <Select
             v-else
-            v-model="selectedCategoryId"
-            v-model:open="isCategoriesSelectOpen"
-            :disabled="categories.length === 0"
+            v-model="selectedColumnId"
+            v-model:open="isColumnsSelectOpen"
+            :disabled="columns.length === 0"
           >
             <SelectTrigger
               class="h-8 text-custom-sm"
-              :is-open="isCategoriesSelectOpen"
+              :is-open="isColumnsSelectOpen"
             >
               <SelectValue
-                :placeholder="
-                  categories.length === 0 ? 'Нет категорий...' : 'Выберите категорию...'
-                "
+                :placeholder="columns.length === 0 ? 'Нет категорий...' : 'Выберите категорию...'"
               />
             </SelectTrigger>
             <SelectContent>
               <SelectItem
-                v-for="c in categories"
+                v-for="c in columns"
                 :key="c.id"
                 class="text-custom-sm"
                 :value="c.id"
@@ -212,7 +210,7 @@ function handleMove() {
         <Button
           size="sm"
           class="w-full text-xs h-8"
-          :disabled="isMoveDisabled || isBoardsLoading || isCategoriesLoading"
+          :disabled="isMoveDisabled || isBoardsLoading || isColumnsLoading"
           @click="handleMove"
         >
           Переместить

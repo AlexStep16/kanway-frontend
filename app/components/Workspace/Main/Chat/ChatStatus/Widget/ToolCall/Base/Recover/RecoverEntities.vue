@@ -20,18 +20,12 @@ const props = defineProps<{
 const processingTitles = ['Восстанавливаю', 'Восстанавливаю', 'Восстанавливаю']
 const completedTitles = ['Восстановлена', 'Восстановлены', 'Восстановлено']
 
-const ids = computed(() => {
-  return props.content.ids || []
-})
-
-const idsCount = computed(() => ids.value.length)
-
 const pluralizedCompletedTitle = computed(() => {
-  return `${pluralize(idsCount.value, completedTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesCompleted)}`
+  return `${pluralize(props.content.count, completedTitles)} ${props.content.count} ${pluralize(props.content.count, props.nounTitlesCompleted)}`
 })
 
 const pluralizedProcessTitle = computed(() => {
-  return `${pluralize(idsCount.value, processingTitles)} ${idsCount.value} ${pluralize(idsCount.value, props.nounTitlesProcessing)}`
+  return `${pluralize(props.content.count, processingTitles)} ${props.content.count} ${pluralize(props.content.count, props.nounTitlesProcessing)}`
 })
 </script>
 
@@ -63,6 +57,12 @@ const pluralizedProcessTitle = computed(() => {
           :class="props.stateClasses"
         />
       </template>
+      <template #log>
+        <ChatLog
+          :logId="props.content.logId"
+          v-if="props.content.logId"
+        />
+      </template>
       <template #actions>
         <ApproveButtons
           :tool-id="props.toolId"
@@ -74,8 +74,9 @@ const pluralizedProcessTitle = computed(() => {
     </RecoverInProgressAwaiting>
 
     <RecoverCompletedDropdown
-      v-else-if="props.state === StatusStatesEnum.COMPLETED && ids.length"
+      v-else-if="props.state === StatusStatesEnum.COMPLETED && props.content.count"
       :pluralized-title="pluralizedCompletedTitle"
+      :state-classes="props.stateClasses"
     >
       <template #icon>
         <ArchiveRestore
@@ -112,5 +113,11 @@ const pluralizedProcessTitle = computed(() => {
         />
       </template>
     </RecoverCompletedStatic>
+
+    <ToolCallFailedBase
+      v-else-if="props.state === StatusStatesEnum.FAILED"
+      :title="pluralizedProcessTitle"
+      :state-classes="stateClasses"
+    />
   </div>
 </template>

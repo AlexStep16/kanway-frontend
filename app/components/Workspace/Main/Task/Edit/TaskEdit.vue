@@ -82,12 +82,10 @@ const handleMoveTask = (data: any) => {
 
   moveTask({
     payload: task.value,
-    oldCategoryId: task.value.category.id,
-    newCategoryId: data.newCategoryId,
+
+    newColumnId: data.newColumnId,
     oldBoardId: task.value.board.id,
     newBoardId: data.newBoardId,
-    oldWorkspaceId: task.value.workspace.id,
-    newWorkspaceId: data.newWorkspaceId,
   })
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, X, Square, CircleAlert, RotateCcw } from 'lucide-vue-next'
+import { CheckCircle, XCircle, Square, CircleAlert, RotateCcw } from 'lucide-vue-next'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import type { IStatus } from '~/interfaces/Statuses/IStatus'
 import { AgentsEnum } from '~/enums/AgentsEnum'
@@ -32,7 +32,7 @@ function getAgentName(agent: AgentsEnum) {
       return 'Оркестратор'
     case AgentsEnum.TASK_MANAGER:
       return 'Менеджер задач'
-    case AgentsEnum.CATEGORY_MANAGER:
+    case AgentsEnum.COLUMN_MANAGER:
       return 'Менеджер категорий'
     case AgentsEnum.BOARD_MANAGER:
       return 'Менеджер досок'
@@ -85,13 +85,13 @@ function handleRetryAgent() {
               class="size-3.5 text-yellow-500"
             />
 
-            <Check
+            <CheckCircle
               v-if="props.status.state === StatusStatesEnum.COMPLETED"
               class="size-3.5 text-emerald-500"
               stroke-width="3"
             />
 
-            <X
+            <XCircle
               v-else-if="props.status.state === StatusStatesEnum.FAILED"
               class="size-3.5 text-red-500"
               stroke-width="3"

@@ -31,7 +31,7 @@ const props = defineProps<{
       tone: 'light' | 'medium' | 'dark'
     } | null
     tags?: string[]
-    category?: {
+    column?: {
       id: string
       name?: string
     }
@@ -109,7 +109,7 @@ const entityColor = computed(() => {
 })
 
 const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
-const hasInfo = computed(() => props.entity.category || props.entity.board)
+const hasInfo = computed(() => props.entity.column || props.entity.board)
 const isEntityCompletable = computed(
   () => !!props.options?.isCompletable && !props.options?.isStatic,
 )
@@ -141,10 +141,10 @@ const isEntityCompletable = computed(
       >
         <div
           class="flex items-center gap-x-1 text-gray-500 max-w-full"
-          v-if="entity.category"
+          v-if="entity.column"
         >
           <Layers class="size-3 shrink-0" /><span class="text-xs truncate">{{
-            entity.category.name ?? 'Без категории'
+            entity.column.name ?? 'Без категории'
           }}</span>
         </div>
         <div
@@ -219,7 +219,7 @@ const isEntityCompletable = computed(
         <label
           class="flex items-center cursor-pointer relative transition-all"
           @click.stop
-          v-if="options?.hasCheckbox && selectedIds"
+          v-if="options?.hasCheckbox && selectedIds && false"
         >
           <input
             type="checkbox"

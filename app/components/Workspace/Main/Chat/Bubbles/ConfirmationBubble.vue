@@ -40,7 +40,7 @@ interface Changes {
   dueDate: DateModification
   dueTime: TimeModification
   tags: ArrayModification
-  categoryId: string
+  columnId: string
   boardId: string
   workspaceId: string
   isCompleted: boolean
@@ -143,7 +143,7 @@ function prepareChangesText(changes: Changes): { field: string; action: string }
     if (key === 'tags') {
       lines.push({ field: 'Теги', action: getTagsModificationText(value as ArrayModification) })
     }
-    if (key === 'categoryId') {
+    if (key === 'columnId') {
       lines.push({ field: 'Категория', action: value as string })
     }
     if (key === 'boardId') {

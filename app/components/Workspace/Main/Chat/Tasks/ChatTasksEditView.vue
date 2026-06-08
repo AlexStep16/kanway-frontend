@@ -6,7 +6,7 @@ import type { IParent } from '~/interfaces/IParent'
 import ChatTaskEdit from '../EntityEdit/ChatTaskEdit.vue'
 
 export type BeforeAfterTask = ISingleUpdate<ITask> & {
-  category: IParent
+  column: IParent
   board: IParent
   workspace: IParent
   name: string

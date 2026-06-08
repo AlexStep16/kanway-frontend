@@ -10,7 +10,7 @@ const boardStore = useBoardStore()
 
 const activeBoardId = computed(() => boardStore.activeBoardId)
 
-const { tasks, categories, isEmpty, isPending } = useBoardSearch(search, activeBoardId)
+const { tasks, columns, isEmpty, isPending } = useBoardSearch(search, activeBoardId)
 
 const connectExposed = (exposed: any) => {
   if (exposed?.inputRef) searchRef.value = exposed.inputRef
@@ -88,16 +88,14 @@ const focusOutsideHandler = (event: any) => {
                     :title="task.name"
                     >{{ task.name }}</span
                   >
-                  <span class="ms-auto text-xs text-muted-foreground">{{
-                    task.category.name
-                  }}</span>
+                  <span class="ms-auto text-xs text-muted-foreground">{{ task.column.name }}</span>
                 </Button>
               </div>
             </div>
 
             <div
               class="flex flex-col gap-y-2"
-              v-if="categories.length > 0"
+              v-if="columns.length > 0"
             >
               <span class="px-3 text-xs font-medium text-muted-foreground">Категории</span>
 
@@ -106,17 +104,15 @@ const focusOutsideHandler = (event: any) => {
                   variant="secondary"
                   class=""
                   size="sm"
-                  v-for="category in categories"
-                  :key="category.id"
+                  v-for="column in columns"
+                  :key="column.id"
                 >
                   <span
                     class="text-sm truncate"
-                    :title="category.name"
-                    >{{ category.name }}</span
+                    :title="column.name"
+                    >{{ column.name }}</span
                   >
-                  <span class="ms-auto text-xs text-muted-foreground">{{
-                    category.board.name
-                  }}</span>
+                  <span class="ms-auto text-xs text-muted-foreground">{{ column.board.name }}</span>
                 </Button>
               </div>
             </div>

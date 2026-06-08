@@ -56,7 +56,7 @@ export function useDeleteBoard() {
       await queryClient.invalidateQueries({
         queryKey: boardKeys.byWorkspace(variables.board.workspace.id),
       })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(variables.board.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(variables.board.id) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(variables.board.id) })
       queryClient.invalidateQueries({ queryKey: boardKeys.detailed(variables.board.id) })
 

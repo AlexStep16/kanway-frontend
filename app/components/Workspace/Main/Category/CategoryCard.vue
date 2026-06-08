@@ -1,36 +1,36 @@
 <script setup lang="ts">
 import EntityCard, { type EntityCardOptions } from '../EntityCard.vue'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
 
 const props = defineProps<{
-  category: ICategoryState
+  column: IColumnState
   options?: EntityCardOptions
   selectedIds?: string[]
   classes?: string
 }>()
 
 // --- Mutations ---
-const { mutate: archiveCategory } = useArchiveCategory()
-const { mutate: cloneCategory } = useCloneCategory()
+const { mutate: archiveColumn } = useArchiveColumn()
+const { mutate: cloneColumn } = useCloneColumn()
 
-const status = useCategoryMutationStatus(computed(() => props.category.id))
+const status = useColumnMutationStatus(computed(() => props.column.id))
 
 function handleCopy() {
   if (props.options?.isStatic) return
 
-  cloneCategory({ id: props.category.id })
+  cloneColumn({ id: props.column.id })
 }
 
 function handleArchive() {
   if (props.options?.isStatic) return
 
-  archiveCategory({ category: props.category })
+  archiveColumn({ column: props.column })
 }
 </script>
 
 <template>
   <EntityCard
-    :entity="category"
+    :entity="column"
     :options="options"
     :classes="classes"
     :status="status"

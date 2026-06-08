@@ -7,20 +7,20 @@ import { Archive } from 'lucide-vue-next'
 import ColumnsView from '../ColumnsView.vue'
 import TitleWithBadge from '../TitleWithBadge.vue'
 import TaskSkeleton from '../EntityCardSkeleton.vue'
-import CategoryCard from '../Category/CategoryCard.vue'
+import ColumnCard from '../Column/ColumnCard.vue'
 import BoardCard from '../Board/BoardCard.vue'
 import WorkspaceCard from '../../WorkspaceCard.vue'
 
 const { data: tasksData, isPending: isTasksLoading } = useArchivedTasks()
-const { data: categoriesData, isPending: isCategoriesLoading } = useArchivedCategories()
+const { data: columnsData, isPending: isColumnsLoading } = useArchivedColumns()
 const { data: boardsData, isPending: isBoardsLoading } = useArchivedBoards()
 const { data: workspacesData, isPending: isWorkspacesLoading } = useArchivedWorkspaces()
 
 const { mutate: recoverTask } = useRecoverTask()
 const { mutate: deleteTask } = useDeleteTask()
 
-const { mutate: recoverCategory } = useRecoverCategory()
-const { mutate: deleteCategory } = useDeleteCategory()
+const { mutate: recoverColumn } = useRecoverColumn()
+const { mutate: deleteColumn } = useDeleteColumn()
 
 const { mutate: recoverBoard } = useRecoverBoard()
 const { mutate: deleteBoard } = useDeleteBoard()
@@ -29,14 +29,14 @@ const { mutate: recoverWorkspace } = useRecoverWorkspace()
 const { mutate: deleteWorkspace } = useDeleteWorkspace()
 
 const tasksContainerRef = ref<HTMLElement | null>(null)
-const categoryContainerRef = ref<HTMLElement | null>(null)
+const columnContainerRef = ref<HTMLElement | null>(null)
 const boardContainerRef = ref<HTMLElement | null>(null)
 const workspaceContainerRef = ref<HTMLElement | null>(null)
 
 const isSomeLoading = computed(
   () =>
     isTasksLoading.value ||
-    isCategoriesLoading.value ||
+    isColumnsLoading.value ||
     isBoardsLoading.value ||
     isWorkspacesLoading.value,
 )
@@ -44,14 +44,14 @@ const isSomeLoading = computed(
 const isArchiveEmpty = computed(() => {
   return (
     tasks.value?.length === 0 &&
-    categories.value?.length === 0 &&
+    columns.value?.length === 0 &&
     boards.value?.length === 0 &&
     workspaces.value?.length === 0
   )
 })
 
 const tasks = computed(() => tasksData.value || [])
-const categories = computed(() => categoriesData.value || [])
+const columns = computed(() => columnsData.value || [])
 const boards = computed(() => boardsData.value || [])
 const workspaces = computed(() => workspacesData.value || [])
 </script>
@@ -159,27 +159,27 @@ const workspaces = computed(() => workspacesData.value || [])
 
         <div
           class="w-full flex flex-col gap-y-2"
-          ref="categoryContainerRef"
-          v-if="categories.length > 0 || isCategoriesLoading"
+          ref="columnContainerRef"
+          v-if="columns.length > 0 || isColumnsLoading"
         >
-          <template v-if="!isCategoriesLoading">
+          <template v-if="!isColumnsLoading">
             <TitleWithBadge
               title="Категории"
-              :number="categories.length"
+              :number="columns.length"
             >
               <div class="w-full h-[.5px] bg-gray-200"></div>
             </TitleWithBadge>
 
             <ColumnsView
-              :items="categories"
-              :containerRef="categoryContainerRef"
-              v-if="!isCategoriesLoading"
+              :items="columns"
+              :containerRef="columnContainerRef"
+              v-if="!isColumnsLoading"
             >
               <template v-slot:default="slotProps">
-                <CategoryCard
-                  v-for="category in slotProps.data"
-                  :key="category.id"
-                  :category="category"
+                <ColumnCard
+                  v-for="column in slotProps.data"
+                  :key="column.id"
+                  :column="column"
                   :options="{
                     hasBorder: true,
                     showInfo: true,
@@ -187,10 +187,10 @@ const workspaces = computed(() => workspacesData.value || [])
                   classes="self-start"
                 >
                   <RecoverButtons
-                    @recover="recoverCategory({ category })"
-                    @delete="deleteCategory({ category })"
+                    @recover="recoverColumn({ column })"
+                    @delete="deleteColumn({ column })"
                   />
-                </CategoryCard>
+                </ColumnCard>
               </template>
             </ColumnsView>
           </template>
@@ -198,8 +198,8 @@ const workspaces = computed(() => workspacesData.value || [])
           <template v-else>
             <TitleWithBadge
               title="Категории"
-              :number="categories.length"
-              :isLoading="isCategoriesLoading"
+              :number="columns.length"
+              :isLoading="isColumnsLoading"
             />
 
             <div class="flex gap-2">
@@ -209,7 +209,7 @@ const workspaces = computed(() => workspacesData.value || [])
               >
                 <TaskSkeleton
                   v-for="i in 3"
-                  :key="`category-skeleton-${i}`"
+                  :key="`column-skeleton-${i}`"
                 ></TaskSkeleton>
               </div>
               <div
@@ -218,7 +218,7 @@ const workspaces = computed(() => workspacesData.value || [])
               >
                 <TaskSkeleton
                   v-for="i in 2"
-                  :key="`category-skeleton-${i}`"
+                  :key="`column-skeleton-${i}`"
                 ></TaskSkeleton>
               </div>
             </div>

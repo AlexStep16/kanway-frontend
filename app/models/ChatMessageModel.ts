@@ -6,7 +6,7 @@ export default class ChatMessageModel implements IChatMessage {
   public role: IChatMessageRoles
   public content: any
   public tempId?: string
-  public listType?: 'workspace' | 'board' | 'category' | 'task'
+  public listType?: 'workspace' | 'board' | 'column' | 'task'
   public pendingToolCallId?: string
   public creditsUsed?: number
   public rating?: boolean

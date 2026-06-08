@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import type { IParent } from '~/interfaces/IParent'
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 import BoardChange from './Changes/BoardChange.vue'
 import WorkspaceChange from './Changes/WorkspaceChange.vue'
 import NameChange from './Changes/NameChange.vue'
 import SelectCheckbox from '../SelectCheckbox.vue'
 
 const props = defineProps<{
-  before: ISingleUpdate<ICategory> & {
+  before: ISingleUpdate<IColumn> & {
     board: IParent
     workspace: IParent
     name: string
   }
-  after: ISingleUpdate<ICategory> & {
+  after: ISingleUpdate<IColumn> & {
     board: IParent
     workspace: IParent
     name: string

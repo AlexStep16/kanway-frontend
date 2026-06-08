@@ -2,11 +2,11 @@
 import draggable from 'vuedraggable'
 import { Plus } from 'lucide-vue-next'
 
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
 
-import Category from '~/components/Workspace/Main/Category/Category.vue'
-import CategorySkeleton from '~/components/Workspace/Main/Category/CategorySkeleton.vue'
-import CreateCategoryForm from '~/components/Forms/CreateCategoryForm.vue'
+import Column from '~/components/Workspace/Main/Column/Column.vue'
+import ColumnSkeleton from '~/components/Workspace/Main/Column/ColumnSkeleton.vue'
+import CreateColumnForm from '~/components/Forms/CreateColumnForm.vue'
 import { SidebarTrigger } from '~/components/ui/sidebar'
 import { Separator } from '~/components/ui/separator'
 import TitleBoard from '../../Header/TitleBoard.vue'
@@ -19,20 +19,20 @@ const workspaceStore = useWorkspaceStore()
 const activeBoardId = computed(() => boardStore.activeBoardId)
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
 
-const { data: categories, isPending: areCategoriesLoading } = useCategories(activeBoardId)
+const { data: columns, isPending: areColumnsLoading } = useColumns(activeBoardId)
 const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
 
-const { mutate: moveCategory } = useMoveCategoryCard()
+const { mutate: moveColumn } = useMoveColumnCard()
 
-const localCategoryList = ref<ICategoryState[]>([])
-const isCategoryFormShown = ref(false)
+const localColumnList = ref<IColumnState[]>([])
+const isColumnFormShown = ref(false)
 
 watch(
-  () => categories.value,
+  () => columns.value,
   (newList) => {
     if (!newList) return
 
-    localCategoryList.value = [...newList].sort((a, b) => a.rank.localeCompare(b.rank))
+    localColumnList.value = [...newList].sort((a, b) => a.rank.localeCompare(b.rank))
   },
   { immediate: true },
 )
@@ -43,13 +43,13 @@ function draggableChange(event: any) {
   const movedTask = event.moved ? event.moved.element : event.added.element
   const newIndex = event.moved ? event.moved.newIndex : event.added.newIndex
 
-  const beforeCategory = localCategoryList.value[newIndex + 1]
-  const afterCategory = localCategoryList.value[newIndex - 1]
+  const beforeColumn = localColumnList.value[newIndex + 1]
+  const afterColumn = localColumnList.value[newIndex - 1]
 
-  const beforeId = beforeCategory ? beforeCategory.id : null
-  const afterId = afterCategory ? afterCategory.id : null
+  const beforeId = beforeColumn ? beforeColumn.id : null
+  const afterId = afterColumn ? afterColumn.id : null
 
-  moveCategory({
+  moveColumn({
     id: movedTask.id,
     beforeId,
     afterId,
@@ -78,11 +78,11 @@ function draggableChange(event: any) {
       <div class="size-full pt-4 pb-2 flex gap-3 overflow-y-hidden custom-scrollbar">
         <template v-if="!isBoardsLoading">
           <draggable
-            v-model="localCategoryList"
+            v-model="localColumnList"
             @change="draggableChange"
             itemKey="id"
             class="flex gap-x-3 h-full items-start"
-            group="categories"
+            group="columns"
             :animation="150"
             :delay="300"
             :delay-on-touch-only="true"
@@ -90,32 +90,31 @@ function draggableChange(event: any) {
             drag-class="drag-class"
             filter=".undraggable"
             :fallback-tolerance="2"
-            v-if="localCategoryList.length > 0 && !areCategoriesLoading"
+            v-if="localColumnList.length > 0 && !areColumnsLoading"
           >
             <template #item="{ element }">
-              <Category :category="element" />
+              <Column :column="element" />
             </template>
           </draggable>
 
-          <template v-else-if="areCategoriesLoading">
-            <CategorySkeleton
+          <template v-else-if="areColumnsLoading">
+            <ColumnSkeleton
               v-for="n in 3"
               :key="'skeleton' + n"
             />
           </template>
 
-          <CreateCategoryForm
-            v-if="isCategoryFormShown && activeBoardId && activeWorkspaceId"
-            @close="isCategoryFormShown = false"
+          <CreateColumnForm
+            v-if="isColumnFormShown && activeBoardId"
+            @close="isColumnFormShown = false"
             :boardId="activeBoardId"
-            :workspaceId="activeWorkspaceId"
           />
 
           <div class="h-full flex items-center pr-10">
             <button
               type="button"
               class="p-2 bg-gray-100 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200 transition-colors focus:outline-hidden"
-              @click="isCategoryFormShown = true"
+              @click="isColumnFormShown = true"
             >
               <Plus class="size-6" />
             </button>
@@ -123,7 +122,7 @@ function draggableChange(event: any) {
         </template>
 
         <template v-else>
-          <CategorySkeleton
+          <ColumnSkeleton
             v-for="n in 3"
             :key="'skeleton' + n"
           />

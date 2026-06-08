@@ -3,7 +3,7 @@ import type { ITaskState } from '~/stores/interfaces/ITaskState'
 import UserBubble from '~/components/Workspace/Main/Chat/Bubbles/UserBubble.vue'
 import AIBubble from '~/components/Workspace/Main/Chat/Bubbles/AIBubble.vue'
 import dayjs from 'dayjs'
-import CategoryChange from '~/components/Workspace/Main/Chat/EntityEdit/Changes/CategoryChange.vue'
+import ColumnChange from '~/components/Workspace/Main/Chat/EntityEdit/Changes/ColumnChange.vue'
 import MarkdownContent from '~/components/Workspace/Main/Chat/Bubbles/MarkdownContent.vue'
 import AIInput from '~/components/Workspace/Main/Chat/AIInput.vue'
 
@@ -48,7 +48,7 @@ const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start 
               <div class="flex flex-col gap-y-2 p-3 group/task relative">
                 <!-- Info -->
                 <div class="flex items-center flex-wrap gap-1">
-                  <CategoryChange
+                  <ColumnChange
                     :beforeСategory="{
                       id: 'cat-1',
                       name: 'Бэклог',
@@ -79,7 +79,7 @@ const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start 
               <div class="flex flex-col gap-y-2 p-3 group/task relative">
                 <!-- Info -->
                 <div class="flex items-center flex-wrap gap-1">
-                  <CategoryChange
+                  <ColumnChange
                     :beforeСategory="{
                       id: 'cat-1',
                       name: 'Бэклог',
@@ -108,7 +108,7 @@ const baseBlockAfterClasses = 'text-green-600 bg-green-200 py-1 px-2 self-start 
               <div class="flex flex-col gap-y-2 p-3 group/task relative">
                 <!-- Info -->
                 <div class="flex items-center flex-wrap gap-1">
-                  <CategoryChange
+                  <ColumnChange
                     :beforeСategory="{
                       id: 'cat-1',
                       name: 'Бэклог',

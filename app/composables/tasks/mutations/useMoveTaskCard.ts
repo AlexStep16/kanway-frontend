@@ -6,7 +6,7 @@ export interface MoveTaskCardVars {
   id: string
   beforeId?: string | null
   afterId?: string | null
-  newCategoryId?: string
+  newColumnId?: string
   boardId: MaybeRef<string | null>
 }
 
@@ -18,8 +18,8 @@ export function useMoveTaskCard() {
     meta: {
       keysToInvalidate: [workspaceKeys.lists()],
     },
-    mutationFn: async ({ id, beforeId, afterId, newCategoryId }: MoveTaskCardVars) =>
-      moveTask({ id, beforeId, afterId, newCategoryId }),
+    mutationFn: async ({ id, beforeId, afterId, newColumnId }: MoveTaskCardVars) =>
+      moveTask({ id, beforeId, afterId, newColumnId }),
 
     onMutate: async (vars) => {
       const queryKey = taskKeys.byBoard(vars.boardId)
@@ -33,7 +33,7 @@ export function useMoveTaskCard() {
 
         oldTasks.map((task) => {
           if (task.id === vars.id) {
-            return { ...task, category: vars.newCategoryId ?? task.category }
+            return { ...task, column: vars.newColumnId ?? task.column }
           }
           return task
         })

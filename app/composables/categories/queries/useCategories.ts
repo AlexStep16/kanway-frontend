@@ -1,13 +1,10 @@
 import { useQuery } from '@tanstack/vue-query'
-import { fetchCategories } from '~/services/category'
+import { fetchColumns } from '~/services/column'
 
-export function useCategories(
-  boardId: MaybeRef<string | null>,
-  isEnabled: MaybeRef<boolean> = true,
-) {
+export function useColumns(boardId: MaybeRef<string | null>, isEnabled: MaybeRef<boolean> = true) {
   return useQuery({
-    queryKey: categoryKeys.byBoard(boardId),
-    queryFn: () => fetchCategories(toValue(boardId)!),
+    queryKey: columnKeys.byBoard(boardId),
+    queryFn: () => fetchColumns(toValue(boardId)!),
     enabled: computed(() => !!toValue(boardId) && toValue(isEnabled)),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 60 * 5,

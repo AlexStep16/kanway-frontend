@@ -1,28 +1,28 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import type { ICategory } from '~/interfaces/domain/ICategory'
-import { createCategory } from '~/services/category'
-import type { ICategoryCreateApiPayload } from '~/interfaces/ICategoryCreateApiPayload'
+import type { IColumn } from '~/interfaces/domain/IColumn'
+import { createColumn } from '~/services/column'
+import type { IColumnCreateApiPayload } from '~/interfaces/IColumnCreateApiPayload'
 
-interface CreateCategoryVars {
-  payload: ICategoryCreateApiPayload
+interface CreateColumnVars {
+  payload: IColumnCreateApiPayload
 }
 
-export function useCreateCategory() {
+export function useCreateColumn() {
   const { mutate: undo } = useUndo()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'create'],
-    mutationFn: async ({ payload }: CreateCategoryVars) => createCategory(payload),
+    mutationKey: [...columnKeys.all, 'create'],
+    mutationFn: async ({ payload }: CreateColumnVars) => createColumn(payload),
 
     onSuccess: async (result, { payload }) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(payload.boardId) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(payload.boardId) })
 
       queryClient.setQueryData(
-        categoryKeys.byBoard(payload.boardId),
-        (oldCategories: ICategory[] | undefined) => {
-          return oldCategories ? [...oldCategories, ...result.data] : result.data
+        columnKeys.byBoard(payload.boardId),
+        (oldColumns: IColumn[] | undefined) => {
+          return oldColumns ? [...oldColumns, ...result.data] : result.data
         },
       )
 

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  categoryId: string
+  columnId: string
   boardId: string
-  workspaceId: string
 }>()
 
 const emit = defineEmits<{
@@ -23,10 +22,9 @@ function create() {
     {
       payload: {
         name: name.value.trim(),
-        categoryId: props.categoryId,
-        boardId: props.boardId,
-        workspaceId: props.workspaceId,
+        columnId: props.columnId,
       },
+      boardId: props.boardId,
     },
     {
       onSuccess: () => {

@@ -4,7 +4,7 @@ export interface IChatMessage {
   id: string
   role: IChatMessageRoles
   content: any
-  listType?: 'workspace' | 'board' | 'category' | 'task'
+  listType?: 'workspace' | 'board' | 'column' | 'task'
   pendingToolCallId?: string
   creditsUsed?: number
   rating?: boolean

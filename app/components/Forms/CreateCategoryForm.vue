@@ -1,14 +1,13 @@
 <script setup lang="ts">
 const props = defineProps<{
   boardId: string
-  workspaceId: string
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const { mutate: createCategory, isPending: isCategoryAdding } = useCreateCategory()
+const { mutate: createColumn, isPending: isColumnAdding } = useCreateColumn()
 
 const name = ref('')
 const nameInputRef = ref<HTMLInputElement | null>(null)
@@ -18,12 +17,11 @@ function create() {
     return emit('close')
   }
 
-  createCategory(
+  createColumn(
     {
       payload: {
         name: name.value.trim(),
         boardId: props.boardId,
-        workspaceId: props.workspaceId,
       },
     },
     {
@@ -49,14 +47,14 @@ onMounted(() => {
 
 <template>
   <div
-    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-70 sm:w-75 group/category select-none undraggable"
+    class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 px-4 rounded-md h-full w-70 sm:w-75 group/column select-none undraggable"
   >
     <!-- Header -->
     <div class="flex w-full justify-between items-center">
       <div
         class="flex gap-x-2 items-center h-8 min-w-0 text-sm text-gray-800 cursor-pointer transition-colors duration-100 group"
       >
-        <template v-if="isCategoryAdding">
+        <template v-if="isColumnAdding">
           <div class="flex items-center justify-center">
             <Spinner class="size-3.5 text-gray-600" />
           </div>
@@ -74,7 +72,7 @@ onMounted(() => {
             @blur="create"
             @keydown.enter="(event: any) => event.target?.blur()"
             @keydown.esc="$emit('close')"
-            :disabled="isCategoryAdding"
+            :disabled="isColumnAdding"
             ref="nameInputRef"
             placeholder="Название категории"
           />

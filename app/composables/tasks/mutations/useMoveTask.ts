@@ -7,12 +7,9 @@ import { toast } from 'vue-sonner'
 export interface MoveTaskVars {
   payload: ISingleUpdate<ITask>
 
-  oldCategoryId: string
-  newCategoryId: string
+  newColumnId: string
   oldBoardId: string
   newBoardId: string
-  oldWorkspaceId: string
-  newWorkspaceId: string
 }
 
 export function useMoveTask() {
@@ -21,13 +18,11 @@ export function useMoveTask() {
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'move'],
-    mutationFn: ({ payload, newCategoryId, newBoardId, newWorkspaceId }: MoveTaskVars) =>
+    mutationFn: ({ payload, newColumnId }: MoveTaskVars) =>
       requestQueueService.enqueue(payload.id, () =>
         saveTask({
           id: payload.id,
-          categoryId: newCategoryId,
-          boardId: newBoardId,
-          workspaceId: newWorkspaceId,
+          columnId: newColumnId,
         }),
       ),
     onSuccess: async (result, { oldBoardId, newBoardId, payload }) => {

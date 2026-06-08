@@ -6,14 +6,14 @@ export default {
   },
   safelist: [
     'group-hover/task:opacity-100',
-    'group-hover/category:opacity-100',
+    'group-hover/column:opacity-100',
     'group-hover/sidebar-item:opacity-100',
     {
-      pattern: /group-hover\/(task|category|sidebar-item):opacity-100/,
+      pattern: /group-hover\/(task|column|sidebar-item):opacity-100/,
       variants: [],
     },
     {
-      pattern: /group\/(task|category|sidebar-item)/,
+      pattern: /group\/(task|column|sidebar-item)/,
       variants: [],
     },
   ],

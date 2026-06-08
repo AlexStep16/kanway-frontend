@@ -5,7 +5,7 @@ export default class SettingModel implements ISetting {
   public id: string
   public aiName: string
   public aiConfirmationType: AiConfirmationTypeEnum
-  public aiDefaultCategory: string
+  public aiDefaultColumn: string
   public aiDefaultBoard: string
   public userId: string
   public createdAt: Date
@@ -15,7 +15,7 @@ export default class SettingModel implements ISetting {
     this.id = props.id
     this.aiName = props.aiName
     this.aiConfirmationType = props.aiConfirmationType
-    this.aiDefaultCategory = props.aiDefaultCategory
+    this.aiDefaultColumn = props.aiDefaultColumn
     this.aiDefaultBoard = props.aiDefaultBoard
     this.userId = props.userId
     this.createdAt = props.createdAt

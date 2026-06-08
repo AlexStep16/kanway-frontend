@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import ChatEntityWrapper from '../ChatEntityWrapper.vue'
 import EntityCardSkeleton from '../../EntityCardSkeleton.vue'
-import type { ICategory } from '~/interfaces/domain/ICategory'
-import CategoryCard from '../../Category/CategoryCard.vue'
+import type { IColumn } from '~/interfaces/domain/IColumn'
+import ColumnCard from '../../Column/ColumnCard.vue'
 
 const props = defineProps<{
-  category: ICategory
+  column: IColumn
   hasCheckbox?: boolean
 }>()
 
@@ -14,20 +14,20 @@ const selectedIds = defineModel('selectedIds', {
   default: () => [],
 })
 
-const { data, isPending } = useCategory(props.category.id, props.category.board?.id)
+const { data, isPending } = useColumn(props.column.id, props.column.board?.id)
 </script>
 
 <template>
   <ChatEntityWrapper
     :data="data"
     :is-pending="isPending"
-    :entity-id="category.id"
+    :entity-id="column.id"
     :has-checkbox="hasCheckbox"
     v-model:selected-ids="selectedIds"
   >
     <template #default="{ entity, hasCheckbox, selectedIds, toggleSelect }">
-      <CategoryCard
-        :category="entity"
+      <ColumnCard
+        :column="entity"
         :options="{
           hasBorder: true,
           hasCheckbox: hasCheckbox,

@@ -74,7 +74,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       )
     } else if (event.role === CustomEventsEnum.OPERATION) {
       $queryClient.invalidateQueries({ queryKey: taskKeys.all })
-      $queryClient.invalidateQueries({ queryKey: categoryKeys.all })
+      $queryClient.invalidateQueries({ queryKey: columnKeys.all })
       $queryClient.invalidateQueries({ queryKey: boardKeys.all })
       $queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
 

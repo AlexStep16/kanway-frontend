@@ -10,12 +10,12 @@ const props = defineProps<{
   baseBlockAfterClasses?: string
 }>()
 
-const isBeforeCategoryExists = computed(() => {
+const isBeforeColumnExists = computed(() => {
   return typeof props.beforeСategory !== 'string'
 })
 
-const hasCategoryChange = computed(() => {
-  if (!isBeforeCategoryExists.value) {
+const hasColumnChange = computed(() => {
+  if (!isBeforeColumnExists.value) {
     return true
   } else {
     return (props.beforeСategory as IParent).id !== (props.afterСategory as IParent).id
@@ -24,20 +24,39 @@ const hasCategoryChange = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-x-1" v-if="hasCategoryChange">
-    <div class="flex items-center gap-x-1" :class="baseBlockBeforeClasses" v-if="beforeСategory">
+  <div
+    class="flex items-center gap-x-1"
+    v-if="hasColumnChange"
+  >
+    <div
+      class="flex items-center gap-x-1"
+      :class="baseBlockBeforeClasses"
+      v-if="beforeСategory"
+    >
       <Layers class="size-3 shrink-0" />
-      <span class="text-xs" v-if="isBeforeCategoryExists">{{
-        (beforeСategory as IParent).name
-      }}</span>
-      <span class="text-xs" v-else>Удалено</span>
+      <span
+        class="text-xs"
+        v-if="isBeforeColumnExists"
+        >{{ (beforeСategory as IParent).name }}</span
+      >
+      <span
+        class="text-xs"
+        v-else
+        >Удалено</span
+      >
     </div>
-    <div class="flex items-center gap-x-1" :class="baseBlockAfterClasses">
+    <div
+      class="flex items-center gap-x-1"
+      :class="baseBlockAfterClasses"
+    >
       <Layers class="size-3 shrink-0" />
       <span class="text-xs">{{ afterСategory.name }}</span>
     </div>
   </div>
-  <div class="flex items-center gap-x-1 text-gray-500" v-else-if="beforeСategory">
+  <div
+    class="flex items-center gap-x-1 text-gray-500"
+    v-else-if="beforeСategory"
+  >
     <Layers class="size-3 shrink-0" />
     <span class="text-xs">{{ (beforeСategory as IParent).name }}</span>
   </div>

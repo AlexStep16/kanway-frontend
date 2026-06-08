@@ -13,12 +13,12 @@ export type StatusToolContentMap = {
   recover_tasks: IRecoverEntitiesContent
   move_tasks: IMoveEntitiesContent
 
-  search_categories: ISearchEntitiesContent
-  update_categories: IUpdateEntitiesContent
-  delete_archive_categories: IDeleteArchiveEntitiesContent
-  clone_categories: ICloneEntitiesContent
-  recover_categories: IRecoverEntitiesContent
-  move_categories: IMoveEntitiesContent
+  search_columns: ISearchEntitiesContent
+  update_columns: IUpdateEntitiesContent
+  delete_archive_columns: IDeleteArchiveEntitiesContent
+  clone_columns: ICloneEntitiesContent
+  recover_columns: IRecoverEntitiesContent
+  move_columns: IMoveEntitiesContent
 }
 
 export type StatusToolName = keyof StatusToolContentMap

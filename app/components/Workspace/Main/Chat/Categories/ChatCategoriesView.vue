@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import ChatCategory from '~/components/Workspace/Main/Chat/Categories/ChatCategory.vue'
-import ChatCategoryTemp from '~/components/Workspace/Main/Chat/Categories/ChatCategoryTemp.vue'
+import ChatColumn from '~/components/Workspace/Main/Chat/Columns/ChatColumn.vue'
+import ChatColumnTemp from '~/components/Workspace/Main/Chat/Columns/ChatColumnTemp.vue'
 import ColumnsView from '~/components/Workspace/Main/ColumnsView.vue'
-import type { ICategory } from '~/interfaces/domain/ICategory'
+import type { IColumn } from '~/interfaces/domain/IColumn'
 
 const props = defineProps<{
-  items: ICategory[]
+  items: IColumn[]
   isSelectable?: boolean
   isTemporary?: boolean
   minSelect?: number
@@ -20,18 +20,18 @@ const selectedIds = defineModel('selectedIds', {
 
 const messagesContainerRef = ref<HTMLElement | null>(null)
 
-const selectedCategoriesCount = computed(() => {
+const selectedColumnsCount = computed(() => {
   return selectedIds.value.length
 })
 
-function hasCheckbox(category: ICategory) {
+function hasCheckbox(column: IColumn) {
   if (!props.isSelectable) return false
   if ((props.minSelect ?? 0) > 0 || (props.maxSelect ?? 0) > 0) {
-    if ((props.minSelect ?? 0) > 0 && selectedCategoriesCount.value < (props.minSelect ?? 0)) {
+    if ((props.minSelect ?? 0) > 0 && selectedColumnsCount.value < (props.minSelect ?? 0)) {
       return true
     }
-    if ((props.maxSelect ?? 0) > 0 && selectedCategoriesCount.value >= (props.maxSelect ?? 0)) {
-      return selectedIds.value.includes(category.id)
+    if ((props.maxSelect ?? 0) > 0 && selectedColumnsCount.value >= (props.maxSelect ?? 0)) {
+      return selectedIds.value.includes(column.id)
     }
     return true
   }
@@ -51,20 +51,20 @@ function hasCheckbox(category: ICategory) {
     >
       <template v-slot:default="slotProps">
         <template v-if="!isTemporary">
-          <ChatCategory
-            v-for="category in slotProps.data"
-            :key="category.id"
-            :category="category"
-            :hasCheckbox="hasCheckbox(category)"
+          <ChatColumn
+            v-for="column in slotProps.data"
+            :key="column.id"
+            :column="column"
+            :hasCheckbox="hasCheckbox(column)"
             v-model:selectedIds="selectedIds"
           />
         </template>
         <template v-else>
-          <ChatCategoryTemp
-            v-for="category in slotProps.data"
-            :key="category.id"
-            :category="category"
-            :hasCheckbox="hasCheckbox(category)"
+          <ChatColumnTemp
+            v-for="column in slotProps.data"
+            :key="column.id"
+            :column="column"
+            :hasCheckbox="hasCheckbox(column)"
             v-model:selectedIds="selectedIds"
           />
         </template>

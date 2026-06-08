@@ -1,58 +1,58 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import type { ICategoryState } from '~/stores/interfaces/ICategoryState'
-import { removeCategory } from '~/services/category'
+import type { IColumnState } from '~/stores/interfaces/IColumnState'
+import { removeColumn } from '~/services/column'
 
-interface DeleteCategoryVars {
-  category: ICategoryState
+interface DeleteColumnVars {
+  column: IColumnState
 }
 
-export function useDeleteCategory() {
+export function useDeleteColumn() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'delete'],
+    mutationKey: [...columnKeys.all, 'delete'],
     meta: {
-      keysToInvalidate: [categoryKeys.archived()],
+      keysToInvalidate: [columnKeys.archived()],
     },
-    mutationFn: ({ category }: DeleteCategoryVars) =>
-      requestQueueService.enqueue(category.id, () => removeCategory(category.id)),
-    onMutate: async ({ category }) => {
-      const categoryKey = categoryKeys.byBoard(category.board.id)
+    mutationFn: ({ column }: DeleteColumnVars) =>
+      requestQueueService.enqueue(column.id, () => removeColumn(column.id)),
+    onMutate: async ({ column }) => {
+      const columnKey = columnKeys.byBoard(column.board.id)
 
-      await queryClient.cancelQueries({ queryKey: categoryKey })
+      await queryClient.cancelQueries({ queryKey: columnKey })
 
-      const previousCategories = queryClient.getQueryData<ICategoryState[]>(categoryKey)
+      const previousColumns = queryClient.getQueryData<IColumnState[]>(columnKey)
 
-      if (previousCategories) {
-        queryClient.setQueryData<ICategoryState[]>(categoryKey, (oldCategories) =>
-          oldCategories ? oldCategories.filter((c) => c.id !== category.id) : [],
+      if (previousColumns) {
+        queryClient.setQueryData<IColumnState[]>(columnKey, (oldColumns) =>
+          oldColumns ? oldColumns.filter((c) => c.id !== column.id) : [],
         )
       }
 
-      return { previousCategories, categoryKey }
+      return { previousColumns, columnKey }
     },
 
     onError: (err, vars, context) => {
-      if (context?.previousCategories) {
-        const categoryToRestore = context.previousCategories.find((c) => c.id === vars.category.id)
+      if (context?.previousColumns) {
+        const columnToRestore = context.previousColumns.find((c) => c.id === vars.column.id)
 
-        if (categoryToRestore) {
-          queryClient.setQueryData<ICategoryState[]>(context.categoryKey, (current) => {
-            if (current?.some((c) => c.id === vars.category.id)) return current
+        if (columnToRestore) {
+          queryClient.setQueryData<IColumnState[]>(context.columnKey, (current) => {
+            if (current?.some((c) => c.id === vars.column.id)) return current
 
-            return [categoryToRestore, ...(current || [])]
+            return [columnToRestore, ...(current || [])]
           })
         }
       }
     },
 
-    onSettled: (data, error, { category }) => {
+    onSettled: (data, error, { column }) => {
       queryClient.invalidateQueries({
-        queryKey: categoryKeys.byBoard(category.board.id),
+        queryKey: columnKeys.byBoard(column.board.id),
       })
-      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(category.board.id) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(category.id) })
+      queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(column.board.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.detailed(column.id) })
     },
 
     onSuccess: () => {

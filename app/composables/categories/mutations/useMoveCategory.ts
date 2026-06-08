@@ -1,31 +1,31 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import { toast } from 'vue-sonner'
-import type { ICategory } from '~/interfaces/domain/ICategory'
-import { saveCategory } from '~/services/category'
+import type { IColumn } from '~/interfaces/domain/IColumn'
+import { saveColumn } from '~/services/column'
 
-interface MoveCategoryVars {
-  payload: ISingleUpdate<ICategory>
+interface MoveColumnVars {
+  payload: ISingleUpdate<IColumn>
   oldBoardId: string
   newBoardId: string
 }
 
-export function useMoveCategory() {
+export function useMoveColumn() {
   const queryClient = useQueryClient()
   const { mutate: undo } = useUndo()
 
   return useMutation({
-    mutationKey: [...categoryKeys.all, 'move'],
-    mutationFn: ({ payload }: MoveCategoryVars) =>
-      requestQueueService.enqueue(payload.id, () => saveCategory(payload)),
+    mutationKey: [...columnKeys.all, 'move'],
+    mutationFn: ({ payload }: MoveColumnVars) =>
+      requestQueueService.enqueue(payload.id, () => saveColumn(payload)),
     onSuccess: async (result, { oldBoardId, newBoardId, payload }) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(oldBoardId) })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.byBoard(newBoardId) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(oldBoardId) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(newBoardId) })
 
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(oldBoardId) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(newBoardId) })
 
-      queryClient.invalidateQueries({ queryKey: categoryKeys.detailed(payload.id) })
+      queryClient.invalidateQueries({ queryKey: columnKeys.detailed(payload.id) })
 
       toast.success('Категория успешно перемещена', {
         action: {

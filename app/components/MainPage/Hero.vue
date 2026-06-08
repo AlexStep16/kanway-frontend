@@ -15,7 +15,7 @@ const tasks: ITaskState[] = [
     dueDate: dayjs().format('YYYY-MM-DD'),
     dueHours: 18,
     dueMinutes: 0,
-    category: {
+    column: {
       id: '21312',
       name: 'Спорт',
     },
@@ -39,7 +39,7 @@ const tasks: ITaskState[] = [
   {
     id: '1',
     name: 'Купить продукты',
-    category: {
+    column: {
       id: '21312',
       name: 'Покупки',
     },
@@ -63,7 +63,7 @@ const tasks: ITaskState[] = [
   {
     id: '1',
     name: 'Подготовить презентацию',
-    category: {
+    column: {
       id: '21312',
       name: 'Презентация',
     },

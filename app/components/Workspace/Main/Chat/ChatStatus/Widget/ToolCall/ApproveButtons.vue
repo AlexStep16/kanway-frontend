@@ -48,7 +48,7 @@ function reject() {
 </script>
 
 <template>
-  <div class="flex items-center gap-x-2 mt-2">
+  <div class="flex items-center gap-x-2">
     <Button
       variant="outlinePrimary"
       size="xs"

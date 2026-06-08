@@ -1,7 +1,7 @@
 import type { ITextValue } from './ITextValue'
 
 export interface IDeleteArchiveEntitiesContent {
-  ids: string[]
+  count: number
   isSoftDelete?: boolean
   filters: ITextValue[]
   logId?: string

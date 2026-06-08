@@ -4,7 +4,7 @@ export interface ISetting {
   id: string
   aiName: string
   aiConfirmationType: AiConfirmationTypeEnum
-  aiDefaultCategory: string
+  aiDefaultColumn: string
   aiDefaultBoard: string
   userId: string
   createdAt: Date

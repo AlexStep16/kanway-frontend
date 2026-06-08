@@ -1,30 +1,41 @@
 <script setup lang="ts">
 import type { StatusTools } from '~/types/StatusTools'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import SearchTasks from './ToolCall/Tasks/SearchTasks.vue'
-import SearchCategories from './ToolCall/Categories/SearchCategories.vue'
-import UpdateTasks from './ToolCall/Tasks/UpdateTasks.vue'
-import UpdateCategories from './ToolCall/Categories/UpdateCategories.vue'
-import DeleteArchiveTasks from './ToolCall/Tasks/DeleteArchiveTasks.vue'
-import DeleteArchiveCategories from './ToolCall/Categories/DeleteArchiveCategories.vue'
-import CloneTasks from './ToolCall/Tasks/CloneTasks.vue'
-import CloneCategories from './ToolCall/Categories/CloneCategories.vue'
-import RecoverTasks from './ToolCall/Tasks/RecoverTasks.vue'
-import RecoverCategories from './ToolCall/Categories/RecoverCategories.vue'
-import MoveTasks from './ToolCall/Tasks/MoveTasks.vue'
-import MoveCategories from './ToolCall/Categories/MoveCategories.vue'
 
+import SearchTasks from './ToolCall/Tasks/SearchTasks.vue'
+import SearchColumns from './ToolCall/Columns/SearchColumns.vue'
 import SearchBoards from './ToolCall/Boards/SearchBoards.vue'
-import UpdateBoards from './ToolCall/Boards/UpdateBoards.vue'
-import DeleteArchiveBoards from './ToolCall/Boards/DeleteArchiveBoards.vue'
-import CloneBoards from './ToolCall/Boards/CloneBoards.vue'
-import RecoverBoards from './ToolCall/Boards/RecoverBoards.vue'
-import MoveBoards from './ToolCall/Boards/MoveBoards.vue'
 import SearchWorkspaces from './ToolCall/Workspaces/SearchWorkspaces.vue'
+
+import CreateTasks from './ToolCall/Tasks/CreateTasks.vue'
+import CreateColumns from './ToolCall/Columns/CreateColumns.vue'
+import CreateBoards from './ToolCall/Boards/CreateBoards.vue'
+import CreateWorkspaces from './ToolCall/Workspaces/CreateWorkspaces.vue'
+
+import UpdateTasks from './ToolCall/Tasks/UpdateTasks.vue'
+import UpdateColumns from './ToolCall/Columns/UpdateColumns.vue'
+import UpdateBoards from './ToolCall/Boards/UpdateBoards.vue'
 import UpdateWorkspaces from './ToolCall/Workspaces/UpdateWorkspaces.vue'
+
+import DeleteArchiveTasks from './ToolCall/Tasks/DeleteArchiveTasks.vue'
+import DeleteArchiveColumns from './ToolCall/Columns/DeleteArchiveColumns.vue'
+import DeleteArchiveBoards from './ToolCall/Boards/DeleteArchiveBoards.vue'
 import DeleteArchiveWorkspaces from './ToolCall/Workspaces/DeleteArchiveWorkspaces.vue'
+
+import CloneTasks from './ToolCall/Tasks/CloneTasks.vue'
+import CloneColumns from './ToolCall/Columns/CloneColumns.vue'
+import CloneBoards from './ToolCall/Boards/CloneBoards.vue'
 import CloneWorkspaces from './ToolCall/Workspaces/CloneWorkspaces.vue'
+
+import RecoverTasks from './ToolCall/Tasks/RecoverTasks.vue'
+import RecoverColumns from './ToolCall/Columns/RecoverColumns.vue'
+import RecoverBoards from './ToolCall/Boards/RecoverBoards.vue'
 import RecoverWorkspaces from './ToolCall/Workspaces/RecoverWorkspaces.vue'
+
+import MoveTasks from './ToolCall/Tasks/MoveTasks.vue'
+import MoveColumns from './ToolCall/Columns/MoveColumns.vue'
+import MoveBoards from './ToolCall/Boards/MoveBoards.vue'
+
 import UndoOperations from './ToolCall/UndoOperations.vue'
 
 const props = defineProps<{
@@ -47,32 +58,37 @@ const stateClasses = computed(() => {
 
 const toolComponents = {
   search_tasks: SearchTasks,
-  search_categories: SearchCategories,
+  search_columns: SearchColumns,
   search_boards: SearchBoards,
   search_workspaces: SearchWorkspaces,
 
+  create_tasks: CreateTasks,
+  create_columns: CreateColumns,
+  create_boards: CreateBoards,
+  create_workspaces: CreateWorkspaces,
+
   update_tasks: UpdateTasks,
-  update_categories: UpdateCategories,
+  update_columns: UpdateColumns,
   update_boards: UpdateBoards,
   update_workspaces: UpdateWorkspaces,
 
   delete_archive_tasks: DeleteArchiveTasks,
-  delete_archive_categories: DeleteArchiveCategories,
+  delete_archive_columns: DeleteArchiveColumns,
   delete_archive_boards: DeleteArchiveBoards,
   delete_archive_workspaces: DeleteArchiveWorkspaces,
 
   clone_tasks: CloneTasks,
-  clone_categories: CloneCategories,
+  clone_columns: CloneColumns,
   clone_boards: CloneBoards,
   clone_workspaces: CloneWorkspaces,
 
   recover_tasks: RecoverTasks,
-  recover_categories: RecoverCategories,
+  recover_columns: RecoverColumns,
   recover_boards: RecoverBoards,
   recover_workspaces: RecoverWorkspaces,
 
   move_tasks: MoveTasks,
-  move_categories: MoveCategories,
+  move_columns: MoveColumns,
   move_boards: MoveBoards,
 
   undo_operations: UndoOperations,
@@ -83,24 +99,28 @@ const activeToolComponent = computed(() => {
 })
 
 const mutationTools = new Set([
+  'create_tasks',
+  'create_columns',
+  'create_boards',
+  'create_workspaces',
   'update_tasks',
-  'update_categories',
+  'update_columns',
   'update_boards',
   'update_workspaces',
   'delete_archive_tasks',
-  'delete_archive_categories',
+  'delete_archive_columns',
   'delete_archive_boards',
   'delete_archive_workspaces',
   'clone_tasks',
-  'clone_categories',
+  'clone_columns',
   'clone_boards',
   'clone_workspaces',
   'recover_tasks',
-  'recover_categories',
+  'recover_columns',
   'recover_boards',
   'recover_workspaces',
   'move_tasks',
-  'move_categories',
+  'move_columns',
   'move_boards',
 
   'undo_operations',

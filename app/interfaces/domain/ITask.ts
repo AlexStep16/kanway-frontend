@@ -6,7 +6,7 @@ export interface ITask {
   name: string
   workspace: IParent
   board: IParent
-  category: IParent
+  column: IParent
   isDeleted: boolean
   isDeletedExternal: boolean
   rank: string
