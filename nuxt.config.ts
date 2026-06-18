@@ -21,10 +21,12 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    '/': { ssr: false },
+    '/': { ssr: false, prerender: true },
     '/workspace/**': { ssr: false },
     '/auth/**': { ssr: false },
     '/privacy': { ssr: false },
+    '/terms': { ssr: false },
+    '/cookies': { ssr: false },
   },
   svgo: {
     dts: true,

@@ -12,6 +12,9 @@ export function useUpdatePassword() {
 
   return useMutation({
     mutationKey: ['user'],
+    meta: {
+      errorMessage: false,
+    },
     mutationFn: (data: UpdatePasswordVars) => updatePassword(data),
     onSuccess: () => {
       toast.success('Пароль успешно обновлен')

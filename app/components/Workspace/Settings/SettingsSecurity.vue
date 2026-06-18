@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import DeleteUserModal from '~/components/Modals/DeleteUserModal.vue'
+import ShowPasswordButton from '~/components/Auth/ShowPasswordButton.vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useForm } from 'vee-validate'
 
-const passwordInputRef = ref<HTMLInputElement | null>(null)
+const isPasswordDirty = ref(false)
+const passwordRef = ref<HTMLInputElement | null>(null)
+const currentPasswordRef = ref<HTMLInputElement | null>(null)
 const deleteModalRef = ref<HTMLElement | null>(null)
 
 const uiStore = useUIStore()
@@ -28,12 +31,18 @@ const [currentPassword, currentPasswordAttrs] = defineField('currentPassword')
 const [password, passwordAttrs] = defineField('password')
 
 // --- Mutations ---
-const { mutate: updateUserPassword, isPending: isPasswordUpdating } = useUpdatePassword()
+const {
+  mutate: updateUserPassword,
+  isPending: isPasswordUpdating,
+  error: updatePasswordError,
+} = useUpdatePassword()
 
 const { mutate: deleteAccount, isPending: isUserDeleting } = useDeleteUser()
 
 const handleSavePassword = handleSubmit((values) => {
   if (isSavePasswordDisabled.value) return
+
+  isPasswordDirty.value = false
 
   updateUserPassword(
     { password: values.password, currentPassword: values.currentPassword },
@@ -41,10 +50,14 @@ const handleSavePassword = handleSubmit((values) => {
       onSuccess: () => {
         currentPassword.value = ''
         password.value = ''
+        isPasswordDirty.value = false
+        isPasswordVisible.value = false
 
-        if (passwordInputRef.value) {
-          passwordInputRef.value.dispatchEvent(new Event('input'))
+        if (passwordRef.value) {
+          passwordRef.value.type = 'password'
+          passwordRef.value.dispatchEvent(new Event('input'))
         }
+
         resetForm()
       },
     },
@@ -67,6 +80,33 @@ const checklist = computed(() => {
     isMet: req.check(password.value || ''),
   }))
 })
+
+const isPasswordVisible = ref(false)
+const isCurrentPasswordVisible = ref(false)
+
+function handleToggleCurrentPasswordVisibility() {
+  if (!currentPasswordRef.value) return
+
+  if (currentPasswordRef.value.type === 'password') {
+    currentPasswordRef.value.type = 'text'
+    isCurrentPasswordVisible.value = true
+  } else {
+    currentPasswordRef.value.type = 'password'
+    isCurrentPasswordVisible.value = false
+  }
+}
+
+function handleTogglePasswordVisibility() {
+  if (!passwordRef.value) return
+
+  if (passwordRef.value.type === 'password') {
+    passwordRef.value.type = 'text'
+    isPasswordVisible.value = true
+  } else {
+    passwordRef.value.type = 'password'
+    isPasswordVisible.value = false
+  }
+}
 </script>
 
 <template>
@@ -83,6 +123,7 @@ const checklist = computed(() => {
             <div class="relative">
               <input
                 type="password"
+                ref="currentPasswordRef"
                 id="settings-old-password"
                 class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 :class="{ 'ring-1 ring-red-500': errors?.currentPassword && submitCount > 0 }"
@@ -90,55 +131,10 @@ const checklist = computed(() => {
                 v-model="currentPassword"
                 v-bind="currentPasswordAttrs"
               />
-              <button
-                type="button"
-                data-hs-toggle-password='{
-                  "target": "#settings-old-password"
-                }'
-                class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
-              >
-                <svg
-                  class="shrink-0 size-4"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    class="hs-password-active:hidden"
-                    d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
-                  ></path>
-                  <path
-                    class="hs-password-active:hidden"
-                    d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-                  ></path>
-                  <path
-                    class="hs-password-active:hidden"
-                    d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
-                  ></path>
-                  <line
-                    class="hs-password-active:hidden"
-                    x1="2"
-                    x2="22"
-                    y1="2"
-                    y2="22"
-                  ></line>
-                  <path
-                    class="hidden hs-password-active:block"
-                    d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
-                  ></path>
-                  <circle
-                    class="hidden hs-password-active:block"
-                    cx="12"
-                    cy="12"
-                    r="3"
-                  ></circle>
-                </svg>
-              </button>
+              <ShowPasswordButton
+                :isPasswordVisible="isCurrentPasswordVisible"
+                @toggle-password-visibility="handleToggleCurrentPasswordVisibility"
+              />
             </div>
 
             <p
@@ -160,58 +156,14 @@ const checklist = computed(() => {
                       :class="{ 'ring-1 ring-red-500': errors?.password && submitCount > 0 }"
                       placeholder="Новый пароль"
                       ref="passwordRef"
+                      @input="isPasswordDirty = true"
                       v-model="password"
                       v-bind="passwordAttrs"
                     />
-                    <button
-                      type="button"
-                      data-hs-toggle-password='{
-                        "target": "#strong-password"
-                      }'
-                      class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-hidden focus:text-blue-600"
-                    >
-                      <svg
-                        class="shrink-0 size-4"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path
-                          class="hs-password-active:hidden"
-                          d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
-                        ></path>
-                        <path
-                          class="hs-password-active:hidden"
-                          d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-                        ></path>
-                        <path
-                          class="hs-password-active:hidden"
-                          d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
-                        ></path>
-                        <line
-                          class="hs-password-active:hidden"
-                          x1="2"
-                          x2="22"
-                          y1="2"
-                          y2="22"
-                        ></line>
-                        <path
-                          class="hidden hs-password-active:block"
-                          d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
-                        ></path>
-                        <circle
-                          class="hidden hs-password-active:block"
-                          cx="12"
-                          cy="12"
-                          r="3"
-                        ></circle>
-                      </svg>
-                    </button>
+                    <ShowPasswordButton
+                      :isPasswordVisible="isPasswordVisible"
+                      @toggle-password-visibility="handleTogglePasswordVisibility"
+                    />
                   </div>
 
                   <ul
@@ -230,6 +182,13 @@ const checklist = computed(() => {
                     >
                       <span>{{ item.label }}</span>
                     </li>
+                  </ul>
+                  <ul
+                    class="text-xs text-red-600"
+                    id="password-auth-error"
+                    v-if="updatePasswordError && !isPasswordDirty"
+                  >
+                    <li class="list-inside">{{ updatePasswordError.message }}</li>
                   </ul>
                 </div>
               </div>

@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { ChevronRight } from 'lucide-vue-next'
+</script>
+
 <template>
   <section class="relative isolate z-3 pt-20 overflow-hidden min-h-screen bg-neutral-50">
     <div class="absolute inset-0 -z-10 h-full w-full overflow-hidden pointer-events-none">
@@ -86,26 +90,13 @@
           data-aos-once="true"
           class="mt-8 flex justify-center"
         >
-          <a
+          <NuxtLink
             class="inline-flex justify-center items-center gap-x-3 text-center bg-linear-to-tl from-blue-500 to-violet-500 hover:from-violet-500 hover:to-blue-500 border border-transparent text-white text-sm font-medium rounded-md focus:outline-hidden focus:from-violet-600 focus:to-blue-600 py-3 px-4"
-            href="#"
+            to="/auth?step=signup"
           >
             Начать бесплатно
-            <svg
-              class="shrink-0 size-4"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="m9 18 6-6-6-6" />
-            </svg>
-          </a>
+            <ChevronRight class="shrink-0 size-4" />
+          </NuxtLink>
         </div>
       </div>
 
