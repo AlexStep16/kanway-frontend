@@ -34,7 +34,7 @@ const email = computed(() => {
   if (!payload.value) return undefined
 
   try {
-    return atob(decodeURIComponent(payload.value))
+    return atob(payload.value)
   } catch {
     return undefined
   }
@@ -58,9 +58,13 @@ const isFinishSignUpStep = computed(() => step.value === AllowedAuthStepsEnum.FI
 function navigateToPasswordVerify() {
   if (!email.value) return
 
-  navigateTo(
-    `/auth?step=${AllowedAuthStepsEnum.VERIFY_PASSWORD}&payload=${getSafeBase64String(email.value)}`,
-  )
+  navigateTo({
+    path: '/auth',
+    query: {
+      step: AllowedAuthStepsEnum.VERIFY_PASSWORD,
+      payload: getSafeBase64String(email.value.trim()),
+    },
+  })
 }
 
 function handleForgotPassword() {
@@ -83,9 +87,13 @@ function handleForgotPassword() {
 function navigateToLoginVerify() {
   if (!email.value) return
 
-  navigateTo(
-    `/auth?step=${AllowedAuthStepsEnum.VERIFY_LOGIN}&payload=${getSafeBase64String(email.value)}`,
-  )
+  navigateTo({
+    path: '/auth',
+    query: {
+      step: AllowedAuthStepsEnum.VERIFY_LOGIN,
+      payload: getSafeBase64String(email.value.trim()),
+    },
+  })
 }
 
 function handleSendMagicLink() {

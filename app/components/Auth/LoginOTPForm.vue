@@ -50,9 +50,13 @@ function handleResendMagicLink() {
         <button
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
           @click="
-            navigateTo(
-              `/auth?step=${AllowedAuthStepsEnum.SIGN_IN}&payload=${getSafeBase64String(props.email)}`,
-            )
+            navigateTo({
+              path: '/auth',
+              query: {
+                step: AllowedAuthStepsEnum.SIGN_IN,
+                payload: getSafeBase64String(props.email),
+              },
+            })
           "
         >
           <ArrowLeft class="size-4" /> Назад

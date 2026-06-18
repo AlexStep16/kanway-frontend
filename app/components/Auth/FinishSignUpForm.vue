@@ -32,9 +32,13 @@ const onSubmit = handleSubmit((values) => {
     { email: values.email.trim() },
     {
       onSuccess: () => {
-        navigateTo(
-          `/auth?step=${AllowedAuthStepsEnum.VERIFY_EMAIL}&payload=${getSafeBase64String(values.email.trim())}`,
-        )
+        navigateTo({
+          path: '/auth',
+          query: {
+            step: AllowedAuthStepsEnum.VERIFY_EMAIL,
+            payload: getSafeBase64String(values.email.trim()),
+          },
+        })
       },
     },
   )
@@ -42,7 +46,10 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" novalidate>
+  <form
+    @submit.prevent="onSubmit"
+    novalidate
+  >
     <div class="grid gap-y-2">
       <div class="flex flex-col gap-y-2">
         <div class="flex items-center relative">
@@ -57,15 +64,25 @@ const onSubmit = handleSubmit((values) => {
             placeholder="Введите почту"
           />
         </div>
-        <ul class="text-xs text-red-600" id="email-error" v-if="errors.email && submitCount > 0">
+        <ul
+          class="text-xs text-red-600"
+          id="email-error"
+          v-if="errors.email && submitCount > 0"
+        >
           <li class="list-inside">{{ errors.email }}</li>
         </ul>
-        <ul class="text-xs text-red-600" v-if="registerError && !isPasswordDirty">
+        <ul
+          class="text-xs text-red-600"
+          v-if="registerError && !isPasswordDirty"
+        >
           <li class="list-inside">{{ registerError.message }}</li>
         </ul>
       </div>
 
-      <RegisterButton :isProcessing="isRegistering" text="Завершить регистрацию" />
+      <RegisterButton
+        :isProcessing="isRegistering"
+        text="Завершить регистрацию"
+      />
     </div>
   </form>
 </template>

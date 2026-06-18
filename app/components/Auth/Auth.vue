@@ -49,13 +49,21 @@ const onSubmit = handleSubmit(async (values) => {
     const isEmailExists = await checkEmailExists(normalizedEmail)
 
     if (isEmailExists)
-      return navigateTo(
-        `/auth?step=${AllowedAuthStepsEnum.SIGN_IN}&payload=${getSafeBase64String(normalizedEmail)}`,
-      )
+      return navigateTo({
+        path: '/auth',
+        query: {
+          step: AllowedAuthStepsEnum.SIGN_IN,
+          payload: getSafeBase64String(normalizedEmail),
+        },
+      })
     else
-      return navigateTo(
-        `/auth?step=${AllowedAuthStepsEnum.SIGN_UP}&payload=${getSafeBase64String(normalizedEmail)}`,
-      )
+      return navigateTo({
+        path: '/auth',
+        query: {
+          step: AllowedAuthStepsEnum.SIGN_UP,
+          payload: getSafeBase64String(normalizedEmail),
+        },
+      })
   } finally {
     isCheckingEmail.value = false
   }
@@ -63,7 +71,10 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" novalidate>
+  <form
+    @submit.prevent="onSubmit"
+    novalidate
+  >
     <div class="grid gap-y-2">
       <!-- Form Group -->
       <div class="flex flex-col gap-y-2">
@@ -79,13 +90,20 @@ const onSubmit = handleSubmit(async (values) => {
             placeholder="Введите почту"
           />
         </div>
-        <ul class="text-xs text-red-600" id="email-error" v-if="errors.email && submitCount > 0">
+        <ul
+          class="text-xs text-red-600"
+          id="email-error"
+          v-if="errors.email && submitCount > 0"
+        >
           <li class="list-inside">{{ errors.email }}</li>
         </ul>
       </div>
       <!-- End Form Group -->
 
-      <RegisterButton :isProcessing="isCheckingEmail" text="Продолжить" />
+      <RegisterButton
+        :isProcessing="isCheckingEmail"
+        text="Продолжить"
+      />
     </div>
   </form>
 </template>

@@ -53,9 +53,13 @@ const onSubmit = handleSubmit((values) => {
     { email: values.email.trim(), password: values.password },
     {
       onSuccess: () => {
-        navigateTo(
-          `/auth?step=${AllowedAuthStepsEnum.VERIFY_EMAIL}&payload=${getSafeBase64String(values.email.trim())}`,
-        )
+        navigateTo({
+          path: '/auth',
+          query: {
+            step: AllowedAuthStepsEnum.VERIFY_EMAIL,
+            payload: getSafeBase64String(values.email.trim()),
+          },
+        })
       },
     },
   )
@@ -88,7 +92,10 @@ function handleTogglePasswordVisibility() {
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" novalidate>
+  <form
+    @submit.prevent="onSubmit"
+    novalidate
+  >
     <div class="grid gap-y-2">
       <div class="flex flex-col gap-y-2">
         <div class="flex items-center relative">
@@ -109,7 +116,10 @@ function handleTogglePasswordVisibility() {
             @toggle-password-visibility="handleTogglePasswordVisibility"
           />
         </div>
-        <ul class="text-xs my-2" v-if="password && password.length > 0">
+        <ul
+          class="text-xs my-2"
+          v-if="password && password.length > 0"
+        >
           <li
             v-for="(item, index) in checklist"
             :key="index"
@@ -123,12 +133,18 @@ function handleTogglePasswordVisibility() {
             <span>{{ item.label }}</span>
           </li>
         </ul>
-        <ul class="text-xs text-red-600" v-if="registerError && !isPasswordDirty">
+        <ul
+          class="text-xs text-red-600"
+          v-if="registerError && !isPasswordDirty"
+        >
           <li class="list-inside">{{ registerError.message }}</li>
         </ul>
       </div>
 
-      <RegisterButton :isProcessing="isRegistering" text="Создать аккаунт" />
+      <RegisterButton
+        :isProcessing="isRegistering"
+        text="Создать аккаунт"
+      />
 
       <div class="flex flex-wrap justify-start items-center mt-2 gap-2">
         <a
