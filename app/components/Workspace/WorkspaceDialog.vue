@@ -10,6 +10,29 @@ import { toast } from 'vue-sonner'
 const uiStore = useUIStore()
 
 const { mutate: createWorkspace, isPending: isCreatingWorkspace } = useCreateWorkspace()
+const { mutate: updateWorkspace, isPending: isUpdatingWorkspace } = useUpdateWorkspace()
+
+const isDialogOpen = computed({
+  get: () => uiStore.isWorkspaceDialogOpen,
+  set: (value) => {
+    if (value) {
+      return
+    }
+
+    uiStore.closeWorkspaceDialog()
+  },
+})
+
+const editableWorkspace = computed(() => uiStore.editableWorkspace)
+const isEditMode = computed(() => !!editableWorkspace.value)
+const dialogTitle = computed(() =>
+  isEditMode.value ? 'Редактирование пространства' : 'Создание пространства',
+)
+const dialogDescription = computed(() =>
+  isEditMode.value
+    ? 'Измените название и цвет пространства.'
+    : 'Введите имя для вашего нового пространства. Вы всегда сможете изменить его позже.',
+)
 
 const schema = toTypedSchema(
   z.object({
@@ -25,7 +48,7 @@ const schema = toTypedSchema(
   }),
 )
 
-const { handleSubmit, defineField } = useForm({
+const { handleSubmit, defineField, resetForm } = useForm({
   validationSchema: schema,
   initialValues: {
     name: '',
@@ -36,18 +59,51 @@ const { handleSubmit, defineField } = useForm({
 const [name, nameAttrs] = defineField('name')
 const [color] = defineField('color')
 
+watch(
+  editableWorkspace,
+  (workspace) => {
+    resetForm({
+      values: {
+        name: workspace?.name ?? '',
+        color: workspace?.color ?? AvailableColors.BLUE,
+      },
+    })
+  },
+  { immediate: true },
+)
+
 const onSubmit = handleSubmit(
   (values) => {
+    const payload = {
+      name: values.name.trim(),
+      color: values.color as AvailableColors,
+    }
+
+    if (editableWorkspace.value) {
+      updateWorkspace(
+        {
+          payload: {
+            id: editableWorkspace.value.id,
+            ...payload,
+          },
+        },
+        {
+          onSuccess() {
+            uiStore.closeWorkspaceDialog()
+          },
+        },
+      )
+
+      return
+    }
+
     createWorkspace(
       {
-        payload: {
-          name: values.name,
-          color: values.color as AvailableColors,
-        },
+        payload,
       },
       {
         onSuccess() {
-          uiStore.isWorkspaceDialogOpen = false
+          uiStore.closeWorkspaceDialog()
         },
       },
     )
@@ -59,10 +115,12 @@ const onSubmit = handleSubmit(
 )
 
 const isSubmitDisabled = computed(() => {
-  return isCreatingWorkspace.value || !name.value?.trim() || !color.value
+  return isSubmitting.value || !name.value?.trim() || !color.value
 })
 
-const getFirstNameLetted = computed(() => {
+const isSubmitting = computed(() => isCreatingWorkspace.value || isUpdatingWorkspace.value)
+
+const getFirstNameLetter = computed(() => {
   if (!name.value) return ''
 
   return name.value.trim()[0]!.toUpperCase()
@@ -70,7 +128,7 @@ const getFirstNameLetted = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:open="uiStore.isWorkspaceDialogOpen">
+  <Dialog v-model:open="isDialogOpen">
     <DialogContent
       class="sm:max-w-106.25 p-4"
       :show-close-button="false"
@@ -83,9 +141,9 @@ const getFirstNameLetted = computed(() => {
       </DialogClose>
 
       <DialogHeader>
-        <DialogTitle class="text-base">Создание пространства</DialogTitle>
+        <DialogTitle class="text-base">{{ dialogTitle }}</DialogTitle>
         <DialogDescription class="sr-only">
-          Введите имя для вашего нового пространства. Вы всегда сможете изменить его позже.
+          {{ dialogDescription }}
         </DialogDescription>
       </DialogHeader>
       <div class="flex flex-col gap-4">
@@ -109,7 +167,7 @@ const getFirstNameLetted = computed(() => {
             <Button
               :class="
                 cn(
-                  'size-7 flex p-0 hover:scale-120 transition-transform duration-200',
+                  'size-7 flex p-0 hover:scale-115 transition-transform duration-200',
                   color === availableColor && 'ring-2 ring-blue-500 ring-offset-1 scale-110',
                 )
               "
@@ -118,7 +176,7 @@ const getFirstNameLetted = computed(() => {
               :style="{ backgroundColor: availableColor }"
               @click="color = availableColor"
             >
-              {{ availableColor === color ? getFirstNameLetted || '✓' : '' }}
+              {{ availableColor === color ? getFirstNameLetter || '✓' : '' }}
             </Button>
           </div>
         </div>
@@ -140,11 +198,11 @@ const getFirstNameLetted = computed(() => {
           @click="onSubmit"
           :disabled="isSubmitDisabled"
         >
-          <template v-if="isCreatingWorkspace">
+          <template v-if="isSubmitting">
             <Spinner />
-            <span>Создание</span>
+            <span>{{ isEditMode ? 'Сохранение' : 'Создание' }}</span>
           </template>
-          <span v-else>Создать</span>
+          <span v-else>{{ isEditMode ? 'Сохранить' : 'Создать' }}</span>
         </Button>
       </DialogFooter>
     </DialogContent>

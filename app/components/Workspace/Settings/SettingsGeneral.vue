@@ -6,8 +6,8 @@ import dayjs from 'dayjs'
 import { z } from 'zod'
 import SettingsAvatar from '~/components/Workspace/Settings/SettingsAvatar.vue'
 import { toast } from 'vue-sonner'
-import ColorButtons from '~/components/Buttons/ColorButtons.vue'
 import { AvailableColors } from '~/enums/AvailableColors'
+import { cn } from '~/lib/utils'
 
 const { data: user } = useUser()
 
@@ -139,7 +139,10 @@ const isSaveDisabled = computed(() => {
 </script>
 
 <template>
-  <form class="contents" @submit="handleSaveUsername">
+  <form
+    class="contents"
+    @submit="handleSaveUsername"
+  >
     <div class="flex flex-col gap-y-2">
       <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
         Основная информация
@@ -148,37 +151,78 @@ const isSaveDisabled = computed(() => {
       <div class="flex flex-col items-start gap-y-3 max-w-80">
         <div class="flex flex-col gap-y-1 w-full">
           <label class="text-custom-sm font-medium text-gray-500">Аватар</label>
-          <SettingsAvatar class="size-15 sm:size-17" imageClasses="text-2xl sm:text-3xl">
+          <SettingsAvatar
+            class="size-15 sm:size-17"
+            imageClasses="text-2xl sm:text-3xl"
+          >
             <Camera class="size-5" />
           </SettingsAvatar>
 
-          <ColorButtons :color="avatarColor" @selectColor="handleUpdateAvatarColor" class="mt-2" :size="8"
-            v-if="!hasUserAvatar" />
+          <div
+            class="flex gap-1.5 items-center mt-2"
+            v-if="!hasUserAvatar"
+          >
+            <Button
+              :class="
+                cn(
+                  'size-8 flex p-0 hover:scale-115 transition-transform duration-200',
+                  avatarColor === availableColor && 'ring-2 ring-blue-500 ring-offset-1 scale-110',
+                )
+              "
+              v-for="availableColor in Object.values(AvailableColors)"
+              :key="availableColor"
+              :style="{ backgroundColor: availableColor }"
+              @click="handleUpdateAvatarColor(availableColor)"
+            />
+          </div>
 
           <button
             class="py-2 px-3 text-xs text-white bg-red-400 hover:bg-red-500 transition-colors duration-100 rounded-md w-max mt-2"
-            type="button" v-if="hasUserAvatar" @click="resetAvatar()">
-            <Spinner v-if="isAvatarResetting" class="size-3" />
+            type="button"
+            v-if="hasUserAvatar"
+            @click="resetAvatar()"
+          >
+            <Spinner
+              v-if="isAvatarResetting"
+              class="size-3"
+            />
             Удалить аватар
           </button>
         </div>
 
         <div class="flex flex-col gap-y-1">
           <label class="text-custom-sm font-medium text-gray-500">Имя</label>
-          <Input id="settings-name" name="name" autocomplete="off" type="text"
+          <Input
+            id="settings-name"
+            name="name"
+            autocomplete="off"
+            type="text"
             class="max-w-80 w-full border-none bg-gray-100 shadow-none"
-            :class="{ 'ring-1 ring-red-500 focus-visible:ring-red-500': errors.username && submitCount > 0 }"
-            :aria-invalid="Boolean(errors.username && submitCount > 0)" placeholder="Введите имя" v-model="username"
-            v-bind="usernameAttrs" />
+            :class="{
+              'ring-1 ring-red-500 focus-visible:ring-red-500': errors.username && submitCount > 0,
+            }"
+            :aria-invalid="Boolean(errors.username && submitCount > 0)"
+            placeholder="Введите имя"
+            v-model="username"
+            v-bind="usernameAttrs"
+          />
 
-          <div v-if="errors.username && submitCount > 0" class="text-red-500 text-xs">
+          <div
+            v-if="errors.username && submitCount > 0"
+            class="text-red-500 text-xs"
+          >
             {{ errors.username }}
           </div>
 
-          <button type="submit"
+          <button
+            type="submit"
             class="flex items-center justify-center gap-x-2 py-2 px-3 bg-blue-500 hover:opacity-90 transition-[opacity,colors] text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-default"
-            :disabled="isSaveDisabled">
-            <Spinner v-if="isUsernameUpdating" class="size-3" />
+            :disabled="isSaveDisabled"
+          >
+            <Spinner
+              v-if="isUsernameUpdating"
+              class="size-3"
+            />
             <span>Сохранить</span>
           </button>
         </div>
@@ -186,16 +230,25 @@ const isSaveDisabled = computed(() => {
         <div class="flex flex-col gap-y-1 w-full">
           <label class="text-custom-sm font-medium text-gray-500">E-Mail</label>
           <div class="relative flex items-center">
-            <Input id="settings-email" name="email" autocomplete="on" type="text"
+            <Input
+              id="settings-email"
+              name="email"
+              autocomplete="on"
+              type="text"
               class="w-full truncate border-none bg-gray-100 pl-3 pr-9 shadow-none disabled:text-gray-500"
-              placeholder="Введите E-Mail" disabled v-model="email" />
+              placeholder="Введите E-Mail"
+              disabled
+              v-model="email"
+            />
             <Lock class="size-4 absolute right-3 text-gray-500" />
           </div>
         </div>
       </div>
     </div>
     <div class="grow flex flex-col gap-y-2">
-      <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4">
+      <h3
+        class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
+      >
         Регион
       </h3>
       <div class="flex flex-col gap-y-3 max-w-80">
@@ -207,14 +260,20 @@ const isSaveDisabled = computed(() => {
                 <SelectValue placeholder="Выберите пояс..." />
               </SelectTrigger>
               <SelectContent class="max-h-72">
-                <SelectItem v-for="timezone in getAllTimezoneOptions" :key="timezone.timezone"
-                  :value="timezone.timezone">
+                <SelectItem
+                  v-for="timezone in getAllTimezoneOptions"
+                  :key="timezone.timezone"
+                  :value="timezone.timezone"
+                >
                   {{ timezone.label }}
                 </SelectItem>
               </SelectContent>
             </Select>
 
-            <Spinner v-if="isUserTimezoneUpdating" class="size-4 text-gray-500 absolute -right-6" />
+            <Spinner
+              v-if="isUserTimezoneUpdating"
+              class="size-4 text-gray-500 absolute -right-6"
+            />
           </div>
         </div>
       </div>

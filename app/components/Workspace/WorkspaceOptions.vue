@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Copy, Star, StarOff, Archive } from 'lucide-vue-next'
+import { Copy, Star, StarOff, Archive, Pen } from 'lucide-vue-next'
 import type { IWorkspace } from '~/interfaces/domain/IWorkspace'
 
 const props = defineProps<{
   workspace: IWorkspace
   isMobile?: boolean
 }>()
+
+const uiStore = useUIStore()
 
 const emits = defineEmits<{
   (e: 'close'): void
@@ -43,6 +45,11 @@ function handleFavorite() {
     workspace: props.workspace,
   })
 }
+
+function handleEdit() {
+  emits('close')
+  uiStore.openWorkspaceDialog(props.workspace)
+}
 </script>
 
 <template>
@@ -51,6 +58,14 @@ function handleFavorite() {
     :side="isMobile ? 'bottom' : 'right'"
     :align="isMobile ? 'end' : 'start'"
   >
+    <DropdownMenuItem
+      @click="handleEdit"
+      @select.prevent
+    >
+      <Pen />
+      <span>Редактировать</span>
+    </DropdownMenuItem>
+    <DropdownMenuSeparator />
     <template v-if="!toValue(isCloning)">
       <DropdownMenuItem
         @click="handleCopy"

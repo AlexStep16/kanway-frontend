@@ -6,8 +6,8 @@ import z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
-import ColorButtons from '~/components/Buttons/ColorButtons.vue'
 import { FolderKanban, UserSquare } from 'lucide-vue-next'
+import { cn } from '~/lib/utils'
 
 const { data: user } = useUser()
 
@@ -129,17 +129,26 @@ const onSubmit = handleSubmit(
                     <AccordionTrigger class="hidden" />
 
                     <AccordionContent class="pb-2">
-                      <div class="flex flex-col items-start gap-y-1 w-full p-1">
-                        <ColorButtons
-                          :color="workspaceColor"
-                          :size="9"
-                          @selectColor="(color) => (workspaceColor = color)"
-                          v-if="workspaceColor"
+                      <div class="flex gap-2 w-full flex-wrap">
+                        <Button
+                          :class="
+                            cn(
+                              'size-7 flex p-0 hover:scale-115 transition-transform duration-200',
+                              workspaceColor === availableColor &&
+                                'ring-2 ring-blue-500 ring-offset-1 scale-110',
+                            )
+                          "
+                          v-for="availableColor in Object.values(AvailableColors)"
+                          :key="availableColor"
+                          :style="{ backgroundColor: availableColor }"
+                          @click="workspaceColor = availableColor"
                         >
-                          <span class="font-bold text-white">
-                            {{ workspaceName?.substring(0, 1) }}
-                          </span>
-                        </ColorButtons>
+                          {{
+                            availableColor === workspaceColor
+                              ? workspaceName?.substring(0, 1) || '✓'
+                              : ''
+                          }}
+                        </Button>
                       </div>
                     </AccordionContent>
                   </AccordionItem>

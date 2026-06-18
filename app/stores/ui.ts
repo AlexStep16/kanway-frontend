@@ -1,6 +1,7 @@
 import Tabs from '~/enums/TabsEnum'
 import type { ITaskState } from './interfaces/ITaskState'
 import { SettingTabs } from '~/enums/SettingTabs'
+import type { IWorkspace } from '~/interfaces/domain/IWorkspace'
 
 export const useUIStore = defineStore('ui', () => {
   const isMobileSearchOpen = ref(false)
@@ -14,6 +15,7 @@ export const useUIStore = defineStore('ui', () => {
   const chatStore = useChatStore()
 
   const editableTask = ref<ITaskState | null>(null)
+  const editableWorkspace = ref<IWorkspace | null>(null)
 
   const isWorkspaceDialogOpen = ref(false)
 
@@ -23,12 +25,14 @@ export const useUIStore = defineStore('ui', () => {
   const isSidebarOpen = ref(true)
   const isChatOpen = ref(false)
 
-  function openWorkspaceDialog() {
+  function openWorkspaceDialog(workspace?: IWorkspace | null) {
+    editableWorkspace.value = workspace ?? null
     isWorkspaceDialogOpen.value = true
   }
 
   function closeWorkspaceDialog() {
     isWorkspaceDialogOpen.value = false
+    editableWorkspace.value = null
   }
 
   function openSidebar() {
@@ -106,6 +110,7 @@ export const useUIStore = defineStore('ui', () => {
     isChatTabSelected,
 
     editableTask,
+    editableWorkspace,
 
     // Actions
     openSidebar,

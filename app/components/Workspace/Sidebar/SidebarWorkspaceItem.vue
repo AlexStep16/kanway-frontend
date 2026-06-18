@@ -5,6 +5,7 @@ import { useWorkspaceStore } from '~/stores/workspace'
 import SidebarBaseItem from './SidebarBaseItem.vue'
 
 const workspaceStore = useWorkspaceStore()
+const uiStore = useUIStore()
 
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
 
@@ -65,6 +66,10 @@ const expandedStatus = computed(() => {
     isFavoritePending,
   }
 })
+
+function handleEdit() {
+  uiStore.openWorkspaceDialog(props.item)
+}
 </script>
 
 <template>
@@ -85,7 +90,7 @@ const expandedStatus = computed(() => {
     <template #options>
       <Options
         :options="{
-          edit: false,
+          edit: true,
           favorite: true,
           archive: true,
         }"
@@ -94,6 +99,7 @@ const expandedStatus = computed(() => {
         class="absolute right-2.5"
         groupName="sidebar-item"
         :hoverClass="selected ? 'lg:hover:bg-blue-200' : 'lg:hover:bg-gray-200'"
+        @edit="handleEdit"
         @archive="handleArchive"
         @copy="handleCopy"
         @favorite="handleFavorite"

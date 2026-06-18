@@ -39,11 +39,14 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  (e: 'edit'): void
   (e: 'copy'): void
   (e: 'favorite'): void
   (e: 'archive'): void
   (e: 'delete'): void
 }>()
+
+const slots = useSlots()
 
 const isMenuOpen = ref(false)
 const activeView = ref<'menu' | 'edit' | 'transfer'>('menu')
@@ -73,6 +76,17 @@ const visibilityClasses = computed(() =>
 
 function onAction(action: 'archive' | 'delete' | 'copy') {
   emit(action as any)
+  closeMenu()
+}
+
+function onEdit() {
+  if (slots['edit-content']) {
+    activeView.value = 'edit'
+
+    return
+  }
+
+  emit('edit')
   closeMenu()
 }
 </script>
@@ -108,7 +122,7 @@ function onAction(action: 'archive' | 'delete' | 'copy') {
           variant="ghost"
           class="w-full justify-start font-normal h-9 px-2 gap-x-2"
           :disabled="toValue(status.isBusy)"
-          @click="activeView = 'edit'"
+          @click="onEdit"
         >
           <Pen class="size-4" /> Редактировать
         </Button>
