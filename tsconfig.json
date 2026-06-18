@@ -4,5 +4,7 @@
   "compilerOptions": {
     "strict": true,
     "skipLibCheck": true,
-  },
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  }
 }

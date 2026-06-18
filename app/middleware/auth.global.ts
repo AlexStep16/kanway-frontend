@@ -1,24 +1,25 @@
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
-import { AuthStatus } from '~/enums/AuthStatusesEnum'
-import { checkFinishSignupToken } from '~/services/auth'
+import { checkFinishSignupToken, getMe } from '~/services/auth'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const authStore = useAuthStore()
-
   const isAuthRequired = to.meta.authOnly
   const isGuestOnly = to.meta.guestOnly
 
-  if (authStore.status === AuthStatus.IDLE) {
-    await authStore.initSession()
-  }
+  const { $queryClient } = useNuxtApp()
+
+  const user = await $queryClient.fetchQuery({
+    queryKey: userKeys.me,
+    queryFn: () => getMe(),
+    staleTime: 1000 * 60 * 5,
+  })
 
   if (!isAuthRequired && !isGuestOnly) {
     return
   }
 
-  if (authStore.status === AuthStatus.UNVERIFIED) {
+  if (user && user.isConfirmed === false) {
     if (to.query.step !== AllowedAuthStepsEnum.VERIFY_EMAIL) {
-      const email64 = getSafeBase64String(authStore.user?.email || '')
+      const email64 = getSafeBase64String(user?.email || '')
 
       return navigateTo({
         path: '/auth',
@@ -30,7 +31,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (isAuthRequired) {
-    if (authStore.status === AuthStatus.GUEST) {
+    if (!user) {
       try {
         await checkFinishSignupToken()
 
@@ -47,7 +48,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (isGuestOnly) {
-    if (authStore.status === AuthStatus.AUTHENTICATED && !to.query.step) {
+    if (user && user.isConfirmed === true) {
       return navigateTo('/workspace')
     }
   }

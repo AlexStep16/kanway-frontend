@@ -1,7 +1,9 @@
 import { verifyLoginToken } from '~/services/auth'
-import { useMutation } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 
 export function useVerificationLogin() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationKey: ['user'],
     meta: {
@@ -10,6 +12,11 @@ export function useVerificationLogin() {
     mutationFn: ({ token }: { token: string }) => verifyLoginToken(token),
     onSuccess: () => {
       navigateTo('/workspace')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: userKeys.me,
+      })
     },
   })
 }

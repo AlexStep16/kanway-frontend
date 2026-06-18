@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import WorkspaceView from '~/views/WorkspaceView.vue'
 
+definePageMeta({
+  authOnly: true,
+  middleware: ['workspace'],
+})
+
 const uiStore = useUIStore()
 const boardStore = useBoardStore()
 

@@ -1,9 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  authOnly: true,
-  middleware: ['workspace'],
-})
-
 const uiStore = useUIStore()
 const boardStore = useBoardStore()
 

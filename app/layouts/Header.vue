@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { Sparkles } from 'lucide-vue-next'
+import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import KanwayLogo from '~/assets/kanway_logo.svg?component'
-import { AuthStatus } from '~/enums/AuthStatusesEnum'
 import { cn } from '~/lib/utils'
+import { getSafeBase64String } from '~/utils/getSafeBase64String'
 
-// Состояние авторизации
-const authStore = useAuthStore()
-const { status } = storeToRefs(authStore)
-
-// Следим за скроллом для эффекта "стекла"
 const { y } = useWindowScroll()
 const isScrolled = computed(() => y.value > 20)
 
-// СТРУКТУРА НАВИГАЦИИ
+const { mutate: logout } = useLogout()
+
 const navigation = {
   standalone: [
     { name: 'Почему Kanway', href: '/#why' },
@@ -21,6 +18,16 @@ const navigation = {
     { name: 'Вопросы', href: '/#faq' },
   ],
 }
+
+const { data: user } = useUser()
+
+const verifyEmailHref = computed(() => ({
+  path: '/auth',
+  query: {
+    step: AllowedAuthStepsEnum.VERIFY_EMAIL,
+    payload: getSafeBase64String(user.value?.email || ''),
+  },
+}))
 
 const isMobileMenuOpen = ref(false)
 </script>
@@ -74,7 +81,7 @@ const isMobileMenuOpen = ref(false)
       <!-- ПРАВАЯ ЧАСТЬ: АКШЕНЫ -->
       <div class="flex items-center gap-3">
         <!-- ГОСТЬ -->
-        <template v-if="status === AuthStatus.GUEST || status === AuthStatus.IDLE">
+        <template v-if="!user">
           <!-- Десктоп: текстовые кнопки -->
           <Button
             variant="ghost"
@@ -91,8 +98,65 @@ const isMobileMenuOpen = ref(false)
           </Button>
         </template>
 
+        <!-- НЕ ПОДТВЕРЖДЕН -->
+        <template v-else-if="user.isConfirmed === false">
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <button
+                class="relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"
+              >
+                <UserAvatar />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              class="w-56 mt-2"
+            >
+              <UserHeader />
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem class="text-primary/90 focus:text-primary focus:bg-primary-muted">
+                  <NuxtLink
+                    :to="verifyEmailHref"
+                    class="flex items-center gap-2 w-full justify-start"
+                  >
+                    <Sparkles class="size-4" />
+                    Подтвердить email
+                  </NuxtLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  class="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  @click="logout()"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line
+                      x1="21"
+                      x2="9"
+                      y1="12"
+                      y2="12"
+                    />
+                  </svg>
+                  Выйти
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </template>
+
         <!-- АВТОРИЗОВАН -->
-        <template v-else-if="status === AuthStatus.AUTHENTICATED">
+        <template v-else-if="user.isConfirmed === true">
           <!-- Аватар пользователя (Отображается и на десктопе, и на мобилке) -->
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
@@ -109,9 +173,18 @@ const isMobileMenuOpen = ref(false)
               <UserHeader />
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+                <DropdownMenuItem class="text-primary/90 focus:text-primary focus:bg-primary-muted">
+                  <NuxtLink
+                    to="/workspace"
+                    class="flex items-center gap-2 w-full justify-start"
+                  >
+                    <Sparkles class="size-4" />
+                    В пространство
+                  </NuxtLink>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   class="text-destructive focus:text-destructive focus:bg-destructive/10"
-                  @click="authStore.logout()"
+                  @click="logout()"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +196,6 @@ const isMobileMenuOpen = ref(false)
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="mr-2"
                   >
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
@@ -228,7 +300,7 @@ const isMobileMenuOpen = ref(false)
         <div class="flex flex-col px-4 py-6 gap-6 max-h-[80vh] overflow-y-auto">
           <!-- Декоративная линия -->
           <div
-            class="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+            class="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent"
           ></div>
 
           <!-- Основная навигация -->
@@ -262,7 +334,7 @@ const isMobileMenuOpen = ref(false)
           <div class="mt-2 bg-muted/20 border border-border/50 rounded-2xl p-2 backdrop-blur-md">
             <!-- Состояние: ГОСТЬ -->
             <div
-              v-if="status === AuthStatus.GUEST || status === AuthStatus.IDLE"
+              v-if="!user"
               class="flex flex-col gap-3"
             >
               <Button
@@ -288,9 +360,66 @@ const isMobileMenuOpen = ref(false)
               </Button>
             </div>
 
+            <!-- Состояние: НЕ ПОДТВЕРЖДЕН -->
+            <div
+              v-else-if="user.isConfirmed === false"
+              class="flex flex-col gap-3"
+            >
+              <div
+                class="flex items-center gap-3 p-1.5 rounded-lg bg-background/50 border border-border/60 shadow-sm mb-1"
+              >
+                <UserHeader />
+              </div>
+
+              <Button
+                class="w-full justify-center text-sm shadow-md"
+                @click="isMobileMenuOpen = false"
+              >
+                <NuxtLink
+                  :to="verifyEmailHref"
+                  class="w-full text-center"
+                  >Подтвердить email</NuxtLink
+                >
+              </Button>
+
+              <Button
+                variant="ghost"
+                class="w-full justify-center rounded-xl text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
+                @click="
+                  () => {
+                    logout()
+                    isMobileMenuOpen = false
+                  }
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="mr-2"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line
+                    x1="21"
+                    x2="9"
+                    y1="12"
+                    y2="12"
+                  />
+                </svg>
+                Выйти
+              </Button>
+            </div>
+
             <!-- Состояние: АВТОРИЗОВАН -->
             <div
-              v-else-if="status === AuthStatus.AUTHENTICATED"
+              v-else-if="user.isConfirmed === true"
               class="flex flex-col gap-3"
             >
               <!-- Карточка пользователя внутри мобильного меню -->
@@ -318,7 +447,7 @@ const isMobileMenuOpen = ref(false)
                 class="w-full justify-center rounded-xl text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                 @click="
                   () => {
-                    authStore.logout()
+                    logout()
                     isMobileMenuOpen = false
                   }
                 "

@@ -1,14 +1,14 @@
-import { verifyLoginOTP } from '~/services/auth'
+import { logout } from '~/services/auth'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 
-export function useVerificationLoginOTP() {
+export function useLogout() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: ['user'],
-    mutationFn: ({ code, email }: { code: string; email: string }) => verifyLoginOTP(code, email),
+    mutationFn: () => logout(),
     onSuccess: () => {
-      navigateTo('/workspace')
+      navigateTo('/auth')
     },
     onSettled: () => {
       queryClient.invalidateQueries({

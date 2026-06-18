@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 
 export function useRegister() {
   const queryClient = useQueryClient()
-  const authStore = useAuthStore()
 
   return useMutation({
     mutationFn: (credentials: { email: string; password: string }) =>
@@ -12,8 +11,8 @@ export function useRegister() {
         ...credentials,
         timezone: dayjs.tz.guess(),
       }),
-    onSuccess: (data) => {
-      authStore.setAuthenticated(data)
+    onSuccess: () => {
+      navigateTo('/workspace')
     },
     onSettled: () => {
       queryClient.invalidateQueries({

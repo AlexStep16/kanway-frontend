@@ -46,10 +46,26 @@ export async function checkEmailExists(email: string): Promise<boolean> {
   return await checkEmailExistsApi(email)
 }
 
-export async function getMe(): Promise<UserModel> {
-  const user = await meApi()
+export async function getMe(): Promise<UserModel | null> {
+  try {
+    return transformUser(await meApi())
+  } catch (error: any) {
+    if (
+      (error instanceof HttpError && error.status === 401) ||
+      (error instanceof BackendError && error.code === 401)
+    ) {
+      return null
+    }
 
-  return transformUser(user)
+    if (
+      (error instanceof HttpError && error.status === 403) ||
+      (error instanceof BackendError && error.code === 403)
+    ) {
+      return null
+    }
+
+    throw error
+  }
 }
 
 export async function updateAvatar(formData: FormData): Promise<string> {

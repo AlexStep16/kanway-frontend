@@ -13,11 +13,12 @@ export function useUpdateAvatar() {
     mutationKey: ['user'],
     mutationFn: (payload: UpdateAvatarVars) => updateAvatar(payload.data),
     onSuccess: () => {
+      toast.success('Аватар успешно обновлен')
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,
       })
-
-      toast.success('Аватар успешно обновлен')
     },
   })
 }

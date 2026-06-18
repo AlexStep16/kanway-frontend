@@ -29,5 +29,10 @@ export function useResetAvatar() {
         queryClient.setQueryData(userKeys.me, { ...user, avatarUrl: context.oldAvatarUrl })
       }
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: userKeys.me,
+      })
+    },
   })
 }

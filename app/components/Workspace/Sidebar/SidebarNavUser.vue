@@ -11,7 +11,7 @@ import {
 import { useSidebar } from '~/components/ui/sidebar'
 
 const uiStore = useUIStore()
-const authStore = useAuthStore()
+const { mutate: logout } = useLogout()
 
 const { data: user } = useUser()
 
@@ -84,7 +84,7 @@ const hasUserSubscription = computed(() => {
             </DropdownMenuItem>
             <DropdownMenuItem
               class="text-destructive focus:text-destructive focus:bg-red-100"
-              @click="authStore.logout()"
+              @click="logout()"
             >
               <LogOut />
               Выйти

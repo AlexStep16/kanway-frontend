@@ -14,9 +14,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   try {
     // 1. Load workspaces
-    const workspaces = await $queryClient.ensureQueryData({
+    const workspaces = await $queryClient.fetchQuery({
       queryKey: workspaceKeys.lists(),
       queryFn: fetchWorkspaces,
+      staleTime: 1000 * 60 * 5,
     })
 
     if (!workspaces?.length) return navigateTo('/welcome')
@@ -29,9 +30,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
       workspaces[0]!
 
     // 3. Load boards for the resolved workspace
-    const boards = await $queryClient.ensureQueryData({
+    const boards = await $queryClient.fetchQuery({
       queryKey: boardKeys.byWorkspace(targetWorkspace.id),
       queryFn: () => fetchBoards(targetWorkspace.id),
+      staleTime: 1000 * 60 * 5,
     })
 
     // 4. Resolve target board: URL → saved → first → null (chat)
