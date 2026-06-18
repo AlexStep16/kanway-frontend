@@ -16,6 +16,7 @@ import { START_TILES } from '~/constants/START_TILES'
 const props = defineProps<{
   isMainChat?: boolean
   isSending?: boolean
+  isDemo?: boolean
   aiInputRef?: InstanceType<typeof AIInput> | null
   reversedMessages: ChatMessageModel[]
   areMessagesLoading: boolean
@@ -37,9 +38,11 @@ function handleTileClick(tile: (typeof START_TILES)[number]) {
   props.aiInputRef?.setMessage(tile.query)
 }
 
-const statusMessage = computed(() => {
-  return props.reversedMessages.find((message) => message.role === 'status')
-})
+function getStatusMessageByIteration(iterationId: string) {
+  return props.reversedMessages.find(
+    (message) => message.role === 'status' && message.iterationId === iterationId,
+  )
+}
 </script>
 
 <template>
@@ -52,7 +55,7 @@ const statusMessage = computed(() => {
     <div
       :class="
         cn(
-          'flex flex-col-reverse items-center overflow-y-auto overflow-x-hidden min-h-0 max-h-full py-6 px-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300',
+          'flex flex-col-reverse items-center overflow-y-auto overflow-x-hidden min-h-0 max-h-full p-4 custom-scrollbar',
           isMainChat && 'px-2',
           isChatEmpty && 'h-full',
         )
@@ -96,6 +99,7 @@ const statusMessage = computed(() => {
               <ChatStatus
                 v-else-if="message.role === 'status' && message.content"
                 :is-content-full-width="isContentFullWidth"
+                :is-demo="isDemo"
                 :status="message.content"
                 :message="message"
                 :chat-id="message.chatId"
@@ -111,8 +115,12 @@ const statusMessage = computed(() => {
 
                 <template #actions>
                   <AIResponseActions
-                    :credits-used="statusMessage?.creditsUsed"
+                    :credits-spent="getStatusMessageByIteration(message.iterationId)?.creditsUsed"
+                    :audio-credits-spent="
+                      getStatusMessageByIteration(message.iterationId)?.audioCreditsUsed
+                    "
                     :message="message"
+                    :is-demo="isDemo"
                   />
                 </template>
               </AIBubble>

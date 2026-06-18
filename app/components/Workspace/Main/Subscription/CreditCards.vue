@@ -19,7 +19,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex items-center justify-between size-full gap-1">
             <div class="flex flex-col gap-y-1">
-              <span class="text-sm text-gray-700">100 кредитов</span>
+              <span class="text-sm text-gray-700">3000 кредитов</span>
               <span class="sm:text-lg text-gray-800 font-bold">₽299</span>
             </div>
 
@@ -40,7 +40,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex items-center justify-between size-full gap-1">
             <div class="flex flex-col gap-y-1">
-              <span class="text-sm text-gray-700">300 кредитов</span>
+              <span class="text-sm text-gray-700">7000 кредитов</span>
               <span class="sm:text-lg text-gray-800 font-bold">₽699</span>
             </div>
 
@@ -61,7 +61,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex items-center justify-between size-full gap-1">
             <div class="flex flex-col gap-y-1">
-              <span class="text-sm text-gray-700">1000 кредитов</span>
+              <span class="text-sm text-gray-700">20000 кредитов</span>
               <span class="sm:text-lg text-gray-800 font-bold">₽1999</span>
             </div>
 

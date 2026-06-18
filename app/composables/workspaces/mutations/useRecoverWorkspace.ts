@@ -95,7 +95,7 @@ export function useRecoverWorkspace() {
       const workspace = workspaces?.find((w) => w.id === result.data[0]!.id)
 
       if (workspace) {
-        workspaceStore.selectWorkspace(workspace, true)
+        workspaceStore.selectWorkspace(workspace)
       }
     },
   })

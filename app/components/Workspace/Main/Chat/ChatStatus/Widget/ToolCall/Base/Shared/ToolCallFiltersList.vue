@@ -23,7 +23,7 @@ defineProps<{
       >
       <Badge
         variant="outline"
-        class="min-w-0 text-primary truncate"
+        class="min-w-0 text-primary truncate shrink"
         v-if="item.value"
       >
         <span class="truncate">{{ item.value }}</span>

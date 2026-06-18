@@ -31,8 +31,8 @@ defineProps<{
         </div>
       </AccordionTrigger>
 
-      <AccordionContent class="pb-0 max-h-100 overflow-y-auto overflow-x-hidden py-3">
-        <div class="ml-4">
+      <AccordionContent class="pb-0 overflow-hidden py-3">
+        <div class="ml-4 max-h-100 custom-scrollbar overflow-y-auto overflow-x-hidden pr-1">
           <slot />
         </div>
       </AccordionContent>

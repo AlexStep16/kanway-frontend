@@ -15,7 +15,6 @@ import PasswordRecoveryForm from '~/components/Auth/PasswordRecoveryForm.vue'
 import EmailLink from '~/components/Auth/EmailLink.vue'
 import LoginLink from '~/components/Auth/LoginLink.vue'
 import PasswordLink from '~/components/Auth/PasswordLink.vue'
-import ExitButton from '~/components/Auth/ExitButton.vue'
 import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 import FinishSignUpForm from '~/components/Auth/FinishSignUpForm.vue'
 
@@ -112,11 +111,10 @@ const isVerfiyStep = computed(
 </script>
 
 <template>
-  <div class="size-full bg-gray-100 overflow-hidden min-h-screen flex flex-col px-2">
+  <div
+    class="relative size-full isolate bg-gray-100 overflow-hidden min-h-screen flex flex-col px-2"
+  >
     <BackgroundCircles />
-    <header class="w-full py-5 px-4 sm:px-10 flex justify-end items-center">
-      <ExitButton />
-    </header>
     <main class="flex items-center justify-center grow">
       <TransitionGroup name="slide-left">
         <div

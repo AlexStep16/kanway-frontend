@@ -15,7 +15,7 @@ export interface IUser {
   credits: number
   paidCredits: number
   avatarColor: AvailableColors
-  audioTokensUsed: number
+  audioCreditsSpent: number
   isTipsCompleted?: boolean
   paymentMethodId?: string
   pendingChangePlan?: SubscriptionPlanEnum | null

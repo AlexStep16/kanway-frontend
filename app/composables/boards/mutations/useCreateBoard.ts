@@ -31,7 +31,7 @@ export function useCreateBoard() {
       )
 
       if (result.data) {
-        boardStore.selectBoard(result.data[0]!, true)
+        boardStore.selectBoard(result.data[0]!.id)
       }
 
       toast.success('Доска успешно создана', {

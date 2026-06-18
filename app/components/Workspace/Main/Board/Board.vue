@@ -19,6 +19,8 @@ const workspaceStore = useWorkspaceStore()
 const activeBoardId = computed(() => boardStore.activeBoardId)
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
 
+const { data: board } = useBoard(activeBoardId, activeWorkspaceId)
+const { data: workspace } = useWorkspace(activeWorkspaceId)
 const { data: columns, isPending: areColumnsLoading } = useColumns(activeBoardId)
 const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
 
@@ -26,6 +28,15 @@ const { mutate: moveColumn } = useMoveColumnCard()
 
 const localColumnList = ref<IColumnState[]>([])
 const isColumnFormShown = ref(false)
+
+useHead({
+  title: () =>
+    board.value
+      ? `Kanway | ${board.value.name}`
+      : workspace.value
+        ? `Kanway | ${workspace.value.name}`
+        : 'Kanway',
+})
 
 watch(
   () => columns.value,

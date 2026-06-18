@@ -3,6 +3,8 @@ import AIInput from './AIInput.vue'
 import ChatSideHeader from './ChatSideHeader.vue'
 import ChatMain from './ChatMain.vue'
 import ChatDefaultHeader from './ChatDefaultHeader.vue'
+import { useSidebar } from '~/components/ui/sidebar/utils.js'
+import { cn } from '~/lib/utils.js'
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
@@ -106,6 +108,7 @@ const isInitialMessagesLoading = computed(() => {
 
 const isMobile = useMediaQuery('(max-width: 768px)')
 const observer = ref<ResizeObserver | null>(null)
+const { state } = useSidebar()
 
 onMounted(() => {
   window.addEventListener('beforeunload', stopActiveAgent)
@@ -120,6 +123,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopActiveAgent()
+
   window.removeEventListener('beforeunload', stopActiveAgent)
   if (observer.value) {
     observer.value.disconnect()
@@ -130,13 +134,15 @@ onBeforeUnmount(() => {
 <template>
   <SidebarInset
     class="z-20"
-    :class="{
-      absolute: isMobile,
-      'max-w-screen w-full': isMobile,
-    }"
+    :class="
+      cn(
+        isMobile && 'absolute max-w-screen w-full',
+        state === 'collapsed' && !isMobile && activeBoardId && 'ml-0!',
+      )
+    "
   >
     <div
-      class="w-full flex flex-1 flex-col overflow-y-auto overflow-x-hidden"
+      class="w-full flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white"
       ref="chatContainerRef"
     >
       <ChatDefaultHeader v-if="isMainChat && !isMobile" />
@@ -152,7 +158,9 @@ onBeforeUnmount(() => {
         @setMessagesRef="(el: HTMLDivElement) => (messagesRef = el)"
       />
 
-      <footer class="w-full flex justify-center p-4">
+      <footer
+        class="w-full flex justify-center p-4 sm:p-5 border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/70"
+      >
         <div class="w-full max-w-4xl">
           <AIInput
             @send="send"

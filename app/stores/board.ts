@@ -1,38 +1,48 @@
 import { useWorkspaceStore } from '~/stores/workspace'
-import type { IBoard } from '~/interfaces/domain/IBoard'
-import { useUIStore } from '~/stores/ui'
 
 export const useBoardStore = defineStore('board', () => {
-  const WORKSPACE_STORE = useWorkspaceStore()
-  const uiStore = useUIStore()
+  const workspaceStore = useWorkspaceStore()
 
   const activeBoardId = ref<string | null>(null)
-  const activeWorkspaceId = toRef(WORKSPACE_STORE, 'activeWorkspaceId') as Ref<string | null>
 
-  async function selectBoard(board: IBoard, shouldNavigate: boolean = false) {
-    if (!board || board.id === activeBoardId.value) return
-
-    if (activeWorkspaceId.value && shouldNavigate) {
-      await navigateTo(`/workspace/${activeWorkspaceId.value}/${board.id}`)
-    }
-
-    activeBoardId.value = board.id
-    localStorage.setItem('activeBoardId', board.id)
-
-    setTimeout(() => (document.title = 'Kanway | ' + board.name), 0)
-
-    uiStore.selectBoard() // Change current UI view to board view
+  /** Sync state from the route middleware — no navigation, no side effects. */
+  function setActiveBoard(boardId: string) {
+    activeBoardId.value = boardId
+    localStorage.setItem('activeBoardId', boardId)
   }
 
-  function resetBoardSelection() {
+  /** Clear board state — called by middleware when the workspace has no boards. */
+  function clearBoard() {
     activeBoardId.value = null
     localStorage.removeItem('activeBoardId')
+  }
+
+  /**
+   * Navigate to a board from UI actions (sidebar, create/archive/recover).
+   * The route middleware handles all state sync after navigation.
+   */
+  async function selectBoard(boardId: string) {
+    const workspaceId = workspaceStore.activeWorkspaceId
+    if (!workspaceId) return
+    await navigateTo(`/workspace/${workspaceId}/${boardId}`)
+  }
+
+  /**
+   * Navigate to the workspace root (chat view) when the active board is gone.
+   * Use when the current board has been archived or deleted.
+   */
+  async function navigateToChat() {
+    const workspaceId = workspaceStore.activeWorkspaceId
+    if (!workspaceId) return
+    await navigateTo(`/workspace/${workspaceId}`)
   }
 
   return {
     activeBoardId,
 
+    setActiveBoard,
+    clearBoard,
     selectBoard,
-    resetBoardSelection,
+    navigateToChat,
   }
 })

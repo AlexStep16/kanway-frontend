@@ -52,7 +52,7 @@ export const useUIStore = defineStore('ui', () => {
   function selectArchive() {
     currentTab.value = Tabs.Archive
 
-    boardStore.resetBoardSelection()
+    boardStore.clearBoard()
   }
 
   const isArchiveTabSelected = computed(() => currentTab.value === Tabs.Archive)
@@ -69,22 +69,22 @@ export const useUIStore = defineStore('ui', () => {
       chatStore.newChat()
     }
 
-    boardStore.resetBoardSelection()
+    boardStore.clearBoard()
   }
 
   function openSubscriptionSettings() {
     currentSettingsTab.value = SettingTabs.SUBSCRIPTION
-    //openSettingsModal()
+    isSettingsModalOpen.value = true
   }
 
   function openGeneralSettings() {
     currentSettingsTab.value = SettingTabs.GENERAL
-    //openSettingsModal()
+    isSettingsModalOpen.value = true
   }
 
   function openPaymentsSettings() {
     currentSettingsTab.value = SettingTabs.PAYMENTS
-    //openSettingsModal()
+    isSettingsModalOpen.value = true
   }
 
   return {

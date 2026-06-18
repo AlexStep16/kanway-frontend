@@ -17,7 +17,7 @@ const textConverter = new showdown.Converter({
 
 <template>
   <div
-    class="prose-sm text-foreground overflow-x-auto"
+    class="prose prose-zinc prose-p:my-2 prose-headings:mt-4 prose-sm max-w-none text-zinc-800 overflow-x-auto leading-6 dark:prose-invert dark:text-zinc-200"
     v-html="textConverter.makeHtml(text || '')"
   ></div>
 </template>

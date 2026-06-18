@@ -2,10 +2,13 @@
 import { Banknote } from 'lucide-vue-next'
 
 const uiStore = useUIStore()
+const workspaceStore = useWorkspaceStore()
+
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 const { data: user } = useUser()
 
-const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount()
+const { data: boardsCount, isLoading: isBoardsCountLoading } = useBoardsCount(activeWorkspaceId)
 const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
 const { data: workspacesData } = useWorkspaces()
 

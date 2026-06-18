@@ -85,7 +85,7 @@ export function useRecoverBoard() {
       const board = boards?.find((b) => b.id === result.data[0]!.id)
 
       if (board) {
-        boardStore.selectBoard(board, true)
+        boardStore.selectBoard(board.id)
       }
     },
 

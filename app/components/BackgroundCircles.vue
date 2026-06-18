@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen -z-10 overflow-hidden">
+  <div class="absolute inset-0 min-h-screen -z-10 overflow-hidden">
     <div
       class="absolute top-0 left-1/4 size-96 bg-blue-300 opacity-30 rounded-full filter blur-[90px]"
     ></div>

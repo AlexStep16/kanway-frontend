@@ -13,6 +13,7 @@ const props = defineProps<{
   state: StatusStatesEnum
   content: IDeleteArchiveEntitiesContent
   stateClasses: Record<string, boolean>
+  isDemo?: boolean
   nounTitlesProcessing: [string, string, string]
   nounTitlesCompleted: [string, string, string]
 }>()
@@ -89,8 +90,10 @@ const pluralizedCompletedTitle = computed(() => {
       <template #log>
         <ChatLog
           :logId="props.content.logId"
-          v-if="props.content.logId"
+          v-if="props.content.logId && !props.isDemo"
         />
+
+        <slot name="demo-log" />
       </template>
       <template #actions>
         <ApproveButtons
@@ -98,16 +101,13 @@ const pluralizedCompletedTitle = computed(() => {
           :chat-id="props.chatId"
           :thread-id="props.threadId"
           :status-log-id="props.statusLogId"
+          :is-demo="props.isDemo"
         />
       </template>
     </DeleteArchiveInProgressAwaiting>
 
     <DeleteArchiveCompletedDropdown
-      v-else-if="
-        props.state === StatusStatesEnum.COMPLETED &&
-        props.content.count &&
-        props.content.isSoftDelete
-      "
+      v-else-if="props.state === StatusStatesEnum.COMPLETED && props.content.logId"
       :pluralized-title="pluralizedCompletedTitle"
       :state-classes="props.stateClasses"
     >
@@ -125,8 +125,10 @@ const pluralizedCompletedTitle = computed(() => {
       </template>
       <ChatLog
         :logId="props.content.logId"
-        v-if="props.content.logId"
+        v-if="props.content.logId && !props.isDemo"
       />
+
+      <slot name="demo-log" />
     </DeleteArchiveCompletedDropdown>
 
     <DeleteArchiveCompletedStatic
@@ -152,10 +154,12 @@ const pluralizedCompletedTitle = computed(() => {
       :pluralized-title="pluralizedProcessingTitle"
     >
       <template #icon>
-        <Square
-          class="size-2.5"
-          fill="currentColor"
-        />
+        <div class="size-3 flex items-center justify-center">
+          <Square
+            class="size-2.5"
+            fill="currentColor"
+          />
+        </div>
       </template>
     </DeleteArchiveCompletedStatic>
 

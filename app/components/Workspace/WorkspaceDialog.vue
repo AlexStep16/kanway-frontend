@@ -9,8 +9,6 @@ import { toast } from 'vue-sonner'
 
 const uiStore = useUIStore()
 
-const isWorkspaceDialogOpen = computed(() => uiStore.isWorkspaceDialogOpen)
-
 const { mutate: createWorkspace, isPending: isCreatingWorkspace } = useCreateWorkspace()
 
 const schema = toTypedSchema(
@@ -72,9 +70,9 @@ const getFirstNameLetted = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:open="isWorkspaceDialogOpen">
+  <Dialog v-model:open="uiStore.isWorkspaceDialogOpen">
     <DialogContent
-      class="sm:max-w-[425px] p-4"
+      class="sm:max-w-106.25 p-4"
       :show-close-button="false"
     >
       <DialogClose

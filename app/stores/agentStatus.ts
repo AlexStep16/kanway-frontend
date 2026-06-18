@@ -82,32 +82,23 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
       if (log.collectionName === 'boards') {
         if (log.operationType === 'CREATE') {
-          if (log.entitiesAfter) boardStore.selectBoard(log.entitiesAfter[0], true) // Автоматически переключаемся на новую доску
+          if (log.entitiesAfter) boardStore.selectBoard(log.entitiesAfter[0].id)
         } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
-          if (log.entitiesBefore) {
-            if (log.entitiesBefore.some((b: any) => b.id === boardStore.activeBoardId)) {
-              boardStore.resetBoardSelection()
-
-              uiStore.selectChat() // Переключаемся на чат, если удалили/архивировали активную доску
-            }
+          if (log.entitiesBefore?.some((b: any) => b.id === boardStore.activeBoardId)) {
+            boardStore.navigateToChat()
           }
         }
       }
 
       if (log.collectionName === 'workspaces') {
         if (log.operationType === 'CREATE') {
-          if (log.entitiesAfter) workspaceStore.selectWorkspace(log.entitiesAfter[0], true) // Автоматически переключаемся на новое рабочее пространство
+          if (log.entitiesAfter) workspaceStore.selectWorkspace(log.entitiesAfter[0])
         }
       } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
-        if (log.entitiesBefore) {
-          if (log.entitiesBefore.some((w: any) => w.id === workspaceStore.activeWorkspaceId)) {
-            const workspaces = $queryClient.getQueryData<WorkspaceModel[]>(workspaceKeys.lists())
-
-            if (workspaces && workspaces.length > 0) {
-              const nextWorkspace = workspaces[0]!
-              workspaceStore.selectWorkspace(nextWorkspace, true)
-            }
-          }
+        if (log.entitiesBefore?.some((w: any) => w.id === workspaceStore.activeWorkspaceId)) {
+          const workspaces = $queryClient.getQueryData<WorkspaceModel[]>(workspaceKeys.lists())
+          const nextWorkspace = workspaces?.[0]
+          if (nextWorkspace) workspaceStore.selectWorkspace(nextWorkspace)
         }
       }
     } else if (event.role === CustomEventsEnum.UPDATE_MESSAGE) {

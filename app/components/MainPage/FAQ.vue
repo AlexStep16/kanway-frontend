@@ -1,4 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
+</script>
 
 <template>
   <section class="relative z-1 overflow-hidden bg-gray-50">
@@ -19,366 +26,162 @@
 
       <div class="max-w-2xl mx-auto">
         <!-- Accordion -->
-        <div class="hs-accordion-group faq-group">
-          <div
+        <Accordion
+          type="single"
+          collapsible
+          class="w-full faq-group"
+          default-value="item-1"
+        >
+          <!-- Item 1 -->
+          <AccordionItem
+            value="item-1"
             data-aos="fade-up"
             data-aos-duration="1000"
             data-aos-once="true"
-            class="hs-accordion hs-accordion-active:bg-gray-100 rounded-xl p-6 active"
-            id="hs-basic-with-title-and-arrow-stretched-heading-one"
+            class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
-            <button
-              class="hs-accordion-toggle group pb-3 inline-flex items-center justify-between gap-x-3 w-full md:text-lg font-semibold text-start text-gray-800 rounded-lg transition hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-              aria-expanded="true"
-              aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-one"
+            <AccordionTrigger
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Как именно работает AI? Это просто чат-бот?
-              <svg
-                class="hs-accordion-active:hidden block shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              <svg
-                class="hs-accordion-active:block hidden shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m18 15-6-6-6 6" />
-              </svg>
-            </button>
-            <div
-              id="hs-basic-with-title-and-arrow-stretched-collapse-one"
-              class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300"
-              role="region"
-              aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-one"
-            >
-              <p class="text-gray-800">
+            </AccordionTrigger>
+            <AccordionContent class="pb-0">
+              <p class="text-gray-800 text-base">
                 Нет, это гораздо больше. Наш AI-ассистент работает как настоящий помощник: он
                 анализирует вашу команду, составляет пошаговый план действий (например, "найти
                 задачи" -> "изменить цвет" -> "переместить"), а затем выполняет его. Он понимает
                 контекст вашей работы, помнит предыдущие сообщения и даже задает уточняющие вопросы,
                 если команда неоднозначна.
               </p>
-            </div>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div
+          <!-- Item 2 -->
+          <AccordionItem
+            value="item-2"
             data-aos="fade-up"
             data-aos-delay="300"
             data-aos-anchor=".faq-group"
             data-aos-duration="1000"
             data-aos-once="true"
-            class="hs-accordion hs-accordion-active:bg-gray-100 rounded-xl p-6"
-            id="hs-basic-with-title-and-arrow-stretched-heading-two"
+            class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
-            <button
-              class="hs-accordion-toggle group pb-3 inline-flex items-center justify-between gap-x-3 w-full md:text-lg font-semibold text-start text-gray-800 rounded-lg transition hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-              aria-expanded="false"
-              aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-two"
+            <AccordionTrigger
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Мои задачи и данные в безопасности? Вы отправляете их в сторонние сервисы?
-              <svg
-                class="hs-accordion-active:hidden block shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              <svg
-                class="hs-accordion-active:block hidden shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m18 15-6-6-6 6" />
-              </svg>
-            </button>
-            <div
-              id="hs-basic-with-title-and-arrow-stretched-collapse-two"
-              class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
-              role="region"
-              aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-two"
-            >
-              <p class="text-gray-800">
+            </AccordionTrigger>
+            <AccordionContent class="pb-0">
+              <p class="text-gray-800 text-base">
                 Конфиденциальность — наш главный приоритет. Мы используем передовые LLM-модели через
                 защищенные API, но мы НЕ используем ваши данные для обучения моделей. Ваша
                 информация обрабатывается для выполнения команды и ни для чего больше. Все данные
                 хранятся в зашифрованном виде на надежных серверах.
               </p>
-            </div>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div
+          <!-- Item 3 -->
+          <AccordionItem
+            value="item-3"
             data-aos="fade-up"
             data-aos-delay="600"
             data-aos-anchor=".faq-group"
             data-aos-duration="1000"
             data-aos-once="true"
-            class="hs-accordion hs-accordion-active:bg-gray-100 rounded-xl p-6"
-            id="hs-basic-with-title-and-arrow-stretched-heading-three"
+            class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
-            <button
-              class="hs-accordion-toggle group pb-3 inline-flex items-center justify-between gap-x-3 w-full md:text-lg font-semibold text-start text-gray-800 rounded-lg transition hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-              aria-expanded="false"
-              aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-three"
+            <AccordionTrigger
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Как расходуются кредиты в Kanway AI?
-              <svg
-                class="hs-accordion-active:hidden block shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              <svg
-                class="hs-accordion-active:block hidden shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m18 15-6-6-6 6" />
-              </svg>
-            </button>
-            <div
-              id="hs-basic-with-title-and-arrow-stretched-collapse-three"
-              class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
-              role="region"
-              aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-three"
-            >
-              <p class="text-gray-800">
+            </AccordionTrigger>
+            <AccordionContent class="pb-0">
+              <p class="text-gray-800 text-base">
                 Расход кредитов напрямую зависит от объема интеллектуальной работы, которую
                 выполняет система. В Kanway задействована цепочка агентов, и чем больше информации
-                им нужно обработать и создать, тем больше ресурсов ИИ расходуется.
-                <br /><br /><b>Примерная стоимость операций:</b><br />
-                - Простая команда (например, "перемести эту задачу") — 1 кредит<br />
-                - Сложная команда (например, "создай задачи для всех пунктов моего списка дел") — 2
-                кредита<br /><br />
+                им нужно обработать и создать, тем больше ресурсов ИИ расходуется.<br /><br />
                 Вы платите за результат: от короткого совета до полноценной архитектуры проекта.
               </p>
-            </div>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div
+          <!-- Item 4 -->
+          <AccordionItem
+            value="item-4"
             data-aos="fade-up"
             data-aos-delay="900"
             data-aos-anchor=".faq-group"
             data-aos-duration="1000"
             data-aos-once="true"
-            class="hs-accordion hs-accordion-active:bg-gray-100 rounded-xl p-6"
-            id="hs-basic-with-title-and-arrow-stretched-heading-four"
+            class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
-            <button
-              class="hs-accordion-toggle group pb-3 inline-flex items-center justify-between gap-x-3 w-full md:text-lg font-semibold text-start text-gray-800 rounded-lg transition hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-              aria-expanded="false"
-              aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-four"
+            <AccordionTrigger
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Чем вы лучше других таск-менеджеров, в которых тоже есть AI?
-              <svg
-                class="hs-accordion-active:hidden block shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              <svg
-                class="hs-accordion-active:block hidden shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m18 15-6-6-6 6" />
-              </svg>
-            </button>
-            <div
-              id="hs-basic-with-title-and-arrow-stretched-collapse-four"
-              class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
-              role="region"
-              aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-four"
-            >
-              <p class="text-gray-800">
+            </AccordionTrigger>
+            <AccordionContent class="pb-0">
+              <p class="text-gray-800 text-base">
                 Большинство AI-инструментов — это "умное" автодополнение или генерация текста. Наш
                 сервис — это полноценный исполнительный агент. Он не просто предлагает идеи, а
                 выполняет ваши команды, понимая контекст вашей работы. Наш AI-ассистент интегрирован
                 глубоко в таск-менеджер, что позволяет ему эффективно управлять задачами, проектами
                 и командами.
               </p>
-            </div>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div
+          <!-- Item 5 -->
+          <AccordionItem
+            value="item-5"
             data-aos="fade-up"
             data-aos-delay="1200"
             data-aos-anchor=".faq-group"
             data-aos-duration="1000"
             data-aos-once="true"
-            class="hs-accordion hs-accordion-active:bg-gray-100 rounded-xl p-6"
-            id="hs-basic-with-title-and-arrow-stretched-heading-five"
+            class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
-            <button
-              class="hs-accordion-toggle group pb-3 inline-flex items-center justify-between gap-x-3 w-full md:text-lg font-semibold text-start text-gray-800 rounded-lg transition hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-              aria-expanded="false"
-              aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-five"
+            <AccordionTrigger
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Возможна ли командная работа в Kanway?
-              <svg
-                class="hs-accordion-active:hidden block shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              <svg
-                class="hs-accordion-active:block hidden shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m18 15-6-6-6 6" />
-              </svg>
-            </button>
-            <div
-              id="hs-basic-with-title-and-arrow-stretched-collapse-five"
-              class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
-              role="region"
-              aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-five"
-            >
-              <p class="text-gray-800">
+            </AccordionTrigger>
+            <AccordionContent class="pb-0">
+              <p class="text-gray-800 text-base">
                 Сейчас архитектура Kanway оптимизирована для «второго мозга» и персональной
                 продуктивности. Это позволяет ИИ-агентам максимально глубоко подстраиваться под ваш
                 личный контекст. Многопользовательский режим и общие пространства находятся в
                 разработке и станут доступны в рамках корпоративных планов.
               </p>
-            </div>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div
+          <!-- Item 6 -->
+          <AccordionItem
+            value="item-6"
             data-aos="fade-up"
             data-aos-delay="1500"
             data-aos-anchor=".faq-group"
             data-aos-duration="1000"
             data-aos-once="true"
-            class="hs-accordion hs-accordion-active:bg-gray-100 rounded-xl p-6"
-            id="hs-basic-with-title-and-arrow-stretched-heading-six"
+            class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
-            <button
-              class="hs-accordion-toggle group pb-3 inline-flex items-center justify-between gap-x-3 w-full md:text-lg font-semibold text-start text-gray-800 rounded-lg transition hover:text-blue-500 focus:outline-hidden focus:text-blue-500"
-              aria-expanded="false"
-              aria-controls="hs-basic-with-title-and-arrow-stretched-collapse-six"
+            <AccordionTrigger
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Какова ваша политика возврата?
-              <svg
-                class="hs-accordion-active:hidden block shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-              <svg
-                class="hs-accordion-active:block hidden shrink-0 size-5 text-gray-600 group-hover:text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="m18 15-6-6-6 6" />
-              </svg>
-            </button>
-            <div
-              id="hs-basic-with-title-and-arrow-stretched-collapse-six"
-              class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300"
-              role="region"
-              aria-labelledby="hs-basic-with-title-and-arrow-stretched-heading-six"
-            >
-              <p class="text-gray-800">
+            </AccordionTrigger>
+            <AccordionContent class="pb-0">
+              <p class="text-gray-800 text-base">
                 Мы предлагаем возвраты. Мы стремимся к тому, чтобы сосредоточиться на построении
                 отношений с нашими клиентами и сообществом.
               </p>
-            </div>
-          </div>
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <!-- End Accordion -->
       </div>
     </div>
-    <!-- End FAQ -->
   </section>
 </template>

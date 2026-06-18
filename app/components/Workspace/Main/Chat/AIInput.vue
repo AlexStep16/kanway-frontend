@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import Sparkles from '~/assets/sparkles.svg?skipsvgo'
+import ChatGPT from '~/assets/chatgpt.svg?skipsvgo'
 import MicButton from '~/components/Workspace/Main/MicButton.vue'
-import { Feather, Flame } from 'lucide-vue-next'
 import { cn } from '~/lib/utils'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
@@ -9,6 +9,8 @@ import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 const { data: user } = useUser()
 
 const chatStore = useChatStore()
+const agentStatusStore = useAgentStatusStore()
+const transcriptStore = useTranscriptStore()
 
 const { aiInputMessage } = storeToRefs(chatStore)
 
@@ -25,8 +27,6 @@ const emit = defineEmits<{
 }>()
 
 const update = ref(() => {})
-
-const agentStatusStore = useAgentStatusStore()
 
 const isModelTypeSelectOpen = ref(false)
 
@@ -60,8 +60,24 @@ function updateTextarea() {
   }
 }
 
+const isGPTModel = computed(() => {
+  return (
+    chatStore.modelType === ModelsEnum.GPT_4O_TRANSCRIBE ||
+    chatStore.modelType === ModelsEnum.GPT_5_4_NANO ||
+    chatStore.modelType === ModelsEnum.GPT_5_4_MINI ||
+    chatStore.modelType === ModelsEnum.GPT_5_4 ||
+    chatStore.modelType === ModelsEnum.GPT_5_5
+  )
+})
+
 const isRunButtonDisabled = computed(() => {
-  return props.isDisabled || !aiInputMessage.value.trim() || agentStatusStore.isSSEActive()
+  return (
+    props.isDisabled ||
+    !aiInputMessage.value.trim() ||
+    agentStatusStore.isSSEActive() ||
+    transcriptStore.isRecording ||
+    transcriptStore.isTranscribing
+  )
 })
 
 const isUserBasic = computed(() => {
@@ -75,11 +91,13 @@ defineExpose({
 </script>
 
 <template>
-  <div class="w-full relative p-2 rounded-md bg-white border border-gray-200">
-    <div class="flex flex-col gap-1 items-end">
+  <div
+    class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2 dark:bg-zinc-950/90 dark:border-zinc-800 dark:ring-white/3"
+  >
+    <div class="flex flex-col gap-2 items-end">
       <div class="w-full flex items-center">
         <Textarea
-          class="p-0 border-none shadow-none min-h-12 rounded-none"
+          class="p-0 border-none shadow-none min-h-12 rounded-none placeholder:text-zinc-400"
           placeholder="Опиши проект или просто выгрузи мысли..."
           v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
@@ -94,48 +112,64 @@ defineExpose({
             <SelectTrigger
               :class="
                 cn(
-                  'border flex shadow-none h-8 text-xs text-muted-foreground rounded-sm font-medium gap-2 focus:ring-0 hover:bg-accent justify-start px-2',
+                  'w-full items-center whitespace-nowrap border-zinc-200 bg-zinc-50/80 py-2 ring-offset-background data-placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300/60 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate text-start border flex shadow-sm h-8 text-xs text-zinc-600 rounded-lg font-medium gap-2 hover:bg-zinc-100/80 justify-start px-2.5 transition-all duration-200 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300 dark:hover:bg-zinc-800/80 dark:focus:ring-zinc-700',
                 )
               "
               :is-open="isModelTypeSelectOpen"
             >
-              <Feather
+              <ChatGPT
                 class="size-4 shrink-0"
-                v-if="chatStore.modelType === ModelsEnum.KANWAY_LITE"
-              />
-              <Flame
-                class="size-4 shrink-0"
-                v-if="chatStore.modelType === ModelsEnum.KANWAY_PRO"
+                v-if="isGPTModel"
               />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup class="p-0 text-muted-foreground">
                 <SelectItem
-                  :value="ModelsEnum.KANWAY_LITE"
+                  :value="ModelsEnum.GPT_5_4_MINI"
                   :class="
                     cn(
                       'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.KANWAY_LITE && 'text-primary',
+                      chatStore.modelType === ModelsEnum.GPT_5_4_MINI && 'text-primary',
                     )
                   "
                 >
                   <div class="flex items-center gap-x-2">
-                    <Feather class="size-4 shrink-0" /><span>Kanway Lite</span>
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT 5.4 Mini</span>
                   </div>
                 </SelectItem>
                 <SelectItem
                   :disabled="isUserBasic"
-                  :value="ModelsEnum.KANWAY_PRO"
+                  :value="ModelsEnum.GPT_5_4"
                   :class="
                     cn(
                       'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.KANWAY_PRO && 'text-primary',
+                      chatStore.modelType === ModelsEnum.GPT_5_4 && 'text-primary',
                     )
                   "
                 >
                   <div class="flex items-center gap-x-2">
-                    <Flame class="size-4 shrink-0" /><span>Kanway Pro</span>
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT 5.4</span>
+                    <span
+                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
+                      v-if="isUserBasic"
+                    >
+                      PRO
+                    </span>
+                  </div>
+                </SelectItem>
+                <SelectItem
+                  :disabled="isUserBasic"
+                  :value="ModelsEnum.GPT_5_5"
+                  :class="
+                    cn(
+                      'focus:text-primary',
+                      chatStore.modelType === ModelsEnum.GPT_5_5 && 'text-primary',
+                    )
+                  "
+                >
+                  <div class="flex items-center gap-x-2">
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT 5.5</span>
                     <span
                       class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
                       v-if="isUserBasic"
@@ -152,12 +186,12 @@ defineExpose({
           <MicButton
             @deltaAdd="
               (deltaText: string) => {
-                aiInputMessage += deltaText
+                aiInputMessage += deltaText.trim()
               }
             "
             @transcriptionCompleted="
               (finalText: string) => {
-                aiInputMessage = finalText
+                aiInputMessage = finalText.trim()
               }
             "
             @clearInput="

@@ -15,6 +15,7 @@ const props = defineProps<{
   stateClasses: Record<string, boolean>
   nounTitlesProcessing: [string, string, string]
   nounTitlesCompleted: [string, string, string]
+  isDemo?: boolean
 }>()
 
 const processingTitles = ['Создаю', 'Создаю', 'Создаю']
@@ -74,7 +75,7 @@ const pluralizedProcessTitle = computed(() => {
     </CreateInProgressAwaiting>
 
     <CreateCompletedDropdown
-      v-else-if="props.state === StatusStatesEnum.COMPLETED && props.content.count"
+      v-else-if="props.state === StatusStatesEnum.COMPLETED && props.content.logId"
       :pluralized-title="pluralizedCompletedTitle"
       :state-classes="stateClasses"
     >
@@ -86,8 +87,10 @@ const pluralizedProcessTitle = computed(() => {
       </template>
       <ChatLog
         :logId="props.content.logId"
-        v-if="props.content.logId"
+        v-if="props.content.logId && !props.isDemo"
       />
+
+      <slot name="demo-log" />
     </CreateCompletedDropdown>
 
     <CreateCompletedStatic
@@ -107,10 +110,12 @@ const pluralizedProcessTitle = computed(() => {
       :pluralized-title="pluralizedProcessTitle"
     >
       <template #icon>
-        <Square
-          class="size-2.5"
-          fill="currentColor"
-        />
+        <div class="size-3 flex items-center justify-center">
+          <Square
+            class="size-2.5"
+            fill="currentColor"
+          />
+        </div>
       </template>
     </CreateCompletedStatic>
 

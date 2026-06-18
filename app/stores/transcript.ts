@@ -30,7 +30,7 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     const runtimeConfig = useRuntimeConfig()
 
-    const serverUrl = runtimeConfig.public.serverBaseUrl as string || 'http://localhost:3333'
+    const serverUrl = (runtimeConfig.public.serverBaseUrl as string) || 'http://localhost:3333'
 
     const newSocket = io(serverUrl, {
       withCredentials: true,
@@ -152,6 +152,10 @@ export const useTranscriptStore = defineStore('transcript', () => {
 
     if (workletNode.value) {
       workletNode.value.port.postMessage({ command: 'flush' })
+    }
+
+    if (socket.value?.connected) {
+      socket.value.emit('commit-audio')
     }
 
     setTimeout(() => {

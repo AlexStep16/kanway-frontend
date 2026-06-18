@@ -8,6 +8,7 @@ import type { IChatMessage } from '~/interfaces/domain/IChatMessage.js'
 
 const props = defineProps<{
   status: IStatus
+  isDemo?: boolean
   message: IChatMessage
   isContentFullWidth?: boolean
   chatId: string
@@ -150,7 +151,7 @@ function handleRetryAgent() {
         </div>
 
         <div
-          class="flex flex-col gap-y-2 text-muted-foreground"
+          class="flex flex-col gap-y-2 text-muted-foreground min-w-0"
           :class="{
             'py-1': props.status.logs.length > 0,
           }"
@@ -161,6 +162,7 @@ function handleRetryAgent() {
             :log="log"
             :chat-id="props.chatId"
             :thread-id="props.threadId"
+            :is-demo="isDemo"
           />
 
           <span

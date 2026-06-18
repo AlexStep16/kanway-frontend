@@ -9,9 +9,11 @@ export const useChatStore = defineStore('chat', () => {
 
   const temporaryChatId = ref(window.crypto.randomUUID())
   const activeChatId = ref<string | null>(null)
-  const modelType = ref<ModelsEnum>(ModelsEnum.KANWAY_LITE)
+  const modelType = ref<ModelsEnum>(ModelsEnum.GPT_5_4_MINI)
   const renamingChatSet = ref(new Set<string>())
   const aiInputMessage = ref<string>('')
+  const demoChatApprovedTag = ref<string>('')
+  const demoChatRejectedTag = ref<string>('')
 
   const isActiveChatTemporary = computed(() => activeChatId.value === temporaryChatId.value)
   const isChatRenaming = (chatId: string) => renamingChatSet.value.has(chatId)
@@ -51,6 +53,8 @@ export const useChatStore = defineStore('chat', () => {
     temporaryChatId,
     isActiveChatTemporary,
     aiInputMessage,
+    demoChatApprovedTag,
+    demoChatRejectedTag,
     isChatRenaming,
     newChat,
     selectChat,

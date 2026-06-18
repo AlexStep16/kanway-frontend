@@ -5,10 +5,12 @@ export default class ChatMessageModel implements IChatMessage {
   public id: string
   public role: IChatMessageRoles
   public content: any
+  public iterationId: string
   public tempId?: string
   public listType?: 'workspace' | 'board' | 'column' | 'task'
   public pendingToolCallId?: string
   public creditsUsed?: number
+  public audioCreditsUsed?: number
   public rating?: boolean
   public userId: string
   public chatId: string
@@ -20,9 +22,11 @@ export default class ChatMessageModel implements IChatMessage {
     this.id = props.id
     this.role = props.role
     this.content = props.content
+    this.iterationId = props.iterationId
     this.listType = props.listType
     this.pendingToolCallId = props.pendingToolCallId
     this.creditsUsed = props.creditsUsed
+    this.audioCreditsUsed = props.audioCreditsUsed
     this.rating = props.rating
     this.userId = props.userId
     this.chatId = props.chatId

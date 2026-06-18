@@ -74,7 +74,7 @@ const pluralizedProcessTitle = computed(() => {
     </RecoverInProgressAwaiting>
 
     <RecoverCompletedDropdown
-      v-else-if="props.state === StatusStatesEnum.COMPLETED && props.content.count"
+      v-else-if="props.state === StatusStatesEnum.COMPLETED && props.content.logId"
       :pluralized-title="pluralizedCompletedTitle"
       :state-classes="props.stateClasses"
     >
@@ -107,10 +107,12 @@ const pluralizedProcessTitle = computed(() => {
       :pluralized-title="pluralizedProcessTitle"
     >
       <template #icon>
-        <Square
-          class="size-2.5"
-          fill="currentColor"
-        />
+        <div class="size-3 flex items-center justify-center">
+          <Square
+            class="size-2.5"
+            fill="currentColor"
+          />
+        </div>
       </template>
     </RecoverCompletedStatic>
 

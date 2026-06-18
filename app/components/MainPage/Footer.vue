@@ -23,31 +23,32 @@ import KanwayLogo from '~/assets/kanway_logo_white.svg?skipsvgo'
 
           <div class="mt-3 grid space-y-3">
             <p>
-              <a
+              <NuxtLink
                 class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Возможности</a
+                href="/#why"
+              >
+                Почему Kanway
+              </NuxtLink>
+            </p>
+            <p>
+              <NuxtLink
+                class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
+                href="/#control"
+                >Командный центр</NuxtLink
               >
             </p>
             <p>
-              <a
+              <NuxtLink
                 class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Контроль</a
+                href="/#pricing"
+                >Цены</NuxtLink
               >
             </p>
             <p>
-              <a
+              <NuxtLink
                 class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Тарифы</a
-              >
-            </p>
-            <p>
-              <a
-                class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Вопросы</a
+                href="/#faq"
+                >Вопросы</NuxtLink
               >
             </p>
           </div>
@@ -59,31 +60,24 @@ import KanwayLogo from '~/assets/kanway_logo_white.svg?skipsvgo'
 
           <div class="mt-3 grid space-y-3">
             <p>
-              <a
+              <NuxtLink
                 class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Контакты</a
+                href="/privacy"
+                >Политика конфиденциальности</NuxtLink
               >
             </p>
             <p>
-              <a
+              <NuxtLink
                 class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Политика конфиденциальности</a
+                href="/terms"
+                >Пользовательское соглашение</NuxtLink
               >
             </p>
             <p>
-              <a
+              <NuxtLink
                 class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Условия использования</a
-              >
-            </p>
-            <p>
-              <a
-                class="inline-flex gap-x-2 text-gray-400 hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
-                href="#"
-                >Политика Cookies</a
+                href="/cookies"
+                >Политика Cookies</NuxtLink
               >
             </p>
           </div>

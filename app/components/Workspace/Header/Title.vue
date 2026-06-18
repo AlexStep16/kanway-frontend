@@ -3,6 +3,7 @@ import { SquarePen } from 'lucide-vue-next'
 
 const props = defineProps<{
   isLoading: boolean
+  isStatic?: boolean
   isBusy?: boolean
   initialName: string
 }>()
@@ -16,6 +17,7 @@ const emit = defineEmits<{
 const isInputVisible = ref(false)
 
 function showInput() {
+  if (props.isStatic) return
   isInputVisible.value = true
 }
 
@@ -26,6 +28,11 @@ function handleResetForm() {
 
 function handleUpdateName() {
   const trimmedName = name.value.trim()
+
+  if (trimmedName === props.initialName) {
+    handleResetForm()
+    return
+  }
 
   if (trimmedName) {
     emit('updateName', trimmedName)
@@ -51,13 +58,16 @@ watch(
     <template v-if="!isLoading">
       <Button
         variant="secondary"
-        class="px-1.5! group max-w-full"
+        class="px-3 group max-w-full"
         size="sm"
         @click="showInput"
         v-if="!isInputVisible"
       >
         <div class="shrink-0 size-4 relative flex items-center justify-center">
-          <Spinner class="size-4 absolute" v-if="isBusy" />
+          <Spinner
+            class="size-4 absolute"
+            v-if="isBusy"
+          />
           <slot v-else></slot>
         </div>
         <span class="truncate">{{ name }}</span>
@@ -70,11 +80,14 @@ watch(
         class="font-medium text-secondary-foreground px-2 h-8 focus-visible:ring-0 focus-visible:outline-none"
         @keydown.enter="handleUpdateName"
         @keydown.esc="handleResetForm"
-        @blur="handleResetForm"
+        @blur="handleUpdateName"
         v-autowidth
         v-else
       />
     </template>
-    <Skeleton class="h-8 w-32 rounded-md" v-else />
+    <Skeleton
+      class="h-8 w-32 rounded-md"
+      v-else
+    />
   </div>
 </template>

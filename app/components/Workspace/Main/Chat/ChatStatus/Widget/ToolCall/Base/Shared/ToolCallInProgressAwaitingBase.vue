@@ -36,8 +36,10 @@ defineProps<{
 
       <div class="ml-4 mt-2 flex flex-col gap-y-2">
         <ToolCallFiltersList :items="items" />
-        <AccordionContent class="pb-1 max-h-100 overflow-y-auto overflow-x-hidden">
-          <slot name="log" />
+        <AccordionContent class="pb-1 overflow-hidden py-3">
+          <div class="max-h-100 custom-scrollbar overflow-y-auto overflow-x-hidden pr-1">
+            <slot name="log" />
+          </div>
         </AccordionContent>
         <slot name="actions" />
       </div>

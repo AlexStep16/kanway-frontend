@@ -73,7 +73,7 @@ export function useDeleteWorkspace() {
 
         const nextWorkspace = workspaces && workspaces.length > 0 ? workspaces[0] : null
 
-        if (nextWorkspace) WORKSPACE_STORE.selectWorkspace(nextWorkspace, true)
+        if (nextWorkspace) WORKSPACE_STORE.selectWorkspace(nextWorkspace)
       }
 
       toast.success('Пространство успешно удалено')

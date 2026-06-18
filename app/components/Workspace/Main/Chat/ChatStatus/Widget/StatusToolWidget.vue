@@ -35,6 +35,12 @@ import RecoverWorkspaces from './ToolCall/Workspaces/RecoverWorkspaces.vue'
 import MoveTasks from './ToolCall/Tasks/MoveTasks.vue'
 import MoveColumns from './ToolCall/Columns/MoveColumns.vue'
 import MoveBoards from './ToolCall/Boards/MoveBoards.vue'
+import MoveWorkspaces from './ToolCall/Workspaces/MoveWorkspaces.vue'
+
+import ReorderTasks from './ToolCall/Tasks/ReorderTasks.vue'
+import ReorderColumns from './ToolCall/Columns/ReorderColumns.vue'
+import ReorderBoards from './ToolCall/Boards/ReorderBoards.vue'
+import ReorderWorkspaces from './ToolCall/Workspaces/ReorderWorkspaces.vue'
 
 import UndoOperations from './ToolCall/UndoOperations.vue'
 
@@ -44,6 +50,7 @@ const props = defineProps<{
   threadId: string
   statusLogId: string
   state: StatusStatesEnum
+  isDemo?: boolean
 }>()
 
 const stateClasses = computed(() => {
@@ -90,6 +97,12 @@ const toolComponents = {
   move_tasks: MoveTasks,
   move_columns: MoveColumns,
   move_boards: MoveBoards,
+  move_workspaces: MoveWorkspaces,
+
+  reorder_tasks: ReorderTasks,
+  reorder_columns: ReorderColumns,
+  reorder_boards: ReorderBoards,
+  reorder_workspaces: ReorderWorkspaces,
 
   undo_operations: UndoOperations,
 } as const
@@ -122,7 +135,11 @@ const mutationTools = new Set([
   'move_tasks',
   'move_columns',
   'move_boards',
-
+  'move_workspaces',
+  'reorder_tasks',
+  'reorder_columns',
+  'reorder_boards',
+  'reorder_workspaces',
   'undo_operations',
 ])
 
@@ -131,6 +148,7 @@ const toolCallProps = computed(() => {
     state: props.state,
     content: props.tool.content,
     stateClasses: stateClasses.value,
+    isDemo: props.isDemo,
   }
 
   if (!mutationTools.has(props.tool.name)) {

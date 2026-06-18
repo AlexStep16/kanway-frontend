@@ -6,10 +6,12 @@ const props = defineProps<{
   chatId: string
   threadId: string
   statusLogId: string
+  isDemo?: boolean
 }>()
 
 const { mutate: approveToolCall } = useApproveTool()
 
+const chatStore = useChatStore()
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
 
@@ -17,6 +19,11 @@ const { activeBoardId } = storeToRefs(boardStore)
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 function approve() {
+  if (props.isDemo) {
+    chatStore.demoChatApprovedTag = Math.random().toString(36).substring(2, 15)
+    return
+  }
+
   approveToolCall({
     payload: {
       toolId: props.toolId,
@@ -32,6 +39,11 @@ function approve() {
 }
 
 function reject() {
+  if (props.isDemo) {
+    chatStore.demoChatRejectedTag = Math.random().toString(36).substring(2, 15)
+    return
+  }
+
   approveToolCall({
     payload: {
       toolId: props.toolId,

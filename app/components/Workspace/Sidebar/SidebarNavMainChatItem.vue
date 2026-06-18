@@ -35,7 +35,7 @@ function handleSelectChat(chat: IChat) {
 
   if (isMobile.value) {
     toggleSidebar()
-    boardStore.resetBoardSelection()
+    boardStore.clearBoard()
   }
 }
 
@@ -44,7 +44,7 @@ function handleNewChat() {
 
   if (isMobile.value) {
     toggleSidebar()
-    boardStore.resetBoardSelection()
+    boardStore.clearBoard()
   }
 }
 </script>

@@ -4,7 +4,7 @@ import { Check, X } from 'lucide-vue-next'
 
 <template>
   <section class="relative z-1 overflow-hidden bg-white">
-    <div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+    <div class="max-w-340 mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
       <!-- Title -->
       <div
         data-aos="fade-down"
@@ -51,22 +51,17 @@ import { Check, X } from 'lucide-vue-next'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> 20 кредитов </span>
+              <span class="text-gray-800"> 200 кредитов </span>
             </li>
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Базовая модель: <b>Kanway Lite</b> </span>
+              <span class="text-gray-800"> Базовая модель: <b>GPT 5.4 Mini</b> </span>
             </li>
 
             <li class="flex items-center gap-x-2">
               <X class="size-4 text-red-600 shrink-0" />
-              <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
-            </li>
-
-            <li class="flex items-center gap-x-2">
-              <X class="size-4 text-red-600 shrink-0" />
-              <span class="text-gray-800"> Режим <b>Критик</b></span>
+              <span class="text-gray-800"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
             </li>
           </ul>
 
@@ -109,7 +104,7 @@ import { Check, X } from 'lucide-vue-next'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> 600 кредитов </span>
+              <span class="text-gray-800"> 10000 кредитов </span>
             </li>
 
             <li class="flex items-center gap-x-2">
@@ -119,12 +114,7 @@ import { Check, X } from 'lucide-vue-next'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
-            </li>
-
-            <li class="flex items-center gap-x-2">
-              <X class="size-4 text-red-600 shrink-0" />
-              <span class="text-gray-800"> Режим <b>Критик</b></span>
+              <span class="text-gray-800"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
             </li>
           </ul>
 
@@ -161,7 +151,7 @@ import { Check, X } from 'lucide-vue-next'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> 1300 кредитов </span>
+              <span class="text-gray-800"> 25000 кредитов </span>
             </li>
 
             <li class="flex items-center gap-x-2">
@@ -171,12 +161,7 @@ import { Check, X } from 'lucide-vue-next'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Доступ к модели <b>Kanway Pro</b> </span>
-            </li>
-
-            <li class="flex items-center gap-x-2">
-              <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Режим <b>Критик</b></span>
+              <span class="text-gray-800"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
             </li>
           </ul>
 

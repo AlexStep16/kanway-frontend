@@ -11,6 +11,7 @@ const props = defineProps<{
   state: StatusStatesEnum
   content: ICreateEntitiesContent
   stateClasses: Record<string, boolean>
+  isDemo?: boolean
 }>()
 </script>
 
@@ -25,5 +26,10 @@ const props = defineProps<{
     :state-classes="props.stateClasses"
     :noun-titles-processing="['колонку', 'колонки', 'колонок']"
     :noun-titles-completed="['колонка', 'колонки', 'колонок']"
-  />
+    :is-demo="props.isDemo"
+  >
+    <template #demo-log>
+      <DemoCreateColumns />
+    </template>
+  </CreateEntities>
 </template>

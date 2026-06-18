@@ -44,9 +44,15 @@ export function useRetryAgent() {
       queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(payload.chatId),
         (oldMessages = []) => {
-          return oldMessages.filter(
-            (message) => message.createdAt <= payload.statusMessage.createdAt,
+          const statusMessageIndex = oldMessages.findIndex(
+            (msg) => msg.id === payload.statusMessage.id,
           )
+
+          if (statusMessageIndex === -1) {
+            return oldMessages
+          } else {
+            return [...oldMessages.slice(0, statusMessageIndex + 1)]
+          }
         },
       )
     },

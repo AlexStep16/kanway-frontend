@@ -1,223 +1,255 @@
 <script setup lang="ts">
-import {
-  Layers,
-  Brain,
-  MessageCircleQuestionMark,
-  Pencil,
-  MessageCircleIcon,
-  Map,
-} from 'lucide-vue-next'
+import { CheckCircle, Clock } from 'lucide-vue-next'
 </script>
 
 <template>
-  <section class="relative z-1 overflow-hidden bg-white">
+  <section class="relative py-24 w-full bg-white dark:bg-zinc-950 overflow-hidden isolate">
+    <!-- Subtle background pattern & glow -->
     <div
-      data-aos="fade-down"
-      data-aos-duration="1000"
-      data-aos-anchor=".command-text"
-      data-aos-once="true"
-      class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24 pb-10"
+      class="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#27272a_1px,transparent_1px)] bg-size-[24px_24px] mask-[radial-gradient(ellipse_60%_60%_at_50%_0%,#000_60%,transparent_100%)]"
+    ></div>
+    <div
+      class="absolute top-0 inset-x-0 -z-10 transform-gpu overflow-hidden blur-3xl flex justify-center"
+      aria-hidden="true"
     >
-      <!-- Title -->
-      <div class="max-w-2xl text-center mx-auto">
-        <h1 class="block font-bold text-gray-800 text-2xl md:text-3xl lg:text-4xl">
-          Это не просто чат. Это ваш командный центр.
-        </h1>
-      </div>
-      <!-- End Title -->
-
-      <div class="mt-4 max-w-2xl text-center mx-auto command-text">
-        <p class="md:text-lg text-gray-600">
-          Наш AI-агент не просто создает задачи — он понимает многошаговые команды, уточняет детали
-          и работает с целыми проектами одновременно.
-        </p>
-      </div>
+      <div
+        class="aspect-1108/632 w-277 flex-none bg-linear-to-r from-indigo-100 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 opacity-40"
+      ></div>
     </div>
 
-    <div class="max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-10 pb-16 md:pb-24 lg:pt-14 mx-auto">
-      <!-- Grid -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <!-- Header Area -->
       <div
-        class="grid grid-cols-[repeat(1,minmax(200px,500px))] justify-center md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 icon-grid-block"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+        data-aos-delay="300"
+        data-aos-once="true"
+        class="text-center max-w-2xl mx-auto mb-10 md:mb-12"
       >
-        <!-- Icon Block -->
         <div
-          data-aos="fade"
-          data-aos-delay="300"
-          data-aos-duration="1000"
-          data-aos-anchor=".icon-grid-block"
-          data-aos-once="true"
-          class="flex flex-col justify-start border border-gray-200 rounded-xl text-center p-4 md:p-5"
+          class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 mb-4"
         >
-          <!-- Icon -->
-          <div
-            class="flex justify-center shrink-0 items-center size-12 bg-linear-to-br from-blue-600 to-violet-600 rounded-lg mx-auto"
+          <span
+            class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"
+          ></span>
+          <span
+            class="text-[11px] font-semibold text-zinc-900 dark:text-zinc-200 uppercase tracking-wider"
+            >Командный центр</span
           >
-            <Layers class="size-6 text-white" />
-          </div>
-          <!-- End Icon -->
-
-          <div class="mt-3 flex flex-col h-full">
-            <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Пакетные действия</h3>
-            <div class="text-sm grow text-gray-600 mt-1">
-              Управляйте десятками задач одной командой. Создавайте, перемещайте и архивируйте
-              сразу.
-            </div>
-            <div class="text-sm text-gray-800 mt-5">
-              "<b>Архивируй</b> все выполненные задачи в проекте Релиз Q3."
-            </div>
-          </div>
         </div>
-        <!-- End Icon Block -->
-
-        <!-- Icon Block -->
-        <div
-          data-aos="fade"
-          data-aos-delay="600"
-          data-aos-duration="1000"
-          data-aos-anchor=".icon-grid-block"
-          data-aos-once="true"
-          class="flex flex-col justify-center border border-gray-200 rounded-xl text-center p-4 md:p-5"
+        <h2
+          class="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight"
         >
-          <!-- Icon -->
-          <div
-            class="flex justify-center shrink-0 items-center size-12 bg-linear-to-br from-blue-600 to-violet-600 rounded-lg mx-auto"
+          Это не просто чат. <br class="hidden md:block" />
+          <span
+            class="text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-blue-500 dark:from-indigo-400 dark:to-blue-400"
+            >Это ваш командный центр.</span
           >
-            <Brain class="size-6 text-white" />
-          </div>
-          <!-- End Icon -->
-          <div class="mt-3 flex flex-col h-full">
-            <h3 class="text-sm sm:text-lg font-semibold text-gray-800">
-              Сложные фильтры без усилий
-            </h3>
-            <div class="text-sm grow text-gray-600 mt-1">
-              Используйте логические операторы "И"/"ИЛИ" на естественном языке, не задумываясь о
-              синтаксисе.
-            </div>
-            <div class="text-sm text-gray-800 mt-5">
-              "<b>Покажи</b> задачи на завтра, которые <b>ТАКЖЕ</b> имеют тег #срочно."
-            </div>
-          </div>
-        </div>
-        <!-- End Icon Block -->
-
-        <!-- Icon Block -->
-        <div
-          data-aos="fade"
-          data-aos-delay="900"
-          data-aos-duration="1000"
-          data-aos-anchor=".icon-grid-block"
-          data-aos-once="true"
-          class="flex flex-col justify-center border border-gray-200 rounded-xl text-center p-4 md:p-5"
-        >
-          <!-- Icon -->
-          <div
-            class="flex justify-center shrink-0 items-center size-12 bg-linear-to-br from-blue-600 to-violet-600 rounded-lg mx-auto"
-          >
-            <MessageCircleQuestionMark class="size-6 text-white" />
-          </div>
-          <!-- End Icon -->
-          <div class="mt-3 flex flex-col h-full">
-            <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Умное Уточнение</h3>
-            <div class="text-sm grow text-gray-600 mt-1">
-              Если команда неоднозначна, ассистент не ошибется, а задаст уточняющий вопрос.
-            </div>
-            <div class="text-sm text-gray-800 mt-5">
-              — "<b>Удали</b> задачу 'Отчет'."<br />
-              — "<b>Найдено</b> две: 'Недельный отчет' и 'Годовой отчет'. Какую удалить?"
-            </div>
-          </div>
-        </div>
-        <!-- End Icon Block -->
-
-        <!-- Icon Block -->
-        <div
-          data-aos="fade"
-          data-aos-delay="1200"
-          data-aos-duration="1000"
-          data-aos-anchor=".icon-grid-block"
-          data-aos-once="true"
-          class="flex flex-col justify-center border border-gray-200 rounded-xl text-center p-4 md:p-5"
-        >
-          <!-- Icon -->
-          <div
-            class="flex justify-center shrink-0 items-center size-12 bg-linear-to-br from-blue-600 to-violet-600 rounded-lg mx-auto"
-          >
-            <Pencil class="size-6 text-white" />
-          </div>
-          <!-- End Icon -->
-          <div class="mt-3 flex flex-col h-full">
-            <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Точное Редактирование</h3>
-            <div class="text-sm grow text-gray-600 mt-1">
-              Не просто изменяйте, а добавляйте, удаляйте или заменяйте части текста в названиях
-              задач.
-            </div>
-            <div class="text-sm text-gray-800 mt-5">
-              "В начале всех просроченных задач <b>добавь</b> [ПРОСРОЧЕНО]: ."
-            </div>
-          </div>
-        </div>
-        <!-- End Icon Block -->
-
-        <!-- Icon Block -->
-        <div
-          data-aos="fade"
-          data-aos-delay="1500"
-          data-aos-duration="1000"
-          data-aos-anchor=".icon-grid-block"
-          data-aos-once="true"
-          class="flex flex-col justify-center border border-gray-200 rounded-xl text-center p-4 md:p-5"
-        >
-          <!-- Icon -->
-          <div
-            class="flex justify-center shrink-0 items-center size-12 bg-linear-to-br from-blue-600 to-violet-600 rounded-lg mx-auto"
-          >
-            <Map class="size-6 text-white" />
-          </div>
-          <!-- End Icon -->
-          <div class="mt-3 flex flex-col h-full">
-            <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Понимание Контекста</h3>
-            <div class="text-sm grow text-gray-600 mt-1">
-              Ассистент знает, на какой доске вы находитесь. Не нужно каждый раз уточнять проект.
-            </div>
-            <div class="text-sm text-gray-800 mt-5">
-              (Находясь на доске 'Маркетинг') > "<b>Создай</b> задачу 'Подготовить презентацию'."
-            </div>
-          </div>
-        </div>
-        <!-- End Icon Block -->
-
-        <!-- Icon Block -->
-        <div
-          data-aos="fade"
-          data-aos-delay="1800"
-          data-aos-duration="1000"
-          data-aos-anchor=".icon-grid-block"
-          data-aos-once="true"
-          class="flex flex-col justify-center border border-gray-200 rounded-xl text-center p-4 md:p-5"
-        >
-          <!-- Icon -->
-          <div
-            class="flex justify-center shrink-0 items-center size-12 bg-linear-to-br from-blue-600 to-violet-600 rounded-lg mx-auto"
-          >
-            <MessageCircleIcon class="size-6 text-white" />
-          </div>
-          <!-- End Icon -->
-          <div class="mt-3 flex flex-col h-full">
-            <h3 class="text-sm sm:text-lg font-semibold text-gray-800">Память Диалога</h3>
-            <div class="text-sm grow text-gray-600 mt-1">
-              Ссылайтесь на предыдущие результаты. AI помнит, о чем вы говорили несколько шагов
-              назад.
-            </div>
-            <div class="text-sm text-gray-800 mt-5">
-              — "<b>Найди</b> все задачи с тегом #баг."<br />
-              — "<b>Найдено</b> 5 задач."<br />
-              — "Отлично, <b>перемести их</b> в архив."
-            </div>
-          </div>
-        </div>
-        <!-- End Icon Block -->
+        </h2>
+        <p class="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          Наш AI-агент Kanway не просто создает задачи — он понимает многошаговые команды, уточняет
+          детали и работает с целыми проектами одновременно.
+        </p>
       </div>
-      <!-- End Grid -->
+
+      <!-- Features Grid -->
+      <div
+        class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3"
+      >
+        <!-- Card 1: Multi-step Decomposition -->
+        <div
+          data-aos="fade-up"
+          data-aos-duration="1000"
+          data-aos-delay="300"
+          data-aos-once="true"
+          class="group relative flex flex-col rounded-3xl bg-white dark:bg-zinc-900/50 p-8 ring-1 ring-zinc-200/80 dark:ring-zinc-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1 hover:ring-zinc-300 dark:hover:ring-zinc-700"
+        >
+          <!-- Visual Mockup -->
+          <div
+            class="mb-8 w-full h-40 rounded-xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 p-4 flex flex-col gap-3 relative overflow-hidden"
+          >
+            <div class="flex flex-col relative text-zinc-400 z-10">
+              <div class="flex items-center gap-x-2">
+                <CheckCircle
+                  class="size-4 text-green-400 shrink-0"
+                  strokeWidth="2"
+                />
+                <div class="w-full text-xs">Ищу подходящие колонки</div>
+              </div>
+
+              <div class="flex justify-center w-4 shrink-0">
+                <div
+                  class="w-0.5 bg-zinc-300 h-3 group-hover:h-4 transition-all duration-300 rounded-full"
+                ></div>
+              </div>
+              <div class="flex items-center gap-x-2">
+                <CheckCircle
+                  class="size-4 text-green-400 shrink-0"
+                  strokeWidth="2"
+                />
+                <div class="w-full text-xs">Создаю необходимые колонки</div>
+              </div>
+              <div class="flex justify-center w-4 shrink-0">
+                <div
+                  class="w-0.5 bg-zinc-300 h-3 group-hover:h-4 transition-all duration-300 rounded-full"
+                ></div>
+              </div>
+              <div class="flex items-center gap-x-2">
+                <CheckCircle
+                  class="size-4 text-green-400 shrink-0"
+                  strokeWidth="2"
+                />
+                <div class="w-full text-xs">Заполняю задачи</div>
+              </div>
+              <div class="flex justify-center w-4 shrink-0">
+                <div
+                  class="w-0.5 bg-zinc-300 h-3 group-hover:h-4 transition-all duration-300 rounded-full"
+                ></div>
+              </div>
+              <div class="flex items-center gap-x-2">
+                <Spinner class="size-4 shrink-0" />
+                <div class="w-full text-xs">Выставляю дедлайны</div>
+              </div>
+            </div>
+            <!-- Fade Gradient -->
+            <div
+              class="absolute bottom-0 inset-x-0 h-12 bg-linear-to-t from-zinc-50 dark:from-zinc-950/50 to-transparent z-20"
+            ></div>
+          </div>
+
+          <h3 class="text-xl font-semibold leading-7 text-zinc-900 dark:text-white">
+            Многошаговые команды
+          </h3>
+          <p class="mt-3 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Kanway не просто создаст карточку, а последовательно выполнит весь сценарий: развернет
+            новые колонки, распределит по ним задачи, и выставит дедлайны за один проход.
+          </p>
+        </div>
+
+        <!-- Card 2: Intelligent Refinement -->
+        <div
+          data-aos="fade-up"
+          data-aos-duration="1000"
+          data-aos-delay="500"
+          data-aos-once="true"
+          class="group relative flex flex-col rounded-3xl bg-white dark:bg-zinc-900/50 p-8 ring-1 ring-zinc-200/80 dark:ring-zinc-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1 hover:ring-zinc-300 dark:hover:ring-zinc-700"
+        >
+          <!-- Visual Mockup -->
+          <div
+            class="mb-8 w-full h-40 rounded-xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 p-4 flex flex-col justify-center relative overflow-hidden"
+          >
+            <div
+              class="w-full rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 p-3 shadow-sm"
+            >
+              <div class="w-1/2 h-6 rounded bg-zinc-200 dark:bg-zinc-700 mb-4"></div>
+
+              <div class="space-y-2">
+                <div class="flex items-center gap-1.5">
+                  <!-- AI Insight Label -->
+                  <div
+                    class="text-xs font-medium text-primary/70 bg-primary/20 px-2 py-1 rounded-md"
+                  >
+                    #баг
+                  </div>
+                  <div
+                    class="text-xs font-medium text-primary/70 bg-primary/20 px-2 py-1 rounded-md"
+                  >
+                    #срочно
+                  </div>
+                </div>
+
+                <div
+                  class="inline-flex items-center self-start gap-x-2 text-xs rounded-md py-1 px-2 bg-yellow-100 text-yellow-600"
+                >
+                  <Clock class="size-3" />
+                  <span>Завтра в 15:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-semibold leading-7 text-zinc-900 dark:text-white">
+            Интеллектуальное уточнение
+          </h3>
+          <p class="mt-3 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Агент сам анализирует контекст, задает уточняющие вопросы, автоматически проставляет
+            приоритеты, дедлайны и нужные теги.
+          </p>
+        </div>
+
+        <!-- Card 3: Whole Project Management -->
+        <div
+          data-aos="fade-up"
+          data-aos-duration="1000"
+          data-aos-delay="600"
+          data-aos-once="true"
+          class="group relative flex flex-col rounded-3xl bg-white dark:bg-zinc-900/50 p-8 ring-1 ring-zinc-200/80 dark:ring-zinc-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-1 hover:ring-zinc-300 dark:hover:ring-zinc-700"
+        >
+          <!-- Visual Mockup -->
+          <div
+            class="mb-8 w-full h-40 rounded-xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/80 p-4 flex gap-2.5 relative overflow-hidden"
+          >
+            <!-- Column 1 -->
+            <div class="flex-1 flex flex-col gap-2">
+              <div class="flex items-center gap-1.5 mb-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
+                <div class="w-8 h-1.5 rounded bg-zinc-300 dark:bg-zinc-600"></div>
+              </div>
+              <div
+                class="w-full h-7 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5"
+              ></div>
+              <div
+                class="w-full h-10 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 shadow-sm transition-transform duration-300 delay-75 group-hover:-translate-y-0.5"
+              ></div>
+            </div>
+
+            <!-- Column 2 (AI Active) -->
+            <div class="flex-1 flex flex-col gap-2 relative">
+              <div
+                class="absolute -inset-2 bg-indigo-500/5 dark:bg-indigo-500/10 blur-xl rounded-full z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              ></div>
+              <div class="flex items-center gap-1.5 mb-1 relative z-10">
+                <div class="w-1.5 h-1.5 rounded-full bg-indigo-400 dark:bg-indigo-500"></div>
+                <div class="w-12 h-1.5 rounded bg-zinc-300 dark:bg-zinc-600"></div>
+              </div>
+              <!-- AI Generated Card -->
+              <div
+                class="w-full h-12 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/60 dark:border-indigo-500/30 shadow-sm ring-1 ring-inset ring-indigo-500/10 relative z-10 flex flex-col p-1.5 gap-1.5 transition-transform duration-300 group-hover:-translate-y-1"
+              >
+                <div class="w-3/4 h-1.5 rounded bg-indigo-200 dark:bg-indigo-400/50"></div>
+                <div class="w-1/2 h-1.5 rounded bg-indigo-100 dark:bg-indigo-400/30"></div>
+              </div>
+              <div
+                class="w-full h-7 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 shadow-sm relative z-10"
+              ></div>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="flex-1 flex flex-col gap-2 opacity-60">
+              <div class="flex items-center gap-1.5 mb-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 dark:bg-emerald-500"></div>
+                <div class="w-10 h-1.5 rounded bg-zinc-300 dark:bg-zinc-600"></div>
+              </div>
+              <div
+                class="w-full h-8 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 shadow-sm"
+              ></div>
+            </div>
+
+            <!-- Fade Gradient -->
+            <div
+              class="absolute bottom-0 inset-x-0 h-8 bg-linear-to-t from-zinc-50 dark:from-zinc-950/50 to-transparent z-20"
+            ></div>
+          </div>
+
+          <h3 class="text-xl font-semibold leading-7 text-zinc-900 dark:text-white">
+            Работа с проектами
+          </h3>
+          <p class="mt-3 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            От одной команды до готовой доски. Агент генерирует колонки, доски и бэклог, мгновенно
+            подготавливая пространство для работы.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 </template>

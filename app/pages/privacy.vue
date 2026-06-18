@@ -6,19 +6,24 @@ import Header from '~/layouts/Header.vue'
 <template>
   <div class="size-full bg-gray-100 min-h-screen flex flex-col px-2">
     <Header />
-    <main class="flex-1 py-8 px-4 sm:py-40">
-      <div class="max-w-3xl mx-auto">
+    <main class="flex-1 w-full pt-28 pb-12 px-4 sm:pt-36 sm:pb-24">
+      <div class="w-full max-w-3xl mx-auto">
+        <!-- Убрали inline-block, добавили w-full, настроили паддинги (p-5 для мобилок, p-8/10 для десктопа) и typography (prose-sm) -->
         <article
-          class="inline-block prose text-left bg-white rounded-md border border-gray-200 p-8 w-full md:max-w-2xl lg:max-w-3xl"
+          class="w-full bg-white rounded-2xl border border-zinc-200/80 p-5 sm:p-8 md:p-10 prose prose-sm sm:prose-base prose-zinc max-w-none"
         >
-          <div class="flex justify-between items-center">
-            <div class="flex gap-x-2 items-center justify-center text-muted-foreground">
-              <Eye class="size-4" />
-              <span class="text-sm">Редакция от 19.05.2026</span>
+          <!-- Шапка документа (not-prose защищает от стилей типографики, flex-wrap спасает на узких экранах) -->
+          <div
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 pb-5 mb-8 not-prose"
+          >
+            <div class="flex items-center gap-2 text-zinc-500">
+              <Eye class="size-4 sm:size-4.5" />
+              <span class="text-xs sm:text-sm font-medium">Редакция от 11.06.2026</span>
             </div>
             <Badge
               variant="active"
               size="sm"
+              class="shrink-0"
             >
               Актуально
             </Badge>
@@ -40,7 +45,7 @@ import Header from '~/layouts/Header.vue'
           <p>
             1.2. Настоящая политика Оператора в отношении обработки персональных данных (далее —
             Политика) применяется ко всей информации, которую Оператор может получить о посетителях
-            веб-сайта https://kanway.ru.
+            веб-сайта <NuxtLink to="https://kanway.ru">https://kanway.ru</NuxtLink>.
           </p>
           <h2>2. Основные понятия, используемые в Политике</h2>
           <p>
@@ -55,7 +60,7 @@ import Header from '~/layouts/Header.vue'
           <p>
             2.3. Веб-сайт — совокупность графических и информационных материалов, а также программ
             для ЭВМ и баз данных, обеспечивающих их доступность в сети интернет по сетевому адресу
-            https://kanway.ru.
+            <NuxtLink to="https://kanway.ru">https://kanway.ru</NuxtLink>.
           </p>
           <p>
             2.4. Информационная система персональных данных — совокупность содержащихся в базах
@@ -84,7 +89,8 @@ import Header from '~/layouts/Header.vue'
           </p>
           <p>
             2.8. Персональные данные — любая информация, относящаяся прямо или косвенно к
-            определенному или определяемому Пользователю веб-сайта https://kanway.ru.
+            определенному или определяемому Пользователю веб-сайта
+            <NuxtLink to="https://kanway.ru">https://kanway.ru</NuxtLink>.
           </p>
           <p>
             2.9. Персональные данные, разрешенные субъектом персональных данных для распространения,
@@ -93,7 +99,10 @@ import Header from '~/layouts/Header.vue'
             субъектом персональных данных для распространения в порядке, предусмотренном Законом о
             персональных данных (далее — персональные данные, разрешенные для распространения).
           </p>
-          <p>2.10. Пользователь — любой посетитель веб-сайта https://kanway.ru.</p>
+          <p>
+            2.10. Пользователь — любой посетитель веб-сайта
+            <NuxtLink to="https://kanway.ru">https://kanway.ru</NuxtLink>.
+          </p>
           <p>
             2.11. Предоставление персональных данных — действия, направленные на раскрытие
             персональных данных определенному лицу или определенному кругу лиц.
@@ -333,7 +342,10 @@ import Header from '~/layouts/Header.vue'
           </p>
           <p>Персональные данные:</p>
           <ul>
-            <li>философские убеждения</li>
+            <li>
+              текстовые запросы (промпты), добровольно вводимые Пользователем в интерфейсе чата
+              ИИ-агента
+            </li>
           </ul>
           <p>Правовые основания:</p>
           <ul>
@@ -509,7 +521,7 @@ import Header from '~/layouts/Header.vue'
             </li>
             <li>
               12.3. Актуальная версия Политики в свободном доступе расположена в сети Интернет по
-              адресу https://kanway.ru/privacy.
+              адресу <NuxtLink to="https://kanway.ru/privacy">https://kanway.ru/privacy</NuxtLink>.
             </li>
           </ul>
         </article>

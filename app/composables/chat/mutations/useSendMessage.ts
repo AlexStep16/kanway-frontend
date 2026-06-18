@@ -40,6 +40,7 @@ export function useSendMessage() {
         chatId,
         threadId: payload.threadId || '',
         content: payload.message,
+        iterationId: window.crypto.randomUUID(),
         role: 'user',
         userId: user.id,
         createdAt: new Date(),

@@ -4,7 +4,6 @@ import { requestQueueService } from '~/utils/RequestQueueService'
 import type { IBoard } from '~/interfaces/domain/IBoard'
 import { archiveBoard } from '~/services/board'
 import { useBoardStore } from '~/stores/board'
-import { useUIStore } from '~/stores/ui'
 
 interface ArchiveBoardVars {
   board: IBoard
@@ -68,7 +67,6 @@ export function useArchiveBoard() {
 
     onSuccess: (result) => {
       const boardStore = useBoardStore()
-      const uiStore = useUIStore()
 
       toast.success('Доска архивирована', {
         action: {
@@ -84,13 +82,10 @@ export function useArchiveBoard() {
           boardKeys.byWorkspace(result.data[0]!.workspace.id),
         )
 
-        const nextBoard = boards && boards.length > 0 ? boards[0] : null
+        const nextBoard = boards?.length ? boards[0] : null
 
-        if (nextBoard) boardStore.selectBoard(nextBoard, true)
-        else {
-          boardStore.resetBoardSelection()
-          uiStore.selectChat()
-        }
+        if (nextBoard) boardStore.selectBoard(nextBoard.id)
+        else boardStore.navigateToChat()
       }
     },
 

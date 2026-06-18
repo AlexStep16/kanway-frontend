@@ -9,18 +9,24 @@ const isMobile = useMediaQuery('(max-width: 768px)')
 </script>
 
 <template>
-  <header class="w-full p-4 pb-0 flex flex-col gap-1">
+  <header
+    class="w-full p-4 flex flex-col gap-1 border-b border-zinc-200/70 bg-white/80 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/70"
+  >
     <div class="flex items-center justify-between gap-2">
       <Button
         variant="ghost"
         size="icon-sm"
+        class="border border-zinc-200/80 bg-white/80 text-zinc-600"
         aria-label="Open"
         @click="uiStore.selectChat()"
         v-if="!isMobile"
       >
         <SquareArrowOutUpRight class="size-4" />
       </Button>
-      <SidebarTrigger class="-ml-1" v-else />
+      <SidebarTrigger
+        class="-ml-1"
+        v-else
+      />
       <TitleChat />
       <Button
         variant="ghost"
@@ -31,9 +37,10 @@ const isMobile = useMediaQuery('(max-width: 768px)')
       >
         <X class="size-4.5" />
       </Button>
-      <div class="size-8" v-else></div>
+      <div
+        class="size-8"
+        v-else
+      ></div>
     </div>
-
-    <div class="flex justify-center"></div>
   </header>
 </template>

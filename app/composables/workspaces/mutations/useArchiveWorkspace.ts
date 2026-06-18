@@ -94,7 +94,7 @@ export function useArchiveWorkspace() {
 
         const nextWorkspace = workspaces && workspaces.length > 0 ? workspaces[0] : null
 
-        if (nextWorkspace) workspaceStore.selectWorkspace(nextWorkspace, true)
+        if (nextWorkspace) workspaceStore.selectWorkspace(nextWorkspace)
       }
     },
   })

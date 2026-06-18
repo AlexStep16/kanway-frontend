@@ -24,7 +24,7 @@ defineProps<{
       class="flex items-center justify-start opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-100 gap-x-1"
       v-if="date"
     >
-      <span class="text-xs text-gray-500">{{ date }}</span>
+      <span class="text-xs text-zinc-400 dark:text-zinc-500">{{ date }}</span>
     </div>
   </div>
 </template>

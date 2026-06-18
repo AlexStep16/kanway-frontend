@@ -2,84 +2,67 @@ import { fetchBoards } from '~/services/board'
 import { fetchWorkspaces } from '~/services/workspace'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { $queryClient } = useNuxtApp()
+  if (import.meta.server) return
 
-  // 1. Получаем параметры из текущего URL
-  // В Nuxt параметры называются так же, как файлы: [workspaceId] и [[boardId]]
+  const { $queryClient } = useNuxtApp()
+  const workspaceStore = useWorkspaceStore()
+  const boardStore = useBoardStore()
+  const uiStore = useUIStore()
+
   const urlWorkspaceId = to.params.workspaceId as string | undefined
   const urlBoardId = to.params.boardId as string | undefined
-  const currentPath = to.path
 
   try {
-    // ==========================================
-    // 1. ЗАГРУЗКА И ВАЛИДАЦИЯ WORKSPACE
-    // ==========================================
-    const workspaces = await $queryClient.fetchQuery({
+    // 1. Load workspaces
+    const workspaces = await $queryClient.ensureQueryData({
       queryKey: workspaceKeys.lists(),
       queryFn: fetchWorkspaces,
     })
 
-    if (!workspaces || workspaces.length === 0) {
-      return navigateTo('/welcome')
-    }
+    if (!workspaces?.length) return navigateTo('/welcome')
 
+    // 2. Resolve target workspace: URL → saved → first
     const savedWorkspaceId = localStorage.getItem('activeWorkspaceId')
-    let targetWorkspaceId = urlWorkspaceId
+    const targetWorkspace =
+      workspaces.find((w) => w.id === urlWorkspaceId) ??
+      workspaces.find((w) => w.id === savedWorkspaceId) ??
+      workspaces[0]!
 
-    const isUrlWorkspaceValid =
-      targetWorkspaceId && workspaces.some((w) => w.id === targetWorkspaceId)
-
-    if (!isUrlWorkspaceValid) {
-      const isSavedWorkspaceValid =
-        savedWorkspaceId && workspaces.some((w) => w.id === savedWorkspaceId)
-
-      targetWorkspaceId = isSavedWorkspaceValid ? savedWorkspaceId! : workspaces[0]!.id
-    }
-
-    // ==========================================
-    // 2. ЗАГРУЗКА И ВАЛИДАЦИЯ BOARD
-    // ==========================================
-    const boards = await $queryClient.fetchQuery({
-      queryKey: boardKeys.byWorkspace(targetWorkspaceId!),
-      queryFn: () => fetchBoards(targetWorkspaceId!),
+    // 3. Load boards for the resolved workspace
+    const boards = await $queryClient.ensureQueryData({
+      queryKey: boardKeys.byWorkspace(targetWorkspace.id),
+      queryFn: () => fetchBoards(targetWorkspace.id),
     })
 
+    // 4. Resolve target board: URL → saved → first → null (chat)
     const savedBoardId = localStorage.getItem('activeBoardId')
-    let targetBoardId: string | null = urlBoardId || null
+    const targetBoard =
+      boards.find((b) => b.id === urlBoardId) ??
+      boards.find((b) => b.id === savedBoardId) ??
+      boards[0] ??
+      null
 
-    const isUrlBoardValid = targetBoardId && boards.some((b) => b.id === targetBoardId)
+    // 5. Build canonical path and redirect if URL doesn't match
+    const idealPath = targetBoard
+      ? `/workspace/${targetWorkspace.id}/${targetBoard.id}`
+      : `/workspace/${targetWorkspace.id}`
 
-    if (!isUrlBoardValid) {
-      const isSavedBoardValid = savedBoardId && boards.some((b) => b.id === savedBoardId)
-
-      // Проверяем, что сохраненная доска принадлежит ВЫБРАННОМУ воркспейсу
-      // (Это важная проверка, чтобы не открыть доску из другого пространства)
-      targetBoardId = isSavedBoardValid ? savedBoardId! : boards[0]?.id || null
-    }
-
-    // ==========================================
-    // 3. ФОРМИРОВАНИЕ ПРАВИЛЬНОГО ПУТИ И РЕДИРЕКТ
-    // ==========================================
-    let idealPath = `/workspace/${targetWorkspaceId}`
-    if (targetBoardId) {
-      idealPath += `/${targetBoardId}`
-    }
-
-    // Убираем trailing slash для корректного сравнения
-    const normalizedCurrentPath = currentPath.replace(/\/$/, '')
-
-    if (normalizedCurrentPath !== idealPath) {
+    if (to.path.replace(/\/$/, '') !== idealPath) {
       return navigateTo(idealPath, { replace: true })
     }
 
-    // Если мы уже на идеальном пути, сохраняем ID в LS для следующих заходов
-    localStorage.setItem('activeWorkspaceId', targetWorkspaceId!)
-    if (targetBoardId) {
-      localStorage.setItem('activeBoardId', targetBoardId)
+    // 6. Sync store state — no navigation, no side effects
+    workspaceStore.setActiveWorkspace(targetWorkspace.id)
+
+    if (targetBoard) {
+      boardStore.setActiveBoard(targetBoard.id)
+      uiStore.selectBoard()
+    } else {
+      boardStore.clearBoard()
+      uiStore.selectChat()
     }
   } catch (error) {
-    console.error('Workspace logic error:', error)
-    // В случае критической ошибки (например, 401),
-    // наше глобальное auth-gate мидлваре само перекинет на /auth
+    console.error('Workspace middleware error:', error)
+    return abortNavigation(error as Error)
   }
 })

@@ -9,12 +9,17 @@ import Archive from '../Main/Archive/Archive.vue'
 const uiStore = useUIStore()
 const boardStore = useBoardStore()
 
+const { activeBoardId } = storeToRefs(boardStore)
+
 const isMainChat = computed(() => {
-  return (
-    (boardStore.activeBoardId === null && uiStore.isBoardTabSelected) || uiStore.isChatTabSelected
-  )
+  return (activeBoardId.value === null && uiStore.isBoardTabSelected) || uiStore.isChatTabSelected
 })
-const showChat = computed(() => uiStore.isChatOpen || uiStore.isChatTabSelected)
+
+const isBoardTabShown = computed(() => uiStore.isBoardTabSelected && activeBoardId.value !== null)
+const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
+const isChatTabShown = computed(
+  () => uiStore.isChatOpen || uiStore.isChatTabSelected || activeBoardId.value === null,
+)
 </script>
 
 <template>
@@ -23,23 +28,23 @@ const showChat = computed(() => uiStore.isChatOpen || uiStore.isChatTabSelected)
     <Board
       class="transition-[flex] duration-300 min-w-0 overflow-hidden"
       :class="{
-        grow: uiStore.isBoardTabSelected,
-        'grow-0 w-0 m-0! p-0! opacity-0': !uiStore.isBoardTabSelected,
+        grow: isBoardTabShown,
+        'grow-0 w-0 m-0! p-0! opacity-0': !isBoardTabShown,
       }"
     />
     <Archive
       class="transition-[flex] duration-300 min-w-0 overflow-hidden"
       :class="{
-        grow: uiStore.isArchiveTabSelected,
-        'grow-0 w-0 m-0! p-0! opacity-0': !uiStore.isArchiveTabSelected,
+        grow: isArchiveTabShown,
+        'grow-0 w-0 m-0! p-0! opacity-0': !isArchiveTabShown,
       }"
     />
     <Chat
-      class="transition-[flex] duration-300 min-w-0 overflow-hidden ml-0!"
+      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
       :class="{
-        'grow lg:flex-[0_0_520px]': showChat && !isMainChat,
-        'flex-1': showChat && isMainChat,
-        'flex-[0_0_0px] opacity-0 pointer-events-none m-0!': !showChat,
+        'grow lg:flex-[0_0_520px]': isChatTabShown && !isMainChat,
+        'flex-1': isChatTabShown && isMainChat,
+        'flex-[0_0_0px] opacity-0 pointer-events-none m-0!': !isChatTabShown,
       }"
     />
   </SidebarProvider>

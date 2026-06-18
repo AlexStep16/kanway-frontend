@@ -16,7 +16,8 @@ const openOptions = ref<Record<string, boolean>>({})
 const uiStore = useUIStore()
 const workspaceStore = useWorkspaceStore()
 
-const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
+const { activeWorkspaceId } = storeToRefs(workspaceStore)
+
 const activeWorkspace = useWorkspaceSelector(activeWorkspaceId)
 
 const { data: boardsCountData, isPending: areBoardsCountLoading } =
@@ -116,7 +117,7 @@ const openWorkspaceDialog = () => {
               <DropdownMenuItem
                 :item="workspace"
                 class="gap-2 p-2 cursor-default w-full max-w-60"
-                @click="workspaceStore.selectWorkspace(workspace, true)"
+                @click="workspaceStore.selectWorkspace(workspace)"
                 :is-active="workspace.id === activeWorkspaceId"
               >
                 <div

@@ -79,7 +79,6 @@ async function toggleRecording() {
     if (!transcriptStore.isConnected) {
       return
     }
-
     emit('clearInput')
 
     try {

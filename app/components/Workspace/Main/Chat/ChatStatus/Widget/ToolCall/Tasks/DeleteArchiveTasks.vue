@@ -11,6 +11,7 @@ const props = defineProps<{
   state: StatusStatesEnum
   content: IDeleteArchiveEntitiesContent
   stateClasses: Record<string, boolean>
+  isDemo?: boolean
 }>()
 </script>
 
@@ -25,5 +26,10 @@ const props = defineProps<{
     :state-classes="props.stateClasses"
     :noun-titles-processing="['задачу', 'задачи', 'задач']"
     :noun-titles-completed="['задача', 'задачи', 'задач']"
-  />
+    :is-demo="props.isDemo"
+  >
+    <template #demo-log>
+      <DemoArchiveTasks />
+    </template>
+  </DeleteArchiveEntities>
 </template>

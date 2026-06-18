@@ -35,7 +35,6 @@ function toggle() {
 
 watch(createBoardDropdownOpen, (newVal) => {
   if (newVal) {
-    console.log(newVal)
     nextTick(() => {
       if (inputRef.value) {
         inputRef.value.focus()
@@ -66,7 +65,7 @@ const orderedBoards = computed(() => {
 })
 
 function handleSelectBoard(board: IBoard) {
-  boardStore.selectBoard(board, true)
+  boardStore.selectBoard(board.id)
 
   if (isMobile.value) {
     toggleSidebar()

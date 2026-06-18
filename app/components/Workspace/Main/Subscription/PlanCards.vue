@@ -39,22 +39,17 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> 20 кредитов </span>
+                <span class="text-gray-500"> 200 кредитов </span>
               </li>
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Базовая модель: <b>Kanway Lite</b> </span>
+                <span class="text-gray-500"> Базовая модель: <b>GPT 5.4 Mini</b> </span>
               </li>
 
               <li class="flex items-center gap-x-1">
                 <X class="size-3.5 text-red-600 shrink-0" />
-                <span class="text-gray-500"> Доступ к модели <b>Kanway Pro</b> </span>
-              </li>
-
-              <li class="flex items-center gap-x-1">
-                <X class="size-3.5 text-red-600 shrink-0" />
-                <span class="text-gray-500"> Режим <b>Критик</b></span>
+                <span class="text-gray-500"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
               </li>
             </ul>
 
@@ -87,7 +82,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> 600 кредитов </span>
+                <span class="text-gray-500"> 10000 кредитов </span>
               </li>
 
               <li class="flex items-center gap-x-1">
@@ -97,12 +92,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Доступ к модели <b>Kanway Pro</b> </span>
-              </li>
-
-              <li class="flex items-center gap-x-1">
-                <X class="size-3.5 text-red-600 shrink-0" />
-                <span class="text-gray-500"> Режим <b>Критик</b></span>
+                <span class="text-gray-500"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
               </li>
             </ul>
 
@@ -135,7 +125,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> 1300 кредитов </span>
+                <span class="text-gray-500"> 25000 кредитов </span>
               </li>
 
               <li class="flex items-center gap-x-1">
@@ -145,12 +135,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Доступ к модели <b>Kanway Pro</b> </span>
-              </li>
-
-              <li class="flex items-center gap-x-1">
-                <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Режим <b>Критик</b></span>
+                <span class="text-gray-500"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
               </li>
             </ul>
 

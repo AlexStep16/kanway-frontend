@@ -33,8 +33,7 @@ export function useCreateWorkspace() {
         return oldWorkspaces ? [...oldWorkspaces, ...result.data] : result.data
       })
 
-      if (result.data && result.data.length > 0)
-        workspaceStore.selectWorkspace(result.data[0]!, true)
+      if (result.data && result.data.length > 0) workspaceStore.selectWorkspace(result.data[0]!)
 
       toast.success('Пространство успешно создано', {
         action: {
