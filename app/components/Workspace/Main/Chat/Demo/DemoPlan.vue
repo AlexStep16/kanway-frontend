@@ -34,7 +34,7 @@ const statusMessage: Ref<IChatMessage> = ref({
   id: '6a281a54c0b5b8a1d74722b7',
   createdAt: new Date(),
   updatedAt: new Date(),
-  creditsUsed: 2,
+  creditsUsed: 15,
 })
 
 const userMessage: Ref<IChatMessage> = ref({
