@@ -34,7 +34,7 @@ const email = computed(() => {
   if (!payload.value) return undefined
 
   try {
-    return atob(payload.value)
+    return atob(decodeURIComponent(payload.value))
   } catch {
     return undefined
   }
