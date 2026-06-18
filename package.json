@@ -9,12 +9,6 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
-  "pnpm": {
-    "overrides": {
-      "vite": "8.0.12",
-      "rollup": "4.60.3"
-    }
-  },
   "dependencies": {
     "@frsource/autoresize-textarea": "^2.0.200",
     "@peterbud/nuxt-query": "1.7.0",
