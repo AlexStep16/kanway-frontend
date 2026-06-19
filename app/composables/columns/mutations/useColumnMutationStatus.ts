@@ -1,7 +1,7 @@
 import { useMutationState } from '@tanstack/vue-query'
 
 export function useColumnMutationStatus(columnId: MaybeRef<string | null>) {
-  if (!toValue(columnId))
+  if (!columnId)
     return {
       isArchiving: computed(() => false),
       isRecovering: computed(() => false),

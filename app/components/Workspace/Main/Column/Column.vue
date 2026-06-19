@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import ButtonCreate from '~/components/Buttons/ButtonCreate.vue'
 import Options from '~/components/Options/Options.vue'
 import Task from '../Task/Task.vue'
-import { ListFilter, SquarePen } from 'lucide-vue-next'
+import { ListFilter, Plus, SquarePen } from 'lucide-vue-next'
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
 import draggable from 'vuedraggable'
 import type { ITaskState } from '~/stores/interfaces/ITaskState'
@@ -18,12 +17,12 @@ const props = defineProps<{
 
 const taskFilterStore = useTaskFilterStore()
 
-const { isPending: areTasksLoading } = useTasks(props.column.board.id)
+const columnId = computed(() => props.column.id)
+const columnBoardId = computed(() => props.column.board.id)
 
-const { tasks } = useVisibleTasks(
-  computed(() => props.column.board.id),
-  computed(() => props.column.id),
-)
+const { isPending: areTasksLoading } = useTasks(columnBoardId)
+
+const { tasks } = useVisibleTasks(columnBoardId, columnId)
 const { data: boardsData } = useBoards(computed(() => props.column.workspace.id))
 
 const { mutate: moveTaskCard } = useMoveTaskCard()
@@ -34,7 +33,7 @@ const { mutate: archiveColumn } = useArchiveColumn()
 
 const boards = computed(() => boardsData.value || [])
 
-const status = useColumnMutationStatus(props.column.id)
+const status = reactive(useColumnMutationStatus(columnId))
 
 const isInputVisible = ref(false)
 const inputEditRef = ref<HTMLInputElement | null>(null)
@@ -72,7 +71,7 @@ function draggableChange(event: any) {
 }
 
 function showInput() {
-  if (toValue(status.isBusy)) return
+  if (status.isBusy) return
 
   isInputVisible.value = true
 
@@ -215,12 +214,15 @@ const otherBoards = computed(() => {
       :class="{ 'gap-y-1!': localTaskList.length === 0 }"
     >
       <div class="px-1">
-        <ButtonCreate
-          :disabled="toValue(status.isBusy)"
-          class="undraggable"
-          text="Добавить задачу"
+        <Button
+          variant="primaryMuted"
+          class="w-full undraggable font-semibold text-xs"
           @click="isTaskAddFormShown = true"
-        />
+          :disabled="status.isBusy"
+        >
+          <Plus class="size-4" />
+          Добавить задачу
+        </Button>
       </div>
       <div
         class="overflow-y-auto overflow-x-hidden px-1 custom-scrollbar flex flex-col grow gap-y-2 pb-1"
@@ -243,7 +245,7 @@ const otherBoards = computed(() => {
           filter=".undraggable"
           :fallbackTolerance="2"
           :prevent-on-filter="false"
-          :disabled="toValue(status.isBusy)"
+          :disabled="status.isBusy"
           v-if="!areTasksLoading"
         >
           <template #item="{ element }">
