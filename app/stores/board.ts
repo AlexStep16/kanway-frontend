@@ -1,7 +1,9 @@
 import { useWorkspaceStore } from '~/stores/workspace'
+import { useUIStore } from '~/stores/ui'
 
 export const useBoardStore = defineStore('board', () => {
   const workspaceStore = useWorkspaceStore()
+  const uiStore = useUIStore()
 
   const activeBoardId = ref<string | null>(null)
 
@@ -20,11 +22,23 @@ export const useBoardStore = defineStore('board', () => {
   /**
    * Navigate to a board from UI actions (sidebar, create/archive/recover).
    * The route middleware handles all state sync after navigation.
+   * If the URL already matches (e.g. mobile chat desynced the store), sync state directly.
    */
   async function selectBoard(boardId: string) {
     const workspaceId = workspaceStore.activeWorkspaceId
     if (!workspaceId) return
-    await navigateTo(`/workspace/${workspaceId}/${boardId}`)
+
+    const idealPath = `/workspace/${workspaceId}/${boardId}`
+    const route = useRoute()
+
+    if (route.path === idealPath) {
+      // Already at the right URL — middleware won't fire, sync state manually
+      setActiveBoard(boardId)
+      uiStore.selectBoard()
+      return
+    }
+
+    await navigateTo(idealPath)
   }
 
   /**

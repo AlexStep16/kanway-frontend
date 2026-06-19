@@ -38,14 +38,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
     // 4. Resolve target board: URL → saved → first → null (chat)
     const savedBoardId = localStorage.getItem('activeBoardId')
-    console.log(urlBoardId)
-    console.log(savedBoardId)
+
     const targetBoard =
       boards.find((b) => b.id === urlBoardId) ??
       boards.find((b) => b.id === savedBoardId) ??
       boards[0] ??
       null
-    console.log(targetBoard)
 
     // 5. Build canonical path and redirect if URL doesn't match
     const idealPath = targetBoard
