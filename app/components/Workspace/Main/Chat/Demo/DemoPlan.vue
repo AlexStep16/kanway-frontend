@@ -165,7 +165,7 @@ onMounted(() => {
           :isLoading="false"
           :isStatic="true"
         >
-          <MessageCircle class="size-4 text-zinc-500 dark:text-zinc-400" />
+          <MessageCircle class="size-4 text-zinc-500" />
         </Title>
         <div class="size-8"></div>
       </div>
@@ -181,7 +181,7 @@ onMounted(() => {
     />
 
     <footer
-      class="w-full flex justify-center p-4 sm:p-5 border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/70"
+      class="w-full flex justify-center p-4 sm:p-5 border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm"
     >
       <div class="w-full max-w-4xl">
         <DemoAIInput

@@ -10,7 +10,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
 
 <template>
   <header
-    class="w-full p-4 flex flex-col gap-1 border-b border-zinc-200/70 bg-white/80 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/70"
+    class="w-full p-4 flex flex-col gap-1 border-b border-zinc-200/70 bg-white/80 backdrop-blur-sm"
   >
     <div class="flex items-center justify-between gap-2">
       <Button

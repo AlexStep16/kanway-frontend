@@ -51,7 +51,7 @@ defineExpose({
 
 <template>
   <div
-    class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2 dark:bg-zinc-950/90 dark:border-zinc-800 dark:ring-white/3"
+    class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2"
   >
     <div class="flex flex-col gap-2 items-end">
       <div class="w-full flex items-center">
@@ -69,7 +69,7 @@ defineExpose({
             v-model="modelType"
           >
             <SelectTrigger
-              class="w-full items-center whitespace-nowrap border-zinc-200 bg-zinc-50/80 py-2 ring-offset-background data-placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300/60 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate text-start border flex shadow-sm h-8 text-xs text-zinc-600 rounded-lg font-medium gap-2 hover:bg-zinc-100/80 justify-start px-2.5 transition-all duration-200 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300 dark:hover:bg-zinc-800/80 dark:focus:ring-zinc-700"
+              class="w-full items-center whitespace-nowrap border-zinc-200 bg-zinc-50/80 py-2 ring-offset-background data-placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300/60 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate text-start border flex shadow-sm h-8 text-xs text-zinc-600 rounded-lg font-medium gap-2 hover:bg-zinc-100/80 justify-start px-2.5 transition-all duration-200"
               :is-open="isModelTypeSelectOpen"
             >
               <ChatGPT

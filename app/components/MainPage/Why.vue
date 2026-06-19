@@ -3,9 +3,7 @@ import { MoveRight } from 'lucide-vue-next'
 </script>
 
 <template>
-  <section
-    class="relative isolate py-12 md:py-16 bg-zinc-100 dark:bg-zinc-950 overflow-hidden font-sans"
-  >
+  <section class="relative isolate py-12 md:py-16 bg-zinc-100 overflow-hidden font-sans">
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 why-header">
       <!-- Section Header -->
       <div
@@ -16,23 +14,18 @@ import { MoveRight } from 'lucide-vue-next'
         class="text-center max-w-2xl mx-auto mb-10 md:mb-12"
       >
         <div
-          class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 mb-4"
+          class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white border border-zinc-200 mb-4"
         >
-          <span
-            class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"
-          ></span>
-          <span
-            class="text-[11px] font-semibold text-zinc-900 dark:text-zinc-200 uppercase tracking-wider"
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+          <span class="text-[11px] font-semibold text-zinc-900 uppercase tracking-wider"
             >Почему Kanway</span
           >
         </div>
-        <h2
-          class="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight"
-        >
+        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 mb-4 tracking-tight">
           Обычный Канбан — это формы. <br class="hidden md:block" />
           Kanway — это живой диалог.
         </h2>
-        <p class="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        <p class="text-base text-zinc-600 leading-relaxed">
           Забудьте про ручное заполнение карточек, клики и перетаскивания. Вы просто пишете в чат, а
           доска обновляется сама.
         </p>
@@ -40,7 +33,7 @@ import { MoveRight } from 'lucide-vue-next'
 
       <!-- Desktop Headers (Hidden on Mobile) -->
       <div
-        class="hidden lg:grid grid-cols-[1fr_32px_1fr] gap-4 mb-4 px-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500"
+        class="hidden lg:grid grid-cols-[1fr_32px_1fr] gap-4 mb-4 px-2 text-xs font-semibold uppercase tracking-wider text-zinc-400"
       >
         <div
           data-aos="fade-zoom-in"
@@ -61,7 +54,7 @@ import { MoveRight } from 'lucide-vue-next'
           data-aos-delay="800"
           data-aos-once="true"
           data-aos-anchor=".why-header"
-          class="pl-3 text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5"
+          class="pl-3 text-indigo-600 flex items-center gap-1.5"
         >
           <svg
             class="w-3.5 h-3.5"
@@ -91,11 +84,11 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="400"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800 shadow-sm transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            class="group p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 shadow-sm transition-colors duration-200 hover:bg-zinc-100"
           >
             <div class="flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
                 <svg
                   class="w-4 h-4"
@@ -112,10 +105,8 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-1.5">
-                  Рутина с формами
-                </h3>
-                <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Рутина с формами</h3>
+                <p class="text-zinc-600 text-sm leading-relaxed">
                   Чтобы создать одну задачу, нужно выбрать доску, прокликать теги и заполнить
                   описание. Это отнимает минуты.
                 </p>
@@ -142,14 +133,14 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="1000"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/20 shadow-sm transition-all duration-200 hover:border-indigo-200 dark:hover:border-indigo-500/40 relative overflow-hidden"
+            class="group p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 shadow-sm transition-all duration-200 hover:border-indigo-200 relative overflow-hidden"
           >
             <div
               class="absolute inset-0 bg-linear-to-br from-indigo-500/0 to-indigo-500/5 group-hover:to-indigo-500/10 transition-colors duration-200"
             ></div>
             <div class="relative z-10 flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
                 <svg
                   class="w-4 h-4"
@@ -166,12 +157,10 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-indigo-950 dark:text-indigo-100 mb-1.5">
-                  Задачи через чат
-                </h3>
-                <p class="text-indigo-900/80 dark:text-indigo-200/80 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-indigo-950 mb-1.5">Задачи через чат</h3>
+                <p class="text-indigo-900/80 text-sm leading-relaxed">
                   Просто напишите:
-                  <span class="font-medium text-indigo-700 dark:text-indigo-300"
+                  <span class="font-medium text-indigo-700"
                     >«Добавь баг с авторизацией на завтра 14:00»</span
                   >. Kanway сам поймёт контекст и создаст карточку со всеми атрибутами.
                 </p>
@@ -188,11 +177,11 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="500"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800 shadow-sm transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            class="group p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 shadow-sm transition-colors duration-200 hover:bg-zinc-100"
           >
             <div class="flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
                 <svg
                   class="w-4 h-4"
@@ -209,10 +198,8 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-1.5">
-                  Сложные фильтры
-                </h3>
-                <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Сложные фильтры</h3>
+                <p class="text-zinc-600 text-sm leading-relaxed">
                   Чтобы узнать свой план на день, нужно каждый раз настраивать сложные фильтры.
                 </p>
               </div>
@@ -236,14 +223,14 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="1200"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/20 shadow-sm transition-all duration-200 hover:border-indigo-200 dark:hover:border-indigo-500/40 relative overflow-hidden"
+            class="group p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 shadow-sm transition-all duration-200 hover:border-indigo-200 relative overflow-hidden"
           >
             <div
               class="absolute inset-0 bg-linear-to-br from-indigo-500/0 to-indigo-500/5 group-hover:to-indigo-500/10 transition-colors duration-200"
             ></div>
             <div class="relative z-10 flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
                 <svg
                   class="w-4 h-4"
@@ -260,12 +247,10 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-indigo-950 dark:text-indigo-100 mb-1.5">
-                  Мгновенные сводки
-                </h3>
-                <p class="text-indigo-900/80 dark:text-indigo-200/80 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-indigo-950 mb-1.5">Мгновенные сводки</h3>
+                <p class="text-indigo-900/80 text-sm leading-relaxed">
                   Спросите:
-                  <span class="font-medium text-indigo-700 dark:text-indigo-300"
+                  <span class="font-medium text-indigo-700"
                     >«Какие срочные баги мне нужно исправить первыми?»</span
                   >. Kanway мгновенно найдёт и выведет списком всю нужную информацию прямо в диалог.
                 </p>
@@ -282,11 +267,11 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="600"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800 shadow-sm transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            class="group p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 shadow-sm transition-colors duration-200 hover:bg-zinc-100"
           >
             <div class="flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
                 <svg
                   class="w-4 h-4"
@@ -303,10 +288,8 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-1.5">
-                  Ручное перемещение
-                </h3>
-                <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Ручное перемещение</h3>
+                <p class="text-zinc-600 text-sm leading-relaxed">
                   Ищете нужную карточку глазами среди колонок, чтобы перетащить её мышкой в «В
                   работе» или поменять дедлайн внутри неё.
                 </p>
@@ -331,14 +314,14 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="1400"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/20 shadow-sm transition-all duration-200 hover:border-indigo-200 dark:hover:border-indigo-500/40 relative overflow-hidden"
+            class="group p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 shadow-sm transition-all duration-200 hover:border-indigo-200 relative overflow-hidden"
           >
             <div
               class="absolute inset-0 bg-linear-to-br from-indigo-500/0 to-indigo-500/5 group-hover:to-indigo-500/10 transition-colors duration-200"
             ></div>
             <div class="relative z-10 flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
                 <svg
                   class="w-4 h-4"
@@ -355,12 +338,10 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-indigo-950 dark:text-indigo-100 mb-1.5">
-                  Управление текстом
-                </h3>
-                <p class="text-indigo-900/80 dark:text-indigo-200/80 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-indigo-950 mb-1.5">Управление текстом</h3>
+                <p class="text-indigo-900/80 text-sm leading-relaxed">
                   Напишите:
-                  <span class="font-medium text-indigo-700 dark:text-indigo-300"
+                  <span class="font-medium text-indigo-700"
                     >«Переведи задачу про логин в ревью»</span
                   >. Kanway сам найдет тикет и передвинет его в нужную колонку без единого клика.
                 </p>
@@ -377,11 +358,11 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="700"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800 shadow-sm transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            class="group p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 shadow-sm transition-colors duration-200 hover:bg-zinc-100"
           >
             <div class="flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
                 <svg
                   class="w-4 h-4"
@@ -398,10 +379,8 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-1.5">
-                  Лишние клики
-                </h3>
-                <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Лишние клики</h3>
+                <p class="text-zinc-600 text-sm leading-relaxed">
                   Чтобы убрать мусор из бэклога, нужно открывать каждую карточку, искать меню
                   действий, нажимать «удалить» и подтверждать.
                 </p>
@@ -426,14 +405,14 @@ import { MoveRight } from 'lucide-vue-next'
             data-aos-delay="1600"
             data-aos-once="true"
             data-aos-anchor=".why-header"
-            class="group p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/20 shadow-sm transition-all duration-200 hover:border-indigo-200 dark:hover:border-indigo-500/40 relative overflow-hidden"
+            class="group p-5 rounded-2xl bg-indigo-50/50 border border-indigo-100 shadow-sm transition-all duration-200 hover:border-indigo-200 relative overflow-hidden"
           >
             <div
               class="absolute inset-0 bg-linear-to-br from-indigo-500/0 to-indigo-500/5 group-hover:to-indigo-500/10 transition-colors duration-200"
             ></div>
             <div class="relative z-10 flex items-start gap-3">
               <div
-                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"
+                class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
                 <svg
                   class="w-4 h-4"
@@ -450,12 +429,12 @@ import { MoveRight } from 'lucide-vue-next'
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-indigo-950 dark:text-indigo-100 mb-1.5">
+                <h3 class="text-base font-semibold text-indigo-950 mb-1.5">
                   Чистка в одно сообщение
                 </h3>
-                <p class="text-indigo-900/80 dark:text-indigo-200/80 text-sm leading-relaxed">
+                <p class="text-indigo-900/80 text-sm leading-relaxed">
                   Скажите:
-                  <span class="font-medium text-indigo-700 dark:text-indigo-300"
+                  <span class="font-medium text-indigo-700"
                     >«Удали все завершенные задачи за прошлую неделю»</span
                   >. Kanway поймет о чем речь и мгновенно очистит доску. Ваш фокус останется на
                   работе.

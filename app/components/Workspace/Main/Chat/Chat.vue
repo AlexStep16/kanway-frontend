@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
       />
 
       <footer
-        class="w-full flex justify-center p-4 sm:p-5 border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/70"
+        class="w-full flex justify-center p-4 sm:p-5 border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm"
       >
         <div class="w-full max-w-4xl">
           <AIInput
