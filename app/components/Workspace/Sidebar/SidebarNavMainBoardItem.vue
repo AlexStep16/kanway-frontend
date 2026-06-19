@@ -66,7 +66,7 @@ const orderedBoards = computed(() => {
 
 function handleSelectBoard(board: IBoard) {
   boardStore.selectBoard(board.id)
-
+  console.log(board.id)
   if (isMobile.value) {
     toggleSidebar()
     chatStore.closeChat()
