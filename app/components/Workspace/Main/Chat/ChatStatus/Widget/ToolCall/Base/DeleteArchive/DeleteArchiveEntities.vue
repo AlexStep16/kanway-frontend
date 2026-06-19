@@ -93,7 +93,10 @@ const pluralizedCompletedTitle = computed(() => {
           v-if="props.content.logId && !props.isDemo"
         />
 
-        <slot name="demo-log" />
+        <slot
+          name="demo-log"
+          v-else-if="props.isDemo"
+        />
       </template>
       <template #actions>
         <ApproveButtons
@@ -128,7 +131,10 @@ const pluralizedCompletedTitle = computed(() => {
         v-if="props.content.logId && !props.isDemo"
       />
 
-      <slot name="demo-log" />
+      <slot
+        name="demo-log"
+        v-else-if="props.isDemo"
+      />
     </DeleteArchiveCompletedDropdown>
 
     <DeleteArchiveCompletedStatic

@@ -90,7 +90,10 @@ const pluralizedProcessTitle = computed(() => {
         v-if="props.content.logId && !props.isDemo"
       />
 
-      <slot name="demo-log" />
+      <slot
+        name="demo-log"
+        v-else-if="props.isDemo"
+      />
     </CreateCompletedDropdown>
 
     <CreateCompletedStatic
