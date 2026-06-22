@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers } from 'lucide-vue-next'
+import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers, Check } from 'lucide-vue-next'
+import { Checkbox } from '~/components/ui/checkbox'
 
 import { TimeStatus } from '~/enums/TimeStatus'
 
@@ -108,7 +109,6 @@ const entityColor = computed(() => {
   return getColorByNameAndTone(props.entity.color.value, props.entity.color.tone)
 })
 
-const isSelected = computed(() => props.selectedIds?.includes(props.entity.id))
 const hasInfo = computed(() => props.entity.column || props.entity.board)
 const isEntityCompletable = computed(
   () => !!props.options?.isCompletable && !props.options?.isStatic,
@@ -159,51 +159,42 @@ const isEntityCompletable = computed(
 
       <div class="flex items-start justify-between gap-x-2">
         <div
-          class="flex items-center pr-14 pointer-fine:pr-0 gap-x-1 shrink overflow-hidden min-w-0 text-gray-800 transform transition-all duration-100"
+          class="flex items-start pr-14 pointer-fine:pr-0 gap-x-1.5 shrink overflow-hidden min-w-0 text-gray-800 transform transition-all duration-100"
           :class="{
             'translate-x-0!': entity.isCompleted,
             'group-hover/task:translate-x-0 pointer-fine:-translate-x-6': isEntityCompletable,
           }"
         >
           <div
-            class="inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none transition-all duration-100 group-hover/task:opacity-100 group-hover/task:pointer-events-auto"
+            class="relative top-0.5 inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none transition-all duration-100 group-hover/task:opacity-100 group-hover/task:pointer-events-auto"
             :class="{
               'opacity-100! pointer-events-auto!': entity.isCompleted,
             }"
             v-if="isEntityCompletable"
           >
-            <div class="size-5 flex items-center justify-center">
-              <label
+            <div class="flex items-center justify-center">
+              <Label
                 class="flex items-center cursor-pointer relative transition-all select-none"
-                @click.stop
+                role="checkbox"
+                :aria-checked="entity.isCompleted ?? false"
+                tabindex="0"
+                @click.stop.prevent="$emit('toggleCompletion')"
+                @keydown.space.prevent.stop="$emit('toggleCompletion')"
+                @keydown.enter.prevent.stop="$emit('toggleCompletion')"
               >
-                <input
-                  type="checkbox"
-                  class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
-                  :checked="entity.isCompleted"
+                <Checkbox
+                  :model-value="entity.isCompleted ?? false"
                   :disabled="!isEntityCompletable"
-                  :id="'toggleCompletion-checkbox' + entity.id"
-                  @change="$emit('toggleCompletion')"
-                />
-                <span
-                  class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  class="pointer-events-none size-4.5 rounded-full border-slate-300 bg-slate-100 text-white shadow data-[state=checked]:border-green-600 data-[state=checked]:bg-green-600"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
+                  <Check
                     class="size-3"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-width="1"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </span>
-              </label>
+                    stroke-width="4"
+                  />
+                </Checkbox>
+              </Label>
             </div>
           </div>
           <span
@@ -215,38 +206,6 @@ const isEntityCompletable = computed(
             {{ entity.name }}
           </span>
         </div>
-
-        <label
-          class="flex items-center cursor-pointer relative transition-all"
-          @click.stop
-          v-if="options?.hasCheckbox && selectedIds && false"
-        >
-          <input
-            type="checkbox"
-            class="peer size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 cursor-pointer transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-blue-500 checked:border-blue-600"
-            :id="'selected-checkbox' + entity.id"
-            @change="$emit('toggleSelect')"
-            :checked="isSelected"
-          />
-          <span
-            class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="size-3"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              stroke="currentColor"
-              stroke-width="1"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </span>
-        </label>
 
         <div
           class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"

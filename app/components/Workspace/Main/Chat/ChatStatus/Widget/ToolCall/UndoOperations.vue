@@ -4,6 +4,11 @@ import { CircleAlert, Square, Undo2 } from 'lucide-vue-next'
 import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue.js'
 
 const props = defineProps<{
+  toolId: string
+  chatId: string
+  threadId: string
+  statusLogId: string
+  isDemo: boolean
   state: StatusStatesEnum
   content: ITextValue[]
   stateClasses: Record<string, boolean>
@@ -28,10 +33,11 @@ const completedTitle = 'Операции отменены'
         />
       </template>
     </ToolCallInProgressBase>
-    <ToolCallInProgressBase
+    <ToolCallInProgressAwaitingStaticBase
       :title="processTitle"
       :state-classes="stateClasses"
       :items="content"
+      accordion-item-value="undo-in-progress-awaiting"
       v-else-if="props.state === StatusStatesEnum.AWAITING_CONFIRMATION"
     >
       <template #icon>
@@ -40,7 +46,16 @@ const completedTitle = 'Операции отменены'
           :class="props.stateClasses"
         />
       </template>
-    </ToolCallInProgressBase>
+      <template #actions>
+        <ApproveButtons
+          :tool-id="props.toolId"
+          :chat-id="props.chatId"
+          :thread-id="props.threadId"
+          :status-log-id="props.statusLogId"
+          :is-demo="props.isDemo"
+        />
+      </template>
+    </ToolCallInProgressAwaitingStaticBase>
 
     <ToolCallCompletedDropdownBase
       :pluralized-title="completedTitle"

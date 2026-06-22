@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Layers } from 'lucide-vue-next'
+import { Check, Layers } from 'lucide-vue-next'
+import { Button } from '~/components/ui/button'
+import { Checkbox } from '~/components/ui/checkbox'
 
 import MoveDropdown from '../../MoveDropdown/MoveDropdown.vue'
 import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
@@ -51,6 +53,11 @@ const patchTask = (payload: any) => {
     payload: { id: task.value.id, ...payload },
     boardId: task.value.board.id,
   })
+}
+
+const toggleTaskCompletion = () => {
+  if (!task.value) return
+  patchTask({ isCompleted: !task.value.isCompleted })
 }
 
 // Debounce логика без изменений
@@ -131,49 +138,33 @@ onUnmounted(() => {
       >
         <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-border">
           <div class="flex items-center gap-2 min-w-0">
-            <button
+            <Button
               type="button"
-              @click="patchTask({ isCompleted: !task.isCompleted })"
+              variant="ghost"
+              size="sm"
+              @click="toggleTaskCompletion"
               class="py-1.5 px-2 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200"
               :class="
                 task.isCompleted
-                  ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                  ? 'bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-700'
                   : 'bg-secondary text-secondary-foreground hover:bg-secondary-foreground/20'
               "
             >
-              <div class="inline-flex items-center size-3 sm:size-4">
-                <label
-                  class="flex items-center relative transition-all"
-                  @click.prevent
+              <div class="inline-flex items-center size-3.5 sm:size-4.5 shrink-0">
+                <Checkbox
+                  :model-value="task.isCompleted"
+                  aria-hidden="true"
+                  tabindex="-1"
+                  class="pointer-events-none size-3.5 sm:size-4.5 rounded-full border-slate-300 bg-slate-100 text-white shadow data-[state=checked]:border-green-600 data-[state=checked]:bg-green-600"
                 >
-                  <input
-                    v-model="task.isCompleted"
-                    type="checkbox"
-                    class="peer size-3.5 sm:size-4.5 focus:ring-offset-0 focus:ring-0 focus:outline-offset-0 transition-all rounded-full bg-slate-100 shadow hover:shadow-md border border-slate-300 checked:bg-green-600 checked:border-green-600"
-                    id="check-custom-style"
+                  <Check
+                    class="size-3"
+                    stroke-width="4"
                   />
-                  <span
-                    class="absolute text-white transition-all opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="size-2.5 sm:size-3"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      stroke="currentColor"
-                      stroke-width="1"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </span>
-                </label>
+                </Checkbox>
               </div>
               {{ task.isCompleted ? 'Выполнено' : 'Выполняется' }}
-            </button>
+            </Button>
 
             <MoveDropdown
               v-if="!task.isDeleted"

@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardFooter } from '~/components/ui/card'
 import Input from '~/components/ui/input/Input.vue'
 import { getTimeInReadableFormat } from '~/utils/date'
 
-const date = ref() as Ref<DateValue | undefined>
+const date = ref<DateValue>()
 const time = ref('')
 const open = ref(false)
 const inputDate = ref('')
@@ -31,13 +31,15 @@ const emit = defineEmits<{
 }>()
 
 function clearTime() {
-  if (!props.task) return
+  time.value = ''
 
   emit('clearTaskTime')
 }
 
 function clearDate() {
-  if (!props.task) return
+  date.value = undefined
+  inputDate.value = ''
+  time.value = ''
 
   emit('clearTaskDue')
 }
@@ -63,95 +65,117 @@ const isDateFull = computed(() => {
   return inputDate.value.length === 10
 })
 
-const handleTimeInput = () => {
-  if (!validateTimeFormat(time.value)) {
-    if (isTimeFull.value) {
-      if (props.task?.dueHours != null && props.task?.dueMinutes != null) {
-        time.value =
-          props.task.dueHours.toString().padStart(2, '0') +
-          ':' +
-          props.task.dueMinutes.toString().padStart(2, '0')
-      } else {
-        time.value = ''
-      }
-    }
+const formatDateInput = (value?: string | null) => {
+  if (!value) {
+    return ''
+  }
 
+  return dayjs(value).format('DD.MM.YYYY')
+}
+
+const formatTimeValue = (hours?: number | null, minutes?: number | null) => {
+  if (hours == null && minutes == null) {
+    return ''
+  }
+
+  return `${String(hours ?? 0).padStart(2, '0')}:${String(minutes ?? 0).padStart(2, '0')}`
+}
+
+const parseInputDate = (value: string) => {
+  const parsedDate = dayjs(value, 'DD.MM.YYYY', true)
+
+  if (!parsedDate.isValid()) {
+    return null
+  }
+
+  return parseDate(parsedDate.format('YYYY-MM-DD'))
+}
+
+const syncDateFromTask = () => {
+  date.value = props.task.dueDate ? parseDate(props.task.dueDate) : undefined
+  inputDate.value = formatDateInput(props.task.dueDate)
+}
+
+const syncTimeFromTask = () => {
+  time.value = formatTimeValue(props.task.dueHours, props.task.dueMinutes)
+}
+
+const syncFromTask = () => {
+  syncDateFromTask()
+  syncTimeFromTask()
+}
+
+const applyDate = (newDate: DateValue) => {
+  const nextDate = newDate.toString()
+
+  date.value = newDate
+  inputDate.value = formatDateInput(nextDate)
+
+  if (nextDate !== props.task.dueDate) {
+    emit('changeDate', nextDate)
+  }
+}
+
+const handleTimeInput = () => {
+  const value = time.value.trim()
+
+  if (!value) {
+    clearTime()
     return
   }
-  emit('changeTime', time.value)
+
+  if (!isTimeFull.value) return
+
+  if (validateTimeFormat(value)) {
+    time.value = value
+
+    if (value !== formatTimeValue(props.task.dueHours, props.task.dueMinutes)) {
+      emit('changeTime', value)
+    }
+  } else {
+    syncTimeFromTask()
+  }
+}
+
+const handleCalendarDateChange = (newDate: DateValue | undefined) => {
+  if (!newDate) {
+    clearDate()
+    return
+  }
+
+  applyDate(newDate)
 }
 
 const handleDateInput = () => {
-  const parsedDate = dayjs(inputDate.value, 'DD.MM.YYYY', true)
-  if (parsedDate.isValid()) {
-    date.value = parseDate(parsedDate.format('YYYY-MM-DD'))
-  } else if (isDateFull.value) {
-    inputDate.value = ''
+  const value = inputDate.value.trim()
+
+  if (!value) {
+    clearDate()
+    return
+  }
+
+  if (!isDateFull.value) {
+    return
+  }
+
+  const parsedDate = parseInputDate(value)
+
+  if (parsedDate) {
+    applyDate(parsedDate)
+  } else {
+    syncDateFromTask()
   }
 }
 
 const clearAll = () => {
   clearDate()
-  clearTime()
   open.value = false
 }
 
 watch(
-  () => props.task.dueDate,
-  (newDueDate) => {
-    if (newDueDate) {
-      date.value = parseDate(newDueDate)
-    } else {
-      date.value = undefined
-    }
-  },
-  { immediate: true },
-)
-
-watch(
-  () => props.task.dueHours,
-  (newDueHours) => {
-    if (newDueHours) {
-      time.value =
-        newDueHours.toString().padStart(2, '0') +
-        ':' +
-        (props.task?.dueMinutes ?? '00').toString().padStart(2, '0')
-    } else {
-      time.value = ''
-    }
-  },
-  { immediate: true },
-)
-
-watch(
-  () => props.task.dueMinutes,
-  (newDueMinutes) => {
-    if (newDueMinutes) {
-      time.value =
-        (props.task?.dueHours ?? '00').toString().padStart(2, '0') +
-        ':' +
-        newDueMinutes.toString().padStart(2, '0')
-    } else {
-      time.value = ''
-    }
-  },
-  { immediate: true },
-)
-
-watch(
-  date,
-  (newDate) => {
-    if (newDate) {
-      if (props.task && newDate.toString() !== props.task.dueDate) {
-        emit('changeDate', newDate.toString())
-
-        open.value = false
-      }
-
-      inputDate.value = dayjs(newDate.toString()).format('DD.MM.YYYY')
-    } else if (!newDate) {
-      inputDate.value = ''
-    }
+  () => [props.task.dueDate, props.task.dueHours, props.task.dueMinutes],
+  () => {
+    syncFromTask()
   },
   { immediate: true },
 )
@@ -200,7 +224,7 @@ watch(
                 "
                 placeholder="Дата окончания"
                 v-mask="'##.##.####'"
-                @input="handleDateInput"
+                @blur="handleDateInput"
               />
 
               <Button
@@ -228,7 +252,7 @@ watch(
                 placeholder="Время окончания"
                 v-mask="'##:##'"
                 v-model="time"
-                @input="handleTimeInput"
+                @blur="handleTimeInput"
               />
 
               <Button
@@ -245,9 +269,10 @@ watch(
         </CardHeader>
         <CardContent class="p-0">
           <Calendar
-            v-model="date"
+            :model-value="date"
             locale="ru-RU"
             :class="cn('**:data-[slot=calendar-cell-trigger]:size-12! p-2 sm:p-3')"
+            @update:model-value="handleCalendarDateChange"
           />
         </CardContent>
         <CardFooter class="flex justify-end gap-x-2 border-t p-3">

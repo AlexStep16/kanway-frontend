@@ -128,7 +128,10 @@ const getFirstNameLetter = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:open="isDialogOpen">
+  <Dialog
+    class="z-90"
+    v-model:open="isDialogOpen"
+  >
     <DialogContent
       class="sm:max-w-106.25 p-4"
       :show-close-button="false"

@@ -9,6 +9,7 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['~/composables/**', '~/utils/**', '~/helpers/**'],
   },
+  spaLoadingTemplate: true,
   runtimeConfig: {
     public: {
       serverApiUrl: process.env.SERVER_API_URL || 'https://kanway.ru/api',

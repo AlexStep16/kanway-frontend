@@ -61,6 +61,12 @@ const openWorkspaceDialog = () => {
 
   isOpen.value = false
 }
+
+const handleCloseOptions = (workspaceId: string) => {
+  openOptions.value[workspaceId] = false
+
+  isOpen.value = false
+}
 </script>
 
 <template>
@@ -110,13 +116,13 @@ const openWorkspaceDialog = () => {
 
           <div class="flex flex-col gap-1">
             <div
-              class="relative flex items-center justify-between group/workspace-item"
+              class="relative flex items-center group/workspace-item"
               v-for="workspace in orderedWorkspaces"
               :key="workspace.id"
             >
               <DropdownMenuItem
                 :item="workspace"
-                class="gap-2 p-2 cursor-default w-full max-w-60"
+                class="gap-2 p-2 cursor-default w-full"
                 @click="workspaceStore.selectWorkspace(workspace)"
                 :is-active="workspace.id === activeWorkspaceId"
               >
@@ -142,10 +148,7 @@ const openWorkspaceDialog = () => {
 
               <DropdownMenu v-model:open="openOptions[workspace.id]">
                 <DropdownMenuTrigger as-child>
-                  <DropdownMenuMore
-                    show-on-hover
-                    :class="cn('translate-x-0', 'opacity-0 transition-opacity')"
-                  >
+                  <DropdownMenuMore show-on-hover>
                     <MoreHorizontal class="size-4" />
                     <span class="sr-only">Больше</span>
                   </DropdownMenuMore>
@@ -154,7 +157,7 @@ const openWorkspaceDialog = () => {
                 <WorkspaceOptions
                   :workspace="workspace"
                   :is-mobile="isMobile"
-                  @close="openOptions[workspace.id] = false"
+                  @close="handleCloseOptions(workspace.id)"
                 />
               </DropdownMenu>
             </div>
