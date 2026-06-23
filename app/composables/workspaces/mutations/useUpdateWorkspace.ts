@@ -20,20 +20,30 @@ export function useUpdateWorkspace() {
       requestQueueService.enqueue(payload.id, () => saveWorkspace(payload)),
 
     onMutate: async (vars) => {
-      const queryKey = workspaceKeys.lists()
+      const queryWorkspacesKey = workspaceKeys.lists()
+      const queryWorkspaceKey = workspaceKeys.detailed(vars.payload.id)
 
-      await queryClient.cancelQueries({ queryKey })
+      await queryClient.cancelQueries({ queryKey: queryWorkspacesKey })
+      await queryClient.cancelQueries({ queryKey: queryWorkspaceKey })
 
-      const previousWorkspaces = queryClient.getQueryData<IWorkspace[]>(queryKey)
+      const previousWorkspaces = queryClient.getQueryData<IWorkspace[]>(queryWorkspacesKey)
+      const previousWorkspace = queryClient.getQueryData<IWorkspace>(queryWorkspaceKey)
 
       if (previousWorkspaces) {
-        queryClient.setQueryData<IWorkspace[]>(queryKey, (old) => {
+        queryClient.setQueryData<IWorkspace[]>(queryWorkspacesKey, (old) => {
           if (!old) return []
-          return old.map((t) => (t.id === vars.payload.id ? { ...t, ...vars.payload } : t))
+          return old.map((w) => (w.id === vars.payload.id ? { ...w, ...vars.payload } : w))
         })
       }
 
-      return { previousWorkspaces, queryKey }
+      if (previousWorkspace) {
+        queryClient.setQueryData<IWorkspace | null>(queryWorkspaceKey, (old) => {
+          if (!old) return null
+          return { ...old, ...vars.payload }
+        })
+      }
+
+      return { previousWorkspaces, previousWorkspace, queryWorkspacesKey, queryWorkspaceKey }
     },
 
     onError: (err, vars, context) => {
@@ -41,10 +51,14 @@ export function useUpdateWorkspace() {
         const originalWorkspace = context.previousWorkspaces.find((w) => w.id === vars.payload.id)
 
         if (originalWorkspace) {
-          queryClient.setQueryData<IWorkspace[]>(context.queryKey, (current) => {
+          queryClient.setQueryData<IWorkspace[]>(context.queryWorkspacesKey, (current) => {
             return current?.map((w) => (w.id === vars.payload.id ? originalWorkspace : w)) ?? []
           })
         }
+      }
+
+      if (context?.previousWorkspace) {
+        queryClient.setQueryData<IWorkspace>(context.queryWorkspaceKey, context.previousWorkspace)
       }
     },
 

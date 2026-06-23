@@ -17,20 +17,30 @@ export function useUpdateColumn() {
       requestQueueService.enqueue(payload.id, () => saveColumn(payload)),
 
     onMutate: async (vars) => {
-      const queryKey = vars.boardId ? columnKeys.byBoard(vars.boardId) : columnKeys.all
+      const queryColumnsKey = vars.boardId ? columnKeys.byBoard(vars.boardId) : columnKeys.all
+      const queryColumnKey = columnKeys.detailed(vars.payload.id)
 
-      await queryClient.cancelQueries({ queryKey })
+      await queryClient.cancelQueries({ queryKey: queryColumnsKey })
+      await queryClient.cancelQueries({ queryKey: queryColumnKey })
 
-      const previousColumns = queryClient.getQueryData<IColumnState[]>(queryKey)
+      const previousColumns = queryClient.getQueryData<IColumnState[]>(queryColumnsKey)
+      const previousColumn = queryClient.getQueryData<IColumnState>(queryColumnKey)
 
       if (previousColumns) {
-        queryClient.setQueryData<IColumnState[]>(queryKey, (old) => {
+        queryClient.setQueryData<IColumnState[]>(queryColumnsKey, (old) => {
           if (!old) return []
-          return old.map((t) => (t.id === vars.payload.id ? { ...t, ...vars.payload } : t))
+          return old.map((c) => (c.id === vars.payload.id ? { ...c, ...vars.payload } : c))
         })
       }
 
-      return { previousColumns, queryKey }
+      if (previousColumn) {
+        queryClient.setQueryData<IColumnState | null>(queryColumnKey, (old) => {
+          if (!old) return null
+          return { ...old, ...vars.payload }
+        })
+      }
+
+      return { previousColumns, previousColumn, queryColumnsKey, queryColumnKey }
     },
 
     onSettled: (data, error, { boardId, payload }) => {
@@ -45,10 +55,14 @@ export function useUpdateColumn() {
         const originalColumn = context.previousColumns.find((c) => c.id === vars.payload.id)
 
         if (originalColumn) {
-          queryClient.setQueryData<IColumnState[]>(context.queryKey, (current) => {
+          queryClient.setQueryData<IColumnState[]>(context.queryColumnsKey, (current) => {
             return current?.map((c) => (c.id === vars.payload.id ? originalColumn : c)) ?? []
           })
         }
+      }
+
+      if (context?.previousColumn) {
+        queryClient.setQueryData<IColumnState>(context.queryColumnKey, context.previousColumn)
       }
     },
   })
