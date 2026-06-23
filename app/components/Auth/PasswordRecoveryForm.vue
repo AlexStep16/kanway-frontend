@@ -62,7 +62,10 @@ function handleTogglePasswordVisibility() {
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" novalidate>
+  <form
+    @submit.prevent="onSubmit"
+    novalidate
+  >
     <div class="grid gap-y-2">
       <!-- Form Group  -->
       <div class="flex flex-col gap-y-2">
@@ -84,7 +87,10 @@ function handleTogglePasswordVisibility() {
             @toggle-password-visibility="handleTogglePasswordVisibility"
           />
         </div>
-        <ul class="text-xs my-2" v-if="password && password.length > 0">
+        <ul
+          class="text-xs my-2"
+          v-if="password && password.length > 0"
+        >
           <li
             v-for="(item, index) in checklist"
             :key="index"
@@ -108,13 +114,16 @@ function handleTogglePasswordVisibility() {
       </div>
       <!-- End Form Group -->
 
-      <RegisterButton :isProcessing="isRecovering" text="Восстановить пароль" />
+      <RegisterButton
+        :isProcessing="isRecovering"
+        text="Восстановить пароль"
+      />
       <div class="flex flex-wrap justify-between items-center mt-2 gap-2">
         <a
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
           :href="
             props.email
-              ? `/auth/${AllowedAuthStepsEnum.SIGN_IN}/${getSafeBase64String(props.email)}`
+              ? `/auth?step=${AllowedAuthStepsEnum.SIGN_IN}&payload=${getSafeBase64String(props.email)}`
               : '/auth'
           "
         >

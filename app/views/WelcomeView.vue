@@ -28,6 +28,7 @@ const schema = toTypedSchema(
 )
 
 const openItem = ref('')
+const isNavigating = ref(false)
 
 function toggleColors() {
   openItem.value = openItem.value === 'colors' ? '' : 'colors'
@@ -63,8 +64,15 @@ const onSubmit = handleSubmit(
         },
       },
       {
-        onSuccess: () => {
-          navigateTo('/workspace')
+        onSuccess: async () => {
+          try {
+            isNavigating.value = true
+            await navigateTo('/workspace')
+          } catch {
+            toast.error('Произошла ошибка при переходе на страницу рабочего пространства')
+          } finally {
+            isNavigating.value = false
+          }
         },
       },
     )
@@ -74,6 +82,8 @@ const onSubmit = handleSubmit(
     if (values.errors.username) toast.error(values.errors.username)
   },
 )
+
+const isProcessing = computed(() => isWelcomePending.value || isNavigating.value)
 </script>
 
 <template>
@@ -178,11 +188,11 @@ const onSubmit = handleSubmit(
               >
                 <Spinner
                   class="size-4 absolute"
-                  v-if="isWelcomePending"
+                  v-if="isProcessing"
                 />
                 <span
                   :class="{
-                    'opacity-0': isWelcomePending,
+                    'opacity-0': isProcessing,
                   }"
                   >Начать работу</span
                 >

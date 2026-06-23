@@ -9,11 +9,10 @@ export function useLogout() {
     mutationFn: () => logout(),
     onSuccess: () => {
       navigateTo('/auth')
+      queryClient.resetQueries()
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: userKeys.me,
-      })
+      queryClient.invalidateQueries({ queryKey: userKeys.me })
     },
   })
 }

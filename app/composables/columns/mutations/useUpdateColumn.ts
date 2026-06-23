@@ -34,6 +34,7 @@ export function useUpdateColumn() {
     },
 
     onSettled: (data, error, { boardId, payload }) => {
+      queryClient.invalidateQueries({ queryKey: columnKeys.archived() })
       queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(boardId) })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
       queryClient.invalidateQueries({ queryKey: columnKeys.detailed(payload.id) })

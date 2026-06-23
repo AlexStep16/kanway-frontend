@@ -53,8 +53,13 @@ export const useUIStore = defineStore('ui', () => {
     isEditTaskModalOpen.value = true
   }
 
+  function updateEditableTask(task: ITaskState | null) {
+    editableTask.value = task
+  }
+
   function selectArchive() {
     currentTab.value = Tabs.Archive
+    isChatOpen.value = false
 
     boardStore.clearBoard()
   }
@@ -119,6 +124,7 @@ export const useUIStore = defineStore('ui', () => {
     selectBoard,
     selectChat,
     openTaskToEdit,
+    updateEditableTask,
     clearTaskToEdit,
     openWorkspaceDialog,
     closeWorkspaceDialog,

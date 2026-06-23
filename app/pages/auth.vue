@@ -3,10 +3,19 @@ import AuthView from '~/views/Auth/AuthView.vue'
 
 definePageMeta({
   guestOnly: true,
-  middleware: ['auth']
+  middleware: ['auth'],
 })
 </script>
 
 <template>
-  <AuthView></AuthView>
+  <div
+    class="relative size-full isolate bg-gray-100 overflow-hidden min-h-screen flex flex-col px-2"
+  >
+    <BackgroundCircles />
+    <main class="flex items-center justify-center grow">
+      <TransitionGroup name="slide-left">
+        <AuthView></AuthView>
+      </TransitionGroup>
+    </main>
+  </div>
 </template>

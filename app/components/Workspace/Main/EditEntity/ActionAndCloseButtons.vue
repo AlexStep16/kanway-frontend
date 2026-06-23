@@ -5,6 +5,7 @@ defineProps<{
   editableEntity: T
   isEntityCopying?: boolean
   isEntityArchiving?: boolean
+  isEntityUpdating?: boolean
 }>()
 
 defineEmits<{
@@ -15,40 +16,46 @@ defineEmits<{
 
 <template>
   <div class="flex shrink-0 gap-x-2 sm:gap-x-3 min-w-0">
-    <div
-      class="flex items-center transition-all duration-100"
-      v-if="!editableEntity.isDeleted"
-    >
-      <button
-        type="button"
-        class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-        title="Копировать"
-        @click.stop="$emit('copy', editableEntity)"
+    <div class="flex items-center transition-all duration-100">
+      <div
+        class="flex text-gray-400 p-1.5 bg-white"
+        v-if="isEntityUpdating"
       >
-        <Spinner
-          v-if="isEntityCopying"
-          class="size-4"
-        />
-        <Copy
-          v-else
-          class="size-4"
-        />
-      </button>
-      <button
-        type="button"
-        class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-        title="Архивировать"
-        @click.stop="$emit('archive', editableEntity)"
-      >
-        <Spinner
-          v-if="isEntityArchiving"
-          class="size-4"
-        />
-        <Archive
-          v-else
-          class="size-4"
-        />
-      </button>
+        <Spinner class="size-4" />
+      </div>
+
+      <template v-if="!editableEntity.isDeleted">
+        <button
+          type="button"
+          class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+          title="Копировать"
+          @click.stop="$emit('copy', editableEntity)"
+        >
+          <Spinner
+            v-if="isEntityCopying"
+            class="size-4"
+          />
+          <Copy
+            v-else
+            class="size-4"
+          />
+        </button>
+        <button
+          type="button"
+          class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+          title="Архивировать"
+          @click.stop="$emit('archive', editableEntity)"
+        >
+          <Spinner
+            v-if="isEntityArchiving"
+            class="size-4"
+          />
+          <Archive
+            v-else
+            class="size-4"
+          />
+        </button>
+      </template>
     </div>
 
     <DialogClose

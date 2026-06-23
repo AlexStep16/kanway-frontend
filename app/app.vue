@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Toaster } from 'vue-sonner'
-
 </script>
 
 <template>
   <div>
+    <NuxtLoadingIndicator color="#3b82f6" />
     <NuxtRouteAnnouncer />
     <NuxtPage />
     <Toaster

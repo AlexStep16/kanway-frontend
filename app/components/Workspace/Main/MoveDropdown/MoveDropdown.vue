@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import MoveDropdownButton from '~/components/Workspace/Main/MoveDropdown/MoveDropdownButton.vue'
-import { EntityType } from '~/enums/EntityType'
+import type { IParent } from '~/interfaces/IParent'
+import type { ITaskState } from '~/stores/interfaces/ITaskState'
 
 const props = defineProps<{
-  entity: any
-  type: EntityType
+  task: ITaskState
 }>()
 
 const emit = defineEmits<{
   (
     e: 'move',
     data: {
-      id: string
-      newColumnId: string | null
-      newBoardId: string | null
-      newWorkspaceId: string
+      newColumnId: string
+      newBoardId: string
+      workspace: IParent
+      board: IParent
+      column: IParent
     },
   ): void
 }>()
@@ -24,9 +25,9 @@ const isWorkspacesSelectOpen = ref(false)
 const isBoardsSelectOpen = ref(false)
 const isColumnsSelectOpen = ref(false)
 
-const selectedWorkspaceId = ref<string>(props.entity.workspace?.id || '')
-const selectedBoardId = ref<string | null>(props.entity.board?.id || null)
-const selectedColumnId = ref<string | null>(props.entity.column?.id || null)
+const selectedWorkspaceId = ref('')
+const selectedBoardId = ref<string | null>(null)
+const selectedColumnId = ref<string | null>(null)
 
 const { data: workspacesData } = useWorkspaces()
 const { data: boardsData, isFetching: isBoardsLoading } = useBoards(
@@ -40,11 +41,21 @@ const workspaces = computed(() => workspacesData.value || [])
 const boards = computed(() => boardsData.value || [])
 const columns = computed(() => columnsData.value || [])
 
+watch(
+  () => props.task,
+  (task) => {
+    selectedWorkspaceId.value = task.workspace?.id || ''
+    selectedBoardId.value = task.board?.id || null
+    selectedColumnId.value = task.column?.id || null
+  },
+  { immediate: true },
+)
+
 watch(selectedWorkspaceId, (newId, oldId) => {
   if (newId !== oldId) {
-    if (props.entity.workspace?.id === newId) {
-      selectedBoardId.value = props.entity.board?.id || null
-      selectedColumnId.value = props.entity.column?.id || null
+    if (props.task.workspace?.id === newId) {
+      selectedBoardId.value = props.task.board?.id || null
+      selectedColumnId.value = props.task.column?.id || null
     } else {
       selectedBoardId.value = null
       selectedColumnId.value = null
@@ -54,8 +65,8 @@ watch(selectedWorkspaceId, (newId, oldId) => {
 
 watch(selectedBoardId, (newId, oldId) => {
   if (newId !== oldId) {
-    if (props.entity.board?.id === newId) {
-      selectedColumnId.value = props.entity.column?.id || null
+    if (props.task.board?.id === newId) {
+      selectedColumnId.value = props.task.column?.id || null
     } else {
       selectedColumnId.value = null
     }
@@ -63,25 +74,35 @@ watch(selectedBoardId, (newId, oldId) => {
 })
 
 const isMoveDisabled = computed(() => {
-  if (props.type === EntityType.Board)
-    return selectedWorkspaceId.value === props.entity.workspace?.id || !selectedWorkspaceId.value
-  if (props.type === EntityType.Column)
-    return selectedBoardId.value === props.entity.board?.id || !selectedBoardId.value
-  return selectedColumnId.value === props.entity.column?.id || !selectedColumnId.value
+  return selectedColumnId.value === props.task.column?.id || !selectedColumnId.value
 })
 
-const getButtonTitle = computed(() => {
-  if (props.type === EntityType.Task) return props.entity.column?.name || 'Без колонки'
-  if (props.type === EntityType.Column) return props.entity.board?.name || 'Без доски'
-  return props.entity.workspace?.name || 'Без пространства'
-})
+const buttonTitle = computed(() => props.task.column?.name || 'Без колонки')
 
 function handleMove() {
+  if (!selectedColumnId.value || !selectedBoardId.value) return
+
+  const workspace = workspaces.value.find((item) => item.id === selectedWorkspaceId.value)
+  const board = boards.value.find((item) => item.id === selectedBoardId.value)
+  const column = columns.value.find((item) => item.id === selectedColumnId.value)
+
+  if (!workspace || !board || !column) return
+
   emit('move', {
-    id: props.entity.id,
     newColumnId: selectedColumnId.value,
     newBoardId: selectedBoardId.value,
-    newWorkspaceId: selectedWorkspaceId.value,
+    workspace: {
+      id: workspace.id,
+      name: workspace.name,
+    },
+    board: {
+      id: board.id,
+      name: board.name,
+    },
+    column: {
+      id: column.id,
+      name: column.name,
+    },
   })
   isPopoverOpen.value = false
 }
@@ -90,7 +111,7 @@ function handleMove() {
 <template>
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
-      <MoveDropdownButton :title="getButtonTitle">
+      <MoveDropdownButton :title="buttonTitle">
         <slot />
       </MoveDropdownButton>
     </PopoverTrigger>
@@ -127,10 +148,7 @@ function handleMove() {
           </Select>
         </div>
 
-        <div
-          v-if="type !== EntityType.Board"
-          class="flex flex-col gap-y-1.5 relative"
-        >
+        <div class="flex flex-col gap-y-1.5 relative">
           <label class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider"
             >Доска</label
           >
@@ -167,10 +185,7 @@ function handleMove() {
           </Select>
         </div>
 
-        <div
-          v-if="type === EntityType.Task"
-          class="flex flex-col gap-y-1.5 relative"
-        >
+        <div class="flex flex-col gap-y-1.5 relative">
           <label class="text-[10px] uppercase font-bold text-muted-foreground tracking-wider"
             >Колонка</label
           >

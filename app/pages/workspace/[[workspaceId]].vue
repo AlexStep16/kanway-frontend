@@ -16,9 +16,7 @@ const isMainChat = computed(() => {
 })
 
 const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
-const isChatTabShown = computed(
-  () => uiStore.isChatOpen || uiStore.isChatTabSelected || activeBoardId.value === null,
-)
+const isChatTabShown = computed(() => uiStore.isChatOpen || uiStore.isChatTabSelected)
 </script>
 
 <template>

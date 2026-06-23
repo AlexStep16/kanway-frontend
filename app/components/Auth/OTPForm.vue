@@ -172,9 +172,9 @@ defineExpose({
     <div class="p-4 pt-7 sm:p-7">
       <div class="text-center flex justify-center flex-col items-center">
         <div class="relative flex justify-center items-center w-full">
-          <a href="/">
+          <NuxtLink to="/">
             <KanwayLogo class="h-8 sm:h-10" />
-          </a>
+          </NuxtLink>
         </div>
         <h1 class="block mt-4 text-2xl font-bold text-gray-900">{{ title }}</h1>
         <p class="mt-2 text-sm text-gray-500 leading-relaxed">
@@ -203,7 +203,11 @@ defineExpose({
             />
           </div>
 
-          <RegisterButton :isProcessing="isVerifying" text="Подтвердить" @click="handleVerify" />
+          <RegisterButton
+            :isProcessing="isVerifying"
+            text="Подтвердить"
+            @click="handleVerify"
+          />
 
           <div class="flex flex-col items-center">
             <span class="text-sm text-gray-500">Не получили письмо?</span>
@@ -217,7 +221,9 @@ defineExpose({
               {{ isResending ? 'Отправляем...' : 'Отправить ещё раз' }}
             </button>
 
-            <span v-else class="mt-1 text-sm text-gray-400"
+            <span
+              v-else
+              class="mt-1 text-sm text-gray-400"
               >Повторная отправка через {{ timer }} сек.</span
             >
           </div>

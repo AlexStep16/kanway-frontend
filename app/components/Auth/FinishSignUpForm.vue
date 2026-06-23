@@ -6,10 +6,12 @@ import RegisterButton from '~/components/Buttons/RegisterButton.vue'
 import z from 'zod'
 import { Mail } from 'lucide-vue-next'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
+import { toast } from 'vue-sonner'
 
 const { mutate: finishSignup, isPending: isRegistering, error: registerError } = useFinishSignup()
 
 const isPasswordDirty = ref(false)
+const isNavigating = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -31,18 +33,27 @@ const onSubmit = handleSubmit((values) => {
   finishSignup(
     { email: values.email.trim() },
     {
-      onSuccess: () => {
-        navigateTo({
-          path: '/auth',
-          query: {
-            step: AllowedAuthStepsEnum.VERIFY_EMAIL,
-            payload: getSafeBase64String(values.email.trim()),
-          },
-        })
+      onSuccess: async () => {
+        try {
+          isNavigating.value = true
+          await navigateTo({
+            path: '/auth',
+            query: {
+              step: AllowedAuthStepsEnum.VERIFY_EMAIL,
+              payload: getSafeBase64String(values.email.trim()),
+            },
+          })
+        } catch {
+          toast.error('Произошла ошибка при переходе на страницу подтверждения почты')
+        } finally {
+          isNavigating.value = false
+        }
       },
     },
   )
 })
+
+const isProcessing = computed(() => isRegistering.value || isNavigating.value)
 </script>
 
 <template>
@@ -80,7 +91,7 @@ const onSubmit = handleSubmit((values) => {
       </div>
 
       <RegisterButton
-        :isProcessing="isRegistering"
+        :isProcessing="isProcessing"
         text="Завершить регистрацию"
       />
     </div>

@@ -5,32 +5,23 @@ import { Checkbox } from '~/components/ui/checkbox'
 
 import MoveDropdown from '../../MoveDropdown/MoveDropdown.vue'
 import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
-import { EntityType } from '~/enums/EntityType'
 import { attach } from '@frsource/autoresize-textarea'
 import TaskDateTime from '~/components/Workspace/Main/Task/Edit/TaskDateTime.vue'
 import TaskTags from '~/components/Workspace/Main/Task/Edit/TaskTags.vue'
 import TaskColor from '~/components/Workspace/Main/Task/Edit/TaskColor.vue'
 import { toast } from 'vue-sonner'
+import _ from 'lodash'
+import type { ITaskState } from '~/stores/interfaces/ITaskState.js'
 
 const uiStore = useUIStore()
-const editableTask = computed(() => uiStore.editableTask)
+const { editableTask } = storeToRefs(uiStore)
 
 const editableTaskId = computed(() => editableTask.value?.id || null)
-const editableTaskBoardId = computed(() => editableTask.value?.board.id || null)
-const isEditableTaskDeleted = computed(() => editableTask.value?.isDeleted || false)
 
 // --- Queries (Nuxt авто-импорт) ---
-const liveTask = useTaskSelector(
-  editableTaskId,
-  editableTaskBoardId,
-  computed(() => !isEditableTaskDeleted.value),
-)
-const archivedTask = useArchivedTask(
-  editableTaskId,
-  computed(() => isEditableTaskDeleted.value),
-)
+const { data: liveTask } = useTask(editableTask.value!.id, editableTask.value!.board.id)
 
-const task = computed(() => (isEditableTaskDeleted.value ? archivedTask.value : liveTask.value))
+const task = ref<ITaskState | null>(null)
 const status = useTaskMutationStatus(editableTaskId)
 
 // --- Local State (текст) ---
@@ -47,8 +38,9 @@ const { mutate: archiveTask } = useArchiveTask()
 const { mutate: cloneTask } = useCloneTask()
 const { mutate: moveTask } = useMoveTask()
 
-const patchTask = (payload: any) => {
+const patchTask = (payload: Partial<ITaskState>) => {
   if (!task.value) return
+
   updateTask({
     payload: { id: task.value.id, ...payload },
     boardId: task.value.board.id,
@@ -62,18 +54,21 @@ const toggleTaskCompletion = () => {
 
 // Debounce логика без изменений
 const debouncedUpdateName = useDebounceFn(() => {
-  if (!task.value || task.value.name === localName.value) return
+  if (!task.value || task.value.name === localName.value || !localName.value) return
+
   patchTask({ name: localName.value })
 }, 500)
 
 const debouncedUpdateDescription = useDebounceFn(() => {
   if (!task.value || task.value.description === localDescription.value) return
+
   patchTask({ description: localDescription.value })
 }, 500)
 
 const handleAddTag = (tag: string) => {
   if (!task.value) return
   if (task.value.tags.includes(tag)) return toast.info('Тег уже существует')
+
   patchTask({ tags: [...task.value.tags, tag] })
 }
 
@@ -81,6 +76,7 @@ const handleRemoveTag = (index: number) => {
   if (!task.value) return
   const newTags = [...task.value.tags]
   newTags.splice(index, 1)
+
   patchTask({ tags: newTags })
 }
 
@@ -97,9 +93,18 @@ const handleMoveTask = (data: any) => {
 }
 
 watch(
-  task,
+  liveTask,
   (newVal, oldVal) => {
     if (!newVal) return
+
+    task.value = newVal ? _.cloneDeep(newVal) : null
+
+    if (!newVal) {
+      localName.value = ''
+      localDescription.value = ''
+      return
+    }
+
     if (newVal.id !== oldVal?.id || (!localName.value && !localDescription.value)) {
       localName.value = newVal.name
       localDescription.value = newVal.description || ''
@@ -168,8 +173,7 @@ onUnmounted(() => {
 
             <MoveDropdown
               v-if="!task.isDeleted"
-              :entity="task"
-              :type="EntityType.Task"
+              :task="task"
               @move="handleMoveTask"
             >
               <Layers class="size-3.5 shrink-0" />
@@ -180,6 +184,7 @@ onUnmounted(() => {
             :editableEntity="task"
             :isEntityCopying="status.isCloning?.value"
             :isEntityArchiving="status.isArchiving?.value"
+            :isEntityUpdating="status.isUpdating?.value"
             @copy="
               cloneTask({ id: task.id }, { onSuccess: () => (uiStore.isEditTaskModalOpen = false) })
             "
@@ -189,12 +194,12 @@ onUnmounted(() => {
           />
         </div>
 
-        <div class="px-4 pt-4 flex flex-col gap-y-2">
+        <div class="p-4 flex flex-col gap-y-2">
           <textarea
             ref="textareaNameRef"
             v-model="localName"
             @input="debouncedUpdateName"
-            class="p-0 w-full bg-transparent border-none focus:ring-0 text-xl font-bold resize-none placeholder:text-muted-foreground/50"
+            class="p-0 w-full bg-transparent border-none focus:ring-0 text-lg font-medium resize-none placeholder:text-muted-foreground/50"
             placeholder="Имя задачи"
             rows="1"
           />
@@ -207,19 +212,19 @@ onUnmounted(() => {
             placeholder="Описание задачи..."
             rows="2"
           />
-        </div>
 
-        <div
-          v-if="task.tags?.length"
-          class="flex flex-wrap gap-1.5 px-4 pt-2 pb-4"
-        >
-          <span
-            v-for="tag in task.tags"
-            :key="tag"
-            class="text-xs font-medium text-primary/70 bg-primary-muted px-1.5 py-0.5 rounded"
+          <div
+            v-if="task.tags?.length"
+            class="flex flex-wrap gap-1.5"
           >
-            #{{ tag }}
-          </span>
+            <span
+              v-for="tag in task.tags"
+              :key="tag"
+              class="text-xs font-medium text-primary/70 bg-primary-muted px-1.5 py-0.5 rounded"
+            >
+              #{{ tag }}
+            </span>
+          </div>
         </div>
 
         <div class="flex flex-wrap gap-2 px-4 py-4 border-t bg-muted/5">

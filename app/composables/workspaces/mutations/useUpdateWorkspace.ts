@@ -50,6 +50,10 @@ export function useUpdateWorkspace() {
 
     onSuccess: (result) => {
       const newWorkspaceId = result.data[0]!.id ?? null
+      queryClient.invalidateQueries({ queryKey: workspaceKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: workspaceKeys.detailed(newWorkspaceId) })
+      queryClient.invalidateQueries({ queryKey: workspaceKeys.archived() })
+
       queryClient.invalidateQueries({ queryKey: boardKeys.byWorkspace(newWorkspaceId) })
 
       const availableBoards = queryClient.getQueryData<IBoard[]>(

@@ -29,6 +29,7 @@ const { data, isPending } = useBoard(props.board.id, props.board.workspace?.id)
       <BoardCard
         :board="entity"
         :options="{
+          isChat: true,
           hasBorder: true,
           hasCheckbox: hasCheckbox,
           showInfo: true,

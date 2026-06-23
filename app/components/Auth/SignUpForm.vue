@@ -7,6 +7,7 @@ import RegisterButton from '~/components/Buttons/RegisterButton.vue'
 import { ArrowLeft, KeyRound } from 'lucide-vue-next'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import ShowPasswordButton from './ShowPasswordButton.vue'
+import { toast } from 'vue-sonner'
 
 const props = withDefaults(
   defineProps<{
@@ -20,6 +21,10 @@ const props = withDefaults(
 const { mutate: register, isPending: isRegistering, error: registerError } = useRegister()
 
 const isPasswordDirty = ref(false)
+const isPasswordVisible = ref(false)
+
+const isNavigating = ref(false)
+
 const passwordRef = ref<HTMLInputElement | null>(null)
 
 const schema = toTypedSchema(
@@ -52,14 +57,21 @@ const onSubmit = handleSubmit((values) => {
   register(
     { email: values.email.trim(), password: values.password },
     {
-      onSuccess: () => {
-        navigateTo({
-          path: '/auth',
-          query: {
-            step: AllowedAuthStepsEnum.VERIFY_EMAIL,
-            payload: getSafeBase64String(values.email.trim()),
-          },
-        })
+      onSuccess: async () => {
+        try {
+          isNavigating.value = true
+          await navigateTo({
+            path: '/auth',
+            query: {
+              step: AllowedAuthStepsEnum.VERIFY_EMAIL,
+              payload: getSafeBase64String(values.email.trim()),
+            },
+          })
+        } catch {
+          toast.error('Произошла ошибка при переходе на страницу подтверждения почты')
+        } finally {
+          isNavigating.value = false
+        }
       },
     },
   )
@@ -76,7 +88,7 @@ const checklist = computed(() => {
   }))
 })
 
-const isPasswordVisible = ref(false)
+const isProcessing = computed(() => isRegistering.value || isNavigating.value)
 
 function handleTogglePasswordVisibility() {
   if (!passwordRef.value) return
@@ -142,7 +154,7 @@ function handleTogglePasswordVisibility() {
       </div>
 
       <RegisterButton
-        :isProcessing="isRegistering"
+        :isProcessing="isProcessing"
         text="Создать аккаунт"
       />
 

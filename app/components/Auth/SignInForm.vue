@@ -67,7 +67,10 @@ function handleTogglePasswordVisibility() {
 </script>
 
 <template>
-  <form @submit.prevent="onSubmit" novalidate>
+  <form
+    @submit.prevent="onSubmit"
+    novalidate
+  >
     <div class="grid gap-y-2">
       <!-- Form Group  -->
       <div class="flex flex-col gap-y-2">
@@ -106,14 +109,17 @@ function handleTogglePasswordVisibility() {
       </div>
       <!-- End Form Group -->
 
-      <RegisterButton :isProcessing="isLogging" text="Войти" />
+      <RegisterButton
+        :isProcessing="isLogging"
+        text="Войти"
+      />
       <div class="flex flex-wrap justify-between items-center mt-2 gap-2">
-        <a
+        <NuxtLink
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
-          href="/auth"
+          to="/auth"
         >
           <ArrowLeft class="size-4" /> Назад
-        </a>
+        </NuxtLink>
 
         <button
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"

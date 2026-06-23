@@ -10,7 +10,7 @@ export function useVerificationPasswordOTP() {
     mutationFn: ({ code, email }: { code: string; email: string }) =>
       verifyPasswordOTP(code, email),
     onSuccess: () => {
-      navigateTo(`/auth/${AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE}`)
+      navigateTo(`/auth?step=${AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE}`)
     },
     onSettled: () => {
       queryClient.invalidateQueries({

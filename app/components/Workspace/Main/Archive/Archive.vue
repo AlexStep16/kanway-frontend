@@ -106,6 +106,7 @@ const workspaces = computed(() => workspacesData.value || [])
             <ColumnsView
               :items="tasks"
               :containerRef="tasksContainerRef"
+              :initialCountShown="20"
             >
               <template v-slot:default="slotProps">
                 <Task
@@ -173,6 +174,7 @@ const workspaces = computed(() => workspacesData.value || [])
             <ColumnsView
               :items="columns"
               :containerRef="columnContainerRef"
+              :initialCountShown="20"
               v-if="!isColumnsLoading"
             >
               <template v-slot:default="slotProps">
@@ -241,6 +243,7 @@ const workspaces = computed(() => workspacesData.value || [])
             <ColumnsView
               :items="boards"
               :containerRef="boardContainerRef"
+              :initialCountShown="20"
             >
               <template v-slot:default="slotProps">
                 <BoardCard
@@ -309,6 +312,7 @@ const workspaces = computed(() => workspacesData.value || [])
             <ColumnsView
               :items="workspaces"
               :containerRef="workspaceContainerRef"
+              :initialCountShown="20"
               v-if="!isWorkspacesLoading"
             >
               <template v-slot:default="slotProps">

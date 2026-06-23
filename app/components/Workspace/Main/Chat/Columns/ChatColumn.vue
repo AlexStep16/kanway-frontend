@@ -29,6 +29,7 @@ const { data, isPending } = useColumn(props.column.id, props.column.board?.id)
       <ColumnCard
         :column="entity"
         :options="{
+          isChat: true,
           hasBorder: true,
           hasCheckbox: hasCheckbox,
           showInfo: true,

@@ -57,6 +57,13 @@ watch(
   },
   { immediate: true },
 )
+
+const moreWidthByColumns = computed(() => {
+  if (!currentAvailableColumns.value) return '100%'
+
+  const width = 250 * currentAvailableColumns.value + 8 * (currentAvailableColumns.value - 1)
+  return `${width}px`
+})
 </script>
 
 <template>
@@ -72,7 +79,9 @@ watch(
     </div>
 
     <ShowMore
-      class="w-62.5"
+      :style="{
+        width: moreWidthByColumns,
+      }"
       @show-more="countShown += 10"
       v-if="countShown && countShown < items.length"
     />

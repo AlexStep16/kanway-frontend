@@ -33,6 +33,7 @@ export function useUpdateTask() {
     },
 
     onSettled: (data, error, { boardId, payload }) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.archived() })
       queryClient.invalidateQueries({ queryKey: taskKeys.byBoard(boardId) })
       queryClient.invalidateQueries({ queryKey: taskKeys.detailed(payload.id) })
     },

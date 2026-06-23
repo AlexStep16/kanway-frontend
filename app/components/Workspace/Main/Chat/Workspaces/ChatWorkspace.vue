@@ -29,6 +29,7 @@ const { data, isPending } = useWorkspace(props.workspace.id)
       <WorkspaceCard
         :workspace="entity"
         :options="{
+          isChat: true,
           hasBorder: true,
           hasCheckbox: hasCheckbox,
           showInfo: true,

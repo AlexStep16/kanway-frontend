@@ -8,6 +8,7 @@ import { TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
 import { cn } from '~/lib/utils'
 
 export interface EntityCardOptions {
+  isChat?: boolean
   hasBorder?: boolean
   hasCheckbox?: boolean
   isCompletable?: boolean
@@ -119,7 +120,8 @@ const isEntityCompletable = computed(
   <div
     :class="
       cn(
-        'flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-md hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none',
+        'flex flex-col shrink-0 rounded-md min-w-60 cursor-pointer hover:shadow-gray-300 max-w-75 w-full shadow-gray-200 bg-white transition-shadow duration-100 overflow-hidden select-none',
+        !options?.isChat && 'hover:shadow-md',
         options?.hasBorder && 'border border-gray-200',
         !options?.hasBorder && 'shadow-sm',
         options?.isStatic && 'hover:shadow-none cursor-default select-auto',

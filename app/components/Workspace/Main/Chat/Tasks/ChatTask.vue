@@ -29,6 +29,7 @@ const { data, isPending } = useTask(props.task.id, props.task.board?.id)
       <Task
         :task="entity"
         :options="{
+          isChat: true,
           hasBorder: true,
           hasCheckbox: hasCheckbox,
           isCompletable: true,

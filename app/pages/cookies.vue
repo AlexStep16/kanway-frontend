@@ -37,7 +37,7 @@ import Header from '~/layouts/Header.vue'
           </p>
           <p>
             <strong>1.2. Сайт</strong> — интернет-сайт с доменным именем
-            <a href="https://kanway.ru">https://kanway.ru</a>, принадлежащий Оператору и
+            <NuxtLink to="https://kanway.ru">https://kanway.ru</NuxtLink>, принадлежащий Оператору и
             представляющий собой совокупность программ для ЭВМ, баз данных и информации, доступ к
             которой обеспечивается посредством сети «Интернет» [2].
           </p>
@@ -155,11 +155,12 @@ import Header from '~/layouts/Header.vue'
           <h2>6. Заключительные положения</h2>
           <p>
             6.1. Действующая версия настоящей Политики постоянно размещена в открытом доступе на
-            Сайте по адресу: <a href="https://kanway.ru/cookies">https://kanway.ru/cookies</a> [2].
+            Сайте по адресу:
+            <NuxtLink to="https://kanway.ru/cookies">https://kanway.ru/cookies</NuxtLink> [2].
           </p>
           <p>
             6.2. Настоящая Политика является дополнением к общей
-            <a href="https://kanway.ru/privacy">Политике конфиденциальности</a>, которой
+            <NuxtLink to="https://kanway.ru/privacy">Политике конфиденциальности</NuxtLink>, которой
             руководствуется Пользователь по вопросам защиты его данных [2].
           </p>
 
