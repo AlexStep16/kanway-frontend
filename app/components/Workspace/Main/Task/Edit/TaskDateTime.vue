@@ -224,14 +224,14 @@ watch(
                 "
                 placeholder="Дата окончания"
                 v-mask="'##.##.####'"
-                @blur="handleDateInput"
+                @input="handleDateInput"
               />
 
               <Button
                 variant="ghost"
                 size="icon"
                 class="absolute right-1 size-6 text-muted-foreground hover:text-accent-foreground"
-                @click="clearDate"
+                @click.stop="clearDate"
                 v-if="inputDate"
               >
                 <X class="size-4" />
@@ -252,14 +252,14 @@ watch(
                 placeholder="Время окончания"
                 v-mask="'##:##'"
                 v-model="time"
-                @blur="handleTimeInput"
+                @input="handleTimeInput"
               />
 
               <Button
                 variant="ghost"
                 size="icon"
                 class="absolute right-1 size-6 text-muted-foreground hover:text-accent-foreground"
-                @click="clearTime"
+                @click.stop="clearTime"
                 v-if="isTimeFull && validateTimeFormat(time)"
               >
                 <X class="size-4" />
