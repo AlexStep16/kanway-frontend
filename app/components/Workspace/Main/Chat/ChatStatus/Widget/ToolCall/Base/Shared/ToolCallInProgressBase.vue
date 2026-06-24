@@ -4,7 +4,8 @@ import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue'
 defineProps<{
   title: string
   stateClasses: Record<string, boolean>
-  items: ITextValue[]
+  items?: ITextValue[]
+  badge?: string
 }>()
 </script>
 
@@ -18,9 +19,20 @@ defineProps<{
       >
         {{ title }}
       </span>
+
+      <Badge
+        variant="outline"
+        class="min-w-0 text-primary truncate shrink"
+        v-if="badge"
+      >
+        <span class="truncate">{{ badge }}</span>
+      </Badge>
     </div>
 
-    <div class="ml-5">
+    <div
+      class="ml-5"
+      v-if="items && items.length"
+    >
       <ToolCallFiltersList :items="items" />
     </div>
   </div>

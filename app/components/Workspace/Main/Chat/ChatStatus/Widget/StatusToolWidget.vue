@@ -7,6 +7,8 @@ import SearchColumns from './ToolCall/Columns/SearchColumns.vue'
 import SearchBoards from './ToolCall/Boards/SearchBoards.vue'
 import SearchWorkspaces from './ToolCall/Workspaces/SearchWorkspaces.vue'
 
+import SearchTasksSemantic from './ToolCall/Tasks/SearchSemanticTasks.vue'
+
 import CreateTasks from './ToolCall/Tasks/CreateTasks.vue'
 import CreateColumns from './ToolCall/Columns/CreateColumns.vue'
 import CreateBoards from './ToolCall/Boards/CreateBoards.vue'
@@ -65,6 +67,7 @@ const stateClasses = computed(() => {
 
 const toolComponents = {
   search_tasks: SearchTasks,
+  search_tasks_semantic: SearchTasksSemantic,
   search_columns: SearchColumns,
   search_boards: SearchBoards,
   search_workspaces: SearchWorkspaces,
@@ -109,37 +112,44 @@ const toolComponents = {
 
 const activeToolComponent = computed(() => {
   return toolComponents[props.tool.name as keyof typeof toolComponents] || null
-})
+}) as ComputedRef<any>
 
 const mutationTools = new Set([
   'create_tasks',
   'create_columns',
   'create_boards',
   'create_workspaces',
+
   'update_tasks',
   'update_columns',
   'update_boards',
   'update_workspaces',
+
   'delete_archive_tasks',
   'delete_archive_columns',
   'delete_archive_boards',
   'delete_archive_workspaces',
+
   'clone_tasks',
   'clone_columns',
   'clone_boards',
   'clone_workspaces',
+
   'recover_tasks',
   'recover_columns',
   'recover_boards',
   'recover_workspaces',
+
   'move_tasks',
   'move_columns',
   'move_boards',
   'move_workspaces',
+
   'reorder_tasks',
   'reorder_columns',
   'reorder_boards',
   'reorder_workspaces',
+
   'undo_operations',
 ])
 

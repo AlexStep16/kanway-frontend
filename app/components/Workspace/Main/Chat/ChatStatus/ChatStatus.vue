@@ -78,7 +78,7 @@ function handleRetryAgent() {
     }"
   >
     <div class="flex flex-col gap-1.5 min-w-0 text-xs">
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 h-6">
         <div class="shrink-0 flex items-center justify-center size-4">
           <TransitionGroup name="slide-up">
             <CircleAlert
@@ -150,12 +150,7 @@ function handleRetryAgent() {
           <div class="w-0.5 bg-gray-300 h-full"></div>
         </div>
 
-        <div
-          class="flex flex-col gap-y-2 text-muted-foreground min-w-0"
-          :class="{
-            'py-1': props.status.logs.length > 0,
-          }"
-        >
+        <div class="flex flex-col gap-y-2 text-muted-foreground min-w-0">
           <StatusLog
             v-for="log in props.status.logs"
             :key="log.id"
