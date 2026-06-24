@@ -4,7 +4,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
 import { KeyRound, ArrowLeft } from 'lucide-vue-next'
-import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'
 
@@ -137,16 +136,14 @@ const isProcessing = computed(() => isRecovering.value || isNavigating.value)
         text="Восстановить пароль"
       />
       <div class="flex flex-wrap justify-between items-center mt-2 gap-2">
-        <a
+        <NuxtLink
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
-          :href="
-            props.email
-              ? `/auth?step=${AllowedAuthStepsEnum.SIGN_IN}&payload=${getSafeBase64String(props.email)}`
-              : '/auth'
+          :to="
+            props.email ? `/auth?step=sign_in&payload=${getSafeBase64String(props.email)}` : '/auth'
           "
         >
           <ArrowLeft class="size-4" /> Назад
-        </a>
+        </NuxtLink>
       </div>
     </div>
   </form>

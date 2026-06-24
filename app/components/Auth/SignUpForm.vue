@@ -159,12 +159,12 @@ function handleTogglePasswordVisibility() {
       />
 
       <div class="flex flex-wrap justify-start items-center mt-2 gap-2">
-        <a
+        <NuxtLink
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
-          href="/auth"
+          to="/auth"
         >
           <ArrowLeft class="size-4" /> Назад
-        </a>
+        </NuxtLink>
       </div>
     </div>
   </form>

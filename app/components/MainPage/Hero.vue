@@ -42,12 +42,11 @@ import { ChevronRight } from 'lucide-vue-next'
       <div class="flex flex-col items-center lg:items-start max-w-2xl">
         <!-- Announcement Banner -->
         <div class="flex justify-center">
-          <a
+          <span
             class="inline-flex items-center text-center gap-x-2 bg-white border border-gray-200 text-sm text-gray-500 p-1 px-3 rounded-full transition hover:border-gray-300 focus:outline-hidden focus:border-gray-300"
-            href="#"
           >
             ИИ-агент для управления проектами
-          </a>
+          </span>
         </div>
         <!-- End Announcement Banner -->
 
