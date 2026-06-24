@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Eye } from 'lucide-vue-next'
 import Header from '~/layouts/Header.vue'
+
+useHead({
+  title: 'Kanway | Политика в отношении обработки персональных данных',
+})
 </script>
 
 <template>

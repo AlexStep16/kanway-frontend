@@ -115,6 +115,23 @@ function handleSendMagicLink() {
 const isVerfiyStep = computed(
   () => isVerifyEmailStep.value || isVerifyLoginStep.value || isVerifyPasswordStep.value,
 )
+
+const pageTitle = computed(() => {
+  if (isAuthStep.value) return 'Добро пожаловать'
+  if (isSignInStep.value) return 'С возвращением'
+  if (isSignUpStep.value) return 'Создание аккаунта'
+  if (isVerifyEmailStep.value) return 'Подтверждение почты'
+  if (isVerifyLoginStep.value) return 'Подтверждение входа'
+  if (isVerifyPasswordStep.value) return 'Восстановление пароля'
+  if (isPasswordResetCompleteStep.value) return 'Восстановление пароля'
+  if (isFinishSignUpStep.value) return 'Завершение регистрации'
+
+  return ''
+})
+
+useHead({
+  title: computed(() => `Kanway | ${pageTitle.value}`),
+})
 </script>
 
 <template>

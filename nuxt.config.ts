@@ -44,7 +44,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'Kanway | AI-помощник для управления задачами',
+      title: 'Kanway | AI-агент для управления проектами',
       htmlAttrs: {
         lang: 'ru',
       },
@@ -57,7 +57,7 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            'Kanway - ваш персональный AI-помощник для управления задачами. Создавайте задачи голосом или текстом, организуйте проекты и повышайте свою продуктивность. Попробуйте бесплатно!',
+            'Персональный AI-агент для управления проектами. Создавайте задачи голосом или текстом, организуйте проекты и повышайте свою продуктивность. Попробуйте бесплатно!',
         },
         { name: 'robots', content: 'index, follow' },
         { name: 'apple-mobile-web-app-title', content: 'Kanway' },
@@ -67,13 +67,21 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'canonical', href: 'https://kanway.ru' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon/favicon-16x16.png' },
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon/favicon.svg' },
-        { rel: 'icon', href: '/favicon/favicon.ico' },
-        { rel: 'manifest', href: '/site.webmanifest' },
-        { rel: 'mask-icon', href: '/favicon/safari-pinned-tab.svg', color: '#3b82f6' },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/favicon/apple-touch-icon.png?v=20260624',
+        },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon/favicon.svg?v=20260624' },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/favicon/favicon-96x96.png?v=20260624',
+          sizes: '96x96',
+        },
+        { rel: 'shortcut icon', href: '/favicon/favicon.ico?v=20260624' },
+        { rel: 'manifest', href: '/site.webmanifest?v=20260624' },
+        { rel: 'mask-icon', href: '/favicon/safari-pinned-tab.svg?v=20260624', color: '#3b82f6' },
       ],
       script: [
         {

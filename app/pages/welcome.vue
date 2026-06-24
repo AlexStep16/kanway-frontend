@@ -5,6 +5,10 @@ definePageMeta({
   authOnly: true,
   middleware: ['welcome'],
 })
+
+useHead({
+  title: 'Kanway | Давайте начнем',
+})
 </script>
 
 <template>

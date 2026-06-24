@@ -34,6 +34,10 @@ async function handleCallback() {
 }
 
 handleCallback()
+
+useHead({
+  title: 'Kanway | Выполняется вход...',
+})
 </script>
 
 <template>
