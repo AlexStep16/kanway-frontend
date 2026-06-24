@@ -8,6 +8,7 @@ interface OTPFormProps {
   targetEmail?: string
   title?: string
   descriptionPrefix?: string
+  isNavigating?: boolean
   isVerifying: boolean
   isResending?: boolean
   resendStorageKey?: string
@@ -163,6 +164,8 @@ defineExpose({
   clearOtp,
   inputRefs,
 })
+
+const isProcessing = computed(() => props.isVerifying || props.isNavigating)
 </script>
 
 <template>
@@ -194,7 +197,7 @@ defineExpose({
               autocomplete="one-time-code"
               pattern="\d*"
               maxlength="6"
-              :disabled="isVerifying"
+              :disabled="isProcessing"
               class="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all uppercase disabled:opacity-50 disabled:pointer-events-none"
               @input="handleInput($event, index)"
               @keydown="handleKeyDown($event, index)"
@@ -204,7 +207,7 @@ defineExpose({
           </div>
 
           <RegisterButton
-            :isProcessing="isVerifying"
+            :isProcessing="isProcessing"
             text="Подтвердить"
             @click="handleVerify"
           />
@@ -215,7 +218,7 @@ defineExpose({
             <button
               v-if="timer === 0"
               class="mt-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50"
-              :disabled="isVerifying"
+              :disabled="isProcessing"
               @click="handleResend"
             >
               {{ isResending ? 'Отправляем...' : 'Отправить ещё раз' }}

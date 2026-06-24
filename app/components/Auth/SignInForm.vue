@@ -6,6 +6,7 @@ import RegisterButton from '~/components/Buttons/RegisterButton.vue'
 import { ArrowLeft, KeyRound } from 'lucide-vue-next'
 import z from 'zod'
 import ShowPasswordButton from './ShowPasswordButton.vue'
+import { toast } from 'vue-sonner'
 
 const props = withDefaults(
   defineProps<{
@@ -20,6 +21,7 @@ const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
 
 const isPasswordDirty = ref(false)
 const passwordRef = ref<HTMLInputElement | null>(null)
+const isNavigating = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -48,7 +50,21 @@ watch(
 
 const onSubmit = handleSubmit((values) => {
   isPasswordDirty.value = false
-  login({ email: values.email.trim(), password: values.password })
+  login(
+    { email: values.email.trim(), password: values.password },
+    {
+      onSuccess: async () => {
+        try {
+          isNavigating.value = true
+          await navigateTo('/workspace')
+        } catch {
+          toast.error('Произошла ошибка при переходе в пространство')
+        } finally {
+          isNavigating.value = false
+        }
+      },
+    },
+  )
 })
 
 const isPasswordVisible = ref(false)
@@ -64,6 +80,8 @@ function handleTogglePasswordVisibility() {
     isPasswordVisible.value = false
   }
 }
+
+const isProcessing = computed(() => isLogging.value || isNavigating.value)
 </script>
 
 <template>
@@ -110,7 +128,7 @@ function handleTogglePasswordVisibility() {
       <!-- End Form Group -->
 
       <RegisterButton
-        :isProcessing="isLogging"
+        :isProcessing="isProcessing"
         text="Войти"
       />
       <div class="flex flex-wrap justify-between items-center mt-2 gap-2">

@@ -6,11 +6,13 @@ import { z } from 'zod'
 import { KeyRound, ArrowLeft } from 'lucide-vue-next'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import ShowPasswordButton from './ShowPasswordButton.vue'
+import { toast } from 'vue-sonner'
 
 const { mutate: recover, isPending: isRecovering, error: recoverError } = usePasswordRecovery()
 
 const isPasswordDirty = ref(false)
 const passwordRef = ref<HTMLInputElement | null>(null)
+const isNavigating = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -32,7 +34,21 @@ const { errors, handleSubmit, defineField, submitCount } = useForm({
 const [password, passwordAttrs] = defineField('password')
 
 const onSubmit = handleSubmit((values) => {
-  recover({ password: values.password })
+  recover(
+    { password: values.password },
+    {
+      onSuccess: async () => {
+        try {
+          isNavigating.value = true
+          await navigateTo('/workspace')
+        } catch {
+          toast.error('Произошла ошибка при переходе в пространство')
+        } finally {
+          isNavigating.value = false
+        }
+      },
+    },
+  )
 })
 
 const requirements = [
@@ -59,6 +75,8 @@ function handleTogglePasswordVisibility() {
     isPasswordVisible.value = false
   }
 }
+
+const isProcessing = computed(() => isRecovering.value || isNavigating.value)
 </script>
 
 <template>
@@ -115,7 +133,7 @@ function handleTogglePasswordVisibility() {
       <!-- End Form Group -->
 
       <RegisterButton
-        :isProcessing="isRecovering"
+        :isProcessing="isProcessing"
         text="Восстановить пароль"
       />
       <div class="flex flex-wrap justify-between items-center mt-2 gap-2">

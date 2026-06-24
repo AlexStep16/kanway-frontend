@@ -7,9 +7,6 @@ export function useVerificationEmailOTP() {
   return useMutation({
     mutationKey: ['user'],
     mutationFn: ({ code, email }: { code: string; email: string }) => verifyEmailOTP(code, email),
-    onSuccess: () => {
-      navigateTo('/workspace')
-    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,

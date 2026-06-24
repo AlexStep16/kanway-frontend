@@ -11,9 +11,6 @@ export function useLogin() {
       errorMessage: false,
     },
     mutationFn: (credentials: LoginCredentials) => login(credentials),
-    onSuccess: () => {
-      navigateTo('/workspace')
-    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,

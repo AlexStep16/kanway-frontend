@@ -11,9 +11,6 @@ export function useRegister() {
         ...credentials,
         timezone: dayjs.tz.guess(),
       }),
-    onSuccess: () => {
-      navigateTo('/workspace')
-    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,

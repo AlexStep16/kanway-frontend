@@ -138,7 +138,6 @@ useHead({
   <div
     class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
     v-if="!isVerfiyStep"
-    key="auth-forms"
   >
     <div class="p-4 pt-7 sm:p-7">
       <div class="relative overflow-hidden text-center flex justify-center flex-col items-center">
