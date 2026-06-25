@@ -8,6 +8,7 @@ import Prices from '~/components/MainPage/Prices.vue'
 import FAQ from '~/components/MainPage/FAQ.vue'
 import Ready from '~/components/MainPage/Ready.vue'
 import Footer from '~/components/MainPage/Footer.vue'
+import CookieBanner from '~/components/CookieBanner.vue'
 import DemoPlan from '~/components/Workspace/Main/Chat/Demo/DemoPlan.vue'
 import DemoConfirmation from '~/components/Workspace/Main/Chat/Demo/DemoConfirmation.vue'
 import DemoCancel from '~/components/Workspace/Main/Chat/Demo/DemoCancel.vue'
@@ -52,5 +53,6 @@ onMounted(() => {
     <Ready />
 
     <Footer />
+    <CookieBanner />
   </div>
 </template>
