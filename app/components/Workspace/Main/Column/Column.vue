@@ -209,14 +209,11 @@ const otherBoards = computed(() => {
     </div>
 
     <!-- Tasks -->
-    <div
-      class="flex grow flex-col min-h-0 px-3 gap-y-2 mb-3"
-      :class="{ 'gap-y-1!': localTaskList.length === 0 }"
-    >
+    <div class="flex grow flex-col min-h-0 px-3 gap-y-2 mb-3">
       <div class="px-1">
         <Button
           variant="primaryMuted"
-          class="w-full undraggable font-semibold text-xs"
+          class="w-full undraggable font-semibold text-xs cursor-pointer"
           @click="isTaskAddFormShown = true"
           :disabled="status.isBusy"
         >
@@ -246,7 +243,7 @@ const otherBoards = computed(() => {
           :fallbackTolerance="2"
           :prevent-on-filter="false"
           :disabled="status.isBusy"
-          v-if="!areTasksLoading"
+          v-if="!areTasksLoading && localTaskList.length > 0"
         >
           <template #item="{ element }">
             <Task
@@ -257,7 +254,7 @@ const otherBoards = computed(() => {
           </template>
         </draggable>
 
-        <template v-else>
+        <template v-else-if="areTasksLoading">
           <EntityCardSkeleton
             v-for="number in getRandomTasksNumber()"
             :key="number + '_skeleton_task'"
