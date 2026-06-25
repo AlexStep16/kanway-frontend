@@ -135,156 +135,160 @@ useHead({
 </script>
 
 <template>
-  <div
-    class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
-    v-if="!isVerfiyStep"
-  >
-    <div class="p-4 pt-7 sm:p-7">
-      <div class="relative overflow-hidden text-center flex justify-center flex-col items-center">
-        <NuxtLink to="/">
-          <KanwayLogo class="h-8 sm:h-10" />
-        </NuxtLink>
+  <TransitionGroup name="slide-left">
+    <div
+      class="size-full sm:w-100 h-auto bg-white border border-gray-200 rounded-xl shadow-2xs overflow-y-auto"
+      v-if="!isVerfiyStep"
+    >
+      <div class="p-4 pt-7 sm:p-7">
+        <div class="relative overflow-hidden text-center flex justify-center flex-col items-center">
+          <NuxtLink to="/">
+            <KanwayLogo class="h-8 sm:h-10" />
+          </NuxtLink>
 
-        <div class="overflow-hidden relative w-full min-h-8 flex justify-center items-center mt-4">
-          <Transition name="slide-up">
-            <h1
-              class="block text-xl sm:text-2xl font-bold text-gray-800"
-              v-if="isAuthStep"
-              key="welcome"
-            >
-              Добро пожаловать!
-            </h1>
-            <div
-              v-else-if="isSignUpStep"
-              key="create-account"
-            >
-              <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">Создать аккаунт?</h1>
-              <p class="text-muted-foreground text-sm mt-2">Кажется такого аккаунта ещё нет</p>
-              <span class="font-medium text-sm text-gray-700">{{ email }}</span>
-            </div>
-            <div
-              v-else-if="isSignInStep"
-              key="welcome-back"
-            >
-              <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">С возвращением!</h1>
-              <span class="font-medium text-sm text-gray-700">{{ email }}</span>
-            </div>
-            <div
-              v-else-if="isPasswordResetCompleteStep"
-              key="password-reset"
-            >
-              <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
-                Восстановление пароля
-              </h1>
-              <span
-                class="font-medium text-sm text-gray-700"
-                v-if="email"
-                >{{ email }}</span
+          <div
+            class="overflow-hidden relative w-full min-h-8 flex justify-center items-center mt-4"
+          >
+            <Transition name="slide-up">
+              <h1
+                class="block text-xl sm:text-2xl font-bold text-gray-800"
+                v-if="isAuthStep"
+                key="welcome"
               >
-            </div>
-            <div
-              v-else-if="isFinishSignUpStep"
-              key="finish-sign-up"
-            >
-              <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
-                Завершение регистрации
+                Добро пожаловать!
               </h1>
-              <p class="text-muted-foreground text-sm mt-2">
-                Осталось указать почту, чтобы не потерять доступ к аккаунту
-              </p>
-            </div>
-          </Transition>
+              <div
+                v-else-if="isSignUpStep"
+                key="create-account"
+              >
+                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">Создать аккаунт?</h1>
+                <p class="text-muted-foreground text-sm mt-2">Кажется такого аккаунта ещё нет</p>
+                <span class="font-medium text-sm text-gray-700">{{ email }}</span>
+              </div>
+              <div
+                v-else-if="isSignInStep"
+                key="welcome-back"
+              >
+                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">С возвращением!</h1>
+                <span class="font-medium text-sm text-gray-700">{{ email }}</span>
+              </div>
+              <div
+                v-else-if="isPasswordResetCompleteStep"
+                key="password-reset"
+              >
+                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
+                  Восстановление пароля
+                </h1>
+                <span
+                  class="font-medium text-sm text-gray-700"
+                  v-if="email"
+                  >{{ email }}</span
+                >
+              </div>
+              <div
+                v-else-if="isFinishSignUpStep"
+                key="finish-sign-up"
+              >
+                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
+                  Завершение регистрации
+                </h1>
+                <p class="text-muted-foreground text-sm mt-2">
+                  Осталось указать почту, чтобы не потерять доступ к аккаунту
+                </p>
+              </div>
+            </Transition>
+          </div>
         </div>
-      </div>
 
-      <div class="relative mt-4">
-        <Auth
-          :initial-email="email"
-          v-if="isAuthStep"
-        />
-        <SignInForm
-          :initial-email="email"
-          v-else-if="isSignInStep"
-          @forgot-password="handleForgotPassword"
-        />
-        <SignUpForm
-          :initial-email="email"
-          v-else-if="isSignUpStep"
-        />
-        <FinishSignUpForm v-else-if="isFinishSignUpStep" />
-        <PasswordRecoveryForm
-          :email="email"
-          v-else-if="isPasswordResetCompleteStep"
-        />
-        <div v-if="isAuthStep || isSignInStep">
-          <div
-            class="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6"
-          >
-            Или
-          </div>
-          <div
-            class="flex items-center justify-center gap-2"
+        <div class="relative mt-4">
+          <Auth
+            :initial-email="email"
             v-if="isAuthStep"
-          >
-            <YandexAuth />
-            <VkAuth />
-          </div>
-
-          <Button
-            variant="outlinePrimary"
-            size="lg"
-            class="w-full"
-            v-if="isSignInStep"
-            @click="handleSendMagicLink"
-          >
+          />
+          <SignInForm
+            :initial-email="email"
+            v-else-if="isSignInStep"
+            @forgot-password="handleForgotPassword"
+          />
+          <SignUpForm
+            :initial-email="email"
+            v-else-if="isSignUpStep"
+          />
+          <FinishSignUpForm v-else-if="isFinishSignUpStep" />
+          <PasswordRecoveryForm
+            :email="email"
+            v-else-if="isPasswordResetCompleteStep"
+          />
+          <div v-if="isAuthStep || isSignInStep">
             <div
-              class="flex items-center gap-x-2"
-              v-if="!isSendingMagicLink"
+              class="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6"
             >
-              <Link
-                class="size-3.5"
-                stroke-width="2.5"
-              />
-              <span>Отправить ссылку для входа</span>
+              Или
             </div>
-            <Spinner v-else />
-          </Button>
+            <div
+              class="flex items-center justify-center gap-2"
+              v-if="isAuthStep"
+            >
+              <YandexAuth />
+              <VkAuth />
+            </div>
+
+            <Button
+              variant="outlinePrimary"
+              size="lg"
+              class="w-full"
+              v-if="isSignInStep"
+              @click="handleSendMagicLink"
+            >
+              <div
+                class="flex items-center gap-x-2"
+                v-if="!isSendingMagicLink"
+              >
+                <Link
+                  class="size-3.5"
+                  stroke-width="2.5"
+                />
+                <span>Отправить ссылку для входа</span>
+              </div>
+              <Spinner v-else />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <template v-if="isVerifyPasswordStep">
-    <PasswordOTPForm
-      :isEmailSending="isSendingVerificationPasswordEmail"
-      :email="email"
-      v-if="email && !token"
-    />
-    <PasswordLink
-      :token="token"
-      v-if="token"
-    />
-  </template>
+    <template v-if="isVerifyPasswordStep">
+      <PasswordOTPForm
+        :isEmailSending="isSendingVerificationPasswordEmail"
+        :email="email"
+        v-if="email && !token"
+      />
+      <PasswordLink
+        :token="token"
+        v-if="token"
+      />
+    </template>
 
-  <template v-if="isVerifyEmailStep">
-    <EmailOTPForm
-      :email="email"
-      v-if="email && !token"
-    />
-    <EmailLink
-      :token="token"
-      v-if="token"
-    />
-  </template>
-  <template v-if="isVerifyLoginStep">
-    <LoginOTPForm
-      :isEmailSending="isSendingVerificationPasswordEmail"
-      :email="email"
-      v-if="email && !token"
-    />
-    <LoginLink
-      :token="token"
-      v-if="token"
-    />
-  </template>
+    <template v-if="isVerifyEmailStep">
+      <EmailOTPForm
+        :email="email"
+        v-if="email && !token"
+      />
+      <EmailLink
+        :token="token"
+        v-if="token"
+      />
+    </template>
+    <template v-if="isVerifyLoginStep">
+      <LoginOTPForm
+        :isEmailSending="isSendingVerificationPasswordEmail"
+        :email="email"
+        v-if="email && !token"
+      />
+      <LoginLink
+        :token="token"
+        v-if="token"
+      />
+    </template>
+  </TransitionGroup>
 </template>
