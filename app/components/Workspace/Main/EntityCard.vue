@@ -161,7 +161,7 @@ const isEntityCompletable = computed(
 
       <div class="flex items-start justify-between gap-x-2">
         <div
-          class="flex items-start pr-14 pointer-fine:pr-0 gap-x-1.5 shrink overflow-hidden min-w-0 text-gray-800 transform transition-all duration-100"
+          class="flex items-start pr-14 pointer-fine:pr-0 gap-x-1.5 shrink min-w-0 text-gray-800 transform transition-all duration-100"
           :class="{
             'translate-x-0!': entity.isCompleted,
             'group-hover/task:translate-x-0 pointer-fine:-translate-x-6': isEntityCompletable,
