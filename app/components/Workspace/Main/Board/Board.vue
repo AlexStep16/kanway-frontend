@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import draggable from 'vuedraggable'
 import { Plus } from 'lucide-vue-next'
-import type { ComponentPublicInstance } from 'vue'
 
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
 
@@ -12,22 +12,6 @@ import { Separator } from '~/components/ui/separator'
 import TitleBoard from '../../Header/TitleBoard.vue'
 import SidebarInset from '~/components/ui/sidebar/SidebarInset.vue'
 import HeaderSearch from '../../Header/HeaderSearch.vue'
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
-import {
-  dropTargetForElements,
-  monitorForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
-
-type ColumnDropPosition = 'before' | 'after'
-
-interface ColumnDragData {
-  type: 'column'
-  columnId: string
-  boardId: string
-}
-
-const COLUMN_ITEM_KIND = 'board-column-item'
-const COLUMN_CONTAINER_KIND = 'board-column-container'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
@@ -43,11 +27,7 @@ const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
 const { mutate: moveColumn } = useMoveColumnCard()
 
 const localColumnList = ref<IColumnState[]>([])
-const columnsRef = ref<HTMLElement | null>(null)
 const isColumnFormShown = ref(false)
-const columnElements = new Map<string, HTMLElement>()
-const draggingColumnId = ref<string | null>(null)
-const columnDragOriginList = ref<IColumnState[] | null>(null)
 
 useHead({
   title: () =>
@@ -68,200 +48,25 @@ watch(
   { immediate: true },
 )
 
-function isColumnDragData(data: unknown): data is ColumnDragData {
-  if (!data || typeof data !== 'object') return false
+function draggableChange(event: any) {
+  if (!event.moved && !event.added) return
 
-  return (
-    'type' in data &&
-    data.type === 'column' &&
-    'columnId' in data &&
-    typeof data.columnId === 'string' &&
-    'boardId' in data &&
-    typeof data.boardId === 'string'
-  )
-}
+  const movedTask = event.moved ? event.moved.element : event.added.element
+  const newIndex = event.moved ? event.moved.newIndex : event.added.newIndex
 
-function setColumnElement(columnId: string) {
-  return (element: Element | ComponentPublicInstance | null) => {
-    if (element instanceof HTMLElement) {
-      columnElements.set(columnId, element)
-      return
-    }
+  const beforeColumn = localColumnList.value[newIndex + 1]
+  const afterColumn = localColumnList.value[newIndex - 1]
 
-    columnElements.delete(columnId)
-  }
-}
-
-function getHorizontalDropPosition(
-  input: { clientX: number },
-  element: Element,
-): ColumnDropPosition {
-  const rect = element.getBoundingClientRect()
-
-  return input.clientX < rect.left + rect.width / 2 ? 'before' : 'after'
-}
-
-function handleColumnDrop(
-  sourceData: ColumnDragData,
-  location: { current: { dropTargets: Array<{ data: Record<string | symbol, unknown> }> } },
-) {
-  const result = getColumnDropResult(
-    sourceData,
-    location,
-    columnDragOriginList.value ?? localColumnList.value,
-  )
-
-  if (!result) return
-
-  const comparisonList = columnDragOriginList.value ?? localColumnList.value
-  const currentIndex = comparisonList.findIndex((column) => column.id === sourceData.columnId)
-  const currentBeforeId = comparisonList[currentIndex + 1]?.id ?? null
-  const currentAfterId = comparisonList[currentIndex - 1]?.id ?? null
-
-  if (result.beforeId === currentBeforeId && result.afterId === currentAfterId) return
-
-  localColumnList.value = result.orderedColumns
+  const beforeId = beforeColumn ? beforeColumn.id : null
+  const afterId = afterColumn ? afterColumn.id : null
 
   moveColumn({
-    id: sourceData.columnId,
-    beforeId: result.beforeId,
-    afterId: result.afterId,
+    id: movedTask.id,
+    beforeId,
+    afterId,
     boardId: activeBoardId.value,
   })
 }
-
-function getColumnDropResult(
-  sourceData: ColumnDragData,
-  location: {
-    current: { dropTargets: Array<{ data: Record<string | symbol, unknown> }> }
-  },
-  baseColumns: IColumnState[],
-) {
-  if (!activeBoardId.value) return null
-
-  const containerTarget = location.current.dropTargets.find(
-    (target) =>
-      target.data.kind === COLUMN_CONTAINER_KIND && target.data.boardId === activeBoardId.value,
-  )
-
-  if (!containerTarget) return null
-
-  const sourceColumn = baseColumns.find((column) => column.id === sourceData.columnId)
-
-  if (!sourceColumn) return null
-
-  const itemTarget = location.current.dropTargets.find(
-    (target) =>
-      target.data.kind === COLUMN_ITEM_KIND && target.data.boardId === activeBoardId.value,
-  )
-
-  const nextColumns = baseColumns.filter((column) => column.id !== sourceData.columnId)
-
-  let insertIndex = nextColumns.length
-
-  if (itemTarget && typeof itemTarget.data.columnId === 'string') {
-    const targetIndex = nextColumns.findIndex((column) => column.id === itemTarget.data.columnId)
-
-    if (targetIndex !== -1) {
-      insertIndex = itemTarget.data.position === 'after' ? targetIndex + 1 : targetIndex
-    }
-  }
-
-  nextColumns.splice(insertIndex, 0, sourceColumn)
-
-  return {
-    orderedColumns: nextColumns,
-    beforeId: nextColumns[insertIndex + 1]?.id ?? null,
-    afterId: nextColumns[insertIndex - 1]?.id ?? null,
-  }
-}
-
-function syncColumnPreview(location: {
-  current: { dropTargets: Array<{ data: Record<string | symbol, unknown> }> }
-}) {
-  if (!draggingColumnId.value || !columnDragOriginList.value) return
-
-  const result = getColumnDropResult(
-    {
-      type: 'column',
-      columnId: draggingColumnId.value,
-      boardId: activeBoardId.value ?? '',
-    },
-    location,
-    columnDragOriginList.value,
-  )
-
-  if (!result) {
-    localColumnList.value = [...columnDragOriginList.value]
-    return
-  }
-
-  localColumnList.value = result.orderedColumns
-}
-
-watchPostEffect((onCleanup) => {
-  if (!columnsRef.value || !activeBoardId.value || areColumnsLoading.value) return
-
-  const cleanups = [
-    dropTargetForElements({
-      element: columnsRef.value,
-      canDrop: ({ source }) =>
-        isColumnDragData(source.data) && source.data.boardId === activeBoardId.value,
-      getData: () => ({
-        kind: COLUMN_CONTAINER_KIND,
-        boardId: activeBoardId.value,
-      }),
-    }),
-    monitorForElements({
-      canMonitor: ({ source }) =>
-        isColumnDragData(source.data) && source.data.boardId === activeBoardId.value,
-      onDragStart: ({ source }) => {
-        if (!isColumnDragData(source.data)) return
-
-        draggingColumnId.value = source.data.columnId
-        columnDragOriginList.value = [...localColumnList.value]
-      },
-      onDrag: ({ location }) => {
-        syncColumnPreview(location)
-      },
-      onDrop: ({ source, location }) => {
-        const originalColumns = columnDragOriginList.value
-        draggingColumnId.value = null
-        columnDragOriginList.value = null
-
-        if (!isColumnDragData(source.data)) return
-
-        if (originalColumns) {
-          localColumnList.value = [...originalColumns]
-        }
-
-        handleColumnDrop(source.data, location)
-      },
-    }),
-  ]
-
-  for (const column of localColumnList.value) {
-    const element = columnElements.get(column.id)
-
-    if (!element) continue
-
-    cleanups.push(
-      dropTargetForElements({
-        element,
-        canDrop: ({ source }) =>
-          isColumnDragData(source.data) && source.data.boardId === activeBoardId.value,
-        getData: ({ input, element: currentElement }) => ({
-          kind: COLUMN_ITEM_KIND,
-          boardId: activeBoardId.value,
-          columnId: column.id,
-          position: getHorizontalDropPosition(input, currentElement),
-        }),
-      }),
-    )
-  }
-
-  onCleanup(combine(...cleanups))
-})
 </script>
 
 <template>
@@ -283,29 +88,26 @@ watchPostEffect((onCleanup) => {
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">
       <div class="size-full pt-4 pb-2 flex gap-3 overflow-y-hidden custom-scrollbar">
         <template v-if="!isBoardsLoading">
-          <div
+          <draggable
+            v-model="localColumnList"
+            @change="draggableChange"
+            itemKey="id"
+            class="flex gap-x-3 h-full items-start"
+            group="columns"
+            :animation="150"
+            :disabled="true"
+            :delay="300"
+            :delay-on-touch-only="true"
+            ghost-class="ghost-class"
+            drag-class="drag-class"
+            filter=".undraggable"
+            :fallback-tolerance="2"
             v-if="localColumnList.length > 0 && !areColumnsLoading"
-            ref="columnsRef"
-            class="h-full"
           >
-            <TransitionGroup
-              name="column-reorder"
-              tag="div"
-              class="flex gap-x-3 h-full items-start"
-            >
-              <div
-                v-for="element in localColumnList"
-                :key="element.id"
-                :ref="setColumnElement(element.id)"
-                class="relative shrink-0 h-full transition-transform duration-150"
-                :class="{
-                  'z-20 scale-[1.02] -rotate-1': draggingColumnId === element.id,
-                }"
-              >
-                <Column :column="element" />
-              </div>
-            </TransitionGroup>
-          </div>
+            <template #item="{ element }">
+              <Column :column="element" />
+            </template>
+          </draggable>
 
           <template v-else-if="areColumnsLoading">
             <ColumnSkeleton
@@ -355,11 +157,5 @@ watchPostEffect((onCleanup) => {
   opacity: 1 !important;
   cursor: grabbing;
   z-index: 9999;
-}
-
-.column-reorder-move {
-  transition:
-    transform 180ms ease,
-    opacity 180ms ease;
 }
 </style>

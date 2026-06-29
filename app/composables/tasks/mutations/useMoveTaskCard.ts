@@ -31,36 +31,12 @@ export function useMoveTaskCard() {
       queryClient.setQueryData(queryKey, (oldTasks: ITaskState[] | undefined) => {
         if (!oldTasks) return []
 
-        const movingTask = oldTasks.find((task) => task.id === vars.id)
-
-        if (!movingTask) return oldTasks
-
-        const nextTasks = oldTasks.filter((task) => task.id !== vars.id)
-
-        let insertIndex = nextTasks.length
-
-        if (vars.afterId) {
-          const afterIndex = nextTasks.findIndex((task) => task.id === vars.afterId)
-
-          if (afterIndex !== -1) {
-            insertIndex = afterIndex + 1
+        oldTasks.map((task) => {
+          if (task.id === vars.id) {
+            return { ...task, column: vars.newColumnId ?? task.column }
           }
-        } else if (vars.beforeId) {
-          const beforeIndex = nextTasks.findIndex((task) => task.id === vars.beforeId)
-
-          if (beforeIndex !== -1) {
-            insertIndex = beforeIndex
-          }
-        }
-
-        nextTasks.splice(insertIndex, 0, {
-          ...movingTask,
-          column: vars.newColumnId
-            ? { ...movingTask.column, id: vars.newColumnId }
-            : movingTask.column,
+          return task
         })
-
-        return nextTasks
       })
 
       return { previousTasks, queryKey }
