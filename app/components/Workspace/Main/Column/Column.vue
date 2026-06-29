@@ -210,10 +210,10 @@ const otherBoards = computed(() => {
 
     <!-- Tasks -->
     <div class="flex grow flex-col min-h-0 px-3 gap-y-2 mb-3">
-      <div class="px-1">
+      <div class="px-1 undraggable">
         <Button
           variant="primaryMuted"
-          class="w-full undraggable font-semibold text-xs cursor-pointer"
+          class="w-full font-semibold text-xs cursor-pointer"
           @click="isTaskAddFormShown = true"
           :disabled="status.isBusy"
         >
