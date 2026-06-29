@@ -115,7 +115,9 @@ const isMobileMenuOpen = ref(false)
               <UserHeader />
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem class="text-primary/90 focus:text-primary focus:bg-primary-muted">
+                <DropdownMenuItem
+                  class="text-primary/90 data-highlighted:bg-primary-muted/80 data-highlighted:text-primary active:bg-primary-muted/80 active:scale-[0.98] transition-all duration-100"
+                >
                   <NuxtLink
                     :to="verifyEmailHref"
                     class="flex items-center gap-2 w-full justify-start"
@@ -125,7 +127,7 @@ const isMobileMenuOpen = ref(false)
                   </NuxtLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  class="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  class="text-destructive data-highlighted:bg-destructive/10 data-highlighted:text-destructive active:bg-destructive/10 active:scale-[0.98] transition-all duration-100"
                   @click="logout()"
                 >
                   <svg
@@ -173,7 +175,9 @@ const isMobileMenuOpen = ref(false)
               <UserHeader />
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem class="text-primary/90 focus:text-primary focus:bg-primary-muted">
+                <DropdownMenuItem
+                  class="text-primary/90 data-highlighted:bg-primary-muted/80 data-highlighted:text-primary active:bg-primary-muted/80 active:scale-[0.98] transition-all duration-100"
+                >
                   <NuxtLink
                     to="/workspace"
                     class="flex items-center gap-2 w-full justify-start"
@@ -183,7 +187,7 @@ const isMobileMenuOpen = ref(false)
                   </NuxtLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  class="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  class="text-destructive data-highlighted:bg-destructive/10 data-highlighted:text-destructive active:bg-destructive/10 active:scale-[0.98] transition-all duration-100"
                   @click="logout()"
                 >
                   <svg

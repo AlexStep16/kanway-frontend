@@ -20,10 +20,10 @@ const forwardedProps = useForwardProps(delegatedProps)
     :data-active="isActive"
     :class="
       cn(
-        'peer/dropdown-menu-item relative flex cursor-default select-none items-center rounded-sm gap-2 px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
+        'peer/dropdown-menu-item relative flex cursor-default select-none items-center rounded-sm gap-2 px-2 py-1.5 text-sm outline-none transition-colors data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
         inset && 'pl-8',
         props.isActive &&
-          'bg-primary/10 text-primary focus:bg-primary/10 hover:bg-primary/10 focus:text-primary hover:text-primary',
+          'bg-primary/10 text-primary data-highlighted:bg-primary/10 data-highlighted:text-primary',
         props.class,
       )
     "
