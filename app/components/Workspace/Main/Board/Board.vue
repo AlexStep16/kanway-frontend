@@ -103,6 +103,7 @@ function draggableChange(event: any) {
             ghost-class="ghost-class"
             drag-class="drag-class"
             chosen-class="chosen-class"
+            :prevent-on-filter="false"
             filter=".undraggable"
             v-if="localColumnList.length > 0 && !areColumnsLoading"
           >
