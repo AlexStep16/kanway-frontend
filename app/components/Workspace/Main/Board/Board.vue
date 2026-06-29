@@ -95,11 +95,12 @@ function draggableChange(event: any) {
             class="flex gap-x-3 h-full items-start"
             group="columns"
             :animation="150"
-            :disabled="true"
             :delay="300"
             :delay-on-touch-only="true"
+            handle=".column-draggable-handle"
             ghost-class="ghost-class"
             drag-class="drag-class"
+            chosen-class="chosen-class"
             filter=".undraggable"
             :fallback-tolerance="2"
             v-if="localColumnList.length > 0 && !areColumnsLoading"
@@ -149,12 +150,15 @@ function draggableChange(event: any) {
 
 <style lang="css" scoped>
 .ghost-class {
-  opacity: 0;
+  opacity: 0.45;
+}
+
+.chosen-class {
+  transition: transform 0.15s ease;
 }
 
 .drag-class {
-  transform: scale(1.02);
-  opacity: 1 !important;
+  opacity: 0.95 !important;
   cursor: grabbing;
   z-index: 9999;
 }

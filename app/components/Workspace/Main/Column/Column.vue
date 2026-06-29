@@ -143,7 +143,7 @@ const otherBoards = computed(() => {
     class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 rounded-md h-full w-70 sm:w-75 group/column select-none"
   >
     <!-- Header -->
-    <div class="flex w-full px-4 justify-between items-center">
+    <div class="flex w-full px-4 justify-between items-center column-draggable-handle">
       <div
         class="flex gap-x-2 items-center h-8 min-w-0 text-sm text-gray-800 cursor-pointer transition-colors duration-100 group"
         @click="showInput"
@@ -243,7 +243,7 @@ const otherBoards = computed(() => {
           :fallbackTolerance="2"
           :prevent-on-filter="false"
           :disabled="status.isBusy"
-          v-if="!areTasksLoading && localTaskList.length > 0"
+          v-if="!areTasksLoading && !(isTaskAddFormShown && localTaskList.length === 0)"
         >
           <template #item="{ element }">
             <Task
@@ -274,11 +274,14 @@ const otherBoards = computed(() => {
 
 <style scoped>
 .ghost-class {
-  opacity: 0;
+  opacity: 0.45;
+}
+
+.chosen-class {
+  transition: transform 0.15s ease;
 }
 
 .drag-class {
-  transform: scale(1.04);
   opacity: 0.95 !important;
   cursor: grabbing;
   z-index: 9999;
