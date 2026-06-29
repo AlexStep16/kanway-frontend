@@ -95,6 +95,7 @@ function draggableChange(event: any) {
             class="flex gap-x-3 h-full items-start"
             group="columns"
             :animation="150"
+            :disabled="true"
             :delay="300"
             :delay-on-touch-only="true"
             ghost-class="ghost-class"
