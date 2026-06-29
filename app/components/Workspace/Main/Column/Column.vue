@@ -143,7 +143,7 @@ const otherBoards = computed(() => {
     class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 rounded-md h-full w-70 sm:w-75 group/column select-none"
   >
     <!-- Header -->
-    <div class="flex w-full px-4 justify-between items-center column-draggable-handle">
+    <div class="flex w-full px-4 justify-between items-center">
       <div
         class="flex gap-x-2 items-center h-8 min-w-0 text-sm text-gray-800 cursor-pointer transition-colors duration-100 group"
         @click="showInput"
@@ -227,8 +227,11 @@ const otherBoards = computed(() => {
         <draggable
           @change="draggableChange"
           :list="localTaskList"
+          :force-fallback="true"
+          :fallback-on-body="true"
           :delay="300"
-          :delayOnTouchOnly="true"
+          :delay-on-touch-only="true"
+          :touch-start-threshold="5"
           itemKey="id"
           class="flex flex-col gap-y-2"
           :class="{
@@ -236,11 +239,10 @@ const otherBoards = computed(() => {
           }"
           group="tasks"
           :animation="150"
-          ghostClass="ghost-class"
-          chosenClass="chosen-class"
-          dragClass="drag-class"
+          ghost-class="ghost-class"
+          chosen-class="chosen-class"
+          drag-class="drag-class"
           filter=".undraggable"
-          :fallbackTolerance="2"
           :prevent-on-filter="false"
           :disabled="status.isBusy"
           v-if="!areTasksLoading && !(isTaskAddFormShown && localTaskList.length === 0)"
@@ -272,13 +274,9 @@ const otherBoards = computed(() => {
   </div>
 </template>
 
-<style scoped>
+<style>
 .ghost-class {
   opacity: 0.45;
-}
-
-.chosen-class {
-  transition: transform 0.15s ease;
 }
 
 .drag-class {

@@ -94,15 +94,16 @@ function draggableChange(event: any) {
             itemKey="id"
             class="flex gap-x-3 h-full items-start"
             group="columns"
+            :force-fallback="true"
+            :fallback-on-body="true"
             :animation="150"
             :delay="300"
             :delay-on-touch-only="true"
-            handle=".column-draggable-handle"
+            :touch-start-threshold="5"
             ghost-class="ghost-class"
             drag-class="drag-class"
             chosen-class="chosen-class"
             filter=".undraggable"
-            :fallback-tolerance="2"
             v-if="localColumnList.length > 0 && !areColumnsLoading"
           >
             <template #item="{ element }">
@@ -147,19 +148,3 @@ function draggableChange(event: any) {
     </div>
   </SidebarInset>
 </template>
-
-<style lang="css" scoped>
-.ghost-class {
-  opacity: 0.45;
-}
-
-.chosen-class {
-  transition: transform 0.15s ease;
-}
-
-.drag-class {
-  opacity: 0.95 !important;
-  cursor: grabbing;
-  z-index: 9999;
-}
-</style>
