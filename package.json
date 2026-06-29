@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",
     "@frsource/autoresize-textarea": "^2.0.200",
     "@peterbud/nuxt-query": "1.7.0",
     "@pinia/nuxt": "0.11.3",

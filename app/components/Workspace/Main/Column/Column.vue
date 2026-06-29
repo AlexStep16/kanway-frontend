@@ -2,14 +2,33 @@
 import Options from '~/components/Options/Options.vue'
 import Task from '../Task/Task.vue'
 import { ListFilter, Plus, SquarePen } from 'lucide-vue-next'
+import type { ComponentPublicInstance } from 'vue'
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
-import draggable from 'vuedraggable'
 import type { ITaskState } from '~/stores/interfaces/ITaskState'
 import _ from 'lodash'
 import CreateTaskForm from '~/components/Forms/CreateTaskForm.vue'
 import { EntityType } from '~/enums/EntityType'
 import TransferForm from '~/components/Options/TransferForm.vue'
 import EntityCardSkeleton from '../EntityCardSkeleton.vue'
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
+import {
+  draggable,
+  dropTargetForElements,
+  monitorForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+
+type TaskDropPosition = 'before' | 'after'
+
+interface TaskDragData {
+  type: 'task'
+  taskId: string
+  boardId: string
+  columnId: string
+  task: ITaskState
+}
+
+const TASK_ITEM_KIND = 'column-task-item'
+const TASK_CONTAINER_KIND = 'column-task-container'
 
 const props = defineProps<{
   column: IColumnState
@@ -19,6 +38,26 @@ const taskFilterStore = useTaskFilterStore()
 
 const columnId = computed(() => props.column.id)
 const columnBoardId = computed(() => props.column.board.id)
+const columnRef = ref<HTMLElement | null>(null)
+const dragging = ref(false)
+const tasksContainerRef = ref<HTMLElement | null>(null)
+const draggingTaskId = ref<string | null>(null)
+const taskElements = new Map<string, HTMLElement>()
+const taskDragPreview = useState<{
+  draggingTaskId: string | null
+  sourceColumnId: string | null
+  targetColumnId: string | null
+  targetTaskId: string | null
+  position: TaskDropPosition | null
+  task: ITaskState | null
+}>('workspace-main-task-drag-preview', () => ({
+  draggingTaskId: null,
+  sourceColumnId: null,
+  targetColumnId: null,
+  targetTaskId: null,
+  position: null,
+  task: null,
+}))
 
 const { isPending: areTasksLoading } = useTasks(columnBoardId)
 
@@ -41,6 +80,48 @@ const inputEditRef = ref<HTMLInputElement | null>(null)
 const localTaskList = ref<ITaskState[]>([])
 const isTaskAddFormShown = ref(false)
 
+const displayTaskList = computed(() => {
+  const preview = taskDragPreview.value
+
+  if (!preview.draggingTaskId || !preview.task) {
+    return localTaskList.value
+  }
+
+  const isSourceColumn = preview.sourceColumnId === props.column.id
+  const isTargetColumn = preview.targetColumnId === props.column.id
+
+  if (!isSourceColumn && !isTargetColumn) {
+    return localTaskList.value
+  }
+
+  const nextTasks = localTaskList.value.filter((task) => task.id !== preview.draggingTaskId)
+
+  if (!isTargetColumn) {
+    return nextTasks
+  }
+
+  let insertIndex = nextTasks.length
+
+  if (preview.targetTaskId) {
+    const targetIndex = nextTasks.findIndex((task) => task.id === preview.targetTaskId)
+
+    if (targetIndex !== -1) {
+      insertIndex = preview.position === 'after' ? targetIndex + 1 : targetIndex
+    }
+  }
+
+  nextTasks.splice(insertIndex, 0, {
+    ...preview.task,
+    column: {
+      ...preview.task.column,
+      id: props.column.id,
+      name: props.column.name,
+    },
+  })
+
+  return nextTasks
+})
+
 watch(
   tasks,
   (newList) => {
@@ -49,25 +130,140 @@ watch(
   { deep: true, immediate: true },
 )
 
-function draggableChange(event: any) {
-  if (!event.moved && !event.added) return
+function isTaskDragData(data: unknown): data is TaskDragData {
+  if (!data || typeof data !== 'object') return false
 
-  const movedTask = event.moved ? event.moved.element : event.added.element
-  const newIndex = event.moved ? event.moved.newIndex : event.added.newIndex
+  return (
+    'type' in data &&
+    data.type === 'task' &&
+    'taskId' in data &&
+    typeof data.taskId === 'string' &&
+    'boardId' in data &&
+    typeof data.boardId === 'string' &&
+    'columnId' in data &&
+    typeof data.columnId === 'string'
+  )
+}
 
-  const beforeTask = localTaskList.value[newIndex + 1]
-  const afterTask = localTaskList.value[newIndex - 1]
+function setTaskElement(taskId: string) {
+  return (element: Element | ComponentPublicInstance | null) => {
+    if (element instanceof HTMLElement) {
+      taskElements.set(taskId, element)
+      return
+    }
 
-  const beforeId = beforeTask ? beforeTask.id : null
-  const afterId = afterTask ? afterTask.id : null
+    taskElements.delete(taskId)
+  }
+}
+
+function getVerticalDropPosition(input: { clientY: number }, element: Element): TaskDropPosition {
+  const rect = element.getBoundingClientRect()
+
+  return input.clientY < rect.top + rect.height / 2 ? 'before' : 'after'
+}
+
+function handleTaskDrop(
+  sourceData: TaskDragData,
+  location: { current: { dropTargets: Array<{ data: Record<string | symbol, unknown> }> } },
+) {
+  const containerTarget = location.current.dropTargets.find(
+    (target) =>
+      target.data.kind === TASK_CONTAINER_KIND && target.data.columnId === props.column.id,
+  )
+
+  if (!containerTarget) return
+
+  const itemTarget = location.current.dropTargets.find(
+    (target) => target.data.kind === TASK_ITEM_KIND && target.data.columnId === props.column.id,
+  )
+
+  const nextTasks = localTaskList.value.filter((task) => task.id !== sourceData.taskId)
+
+  let insertIndex = nextTasks.length
+
+  if (itemTarget && typeof itemTarget.data.taskId === 'string') {
+    const targetIndex = nextTasks.findIndex((task) => task.id === itemTarget.data.taskId)
+
+    if (targetIndex !== -1) {
+      insertIndex = itemTarget.data.position === 'after' ? targetIndex + 1 : targetIndex
+    }
+  }
+
+  const beforeId = nextTasks[insertIndex]?.id ?? null
+  const afterId = nextTasks[insertIndex - 1]?.id ?? null
+
+  const currentIndex = localTaskList.value.findIndex((task) => task.id === sourceData.taskId)
+  const currentBeforeId = localTaskList.value[currentIndex + 1]?.id ?? null
+  const currentAfterId = localTaskList.value[currentIndex - 1]?.id ?? null
+
+  if (
+    sourceData.columnId === props.column.id &&
+    beforeId === currentBeforeId &&
+    afterId === currentAfterId
+  ) {
+    return
+  }
 
   moveTaskCard({
-    id: movedTask.id,
+    id: sourceData.taskId,
     beforeId,
     afterId,
     newColumnId: props.column.id,
     boardId: props.column.board.id,
   })
+}
+
+function resetTaskPreview() {
+  taskDragPreview.value = {
+    draggingTaskId: null,
+    sourceColumnId: null,
+    targetColumnId: null,
+    targetTaskId: null,
+    position: null,
+    task: null,
+  }
+}
+
+function syncTaskPreview(location: {
+  current: { dropTargets: Array<{ data: Record<string | symbol, unknown> }> }
+}) {
+  const containerTarget = location.current.dropTargets.find(
+    (target) =>
+      target.data.kind === TASK_CONTAINER_KIND && target.data.columnId === props.column.id,
+  )
+
+  if (!containerTarget) {
+    if (taskDragPreview.value.targetColumnId === props.column.id) {
+      taskDragPreview.value = {
+        ...taskDragPreview.value,
+        targetColumnId: null,
+        targetTaskId: null,
+        position: null,
+      }
+    }
+    return
+  }
+
+  const itemTarget = location.current.dropTargets.find(
+    (target) => target.data.kind === TASK_ITEM_KIND && target.data.columnId === props.column.id,
+  )
+
+  if (itemTarget && typeof itemTarget.data.taskId === 'string') {
+    taskDragPreview.value = {
+      ...taskDragPreview.value,
+      targetColumnId: props.column.id,
+      targetTaskId: itemTarget.data.taskId,
+      position: itemTarget.data.position === 'after' ? 'after' : 'before',
+    }
+    return
+  }
+
+  taskDragPreview.value = {
+    ...taskDragPreview.value,
+    targetColumnId: props.column.id,
+    targetTaskId: null,
+    position: null,
+  }
 }
 
 function showInput() {
@@ -136,14 +332,140 @@ function getRandomTasksNumber() {
 const otherBoards = computed(() => {
   return boards.value.filter((board) => board.id !== props.column.board.id)
 })
+
+watchPostEffect((onCleanup) => {
+  if (!columnRef.value) return
+
+  const dragHandle = columnRef.value.querySelector('.column-drag-handle') ?? undefined
+
+  onCleanup(
+    draggable({
+      element: columnRef.value,
+      dragHandle,
+      canDrag: ({ dragHandle }) => !!dragHandle && !status.isBusy,
+      getInitialData: () => ({
+        type: 'column',
+        columnId: props.column.id,
+        boardId: props.column.board.id,
+        column: props.column,
+      }),
+      onDragStart: () => {
+        dragging.value = true
+      },
+      onDrop: () => {
+        dragging.value = false
+      },
+    }),
+  )
+})
+
+watchPostEffect((onCleanup) => {
+  if (!tasksContainerRef.value || areTasksLoading.value) return
+
+  const cleanups = [
+    dropTargetForElements({
+      element: tasksContainerRef.value,
+      canDrop: ({ source }) =>
+        isTaskDragData(source.data) && source.data.boardId === props.column.board.id,
+      getData: () => ({
+        kind: TASK_CONTAINER_KIND,
+        columnId: props.column.id,
+      }),
+      onDragLeave: () => {
+        if (taskDragPreview.value.targetColumnId === props.column.id) {
+          taskDragPreview.value = {
+            ...taskDragPreview.value,
+            targetColumnId: null,
+            targetTaskId: null,
+            position: null,
+          }
+        }
+      },
+    }),
+    monitorForElements({
+      canMonitor: ({ source }) =>
+        isTaskDragData(source.data) && source.data.boardId === props.column.board.id,
+      onDragStart: ({ source }) => {
+        if (!isTaskDragData(source.data)) return
+
+        draggingTaskId.value = source.data.taskId
+        taskDragPreview.value = {
+          draggingTaskId: source.data.taskId,
+          sourceColumnId: source.data.columnId,
+          targetColumnId: source.data.columnId,
+          targetTaskId: null,
+          position: null,
+          task: source.data.task,
+        }
+      },
+      onDrag: ({ location }) => {
+        syncTaskPreview(location)
+      },
+      onDrop: ({ source, location }) => {
+        draggingTaskId.value = null
+
+        resetTaskPreview()
+
+        if (!isTaskDragData(source.data)) return
+
+        handleTaskDrop(source.data, location)
+      },
+    }),
+  ]
+
+  for (const task of localTaskList.value) {
+    const element = taskElements.get(task.id)
+
+    if (!element) continue
+
+    cleanups.push(
+      draggable({
+        element,
+        canDrag: () => !status.isBusy,
+        getInitialData: () => ({
+          type: 'task',
+          taskId: task.id,
+          boardId: props.column.board.id,
+          columnId: props.column.id,
+          task,
+        }),
+        onDragStart: () => {
+          draggingTaskId.value = task.id
+        },
+        onDrop: () => {
+          if (draggingTaskId.value === task.id) {
+            draggingTaskId.value = null
+          }
+        },
+      }),
+      dropTargetForElements({
+        element,
+        canDrop: ({ source }) =>
+          isTaskDragData(source.data) && source.data.boardId === props.column.board.id,
+        getData: ({ input, element: currentElement }) => ({
+          kind: TASK_ITEM_KIND,
+          columnId: props.column.id,
+          taskId: task.id,
+          position: getVerticalDropPosition(input, currentElement),
+        }),
+      }),
+    )
+  }
+
+  onCleanup(combine(...cleanups))
+})
 </script>
 
 <template>
   <div
     class="bg-gray-100 flex flex-col shrink-0 gap-y-3 py-3 rounded-md h-full w-70 sm:w-75 group/column select-none"
+    :class="{
+      'opacity-55 scale-[1.01] rotate-[0.8deg] shadow-2xl shadow-gray-300/70': dragging,
+    }"
+    ref="columnRef"
   >
     <!-- Header -->
-    <div class="flex w-full px-4 justify-between items-center">
+    <div class="column-drag-handle flex w-full px-4 justify-between items-center">
       <div
         class="flex gap-x-2 items-center h-8 min-w-0 text-sm text-gray-800 cursor-pointer transition-colors duration-100 group"
         @click="showInput"
@@ -213,7 +535,7 @@ const otherBoards = computed(() => {
       <div class="px-1 undraggable">
         <Button
           variant="primaryMuted"
-          class="w-full font-semibold text-xs cursor-pointer"
+          class="w-full undraggable font-semibold text-xs cursor-pointer"
           @click="isTaskAddFormShown = true"
           :disabled="status.isBusy"
         >
@@ -223,36 +545,29 @@ const otherBoards = computed(() => {
       </div>
       <div
         class="overflow-y-auto overflow-x-hidden px-1 custom-scrollbar flex flex-col grow gap-y-2 pb-1"
+        ref="tasksContainerRef"
       >
-        <draggable
-          @change="draggableChange"
-          :list="localTaskList"
-          :delay="300"
-          :delayOnTouchOnly="true"
-          itemKey="id"
+        <TransitionGroup
+          name="task-reorder"
+          tag="div"
           class="flex flex-col gap-y-2"
-          :class="{
-            grow: !isTaskAddFormShown,
-          }"
-          group="tasks"
-          :animation="150"
-          ghostClass="ghost-class"
-          chosenClass="chosen-class"
-          dragClass="drag-class"
-          filter=".undraggable"
-          :fallbackTolerance="2"
-          :prevent-on-filter="false"
-          :disabled="status.isBusy"
-          v-if="!areTasksLoading && localTaskList.length > 0"
+          v-if="!areTasksLoading && displayTaskList.length > 0"
         >
-          <template #item="{ element }">
+          <div
+            v-for="element in displayTaskList"
+            :key="element.id"
+            :ref="setTaskElement(element.id)"
+            class="relative transition-transform duration-150"
+            :class="{
+              'opacity-45 scale-[1.02] rotate-[0.7deg] z-20': draggingTaskId === element.id,
+            }"
+          >
             <Task
-              :key="element.id"
               :task="element"
               :options="{ hasCopy: true, hasDelete: true, isCompletable: true }"
             />
-          </template>
-        </draggable>
+          </div>
+        </TransitionGroup>
 
         <template v-else-if="areTasksLoading">
           <EntityCardSkeleton
@@ -282,5 +597,11 @@ const otherBoards = computed(() => {
   opacity: 0.95 !important;
   cursor: grabbing;
   z-index: 9999;
+}
+
+.task-reorder-move {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
 }
 </style>

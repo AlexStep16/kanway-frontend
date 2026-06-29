@@ -28,12 +28,36 @@ export function useMoveColumnCard() {
       queryClient.setQueryData(queryKey, (oldColumns: IColumnState[] | undefined) => {
         if (!oldColumns) return []
 
-        oldColumns.map((column) => {
-          if (column.id === vars.id) {
-            return { ...column, board: vars.newBoardId ?? column.board }
+        const movingColumn = oldColumns.find((column) => column.id === vars.id)
+
+        if (!movingColumn) return oldColumns
+
+        const nextColumns = oldColumns.filter((column) => column.id !== vars.id)
+
+        let insertIndex = nextColumns.length
+
+        if (vars.afterId) {
+          const afterIndex = nextColumns.findIndex((column) => column.id === vars.afterId)
+
+          if (afterIndex !== -1) {
+            insertIndex = afterIndex + 1
           }
-          return column
+        } else if (vars.beforeId) {
+          const beforeIndex = nextColumns.findIndex((column) => column.id === vars.beforeId)
+
+          if (beforeIndex !== -1) {
+            insertIndex = beforeIndex
+          }
+        }
+
+        nextColumns.splice(insertIndex, 0, {
+          ...movingColumn,
+          board: vars.newBoardId
+            ? { ...movingColumn.board, id: vars.newBoardId }
+            : movingColumn.board,
         })
+
+        return nextColumns
       })
 
       return { previousColumns, queryKey }
@@ -45,8 +69,12 @@ export function useMoveColumnCard() {
       }
     },
 
-    onSettled: (data, error, { boardId }) => {
+    onSettled: (data, error, { boardId, newBoardId }) => {
       queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(boardId) })
+
+      if (newBoardId && newBoardId !== toValue(boardId)) {
+        queryClient.invalidateQueries({ queryKey: columnKeys.byBoard(newBoardId) })
+      }
     },
   })
 }
