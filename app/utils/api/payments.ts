@@ -1,7 +1,22 @@
 import { PaymentItemIdEnum } from '~/enums/PaymentItemIdEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import type { IPayment } from '~/interfaces/domain/IPayment'
 import type { IUser } from '~/interfaces/domain/IUser'
 import type { IBuySubscriptionResponse } from '~/interfaces/IBuySubscriptionResponse'
+
+export async function getPaymentByIdApi(paymentId: string) {
+  return await apiCall<IPayment>({
+    method: 'GET',
+    url: `/payments/${paymentId}`,
+  })
+}
+
+export async function getPaymentStatus(serviceId: string) {
+  return await apiCall<IPayment>({
+    method: 'GET',
+    url: `/payments/${serviceId}/status`,
+  })
+}
 
 export async function buySubscriptionApi(subscriptionId: SubscriptionPlanEnum) {
   return await apiCall<IBuySubscriptionResponse>({
@@ -61,5 +76,15 @@ export async function resumeSubscriptionApi() {
   return await apiCall<void>({
     method: 'PATCH',
     url: '/payments/resume-subscription',
+  })
+}
+
+export async function tryAgainApi(paymentId: string) {
+  return await apiCall<IBuySubscriptionResponse>({
+    method: 'POST',
+    url: `/payments/try-again`,
+    data: {
+      paymentId,
+    },
   })
 }

@@ -1,7 +1,24 @@
 import { PaymentItemIdEnum } from '~/enums/PaymentItemIdEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import type { IPayment } from '~/interfaces/domain/IPayment'
 import type { IUser } from '~/interfaces/domain/IUser'
 import type { IBuySubscriptionResponse } from '~/interfaces/IBuySubscriptionResponse'
+
+export function transformPayment(raw: IPayment): IPayment {
+  const payment = {
+    ...raw,
+    createdAt: new Date(raw.createdAt),
+    updatedAt: new Date(raw.updatedAt),
+  }
+
+  return payment
+}
+
+export async function fetchPayment(paymentId: string): Promise<IPayment> {
+  const rawPayment = await getPaymentByIdApi(paymentId)
+
+  return transformPayment(rawPayment)
+}
 
 export async function buySubscription(
   subscriptionId: SubscriptionPlanEnum,
@@ -33,4 +50,8 @@ export async function cancelSubscription() {
 
 export async function resumeSubscription() {
   return await resumeSubscriptionApi()
+}
+
+export async function tryAgain(paymentId: string) {
+  return await tryAgainApi(paymentId)
 }

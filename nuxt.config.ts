@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     '/privacy': { ssr: false },
     '/terms': { ssr: false },
     '/cookies': { ssr: false },
+    '/payment/**': { ssr: false },
   },
   svgo: {
     dts: true,

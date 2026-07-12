@@ -3,7 +3,7 @@ import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 
 export interface IPayment {
   id: string
-  serviceId: string
+  serviceId?: string
   description: string
   amount: string
   currency: string

@@ -51,6 +51,7 @@ export const subscriptionKeys = {
 export const paymentKeys = {
   all: ['payments'],
   list: () => [...paymentKeys.all, 'list'],
+  detailed: (paymentId: MaybeRef<string | null>) => [...paymentKeys.all, 'detailed', { paymentId }],
 }
 
 export const paymentMethodKeys = {
