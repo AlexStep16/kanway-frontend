@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
-import Header from '~/layouts/Header.vue'
+import Header from '~/components/Header.vue'
 
 const props = defineProps<{
   error: NuxtError

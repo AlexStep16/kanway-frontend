@@ -9,6 +9,7 @@ import {
 } from 'lucide-vue-next'
 
 import { useSidebar } from '~/components/ui/sidebar'
+import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 
 const uiStore = useUIStore()
 const { mutate: logout } = useLogout()
@@ -17,8 +18,12 @@ const { data: user } = useUser()
 
 const { isMobile } = useSidebar()
 
-const hasUserSubscription = computed(() => {
-  return user.value?.subscriptionId !== null
+const isUserHasArchitectorSub = computed(() => {
+  return user.value?.subscriptionId === SubscriptionPlanEnum.Architector
+})
+
+const isUserHasBasicSub = computed(() => {
+  return user.value?.subscriptionId === SubscriptionPlanEnum.Basic
 })
 </script>
 
@@ -52,7 +57,7 @@ const hasUserSubscription = computed(() => {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             class="bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] text-white!"
-            v-if="!hasUserSubscription"
+            v-if="!isUserHasArchitectorSub"
             @click="uiStore.isPlansModalOpen = true"
           >
             <Sparkles />
@@ -60,7 +65,7 @@ const hasUserSubscription = computed(() => {
           </DropdownMenuItem>
           <DropdownMenuItem
             @click="uiStore.openSubscriptionSettings()"
-            v-else
+            v-if="!isUserHasBasicSub"
           >
             <Sparkles />
             Управлять подпиской

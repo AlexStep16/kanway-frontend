@@ -12,7 +12,7 @@ import CookieBanner from '~/components/CookieBanner.vue'
 import DemoPlan from '~/components/Workspace/Main/Chat/Demo/DemoPlan.vue'
 import DemoConfirmation from '~/components/Workspace/Main/Chat/Demo/DemoConfirmation.vue'
 import DemoCancel from '~/components/Workspace/Main/Chat/Demo/DemoCancel.vue'
-import Header from '~/layouts/Header.vue'
+import Header from '~/components/Header.vue'
 
 const activeTab = shallowRef<typeof DemoPlan>(DemoPlan)
 const chatStore = useChatStore()
