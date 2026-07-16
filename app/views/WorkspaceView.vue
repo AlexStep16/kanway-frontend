@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Settings from '~/components/Workspace/Settings/Settings.vue'
 import Tip from '~/components/Tip/Tip.vue'
 import MobileSearch from '~/components/Workspace/MobileSearch.vue'
 import Support from '~/components/Workspace/Main/Support/Support.vue'
@@ -14,7 +13,6 @@ const uiStore = useUIStore()
   <WorkspaceDialog />
 
   <TaskEdit v-if="uiStore.isEditTaskModalOpen" />
-  <Settings v-if="uiStore.isSettingsModalOpen" />
   <Tip />
   <MobileSearch v-if="uiStore.isMobileSearchOpen" />
   <Support v-if="uiStore.isSupportModalOpen" />

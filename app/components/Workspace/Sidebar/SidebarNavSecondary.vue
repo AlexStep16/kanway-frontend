@@ -48,7 +48,7 @@ const handleSelectArchive = () => {
           title="Настройки"
         >
           <SidebarMenuButton
-            @click="uiStore.isSettingsModalOpen = true"
+            @click="uiStore.selectSettings"
             as-child
           >
             <div class="flex gap-x-2">

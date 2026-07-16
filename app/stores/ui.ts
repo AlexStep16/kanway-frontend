@@ -8,7 +8,6 @@ export const useUIStore = defineStore('ui', () => {
   const isPlansModalOpen = ref(false)
   const isSupportModalOpen = ref(false)
   const isEditTaskModalOpen = ref(false)
-  const isSettingsModalOpen = ref(false)
   const isDeleteUserModalOpen = ref(false)
 
   const boardStore = useBoardStore()
@@ -64,7 +63,15 @@ export const useUIStore = defineStore('ui', () => {
     boardStore.clearBoard()
   }
 
+  function selectSettings() {
+    currentTab.value = Tabs.Settings
+    isChatOpen.value = false
+
+    boardStore.clearBoard()
+  }
+
   const isArchiveTabSelected = computed(() => currentTab.value === Tabs.Archive)
+  const isSettingsTabSelected = computed(() => currentTab.value === Tabs.Settings)
   const isBoardTabSelected = computed(() => currentTab.value === Tabs.Board)
   const isChatTabSelected = computed(() => currentTab.value === Tabs.Chat)
 
@@ -81,28 +88,12 @@ export const useUIStore = defineStore('ui', () => {
     boardStore.clearBoard()
   }
 
-  function openSubscriptionSettings() {
-    currentSettingsTab.value = SettingTabs.SUBSCRIPTION
-    isSettingsModalOpen.value = true
-  }
-
-  function openGeneralSettings() {
-    currentSettingsTab.value = SettingTabs.GENERAL
-    isSettingsModalOpen.value = true
-  }
-
-  function openPaymentsSettings() {
-    currentSettingsTab.value = SettingTabs.PAYMENTS
-    isSettingsModalOpen.value = true
-  }
-
   return {
     // State
     isMobileSearchOpen,
     isPlansModalOpen,
     isSupportModalOpen,
     isEditTaskModalOpen,
-    isSettingsModalOpen,
     isDeleteUserModalOpen,
 
     isSidebarOpen,
@@ -111,6 +102,7 @@ export const useUIStore = defineStore('ui', () => {
     isChatOpen,
     isWorkspaceDialogOpen,
     isArchiveTabSelected,
+    isSettingsTabSelected,
     isBoardTabSelected,
     isChatTabSelected,
 
@@ -121,6 +113,7 @@ export const useUIStore = defineStore('ui', () => {
     openSidebar,
     closeSidebar,
     selectArchive,
+    selectSettings,
     selectBoard,
     selectChat,
     openTaskToEdit,
@@ -128,8 +121,5 @@ export const useUIStore = defineStore('ui', () => {
     clearTaskToEdit,
     openWorkspaceDialog,
     closeWorkspaceDialog,
-    openSubscriptionSettings,
-    openGeneralSettings,
-    openPaymentsSettings,
   }
 })

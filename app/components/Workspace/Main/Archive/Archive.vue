@@ -54,6 +54,10 @@ const tasks = computed(() => tasksData.value || [])
 const columns = computed(() => columnsData.value || [])
 const boards = computed(() => boardsData.value || [])
 const workspaces = computed(() => workspacesData.value || [])
+
+useHead({
+  title: () => 'Kanway | Архив',
+})
 </script>
 <template>
   <SidebarInset>
@@ -72,9 +76,9 @@ const workspaces = computed(() => workspacesData.value || [])
     </header>
 
     <Separator />
-    <div class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto custom-scrollbar">
       <div
-        class="size-full py-3 flex items-center justify-center gap-5 overflow-y-auto"
+        class="size-full py-3 flex items-center justify-center gap-5 overflow-y-auto custom-scrollbar"
         v-if="!isSomeLoading && isArchiveEmpty"
       >
         <div class="flex flex-col items-center gap-y-2">
@@ -87,7 +91,7 @@ const workspaces = computed(() => workspacesData.value || [])
       </div>
 
       <div
-        class="size-full py-2 my-1 px-0.5 flex flex-col gap-5 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300"
+        class="size-full py-2 my-1 px-0.5 flex flex-col gap-5 overflow-y-auto custom-scrollbar"
         v-else
       >
         <div

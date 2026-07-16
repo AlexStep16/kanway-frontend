@@ -16,6 +16,7 @@ const isMainChat = computed(() => {
 })
 
 const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
+const isSettingsTabShown = computed(() => uiStore.isSettingsTabSelected)
 const isChatTabShown = computed(() => uiStore.isChatOpen || uiStore.isChatTabSelected)
 </script>
 
@@ -30,6 +31,14 @@ const isChatTabShown = computed(() => uiStore.isChatOpen || uiStore.isChatTabSel
       :class="{
         grow: isArchiveTabShown,
         'grow-0 w-0 m-0! p-0! opacity-0': !isArchiveTabShown,
+      }"
+    />
+
+    <Settings
+      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
+      :class="{
+        grow: isSettingsTabShown,
+        'grow-0 w-0 m-0! p-0! opacity-0': !isSettingsTabShown,
       }"
     />
     <Chat

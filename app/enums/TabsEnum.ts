@@ -1,7 +1,8 @@
 enum Tabs {
   Archive = 1,
-  Board = 2,
-  Chat = 3,
+  Settings = 2,
+  Board = 3,
+  Chat = 4,
 }
 
 export default Tabs
