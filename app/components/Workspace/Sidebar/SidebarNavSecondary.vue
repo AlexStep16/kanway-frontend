@@ -22,6 +22,14 @@ const handleSelectArchive = () => {
     toggleSidebar()
   }
 }
+
+const handleSelectSettings = () => {
+  uiStore.selectSettings()
+
+  if (isMobile.value) {
+    toggleSidebar()
+  }
+}
 </script>
 
 <template>
@@ -49,7 +57,7 @@ const handleSelectArchive = () => {
           title="Настройки"
         >
           <SidebarMenuButton
-            @click="uiStore.selectSettings"
+            @click="handleSelectSettings"
             :is-active="uiStore.isSettingsTabSelected"
             as-child
           >

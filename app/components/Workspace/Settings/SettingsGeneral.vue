@@ -134,7 +134,10 @@ const timezoneValue = computed({
 </script>
 
 <template>
-  <form class="contents">
+  <form
+    class="contents"
+    @submit.prevent
+  >
     <div class="flex flex-col gap-y-2 pb-px">
       <div class="flex items-center gap-x-2 pb-1 sm:pb-2">
         <h3 class="text-lg font-medium text-gray-800">Профиль</h3>
@@ -168,7 +171,7 @@ const timezoneValue = computed({
               v-for="availableColor in Object.values(AvailableColors)"
               :key="availableColor"
               :style="{ backgroundColor: availableColor }"
-              @click="handleUpdateAvatarColor(availableColor)"
+              @click.prevent="handleUpdateAvatarColor(availableColor)"
             />
           </div>
 
