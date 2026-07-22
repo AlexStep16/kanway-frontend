@@ -37,10 +37,6 @@ export const useChatStore = defineStore('chat', () => {
   function closeChat() {
     activeChatId.value = temporaryChatId.value
     uiStore.isChatOpen = false
-
-    if (uiStore.isChatTabSelected) {
-      uiStore.selectBoard()
-    }
   }
 
   function startRenamingChat(chatId: string) {

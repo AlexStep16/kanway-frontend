@@ -11,36 +11,31 @@ const boardStore = useBoardStore()
 
 const { activeBoardId } = storeToRefs(boardStore)
 
-const isMainChat = computed(() => {
-  return (activeBoardId.value === null && uiStore.isBoardTabSelected) || uiStore.isChatTabSelected
-})
+const isMainChat = computed(() => activeBoardId.value === null && uiStore.isBoardTabSelected)
 
 const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
 const isSettingsTabShown = computed(() => uiStore.isSettingsTabSelected)
-const isChatTabShown = computed(() => uiStore.isChatOpen || uiStore.isChatTabSelected)
+const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
 </script>
 
 <template>
   <SidebarProvider>
     <SidebarApp />
 
-    <NuxtPage />
+    <SidebarInset>
+      <NuxtPage />
 
-    <Archive
-      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
-      :class="{
-        grow: isArchiveTabShown,
-        'grow-0 w-0 m-0! p-0! opacity-0': !isArchiveTabShown,
-      }"
-    />
+      <Archive
+        class="transition-[flex] duration-300 min-w-0 overflow-hidden"
+        v-if="isArchiveTabShown"
+      />
 
-    <Settings
-      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
-      :class="{
-        grow: isSettingsTabShown,
-        'grow-0 w-0 m-0! p-0! opacity-0': !isSettingsTabShown,
-      }"
-    />
+      <Settings
+        class="transition-[flex] duration-300 min-w-0 overflow-hidden"
+        v-if="isSettingsTabShown"
+      />
+    </SidebarInset>
+
     <Chat
       class="transition-[flex] duration-300 min-w-0 overflow-hidden"
       :class="{

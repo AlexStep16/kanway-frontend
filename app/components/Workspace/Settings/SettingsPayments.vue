@@ -40,16 +40,20 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
-      Способ оплаты
-    </h3>
+    <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Способы оплаты</h3>
 
     <div
       class="grid grid-cols-1 md:grid-cols-2 gap-2"
       v-if="paymentMethods.length > 0 || isPaymentMethodsLoading"
     >
-      <div class="bg-gray-300 animate-pulse rounded-md h-19" v-if="isPaymentMethodsLoading"></div>
-      <div class="bg-gray-300 animate-pulse rounded-md h-19" v-if="isPaymentMethodsLoading"></div>
+      <div
+        class="bg-gray-300 animate-pulse rounded-md h-19"
+        v-if="isPaymentMethodsLoading"
+      ></div>
+      <div
+        class="bg-gray-300 animate-pulse rounded-md h-19"
+        v-if="isPaymentMethodsLoading"
+      ></div>
 
       <SettingsPaymentMethod
         v-for="paymentMethod in paymentMethods"
@@ -60,7 +64,12 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
       />
     </div>
 
-    <div v-else class="text-sm text-gray-500">Методы оплаты не сохранены</div>
+    <div
+      v-else
+      class="text-sm text-gray-500"
+    >
+      Методы оплаты не сохранены
+    </div>
   </div>
   <div class="grow flex flex-col gap-y-2">
     <h3
@@ -79,10 +88,16 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
       <div class="bg-gray-300 animate-pulse w-full h-10 rounded-lg"></div>
     </template>
 
-    <div class="flex flex-col" v-else>
-      <div class="overflow-x-auto">
+    <div
+      class="flex flex-col"
+      v-else
+    >
+      <div class="overflow-x-auto custom-scrollbar">
         <div class="min-w-full inline-block align-middle">
-          <div class="border border-gray-200 rounded-lg overflow-hidden" v-if="payments.length > 0">
+          <div
+            class="border border-gray-200 rounded-lg overflow-hidden"
+            v-if="payments.length > 0"
+          >
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
@@ -114,7 +129,10 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <!-- Пример строки платежа -->
-                <tr v-for="payment in payments" :key="payment.id">
+                <tr
+                  v-for="payment in payments"
+                  :key="payment.id"
+                >
                   <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-800">
                     {{ dayjs(payment.createdAt).format('DD MMMM YYYY') }}
                   </td>
@@ -137,7 +155,12 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
             </table>
           </div>
 
-          <div v-else class="p-4 text-center text-sm text-gray-500">Платежей пока нет</div>
+          <div
+            v-else
+            class="p-4 text-center text-sm text-gray-500"
+          >
+            Платежей пока нет
+          </div>
         </div>
       </div>
     </div>

@@ -67,7 +67,6 @@ const handleSaveUsername = handleSubmit((values) => {
     { id: user.value.id, username: normalizedUsername },
     {
       onSuccess: () => {
-        toast.success('Имя успешно обновлено')
         resetForm({
           values: {
             username: normalizedUsername,
@@ -132,21 +131,18 @@ const timezoneValue = computed({
     handleChangeTimezone(value)
   },
 })
-
-const isSaveDisabled = computed(() => {
-  return isUsernameUpdating.value || !meta.value.dirty
-})
 </script>
 
 <template>
-  <form
-    class="contents"
-    @submit="handleSaveUsername"
-  >
-    <div class="flex flex-col gap-y-2">
-      <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
-        Основная информация
-      </h3>
+  <form class="contents">
+    <div class="flex flex-col gap-y-2 pb-px">
+      <div class="flex items-center gap-x-2 pb-1 sm:pb-2">
+        <h3 class="text-lg font-medium text-gray-800">Профиль</h3>
+        <Spinner
+          v-if="isUsernameUpdating"
+          class="text-gray-400"
+        />
+      </div>
 
       <div class="flex flex-col items-start gap-y-3 max-w-80">
         <div class="flex flex-col gap-y-1 w-full">
@@ -159,7 +155,7 @@ const isSaveDisabled = computed(() => {
           </SettingsAvatar>
 
           <div
-            class="flex gap-1.5 items-center mt-2"
+            class="flex gap-1.5 items-center mt-2 flex-wrap"
             v-if="!hasUserAvatar"
           >
             <Button
@@ -190,14 +186,14 @@ const isSaveDisabled = computed(() => {
           </button>
         </div>
 
-        <div class="flex flex-col gap-y-1">
+        <div class="flex flex-col gap-y-1 w-full">
           <label class="text-custom-sm font-medium text-gray-500">Имя</label>
           <Input
             id="settings-name"
             name="name"
             autocomplete="off"
             type="text"
-            class="max-w-80 w-full border-none bg-gray-100 shadow-none"
+            class="w-full border-none bg-gray-100 shadow-none"
             :class="{
               'ring-1 ring-red-500 focus-visible:ring-red-500': errors.username && submitCount > 0,
             }"
@@ -205,6 +201,7 @@ const isSaveDisabled = computed(() => {
             placeholder="Введите имя"
             v-model="username"
             v-bind="usernameAttrs"
+            @blur="handleSaveUsername"
           />
 
           <div
@@ -213,18 +210,6 @@ const isSaveDisabled = computed(() => {
           >
             {{ errors.username }}
           </div>
-
-          <button
-            type="submit"
-            class="flex items-center justify-center gap-x-2 py-2 px-3 bg-blue-500 hover:opacity-90 transition-[opacity,colors] text-white text-xs font-medium rounded-md duration-100 focus:outline-hidden disabled:opacity-30 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-default"
-            :disabled="isSaveDisabled"
-          >
-            <Spinner
-              v-if="isUsernameUpdating"
-              class="size-3"
-            />
-            <span>Сохранить</span>
-          </button>
         </div>
 
         <div class="flex flex-col gap-y-1 w-full">
@@ -243,15 +228,7 @@ const isSaveDisabled = computed(() => {
             <Lock class="size-4 absolute right-3 text-gray-500" />
           </div>
         </div>
-      </div>
-    </div>
-    <div class="grow flex flex-col gap-y-2">
-      <h3
-        class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
-      >
-        Регион
-      </h3>
-      <div class="flex flex-col gap-y-3 max-w-80">
+
         <div class="flex flex-col gap-y-1 w-full">
           <label class="text-custom-sm font-medium text-gray-500">Часовой пояс</label>
           <div class="flex items-center relative">

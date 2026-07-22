@@ -111,15 +111,13 @@ function handleTogglePasswordVisibility() {
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
-      Безопасность аккаунта
-    </h3>
+    <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Безопасность аккаунта</h3>
 
     <div class="flex flex-col gap-y-3">
       <div class="flex flex-col gap-y-1">
         <div class="max-w-80 flex flex-col gap-y-1">
           <div class="flex flex-col gap-y-1">
-            <label class="text-custom-sm font-medium text-gray-700">Смена пароля</label>
+            <label class="text-custom-sm font-medium text-gray-500">Текущий пароль</label>
             <div class="relative">
               <input
                 type="password"
@@ -148,6 +146,7 @@ function handleTogglePasswordVisibility() {
             <div class="flex">
               <div class="flex-1">
                 <div class="flex flex-col gap-y-1">
+                  <label class="text-custom-sm font-medium text-gray-500">Новый пароль</label>
                   <div class="relative">
                     <input
                       type="password"

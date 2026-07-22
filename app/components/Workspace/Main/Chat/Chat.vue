@@ -97,9 +97,7 @@ function sendAgain() {
 }
 
 const isMainChat = computed(() => {
-  return (
-    (boardStore.activeBoardId === null && uiStore.isBoardTabSelected) || uiStore.isChatTabSelected
-  )
+  return boardStore.activeBoardId === null && uiStore.isBoardTabSelected
 })
 
 const isInitialMessagesLoading = computed(() => {

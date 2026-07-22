@@ -34,6 +34,7 @@ const handleSelectArchive = () => {
         >
           <SidebarMenuButton
             @click="handleSelectArchive"
+            :is-active="uiStore.isArchiveTabSelected"
             as-child
           >
             <div class="flex gap-x-2">
@@ -49,6 +50,7 @@ const handleSelectArchive = () => {
         >
           <SidebarMenuButton
             @click="uiStore.selectSettings"
+            :is-active="uiStore.isSettingsTabSelected"
             as-child
           >
             <div class="flex gap-x-2">

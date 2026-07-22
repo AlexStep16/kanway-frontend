@@ -2,6 +2,7 @@
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
+import { nextTick } from 'vue'
 import { AiConfirmationTypeEnum } from '~/enums/AiConfirmationTypeEnum'
 
 const { data: setting, isPending: isSettingLoading } = useSetting()
@@ -62,6 +63,7 @@ const aiConfirmationTypeValue = computed({
   },
   set(value: string) {
     aiConfirmationType.value = Number(value) as AiConfirmationTypeEnum
+    nextTick(handleSaveSetting)
   },
 })
 
@@ -87,21 +89,18 @@ const handleSaveSetting = handleSubmit((values) => {
     },
   )
 })
-
-const isButtonDisabled = computed(() => {
-  return isSettingUpdating.value || !meta.value.dirty
-})
 </script>
 
 <template>
-  <form
-    class="contents"
-    @submit="handleSaveSetting"
-  >
-    <div class="flex flex-col gap-y-2">
-      <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
-        Персонализация ассистента
-      </h3>
+  <form class="contents">
+    <div class="flex flex-col gap-y-2 pb-px">
+      <div class="flex items-center gap-x-2 pb-1 sm:pb-2">
+        <h3 class="text-lg font-medium text-gray-800">Персонализация ассистента</h3>
+        <Spinner
+          v-if="isSettingUpdating"
+          class="text-gray-400"
+        />
+      </div>
 
       <div class="flex flex-col gap-y-3">
         <div class="flex flex-col gap-y-1">
@@ -124,6 +123,7 @@ const isButtonDisabled = computed(() => {
             }"
             :aria-invalid="Boolean(errors.aiName && submitCount > 0)"
             v-bind="aiNameAttrs"
+            @blur="handleSaveSetting"
           />
 
           <div
@@ -133,17 +133,8 @@ const isButtonDisabled = computed(() => {
             {{ errors.aiName }}
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="flex flex-col gap-y-2">
-      <h3
-        class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
-      >
-        Предпочтения по взаимодействию
-      </h3>
-      <div class="flex flex-col gap-y-3">
-        <div class="flex flex-col max-w-80 gap-y-1">
+        <div class="flex flex-col gap-y-1">
           <label class="text-custom-sm font-medium text-gray-500"
             >Режим подтверждения действий</label
           >
@@ -184,16 +175,7 @@ const isButtonDisabled = computed(() => {
             {{ errors.aiConfirmationType }}
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="grow flex flex-col gap-y-2">
-      <h3
-        class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200 mt-2 sm:mt-4"
-      >
-        Настройки создания и организации задач
-      </h3>
-      <div class="flex flex-col gap-y-3">
         <div class="flex flex-col gap-y-1">
           <label class="text-custom-sm font-medium text-gray-500"
             >Колонка по умолчанию для новых задач</label
@@ -217,6 +199,7 @@ const isButtonDisabled = computed(() => {
             }"
             :aria-invalid="Boolean(errors.aiDefaultColumn && submitCount > 0)"
             v-bind="aiDefaultColumnAttrs"
+            @blur="handleSaveSetting"
           />
 
           <div
@@ -250,6 +233,7 @@ const isButtonDisabled = computed(() => {
             }"
             :aria-invalid="Boolean(errors.aiDefaultBoard && submitCount > 0)"
             v-bind="aiDefaultBoardAttrs"
+            @blur="handleSaveSetting"
           />
 
           <div
@@ -260,21 +244,6 @@ const isButtonDisabled = computed(() => {
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="flex items-center justify-end w-full pt-2 gap-x-2 border-t border-gray-200">
-      <Button
-        type="submit"
-        size="sm"
-        class="gap-x-2 text-xs"
-        :disabled="isButtonDisabled && !isSettingUpdating"
-      >
-        <Spinner
-          v-if="isSettingUpdating"
-          class="size-3"
-        />
-        <span>Сохранить</span>
-      </Button>
     </div>
   </form>
 </template>

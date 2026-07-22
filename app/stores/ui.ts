@@ -58,33 +58,44 @@ export const useUIStore = defineStore('ui', () => {
 
   function selectArchive() {
     currentTab.value = Tabs.Archive
-    isChatOpen.value = false
 
     boardStore.clearBoard()
   }
 
   function selectSettings() {
     currentTab.value = Tabs.Settings
-    isChatOpen.value = false
 
     boardStore.clearBoard()
+  }
+
+  function openGeneralSettings() {
+    currentSettingsTab.value = SettingTabs.GENERAL
+    selectSettings()
+  }
+
+  function openSubscriptionSettings() {
+    currentSettingsTab.value = SettingTabs.SUBSCRIPTION
+    selectSettings()
+  }
+
+  function openPaymentsSettings() {
+    currentSettingsTab.value = SettingTabs.PAYMENTS
+    selectSettings()
   }
 
   const isArchiveTabSelected = computed(() => currentTab.value === Tabs.Archive)
   const isSettingsTabSelected = computed(() => currentTab.value === Tabs.Settings)
   const isBoardTabSelected = computed(() => currentTab.value === Tabs.Board)
-  const isChatTabSelected = computed(() => currentTab.value === Tabs.Chat)
 
   function selectBoard() {
     currentTab.value = Tabs.Board
   }
 
   function selectChat() {
-    currentTab.value = Tabs.Chat
     if (!chatStore.activeChatId) {
       chatStore.newChat()
     }
-
+    isChatOpen.value = true
     boardStore.clearBoard()
   }
 
@@ -104,7 +115,6 @@ export const useUIStore = defineStore('ui', () => {
     isArchiveTabSelected,
     isSettingsTabSelected,
     isBoardTabSelected,
-    isChatTabSelected,
 
     editableTask,
     editableWorkspace,
@@ -114,6 +124,9 @@ export const useUIStore = defineStore('ui', () => {
     closeSidebar,
     selectArchive,
     selectSettings,
+    openGeneralSettings,
+    openSubscriptionSettings,
+    openPaymentsSettings,
     selectBoard,
     selectChat,
     openTaskToEdit,
