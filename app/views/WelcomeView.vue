@@ -28,7 +28,14 @@ const schema = toTypedSchema(
 )
 
 const openItem = ref('')
-const isNavigating = ref(false)
+const isWorkspaceLoading = ref(false)
+
+function preloadWorkspaceRoutes() {
+  void Promise.all([
+    import('~/pages/workspace/[[workspaceId]].vue'),
+    import('~/pages/workspace/[[workspaceId]]/[[boardId]].vue'),
+  ])
+}
 
 function toggleColors() {
   openItem.value = openItem.value === 'colors' ? '' : 'colors'
@@ -55,6 +62,8 @@ function workspaceNameInputHandler() {
 
 const onSubmit = handleSubmit(
   (values) => {
+    preloadWorkspaceRoutes()
+
     welcome(
       {
         payload: {
@@ -64,14 +73,15 @@ const onSubmit = handleSubmit(
         },
       },
       {
-        onSuccess: async () => {
+        onSuccess: async (workspace) => {
           try {
-            isNavigating.value = true
-            await navigateTo('/workspace')
+            isWorkspaceLoading.value = true
+            await nextTick()
+            await navigateTo(`/workspace/${workspace.id}`)
           } catch {
             toast.error('Произошла ошибка при переходе на страницу рабочего пространства')
           } finally {
-            isNavigating.value = false
+            isWorkspaceLoading.value = false
           }
         },
       },
@@ -83,11 +93,26 @@ const onSubmit = handleSubmit(
   },
 )
 
-const isProcessing = computed(() => isWelcomePending.value || isNavigating.value)
+const isCreatingWorkspace = computed(() => isWelcomePending.value)
 </script>
 
 <template>
-  <div class="size-full bg-gray-100 min-h-screen flex flex-col px-2">
+  <div
+    v-if="isWorkspaceLoading"
+    class="min-h-screen w-full bg-white flex items-center justify-center p-6"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="flex flex-col items-center gap-4 text-center">
+      <Spinner class="size-8 text-primary" />
+      <p class="text-sm font-medium text-gray-700">Открываем рабочее пространство...</p>
+    </div>
+  </div>
+
+  <div
+    v-else
+    class="size-full bg-gray-100 min-h-screen flex flex-col px-2"
+  >
     <header class="w-full py-5 px-4 sm:px-10 flex justify-between items-center">
       <NuxtLink
         to="/"
@@ -185,14 +210,15 @@ const isProcessing = computed(() => isWelcomePending.value || isNavigating.value
                 variant="default"
                 size="default"
                 class="text-xs mt-2"
+                :disabled="isCreatingWorkspace"
               >
                 <Spinner
                   class="size-4 absolute"
-                  v-if="isProcessing"
+                  v-if="isCreatingWorkspace"
                 />
                 <span
                   :class="{
-                    'opacity-0': isProcessing,
+                    'opacity-0': isCreatingWorkspace,
                   }"
                   >Начать работу</span
                 >
