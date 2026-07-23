@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import BackgroundCircles from '@/components/BackgroundCircles.vue'
 import dayjs from 'dayjs'
+import { toast } from 'vue-sonner'
+import { linkYandexAccount } from '~/services/auth'
 
 async function handleCallback() {
   const urlParams = new URLSearchParams(window.location.search)
@@ -33,6 +35,7 @@ async function handleCallback() {
     navigateTo('/workspace')
   } catch (error) {
     console.error('Authentication failed', error)
+    toast.error(error instanceof Error ? error.message : 'Не удалось привязать аккаунт Яндекс')
   } finally {
     // Чистим данные из localStorage
     localStorage.removeItem('yandex_auth_state')
