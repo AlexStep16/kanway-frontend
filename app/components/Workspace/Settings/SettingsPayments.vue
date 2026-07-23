@@ -40,35 +40,43 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Способы оплаты</h3>
-
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 gap-2"
-      v-if="paymentMethods.length > 0 || isPaymentMethodsLoading"
-    >
-      <div
-        class="bg-gray-300 animate-pulse rounded-md h-19"
-        v-if="isPaymentMethodsLoading"
-      ></div>
-      <div
-        class="bg-gray-300 animate-pulse rounded-md h-19"
-        v-if="isPaymentMethodsLoading"
-      ></div>
-
-      <SettingsPaymentMethod
-        v-for="paymentMethod in paymentMethods"
-        :key="paymentMethod.id"
-        :paymentMethod="paymentMethod"
-        :user="user"
-        v-else
-      />
+    <div class="flex flex-col gap-y-2">
+      <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Платежи</h3>
     </div>
 
-    <div
-      v-else
-      class="text-sm text-gray-500"
-    >
-      Методы оплаты не сохранены
+    <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
+      Методы оплаты
+    </h3>
+
+    <div class="flex flex-col gap-y-2">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-2"
+        v-if="paymentMethods.length > 0 || isPaymentMethodsLoading"
+      >
+        <div
+          class="bg-gray-300 animate-pulse rounded-md h-19"
+          v-if="isPaymentMethodsLoading"
+        ></div>
+        <div
+          class="bg-gray-300 animate-pulse rounded-md h-19"
+          v-if="isPaymentMethodsLoading"
+        ></div>
+
+        <SettingsPaymentMethod
+          v-for="paymentMethod in paymentMethods"
+          :key="paymentMethod.id"
+          :paymentMethod="paymentMethod"
+          :user="user"
+          v-else
+        />
+      </div>
+
+      <div
+        v-else
+        class="text-sm text-gray-500"
+      >
+        Методы оплаты не сохранены
+      </div>
     </div>
   </div>
   <div class="grow flex flex-col gap-y-2">

@@ -6,6 +6,7 @@ export interface IUser {
   username?: string
   email: string
   role: string
+  hasPassword: boolean
   avatarUrl?: string
   timezone: string
   isConfirmed: boolean
@@ -17,6 +18,8 @@ export interface IUser {
   avatarColor: AvailableColors
   audioCreditsSpent: number
   isTipsCompleted?: boolean
+  yandexClientId?: string
+  vkClientId?: string
   paymentMethodId?: string
   pendingChangePlan?: SubscriptionPlanEnum | null
   yaId?: string | null

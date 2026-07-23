@@ -19,7 +19,7 @@ export const useUIStore = defineStore('ui', () => {
   const isWorkspaceDialogOpen = ref(false)
 
   const currentTab = ref<Tabs>(Tabs.Board)
-  const currentSettingsTab = ref<SettingTabs>(SettingTabs.GENERAL)
+  const currentSettingsTab = ref<SettingTabs>(SettingTabs.PROFILE)
 
   const isSidebarOpen = ref(true)
   const isChatOpen = ref(false)
@@ -68,13 +68,13 @@ export const useUIStore = defineStore('ui', () => {
     boardStore.clearBoard()
   }
 
-  function openGeneralSettings() {
-    currentSettingsTab.value = SettingTabs.GENERAL
+  function openProfileSettings() {
+    currentSettingsTab.value = SettingTabs.PROFILE
     selectSettings()
   }
 
-  function openSubscriptionSettings() {
-    currentSettingsTab.value = SettingTabs.SUBSCRIPTION
+  function openPlansSettings() {
+    currentSettingsTab.value = SettingTabs.PLANS
     selectSettings()
   }
 
@@ -124,8 +124,8 @@ export const useUIStore = defineStore('ui', () => {
     closeSidebar,
     selectArchive,
     selectSettings,
-    openGeneralSettings,
-    openSubscriptionSettings,
+    openProfileSettings,
+    openPlansSettings,
     openPaymentsSettings,
     selectBoard,
     selectChat,

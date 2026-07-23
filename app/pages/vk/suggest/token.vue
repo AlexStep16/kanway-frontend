@@ -16,6 +16,7 @@ async function handleCallback() {
   }
 
   const codeVerifier = localStorage.getItem('vk_code_verifier')
+  const isAccountLinking = localStorage.getItem('vk_auth_mode') === 'link'
 
   if (!code || !state || !codeVerifier) {
     console.error('Missing required parameters')
@@ -23,7 +24,13 @@ async function handleCallback() {
   }
 
   try {
-    await vkAuthApi({ code, state, codeVerifier, timezone: dayjs.tz.guess(), deviceId })
+    const payload = { code, state, codeVerifier, timezone: dayjs.tz.guess(), deviceId }
+
+    if (isAccountLinking) {
+      await linkVkAccount(payload)
+    } else {
+      await vkAuthApi(payload)
+    }
     navigateTo('/workspace')
   } catch (error) {
     console.error('Authentication failed', error)
@@ -31,6 +38,7 @@ async function handleCallback() {
     // Чистим данные из localStorage
     localStorage.removeItem('vk_auth_state')
     localStorage.removeItem('vk_code_verifier')
+    localStorage.removeItem('vk_auth_mode')
   }
 }
 

@@ -4,19 +4,49 @@ import ShowPasswordButton from '~/components/Auth/ShowPasswordButton.vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useForm } from 'vee-validate'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { toast } from 'vue-sonner'
+import YandexAuth from '~/views/Auth/YandexAuth.vue'
+import VkAuth from '~/views/Auth/VkAuth.vue'
+import YandexLogo from '~/assets/yandex_logo.svg?skipsvgo'
+import VkLogo from '~/assets/vk_logo.svg?skipsvgo'
+import { unlinkAccount } from '~/services/auth'
 
 const isPasswordDirty = ref(false)
 const passwordRef = ref<HTMLInputElement | null>(null)
 const currentPasswordRef = ref<HTMLInputElement | null>(null)
+const passwordConfirmationRef = ref<HTMLInputElement | null>(null)
 const deleteModalRef = ref<HTMLElement | null>(null)
 
 const uiStore = useUIStore()
+const { data: user } = useUser()
+const hasPassword = computed(() => user.value?.hasPassword ?? false)
+const queryClient = useQueryClient()
 
 const schema = toTypedSchema(
-  z.object({
-    currentPassword: z.string().min(1, 'Текущий пароль должен быть заполнен'),
-    password: z.string().min(10, 'Пароль должен содержать минимум 10 символов'),
-  }),
+  z
+    .object({
+      currentPassword: z.string().optional(),
+      password: z.string().min(10, 'Пароль должен содержать минимум 10 символов'),
+      passwordConfirmation: z.string().min(1, 'Повторите новый пароль'),
+    })
+    .superRefine((values, context) => {
+      if (hasPassword.value && !values.currentPassword) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['currentPassword'],
+          message: 'Текущий пароль должен быть заполнен',
+        })
+      }
+
+      if (values.password !== values.passwordConfirmation) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['passwordConfirmation'],
+          message: 'Пароли не совпадают',
+        })
+      }
+    }),
 )
 
 const { errors, handleSubmit, submitCount, defineField, resetForm } = useForm({
@@ -24,11 +54,13 @@ const { errors, handleSubmit, submitCount, defineField, resetForm } = useForm({
   initialValues: {
     currentPassword: '',
     password: '',
+    passwordConfirmation: '',
   },
 })
 
 const [currentPassword, currentPasswordAttrs] = defineField('currentPassword')
 const [password, passwordAttrs] = defineField('password')
+const [passwordConfirmation, passwordConfirmationAttrs] = defineField('passwordConfirmation')
 
 // --- Mutations ---
 const {
@@ -38,6 +70,13 @@ const {
 } = useUpdatePassword()
 
 const { mutate: deleteAccount, isPending: isUserDeleting } = useDeleteUser()
+const { mutate: unlinkSocialAccount, isPending: isSocialAccountUpdating } = useMutation({
+  mutationFn: unlinkAccount,
+  onSuccess: () => {
+    toast.success('Аккаунт успешно отвязан')
+    queryClient.invalidateQueries({ queryKey: userKeys.me })
+  },
+})
 
 const handleSavePassword = handleSubmit((values) => {
   if (isSavePasswordDisabled.value) return
@@ -45,17 +84,27 @@ const handleSavePassword = handleSubmit((values) => {
   isPasswordDirty.value = false
 
   updateUserPassword(
-    { password: values.password, currentPassword: values.currentPassword },
+    {
+      password: values.password,
+      ...(hasPassword.value ? { currentPassword: values.currentPassword } : {}),
+    },
     {
       onSuccess: () => {
         currentPassword.value = ''
         password.value = ''
+        passwordConfirmation.value = ''
         isPasswordDirty.value = false
         isPasswordVisible.value = false
+        isPasswordConfirmationVisible.value = false
 
         if (passwordRef.value) {
           passwordRef.value.type = 'password'
           passwordRef.value.dispatchEvent(new Event('input'))
+        }
+
+        if (passwordConfirmationRef.value) {
+          passwordConfirmationRef.value.type = 'password'
+          passwordConfirmationRef.value.dispatchEvent(new Event('input'))
         }
 
         resetForm()
@@ -65,10 +114,18 @@ const handleSavePassword = handleSubmit((values) => {
 })
 
 const isSavePasswordDisabled = computed(
-  () => !currentPassword.value || !password.value || isPasswordUpdating.value,
+  () =>
+    (hasPassword.value && !currentPassword.value) ||
+    !password.value ||
+    !passwordConfirmation.value ||
+    isPasswordUpdating.value,
 )
 
 const handleDeleteAccount = () => deleteAccount()
+
+function handleUnlinkSocialAccount(provider: 'yandex' | 'vk') {
+  unlinkSocialAccount(provider)
+}
 
 const requirements = [
   { label: 'Минимальное количество символов: 10', check: (val: string) => val.length >= 10 },
@@ -83,6 +140,7 @@ const checklist = computed(() => {
 
 const isPasswordVisible = ref(false)
 const isCurrentPasswordVisible = ref(false)
+const isPasswordConfirmationVisible = ref(false)
 
 function handleToggleCurrentPasswordVisibility() {
   if (!currentPasswordRef.value) return
@@ -107,16 +165,95 @@ function handleTogglePasswordVisibility() {
     isPasswordVisible.value = false
   }
 }
+
+function handleTogglePasswordConfirmationVisibility() {
+  if (!passwordConfirmationRef.value) return
+
+  if (passwordConfirmationRef.value.type === 'password') {
+    passwordConfirmationRef.value.type = 'text'
+    isPasswordConfirmationVisible.value = true
+  } else {
+    passwordConfirmationRef.value.type = 'password'
+    isPasswordConfirmationVisible.value = false
+  }
+}
 </script>
 
 <template>
+  <div class="flex flex-col gap-y-3">
+    <div>
+      <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Безопасность</h3>
+      <h4 class="text-sm font-medium text-gray-800">Связанные аккаунты</h4>
+      <p class="text-sm text-gray-600">Используйте их для входа в Kanway.</p>
+    </div>
+
+    <div class="max-w-110 divide-y divide-gray-200 border-y border-gray-200">
+      <div class="flex items-center justify-between gap-3 py-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <YandexLogo class="size-6 shrink-0" />
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-800">Яндекс</p>
+            <p class="text-xs text-gray-500">
+              {{ user?.yandexClientId ? 'Аккаунт привязан' : 'Аккаунт не привязан' }}
+            </p>
+          </div>
+        </div>
+        <button
+          v-if="user?.yandexClientId"
+          type="button"
+          class="shrink-0 py-2 px-3 text-xs font-medium rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
+          :disabled="isSocialAccountUpdating"
+          @click="handleUnlinkSocialAccount('yandex')"
+        >
+          Отвязать
+        </button>
+        <YandexAuth
+          v-else
+          is-account-linking
+          label="Привязать"
+        />
+      </div>
+
+      <div class="flex items-center justify-between gap-3 py-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <VkLogo class="size-6 shrink-0" />
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-800">VK</p>
+            <p class="text-xs text-gray-500">
+              {{ user?.vkClientId ? 'Аккаунт привязан' : 'Аккаунт не привязан' }}
+            </p>
+          </div>
+        </div>
+        <button
+          v-if="user?.vkClientId"
+          type="button"
+          class="shrink-0 py-2 px-3 text-xs font-medium rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
+          :disabled="isSocialAccountUpdating"
+          @click="handleUnlinkSocialAccount('vk')"
+        >
+          Отвязать
+        </button>
+        <VkAuth
+          v-else
+          is-account-linking
+          label="Привязать"
+        />
+      </div>
+    </div>
+  </div>
+
   <div class="flex flex-col gap-y-2">
-    <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Безопасность аккаунта</h3>
+    <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">
+      {{ hasPassword ? 'Сменить пароль' : 'Задать пароль' }}
+    </h3>
 
     <div class="flex flex-col gap-y-3">
       <div class="flex flex-col gap-y-1">
         <div class="max-w-80 flex flex-col gap-y-1">
-          <div class="flex flex-col gap-y-1">
+          <div
+            v-if="hasPassword"
+            class="flex flex-col gap-y-1"
+          >
             <label class="text-custom-sm font-medium text-gray-500">Текущий пароль</label>
             <div class="relative">
               <input
@@ -182,6 +319,36 @@ function handleTogglePasswordVisibility() {
                       <span>{{ item.label }}</span>
                     </li>
                   </ul>
+                  <div class="flex flex-col gap-y-1">
+                    <label class="text-custom-sm font-medium text-gray-500">
+                      Повторите новый пароль
+                    </label>
+                    <div class="relative">
+                      <input
+                        type="password"
+                        id="settings-password-confirmation"
+                        class="w-full border-none bg-gray-100 rounded-md pl-3 pr-10 truncate py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        :class="{
+                          'ring-1 ring-red-500': errors?.passwordConfirmation && submitCount > 0,
+                        }"
+                        placeholder="Повторите новый пароль"
+                        ref="passwordConfirmationRef"
+                        @input="isPasswordDirty = true"
+                        v-model="passwordConfirmation"
+                        v-bind="passwordConfirmationAttrs"
+                      />
+                      <ShowPasswordButton
+                        :isPasswordVisible="isPasswordConfirmationVisible"
+                        @toggle-password-visibility="handleTogglePasswordConfirmationVisibility"
+                      />
+                    </div>
+                    <p
+                      v-if="errors?.passwordConfirmation && submitCount > 0"
+                      class="text-red-500 text-xs mt-1"
+                    >
+                      {{ errors.passwordConfirmation }}
+                    </p>
+                  </div>
                   <ul
                     class="text-xs text-red-600"
                     id="password-auth-error"

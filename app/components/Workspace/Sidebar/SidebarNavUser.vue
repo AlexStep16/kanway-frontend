@@ -64,7 +64,7 @@ const isUserHasBasicSub = computed(() => {
             Улучшить план
           </DropdownMenuItem>
           <DropdownMenuItem
-            @click="uiStore.openSubscriptionSettings()"
+            @click="uiStore.openPlansSettings()"
             v-if="!isUserHasBasicSub"
           >
             <Sparkles />
@@ -72,7 +72,7 @@ const isUserHasBasicSub = computed(() => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem @click="uiStore.openGeneralSettings()">
+            <DropdownMenuItem @click="uiStore.openProfileSettings()">
               <BadgeCheck />
               Профиль
             </DropdownMenuItem>

@@ -38,10 +38,10 @@ const currentTab = computed(() => uiStore.currentSettingsTab)
     <div
       class="max-w-2xl w-full grow flex flex-col gap-y-6 rounded-md overflow-y-auto custom-scrollbar px-2"
     >
-      <SettingsGeneral v-if="currentTab === SettingTabs.GENERAL" />
+      <SettingsGeneral v-if="currentTab === SettingTabs.PROFILE" />
       <SettingsSecurity v-if="currentTab === SettingTabs.SECURITY" />
       <SettingsAssistant v-if="currentTab === SettingTabs.ASSISTANT" />
-      <SettingsSubscription v-if="currentTab === SettingTabs.SUBSCRIPTION" />
+      <SettingsSubscription v-if="currentTab === SettingTabs.PLANS" />
       <SettingsPayments v-if="currentTab === SettingTabs.PAYMENTS" />
     </div>
   </div>

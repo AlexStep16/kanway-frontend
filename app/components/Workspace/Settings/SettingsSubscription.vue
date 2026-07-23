@@ -71,6 +71,10 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
 
 <template>
   <div class="flex flex-col gap-y-2">
+    <div class="flex flex-col gap-y-2">
+      <h3 class="text-lg font-medium text-gray-800 pb-1 sm:pb-2">Тарифы</h3>
+    </div>
+
     <h3 class="text-sm font-medium text-gray-800 pb-1 sm:pb-2 border-b border-gray-200">
       Ваш тарифный план
     </h3>

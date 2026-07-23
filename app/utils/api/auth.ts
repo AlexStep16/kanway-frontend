@@ -109,6 +109,29 @@ export async function patchUserPasswordApi(payload: UpdatePasswordVars) {
   })
 }
 
+export async function linkYandexAccountApi(payload: YandexAuthDTO) {
+  return apiCall<IUser>({
+    method: 'POST',
+    url: '/me/accounts/yandex',
+    data: payload,
+  })
+}
+
+export async function linkVkAccountApi(payload: VkAuthDTO) {
+  return apiCall<IUser>({
+    method: 'POST',
+    url: '/me/accounts/vk',
+    data: payload,
+  })
+}
+
+export async function unlinkAccountApi(provider: 'yandex' | 'vk') {
+  return apiCall<IUser>({
+    method: 'DELETE',
+    url: `/me/accounts/${provider}`,
+  })
+}
+
 export async function deleteUserApi() {
   return apiCall<null>({
     method: 'DELETE',

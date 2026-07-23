@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { CircleUserRound, Lock, Bot, CreditCard, Gem } from 'lucide-vue-next'
+import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem } from 'lucide-vue-next'
 import { SettingTabs } from '~/enums/SettingTabs'
 
 defineProps<{
@@ -12,10 +12,10 @@ const emit = defineEmits<{
 }>()
 
 const tabs = [
-  { id: SettingTabs.GENERAL, label: 'Профиль', icon: CircleUserRound },
-  { id: SettingTabs.SECURITY, label: 'Безопасность', icon: Lock },
+  { id: SettingTabs.PROFILE, label: 'Профиль', icon: CircleUserRound },
+  { id: SettingTabs.SECURITY, label: 'Безопасность', icon: LockKeyhole },
   { id: SettingTabs.ASSISTANT, label: 'Ассистент', icon: Bot },
-  { id: SettingTabs.SUBSCRIPTION, label: 'Тарифы', icon: Gem },
+  { id: SettingTabs.PLANS, label: 'Тарифы', icon: Gem },
   { id: SettingTabs.PAYMENTS, label: 'Платежи', icon: CreditCard },
 ]
 

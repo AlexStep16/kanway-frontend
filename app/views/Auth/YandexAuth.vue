@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import YandexLogo from '~/assets/yandex_logo.svg?skipsvgo'
 
+const props = withDefaults(
+  defineProps<{
+    isAccountLinking?: boolean
+    label?: string
+  }>(),
+  {
+    isAccountLinking: false,
+    label: undefined,
+  },
+)
+
 async function prepareAuth() {
   const codeVerifier = generateRandomString(64)
   const codeChallenge = await generateCodeChallenge(codeVerifier)
@@ -8,6 +19,11 @@ async function prepareAuth() {
 
   localStorage.setItem('yandex_code_verifier', codeVerifier)
   localStorage.setItem('yandex_auth_state', state)
+  if (props.isAccountLinking) {
+    localStorage.setItem('yandex_auth_mode', 'link')
+  } else {
+    localStorage.removeItem('yandex_auth_mode')
+  }
 
   return { codeChallenge, state }
 }
@@ -33,10 +49,12 @@ async function startYandexAuth() {
 <template>
   <div class="flex items-center justify-center">
     <button
-      class="flex items-center justify-center bg-gray-100 rounded-md size-11 cursor-pointer hover:bg-gray-200 transition-colors"
+      class="flex items-center justify-center gap-x-2 bg-gray-100 rounded-md cursor-pointer hover:bg-gray-200 transition-colors"
+      :class="props.label ? 'py-2 px-3 text-xs font-medium' : 'size-11'"
       @click="startYandexAuth"
     >
       <YandexLogo class="size-7" />
+      <span v-if="props.label">{{ props.label }}</span>
     </button>
   </div>
 </template>

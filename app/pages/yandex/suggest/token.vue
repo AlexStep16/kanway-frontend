@@ -15,6 +15,7 @@ async function handleCallback() {
   }
 
   const codeVerifier = localStorage.getItem('yandex_code_verifier')
+  const isAccountLinking = localStorage.getItem('yandex_auth_mode') === 'link'
 
   if (!code || !state || !codeVerifier) {
     console.error('Missing required parameters')
@@ -22,7 +23,13 @@ async function handleCallback() {
   }
 
   try {
-    await yandexAuthApi({ code, state, codeVerifier, timezone: dayjs.tz.guess() })
+    const payload = { code, state, codeVerifier, timezone: dayjs.tz.guess() }
+
+    if (isAccountLinking) {
+      await linkYandexAccount(payload)
+    } else {
+      await yandexAuthApi(payload)
+    }
     navigateTo('/workspace')
   } catch (error) {
     console.error('Authentication failed', error)
@@ -30,6 +37,7 @@ async function handleCallback() {
     // Чистим данные из localStorage
     localStorage.removeItem('yandex_auth_state')
     localStorage.removeItem('yandex_code_verifier')
+    localStorage.removeItem('yandex_auth_mode')
   }
 }
 

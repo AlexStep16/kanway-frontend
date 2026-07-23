@@ -4,6 +4,9 @@ import UserModel from '~/models/UserModel'
 import type RegisterCredentials from '~/interfaces/RegisterCredentials'
 import type { UpdatePasswordVars } from '~/composables/auth/mutations/useUpdatePassword'
 import type { FinishRegistrationDTO } from '~/interfaces/FinishRegistrationDTO'
+import { linkVkAccountApi, linkYandexAccountApi, unlinkAccountApi } from '~/utils/api/auth'
+import type { YandexAuthDTO } from '~/interfaces/YandexAuthDTO'
+import type { VkAuthDTO } from '~/interfaces/VkAuthDTO'
 
 export function transformUser(raw: IUser): UserModel {
   const user = new UserModel({
@@ -86,6 +89,18 @@ export async function updatePassword(payload: UpdatePasswordVars): Promise<IUser
   const updatedUser = await patchUserPasswordApi(payload)
 
   return transformUser(updatedUser)
+}
+
+export async function linkYandexAccount(payload: YandexAuthDTO): Promise<IUser> {
+  return transformUser(await linkYandexAccountApi(payload))
+}
+
+export async function linkVkAccount(payload: VkAuthDTO): Promise<IUser> {
+  return transformUser(await linkVkAccountApi(payload))
+}
+
+export async function unlinkAccount(provider: 'yandex' | 'vk'): Promise<IUser> {
+  return transformUser(await unlinkAccountApi(provider))
 }
 
 export async function deleteUser(): Promise<null> {

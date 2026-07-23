@@ -1,7 +1,7 @@
 export enum SettingTabs {
-  GENERAL = 0,
+  PROFILE = 0,
   SECURITY = 1,
   ASSISTANT = 2,
-  SUBSCRIPTION = 3,
+  PLANS = 3,
   PAYMENTS = 4,
 }

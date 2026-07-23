@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 
 export interface UpdatePasswordVars {
-  currentPassword: string
+  currentPassword?: string
   password: string
 }
 
