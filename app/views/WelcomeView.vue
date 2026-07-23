@@ -103,9 +103,9 @@ const isCreatingWorkspace = computed(() => isWelcomePending.value)
     role="status"
     aria-live="polite"
   >
-    <div class="flex flex-col items-center gap-4 text-center">
-      <Spinner class="size-8 text-primary" />
-      <p class="text-sm font-medium text-gray-700">Открываем рабочее пространство...</p>
+    <div class="flex flex-col items-center gap-4 text-center text-gray-500">
+      <Spinner class="size-7" />
+      <p class="text-sm font-medium">Открываем рабочее пространство...</p>
     </div>
   </div>
 
