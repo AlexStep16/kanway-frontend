@@ -3,6 +3,9 @@ import BackgroundCircles from '~/components/BackgroundCircles.vue'
 import dayjs from 'dayjs'
 import { toast } from 'vue-sonner'
 import { linkVkAccount } from '~/services/auth'
+import { useQueryClient } from '@tanstack/vue-query'
+
+const queryClient = useQueryClient()
 
 async function handleCallback() {
   const urlParams = new URLSearchParams(window.location.search)
@@ -29,7 +32,8 @@ async function handleCallback() {
     const payload = { code, state, codeVerifier, timezone: dayjs.tz.guess(), deviceId }
 
     if (isAccountLinking) {
-      await linkVkAccount(payload)
+      const user = await linkVkAccount(payload)
+      queryClient.setQueryData(userKeys.me, user)
     } else {
       await vkAuthApi(payload)
     }
@@ -37,6 +41,7 @@ async function handleCallback() {
   } catch (error) {
     console.error('Authentication failed', error)
     toast.error(error instanceof Error ? error.message : 'Не удалось привязать аккаунт VK')
+    await navigateTo('/workspace')
   } finally {
     // Чистим данные из localStorage
     localStorage.removeItem('vk_auth_state')
