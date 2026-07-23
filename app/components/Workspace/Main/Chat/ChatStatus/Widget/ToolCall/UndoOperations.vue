@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import { CircleAlert, Square, Undo2 } from 'lucide-vue-next'
+import { CircleAlert, Square, Undo2 } from '@lucide/vue'
 import type { ITextValue } from '~/interfaces/Statuses/Content/ITextValue.js'
 
 const props = defineProps<{

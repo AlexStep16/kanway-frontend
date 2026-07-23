@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import { CircleAlert, Square, ArrowLeftRight } from 'lucide-vue-next'
+import { CircleAlert, Square, ArrowLeftRight } from '@lucide/vue'
 import type { IMoveEntitiesContent } from '~/interfaces/Statuses/Content/IMoveEntitiesContent'
 import ChatLog from '../../../../../ChatLog.vue'
 import ApproveButtons from '../../ApproveButtons.vue'

@@ -3,7 +3,7 @@ import RegisterButton from '~/components/Buttons/RegisterButton.vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { z } from 'zod'
-import { KeyRound, ArrowLeft } from 'lucide-vue-next'
+import { KeyRound, ArrowLeft } from '@lucide/vue'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'
 

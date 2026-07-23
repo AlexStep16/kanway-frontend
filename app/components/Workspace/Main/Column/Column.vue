@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Options from '~/components/Options/Options.vue'
 import Task from '../Task/Task.vue'
-import { ListFilter, Plus, SquarePen } from 'lucide-vue-next'
+import { ListFilter, Plus, SquarePen } from '@lucide/vue'
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
 import draggable from 'vuedraggable'
 import type { ITaskState } from '~/stores/interfaces/ITaskState'

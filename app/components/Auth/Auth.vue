@@ -3,7 +3,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { Mail } from 'lucide-vue-next'
+import { Mail } from '@lucide/vue'
 import z from 'zod'
 import { checkEmailExists } from '@/services/auth'
 import { getSafeBase64String } from '~/utils/getSafeBase64String'

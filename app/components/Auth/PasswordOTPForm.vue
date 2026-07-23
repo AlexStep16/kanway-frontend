@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import OTPForm from '~/components/Auth/OTPForm.vue'
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft } from '@lucide/vue'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import { ResendStorageKeysEnum } from '~/enums/ResendStorageKeysEnum'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, X } from 'lucide-vue-next'
+import { Search, X } from '@lucide/vue'
 defineProps<{ modelValue: string; placeholder?: string }>()
 defineEmits(['update:modelValue', 'clear', 'focus'])
 const inputRef = ref<HTMLInputElement | null>(null)

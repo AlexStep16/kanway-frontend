@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TimeStatus } from '~/enums/TimeStatus'
-import { Clock } from 'lucide-vue-next'
+import { Clock } from '@lucide/vue'
 
 const props = defineProps<{
   before: {
@@ -68,7 +68,10 @@ const dateBadgeClasses = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-1" v-if="hasDueDateChange">
+  <div
+    class="flex flex-wrap gap-1"
+    v-if="hasDueDateChange"
+  >
     <div
       class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm py-1 px-2"
       :class="baseBlockBeforeClasses"

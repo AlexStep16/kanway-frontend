@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { BadgeInfo } from 'lucide-vue-next'
+import { BadgeInfo } from '@lucide/vue'
 </script>
 
 <template>
@@ -12,7 +12,10 @@ import { BadgeInfo } from 'lucide-vue-next'
         Срок её действия истёк или она указана неверно.<br />Пожалуйста, запросите новую ссылку.
       </p>
     </div>
-    <form @submit.prevent="() => navigateTo('/')" class="mt-2">
+    <form
+      @submit.prevent="() => navigateTo('/')"
+      class="mt-2"
+    >
       <RegisterButton text="На главную" />
     </form>
   </div>

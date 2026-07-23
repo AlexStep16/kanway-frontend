@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Trash } from 'lucide-vue-next'
+import { Trash } from '@lucide/vue'
 import type { IChat } from '~/interfaces/domain/IChat'
 
 const props = defineProps<{
@@ -41,7 +41,12 @@ function handleDelete() {
       </Button>
     </template>
     <template v-else>
-      <Button variant="destructiveAlt" size="sm" class="w-full font-normal justify-start" disabled>
+      <Button
+        variant="destructiveAlt"
+        size="sm"
+        class="w-full font-normal justify-start"
+        disabled
+      >
         <Spinner />
         <span>Удаление</span>
       </Button>

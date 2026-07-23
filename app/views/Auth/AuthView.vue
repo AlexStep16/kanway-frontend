@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import KanwayLogo from '~/assets/kanway_logo.svg?skipsvgo'
 import YandexAuth from '~/views/Auth/YandexAuth.vue'
-import { Link } from 'lucide-vue-next'
+import { Link } from '@lucide/vue'
 import VkAuth from './VkAuth.vue'
 import EmailOTPForm from '~/components/Auth/EmailOTPForm.vue'
 import LoginOTPForm from '~/components/Auth/LoginOTPForm.vue'

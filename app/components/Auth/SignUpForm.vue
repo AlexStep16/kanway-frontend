@@ -4,7 +4,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { ArrowLeft, KeyRound } from 'lucide-vue-next'
+import { ArrowLeft, KeyRound } from '@lucide/vue'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'

@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { isDeleted: boolean }">
-import { X, Copy, Archive } from 'lucide-vue-next'
+import { X, Copy, Archive } from '@lucide/vue'
 
 defineProps<{
   editableEntity: T

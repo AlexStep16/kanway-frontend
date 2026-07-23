@@ -1,4 +1,3 @@
-import legacy from '@vitejs/plugin-legacy'
 import compressPlugin from 'vite-plugin-compression'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -123,10 +122,6 @@ export default defineNuxtConfig({
         ext: '.gz',
         deleteOriginFile: false,
       }),
-      legacy({
-        targets: ['defaults', 'not IE 11', 'iOS >= 10', 'Safari >= 10'],
-        renderLegacyChunks: true,
-      }),
       tailwindcss(),
     ],
     optimizeDeps: {
@@ -150,7 +145,7 @@ export default defineNuxtConfig({
         'dayjs/plugin/isoWeek', // CJS
         'dayjs/plugin/customParseFormat', // CJS
         'dayjs/locale/ru', // CJS
-        'lucide-vue-next',
+        '@lucide/vue',
         'reka-ui',
         'clsx',
         'tailwind-merge',

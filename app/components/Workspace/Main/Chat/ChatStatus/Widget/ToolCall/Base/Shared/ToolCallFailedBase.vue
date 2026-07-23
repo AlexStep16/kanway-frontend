@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { XCircle } from 'lucide-vue-next'
+import { XCircle } from '@lucide/vue'
 
 defineProps<{
   title: string

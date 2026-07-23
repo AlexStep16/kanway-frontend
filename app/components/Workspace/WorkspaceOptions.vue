@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Copy, Star, StarOff, Archive, Pen } from 'lucide-vue-next'
+import { Copy, Star, StarOff, Archive, Pen } from '@lucide/vue'
 import type { IWorkspace } from '~/interfaces/domain/IWorkspace'
 
 const props = defineProps<{

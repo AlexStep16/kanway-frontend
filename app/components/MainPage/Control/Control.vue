@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckCircle, Map, Undo } from 'lucide-vue-next'
+import { CheckCircle, Map, Undo } from '@lucide/vue'
 import DemoPlan from '~/components/Workspace/Main/Chat/Demo/DemoPlan.vue'
 import DemoConfirmation from '~/components/Workspace/Main/Chat/Demo/DemoConfirmation.vue'
 import DemoCancel from '~/components/Workspace/Main/Chat/Demo/DemoCancel.vue'

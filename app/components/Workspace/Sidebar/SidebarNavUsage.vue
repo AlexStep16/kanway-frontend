@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Banknote } from 'lucide-vue-next'
+import { Banknote } from '@lucide/vue'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 
 const uiStore = useUIStore()

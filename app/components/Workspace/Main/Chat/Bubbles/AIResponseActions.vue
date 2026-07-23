@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ThumbsDown, ThumbsUp } from 'lucide-vue-next'
+import { ThumbsDown, ThumbsUp } from '@lucide/vue'
 import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 
 const props = defineProps<{

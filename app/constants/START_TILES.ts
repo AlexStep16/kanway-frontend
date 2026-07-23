@@ -1,4 +1,4 @@
-import { Target, Briefcase, Luggage, Store, GraduationCap } from 'lucide-vue-next'
+import { Target, Briefcase, Luggage, Store, GraduationCap } from '@lucide/vue'
 
 export const START_TILES = [
   {

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ChevronDown, Hash, X, Plus } from 'lucide-vue-next'
+import { ChevronDown, Hash, X, Plus } from '@lucide/vue'
 import type { TaskModel } from '~/models/TaskModel'
 
 const props = defineProps<{

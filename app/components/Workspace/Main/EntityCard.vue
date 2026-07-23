@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers, Check } from 'lucide-vue-next'
+import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers, Check } from '@lucide/vue'
 import { Checkbox } from '~/components/ui/checkbox'
 
 import { TimeStatus } from '~/enums/TimeStatus'

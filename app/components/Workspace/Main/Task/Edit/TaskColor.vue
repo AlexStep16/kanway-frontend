@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TaskModel } from '~/models/TaskModel'
-import { Palette, CircleOff, ChevronDown } from 'lucide-vue-next'
+import { Palette, CircleOff, ChevronDown } from '@lucide/vue'
 import { COLOR_NAMES_MAP } from '~/constants/COLOR_NAMES_MAP'
 import { TASK_COLORS_MAP, TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IBoard } from '~/interfaces/domain/IBoard'
-import { SquareKanban } from 'lucide-vue-next'
+import { SquareKanban } from '@lucide/vue'
 import Title from './Title.vue'
 
 const boardStore = useBoardStore()

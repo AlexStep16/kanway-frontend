@@ -2,7 +2,7 @@
 import { AgentsEnum } from '~/enums/AgentsEnum.js'
 import type { IChatMessage } from '~/interfaces/domain/IChatMessage.js'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum.js'
-import { SquareArrowOutUpRight, MessageCircle } from 'lucide-vue-next'
+import { SquareArrowOutUpRight, MessageCircle } from '@lucide/vue'
 import type { AIInput } from '#components'
 import Title from '~/components/Workspace/Header/Title.vue'
 

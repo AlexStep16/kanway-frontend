@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LogOut } from 'lucide-vue-next'
+import { LogOut } from '@lucide/vue'
 
 const { mutate: logout } = useLogout()
 const { data: user } = useUser()

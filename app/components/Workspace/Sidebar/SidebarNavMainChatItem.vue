@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, MoreHorizontal, Plus } from 'lucide-vue-next'
+import { ChevronRight, MoreHorizontal, Plus } from '@lucide/vue'
 import ChatOptions from '../ChatOptions.vue'
 import type { IChat } from '~/interfaces/domain/IChat'
 import { useSidebar } from '~/components/ui/sidebar'

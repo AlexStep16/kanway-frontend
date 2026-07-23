@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ChevronDown, X } from 'lucide-vue-next'
+import { ChevronDown, X } from '@lucide/vue'
 import { TaskModel } from '~/models/TaskModel'
 import dayjs from 'dayjs'
 
 import type { DateValue } from '@internationalized/date'
 import { parseDate } from '@internationalized/date'
-import { CalendarIcon } from 'lucide-vue-next'
+import { CalendarIcon } from '@lucide/vue'
 import { Button } from '~/components/ui/button'
 import { Calendar } from '~/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ArrowRightLeft } from 'lucide-vue-next'
+import { ChevronLeft, ArrowRightLeft } from '@lucide/vue'
 
 defineProps<{
   items?: Array<{ id: string; name: string }>
@@ -41,7 +41,10 @@ const emit = defineEmits<{
         </button>
       </template>
 
-      <div v-else class="text-gray-400 w-full text-center py-4 text-sm">
+      <div
+        v-else
+        class="text-gray-400 w-full text-center py-4 text-sm"
+      >
         {{ noItemsText || 'Нет доступных мест' }}
       </div>
     </div>

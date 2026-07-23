@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { Camera, Lock } from 'lucide-vue-next'
+import { Camera, Lock } from '@lucide/vue'
 import dayjs from 'dayjs'
 import { z } from 'zod'
 import SettingsAvatar from '~/components/Workspace/Settings/SettingsAvatar.vue'

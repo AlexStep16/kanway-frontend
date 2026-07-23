@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, SearchX } from 'lucide-vue-next'
+import { Search, SearchX } from '@lucide/vue'
 
 const open = ref(false)
 const search = ref('')

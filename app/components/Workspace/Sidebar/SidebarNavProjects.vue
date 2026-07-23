@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { LucideIcon } from 'lucide-vue-next'
-import { Folder, Forward, MoreHorizontal, Trash2 } from 'lucide-vue-next'
+import type { LucideIcon } from '@lucide/vue'
+import { Folder, Forward, MoreHorizontal, Trash2 } from '@lucide/vue'
 import { useSidebar } from '~/components/ui/sidebar'
 
 defineProps<{
@@ -18,7 +18,10 @@ const { isMobile } = useSidebar()
   <SidebarGroup class="group-data-[collapsible=icon]:hidden">
     <SidebarGroupLabel>Projects</SidebarGroupLabel>
     <SidebarMenu>
-      <SidebarMenuItem v-for="item in projects" :key="item.name">
+      <SidebarMenuItem
+        v-for="item in projects"
+        :key="item.name"
+      >
         <SidebarMenuButton as-child>
           <a :href="item.url">
             <component :is="item.icon" />

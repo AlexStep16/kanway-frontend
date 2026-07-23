@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Sparkles } from 'lucide-vue-next'
+import { Sparkles } from '@lucide/vue'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import KanwayLogo from '~/assets/kanway_logo.svg?component'
 import { cn } from '~/lib/utils'

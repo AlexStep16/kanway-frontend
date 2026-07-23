@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X, SquareArrowOutUpRight } from 'lucide-vue-next'
+import { X, SquareArrowOutUpRight } from '@lucide/vue'
 import TitleChat from '../../Header/TitleChat.vue'
 
 const chatStore = useChatStore()

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-import { Plus } from 'lucide-vue-next'
+import { Plus } from '@lucide/vue'
 
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
 

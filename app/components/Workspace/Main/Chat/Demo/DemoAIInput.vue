@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import Sparkles from '~/assets/sparkles.svg?skipsvgo'
 import ChatGPT from '~/assets/chatgpt.svg?skipsvgo'
-import { Mic } from 'lucide-vue-next'
+import { Mic } from '@lucide/vue'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { cn } from '~/lib/utils'
 

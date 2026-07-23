@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem } from 'lucide-vue-next'
+import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem } from '@lucide/vue'
 import { SettingTabs } from '~/enums/SettingTabs'
 
 defineProps<{

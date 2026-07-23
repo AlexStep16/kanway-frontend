@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Eye, EyeOff } from 'lucide-vue-next'
+import { Eye, EyeOff } from '@lucide/vue'
 
 defineProps<{
   isPasswordVisible: boolean
@@ -14,7 +14,13 @@ defineProps<{
     }"
     @click.prevent="$emit('toggle-password-visibility')"
   >
-    <Eye class="size-4.5" v-if="isPasswordVisible" />
-    <EyeOff class="size-4.5" v-else />
+    <Eye
+      class="size-4.5"
+      v-if="isPasswordVisible"
+    />
+    <EyeOff
+      class="size-4.5"
+      v-else
+    />
   </button>
 </template>

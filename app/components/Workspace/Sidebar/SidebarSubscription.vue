@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Gem } from 'lucide-vue-next'
+import { Gem } from '@lucide/vue'
 
 const uiStore = useUIStore()
 </script>

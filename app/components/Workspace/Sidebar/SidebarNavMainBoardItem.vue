@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, MoreHorizontal, Plus, Star } from 'lucide-vue-next'
+import { ChevronRight, MoreHorizontal, Plus, Star } from '@lucide/vue'
 import BoardOptions from '../BoardOptions.vue'
 import CreateBoardForm from '~/components/Forms/CreateBoardForm.vue'
 import { cn } from '~/lib/utils'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AvailableColors } from '~/enums/AvailableColors'
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 import { cn } from '~/lib/utils'
 import { toTypedSchema } from '@vee-validate/zod'
 import z from 'zod'

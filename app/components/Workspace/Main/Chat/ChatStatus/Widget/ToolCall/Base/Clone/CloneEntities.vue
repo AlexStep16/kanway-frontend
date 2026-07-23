@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
-import { Copy, CircleAlert, Square } from 'lucide-vue-next'
+import { Copy, CircleAlert, Square } from '@lucide/vue'
 import type { ICloneEntitiesContent } from '~/interfaces/Statuses/Content/ICloneEntitiesContent'
 import ChatLog from '../../../../../ChatLog.vue'
 import ApproveButtons from '../../ApproveButtons.vue'

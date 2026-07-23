@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TextAlignStart } from 'lucide-vue-next'
+import { TextAlignStart } from '@lucide/vue'
 
 const props = defineProps<{
   before: {

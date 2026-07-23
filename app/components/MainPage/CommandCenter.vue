@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckCircle, Clock } from 'lucide-vue-next'
+import { CheckCircle, Clock } from '@lucide/vue'
 </script>
 
 <template>

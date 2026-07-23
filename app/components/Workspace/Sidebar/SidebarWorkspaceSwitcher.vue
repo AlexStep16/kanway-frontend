@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronsUpDown, Plus, MoreHorizontal, Star } from 'lucide-vue-next'
+import { ChevronsUpDown, Plus, MoreHorizontal, Star } from '@lucide/vue'
 import WorkspaceOptions from '../WorkspaceOptions.vue'
 import ActiveWorkspaceAvatar from '~/components/Workspace/ActiveWorkspaceAvatar.vue'
 import { cn } from '~/lib/utils'

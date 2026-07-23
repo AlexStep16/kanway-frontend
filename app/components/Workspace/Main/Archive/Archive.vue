@@ -2,7 +2,7 @@
 import Task from '~/components/Workspace/Main/Task/Task.vue'
 import RecoverButtons from '~/components/Workspace/Main/Archive/RecoverButtons.vue'
 
-import { Archive } from 'lucide-vue-next'
+import { Archive } from '@lucide/vue'
 
 import ColumnsView from '../ColumnsView.vue'
 import TitleWithBadge from '../TitleWithBadge.vue'

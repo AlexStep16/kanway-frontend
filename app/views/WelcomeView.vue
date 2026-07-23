@@ -6,7 +6,7 @@ import z from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
-import { FolderKanban, UserSquare } from 'lucide-vue-next'
+import { FolderKanban, UserSquare } from '@lucide/vue'
 import { cn } from '~/lib/utils'
 
 const { data: user } = useUser()

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Check, X } from 'lucide-vue-next'
+import { Check, X } from '@lucide/vue'
 
 const props = defineProps<{
   toolId: string

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 
 const isOpen = defineModel<boolean>('open', { default: false })
 
@@ -7,11 +7,14 @@ const emit = defineEmits<{
   (e: 'confirm'): void
 }>()
 
-const close = () => isOpen.value = false
+const close = () => (isOpen.value = false)
 </script>
 
 <template>
-  <AlertDialog :open="isOpen" @update:open="(val) => isOpen = val">
+  <AlertDialog
+    :open="isOpen"
+    @update:open="(val) => (isOpen = val)"
+  >
     <AlertDialogContent class="max-w-sm p-0 overflow-hidden border-none shadow-2xl rounded-xl">
       <button
         @click="close"
@@ -34,13 +37,13 @@ const close = () => isOpen.value = false
 
       <div class="border-t border-border bg-muted/30 px-6 py-4">
         <AlertDialogFooter class="flex-row gap-3 sm:justify-center">
-          <AlertDialogCancel 
+          <AlertDialogCancel
             @click="close"
             class="mt-0 flex-1 bg-background hover:bg-accent border-border"
           >
             Отмена
           </AlertDialogCancel>
-          
+
           <AlertDialogAction
             @click="emit('confirm')"
             class="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"

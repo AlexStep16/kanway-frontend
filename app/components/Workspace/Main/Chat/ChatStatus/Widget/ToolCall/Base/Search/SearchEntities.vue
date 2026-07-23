@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { SearchIcon, Square } from 'lucide-vue-next'
+import { SearchIcon, Square } from '@lucide/vue'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import type { ISearchEntitiesContent } from '~/interfaces/Statuses/Content/ISearchEntitiesContent'
 

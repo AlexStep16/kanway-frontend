@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate'
 
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
 import z from 'zod'
-import { Mail } from 'lucide-vue-next'
+import { Mail } from '@lucide/vue'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import { toast } from 'vue-sonner'
 

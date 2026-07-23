@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Title from './Title.vue'
 import { useChatStore } from '~/stores/chat'
-import { MessageCircle } from 'lucide-vue-next'
+import { MessageCircle } from '@lucide/vue'
 
 const { mutate: updateChat, isPending: isUpdatingChat } = useUpdateChat()
 

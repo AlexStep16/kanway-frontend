@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Settings, Archive } from 'lucide-vue-next'
+import { Settings, Archive } from '@lucide/vue'
 
 import {
   SidebarGroup,

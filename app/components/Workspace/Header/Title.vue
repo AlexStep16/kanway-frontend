@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SquarePen } from 'lucide-vue-next'
+import { SquarePen } from '@lucide/vue'
 
 const props = defineProps<{
   isLoading: boolean

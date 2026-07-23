@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Copy, Star, StarOff, Archive } from 'lucide-vue-next'
+import { Copy, Star, StarOff, Archive } from '@lucide/vue'
 import type { IBoard } from '~/interfaces/domain/IBoard'
 
 const props = defineProps<{

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { BadgeInfo } from 'lucide-vue-next'
+import { BadgeInfo } from '@lucide/vue'
 </script>
 
 <template>

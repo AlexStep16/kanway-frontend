@@ -8,7 +8,7 @@ import {
   Archive,
   Pen,
   Trash,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { cn } from '~/lib/utils'
 
 export interface ItemStatus {

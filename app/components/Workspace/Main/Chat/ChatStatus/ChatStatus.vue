@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckCircle, XCircle, Square, CircleAlert, RotateCcw } from 'lucide-vue-next'
+import { CheckCircle, XCircle, Square, CircleAlert, RotateCcw } from '@lucide/vue'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum'
 import type { IStatus } from '~/interfaces/Statuses/IStatus'
 import { AgentsEnum } from '~/enums/AgentsEnum'

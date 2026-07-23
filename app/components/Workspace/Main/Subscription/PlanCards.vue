@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
-import { Check, X } from 'lucide-vue-next'
+import { Check, X } from '@lucide/vue'
 import SettingsSubscriptionButton from '../../Settings/Buttons/SettingsSubscriptionButton.vue'
 
 defineProps<{

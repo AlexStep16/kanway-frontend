@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Eye } from 'lucide-vue-next'
+import { Eye } from '@lucide/vue'
 import Header from '~/components/Header.vue'
 
 useHead({

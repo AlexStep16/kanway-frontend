@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTranscriptStore } from '~/stores/transcript'
 import { computed, onMounted, ref, watch } from 'vue'
-import { Mic } from 'lucide-vue-next'
+import { Mic } from '@lucide/vue'
 import { cn } from '~/lib/utils'
 
 const emit = defineEmits<{

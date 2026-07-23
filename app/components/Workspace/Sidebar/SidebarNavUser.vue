@@ -6,7 +6,7 @@ import {
   LogOut,
   Sparkles,
   MessageCircleQuestionMark,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 import { useSidebar } from '~/components/ui/sidebar'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'

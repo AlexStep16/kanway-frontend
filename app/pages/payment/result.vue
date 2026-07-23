@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AlertCircle, Check } from 'lucide-vue-next'
+import { AlertCircle, Check } from '@lucide/vue'
 import KLogo from '~/assets/k_letter_logo.svg?component'
 import { PaymentStatusesEnum } from '~/enums/PaymentStatusesEnum'
 
