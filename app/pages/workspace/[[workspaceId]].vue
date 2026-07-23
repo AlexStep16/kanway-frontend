@@ -25,12 +25,12 @@ const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
     <SidebarInset>
       <NuxtPage />
 
-      <Archive
+      <LazyArchive
         class="transition-[flex] duration-300 min-w-0 overflow-hidden"
         v-if="isArchiveTabShown"
       />
 
-      <Settings
+      <LazySettings
         class="transition-[flex] duration-300 min-w-0 overflow-hidden"
         v-if="isSettingsTabShown"
       />
