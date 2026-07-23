@@ -22,18 +22,17 @@ const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
   <SidebarProvider>
     <SidebarApp />
 
-    <SidebarInset>
+    <SidebarInset
+      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
+      :class="{
+        'flex-[0_0_0px] opacity-0 pointer-events-none m-0!': isMainChat,
+      }"
+    >
       <NuxtPage />
 
-      <LazyArchive
-        class="transition-[flex] duration-300 min-w-0 overflow-hidden"
-        v-if="isArchiveTabShown"
-      />
+      <LazyArchive v-if="isArchiveTabShown" />
 
-      <LazySettings
-        class="transition-[flex] duration-300 min-w-0 overflow-hidden"
-        v-if="isSettingsTabShown"
-      />
+      <LazySettings v-if="isSettingsTabShown" />
     </SidebarInset>
 
     <Chat
