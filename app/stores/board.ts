@@ -41,22 +41,11 @@ export const useBoardStore = defineStore('board', () => {
     await navigateTo(idealPath)
   }
 
-  /**
-   * Navigate to the workspace root (chat view) when the active board is gone.
-   * Use when the current board has been archived or deleted.
-   */
-  async function navigateToChat() {
-    const workspaceId = workspaceStore.activeWorkspaceId
-    if (!workspaceId) return
-    await navigateTo(`/workspace/${workspaceId}`)
-  }
-
   return {
     activeBoardId,
 
     setActiveBoard,
     clearBoard,
     selectBoard,
-    navigateToChat,
   }
 })

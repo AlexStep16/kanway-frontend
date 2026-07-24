@@ -3,7 +3,6 @@ import { X, SquareArrowOutUpRight } from '@lucide/vue'
 import TitleChat from '../../Header/TitleChat.vue'
 
 const chatStore = useChatStore()
-const boardStore = useBoardStore()
 
 const isMobile = useMediaQuery('(max-width: 768px)')
 </script>
@@ -18,7 +17,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
         size="icon-sm"
         class="border border-zinc-200/80 bg-white/80 text-zinc-600"
         aria-label="Open"
-        @click="boardStore.navigateToChat()"
+        @click="chatStore.openFullChat()"
         v-if="!isMobile"
       >
         <SquareArrowOutUpRight class="size-4" />

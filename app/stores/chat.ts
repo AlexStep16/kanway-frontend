@@ -6,6 +6,7 @@ import { ModelsEnum } from '~/enums/ModelsEnum'
 
 export const useChatStore = defineStore('chat', () => {
   const uiStore = useUIStore()
+  const boardStore = useBoardStore()
 
   const temporaryChatId = ref(window.crypto.randomUUID())
   const activeChatId = ref<string | null>(null)
@@ -39,6 +40,11 @@ export const useChatStore = defineStore('chat', () => {
     uiStore.isChatOpen = false
   }
 
+  function openFullChat() {
+    boardStore.clearBoard()
+    uiStore.selectBoard()
+  }
+
   function startRenamingChat(chatId: string) {
     renamingChatSet.value.add(chatId)
   }
@@ -59,6 +65,7 @@ export const useChatStore = defineStore('chat', () => {
     newChat,
     selectChat,
     closeChat,
+    openFullChat,
     startRenamingChat,
     stopRenamingChat,
   }
