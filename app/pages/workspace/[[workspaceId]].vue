@@ -11,10 +11,15 @@ const boardStore = useBoardStore()
 
 const { activeBoardId } = storeToRefs(boardStore)
 
-const isMainChat = computed(() => activeBoardId.value === null && uiStore.isBoardTabSelected)
-
 const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
 const isSettingsTabShown = computed(() => uiStore.isSettingsTabSelected)
+const isMainChat = computed(
+  () =>
+    activeBoardId.value === null &&
+    uiStore.isBoardTabSelected &&
+    !isArchiveTabShown.value &&
+    !isSettingsTabShown.value,
+)
 const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
 </script>
 
