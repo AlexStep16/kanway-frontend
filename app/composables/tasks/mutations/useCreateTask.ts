@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { toast } from 'vue-sonner'
 import type { ITask } from '~/interfaces/domain/ITask'
 import { createTask } from '~/services/task'
 import type { ITaskCreateApiPayload } from '~/interfaces/ITaskCreateApiPayload'
@@ -11,7 +10,6 @@ export interface CreateTaskVars {
 
 export function useCreateTask() {
   const queryClient = useQueryClient()
-  const { mutate: undo } = useUndo()
 
   return useMutation({
     mutationKey: [...taskKeys.all, 'create'],
@@ -22,15 +20,6 @@ export function useCreateTask() {
 
       queryClient.setQueryData(taskKeys.byBoard(boardId), (oldTasks: ITask[] | undefined) => {
         return oldTasks ? [...oldTasks, ...result.data] : result.data
-      })
-
-      toast.success('Задача успешно создана', {
-        action: {
-          label: 'Отменить',
-          onClick: () => {
-            if (result.logId) undo(result.logId)
-          },
-        },
       })
     },
   })

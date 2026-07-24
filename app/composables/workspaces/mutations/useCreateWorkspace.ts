@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { toast } from 'vue-sonner'
 import type { IWorkspace } from '~/interfaces/domain/IWorkspace'
 import { createWorkspace } from '~/services/workspace'
 import { useWorkspaceStore } from '~/stores/workspace'
-import { useUndo } from '~/composables/log/useUndo'
 
 interface CreateWorkspaceVars {
   payload: Partial<IWorkspace>
@@ -11,7 +9,6 @@ interface CreateWorkspaceVars {
 
 export function useCreateWorkspace() {
   const queryClient = useQueryClient()
-  const { mutate: undo } = useUndo()
 
   return useMutation({
     mutationKey: [...workspaceKeys.all, 'create'],
@@ -34,15 +31,6 @@ export function useCreateWorkspace() {
       })
 
       if (result.data && result.data.length > 0) workspaceStore.selectWorkspace(result.data[0]!)
-
-      toast.success('Пространство успешно создано', {
-        action: {
-          label: 'Отменить',
-          onClick: () => {
-            if (result.logId) undo(result.logId)
-          },
-        },
-      })
     },
   })
 }

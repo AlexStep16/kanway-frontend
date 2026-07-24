@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { toast } from 'vue-sonner'
 import type { IColumn } from '~/interfaces/domain/IColumn'
 import { createColumn } from '~/services/column'
 import type { IColumnCreateApiPayload } from '~/interfaces/IColumnCreateApiPayload'
@@ -9,7 +8,6 @@ interface CreateColumnVars {
 }
 
 export function useCreateColumn() {
-  const { mutate: undo } = useUndo()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -25,15 +23,6 @@ export function useCreateColumn() {
           return oldColumns ? [...oldColumns, ...result.data] : result.data
         },
       )
-
-      toast.success('Колонка успешно создана', {
-        action: {
-          label: 'Отменить',
-          onClick: () => {
-            if (result.logId) undo(result.logId)
-          },
-        },
-      })
     },
   })
 }

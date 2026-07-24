@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { toast } from 'vue-sonner'
 import type { IBoard } from '~/interfaces/domain/IBoard'
 import { createBoard } from '~/services/board'
 import { useBoardStore } from '~/stores/board'
@@ -10,7 +9,6 @@ interface CreateBoardVars {
 }
 
 export function useCreateBoard() {
-  const { mutate: undo } = useUndo()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -33,15 +31,6 @@ export function useCreateBoard() {
       if (result.data) {
         boardStore.selectBoard(result.data[0]!.id)
       }
-
-      toast.success('Доска успешно создана', {
-        action: {
-          label: 'Отменить',
-          onClick: () => {
-            if (result.logId) undo(result.logId)
-          },
-        },
-      })
     },
   })
 }
