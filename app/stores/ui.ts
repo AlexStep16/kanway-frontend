@@ -58,13 +58,13 @@ export const useUIStore = defineStore('ui', () => {
 
   function selectArchive() {
     currentTab.value = Tabs.Archive
-
+    isChatOpen.value = false
     boardStore.clearBoard()
   }
 
   function selectSettings() {
     currentTab.value = Tabs.Settings
-
+    isChatOpen.value = false
     boardStore.clearBoard()
   }
 

@@ -13,14 +13,9 @@ const { activeBoardId } = storeToRefs(boardStore)
 
 const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
 const isSettingsTabShown = computed(() => uiStore.isSettingsTabSelected)
-const isMainChat = computed(
-  () =>
-    activeBoardId.value === null &&
-    uiStore.isBoardTabSelected &&
-    !isArchiveTabShown.value &&
-    !isSettingsTabShown.value,
-)
+const isMainChat = computed(() => activeBoardId.value === null && uiStore.isBoardTabSelected)
 const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
+const isWorkspaceContentShown = computed(() => !isMainChat.value)
 </script>
 
 <template>
@@ -28,10 +23,8 @@ const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
     <SidebarApp />
 
     <SidebarInset
-      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
-      :class="{
-        'flex-[0_0_0px] opacity-0 pointer-events-none m-0!': isMainChat,
-      }"
+      v-show="isWorkspaceContentShown"
+      class="min-w-0 overflow-hidden"
     >
       <NuxtPage />
 
@@ -41,11 +34,11 @@ const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
     </SidebarInset>
 
     <Chat
-      class="transition-[flex] duration-300 min-w-0 overflow-hidden"
+      v-show="isChatTabShown"
+      class="min-w-0 overflow-hidden"
       :class="{
-        'grow lg:flex-[0_0_520px]': isChatTabShown && !isMainChat,
-        'flex-1': isChatTabShown && isMainChat,
-        'flex-[0_0_0px] opacity-0 pointer-events-none m-0!': !isChatTabShown,
+        'grow lg:flex-[0_0_520px]': !isMainChat,
+        'flex-1': isMainChat,
       }"
     />
   </SidebarProvider>
