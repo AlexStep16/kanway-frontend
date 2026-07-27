@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckCircle, Clock } from '@lucide/vue'
+import { Check, Clock } from '@lucide/vue'
 </script>
 
 <template>
@@ -41,8 +41,8 @@ import { CheckCircle, Clock } from '@lucide/vue'
           >
         </h2>
         <p class="text-base text-zinc-600 leading-relaxed">
-          Наш AI-агент Kanway не просто создает задачи — он понимает многошаговые команды, уточняет
-          детали и работает с целыми проектами одновременно.
+          Наш <span class="font-medium">AI-агент Kanway</span> не просто создает задачи — он
+          понимает многошаговые команды, уточняет детали и работает с целыми проектами одновременно.
         </p>
       </div>
 
@@ -66,11 +66,11 @@ import { CheckCircle, Clock } from '@lucide/vue'
             <div
               class="mb-8 w-full h-40 rounded-xl bg-zinc-50 border border-zinc-100 p-4 flex flex-col gap-3 relative overflow-hidden"
             >
-              <div class="flex flex-col relative text-zinc-400 z-10">
+              <div class="flex flex-col relative text-zinc-500 z-10">
                 <div class="flex items-center gap-x-2">
-                  <CheckCircle
+                  <Check
                     class="size-4 text-green-400 shrink-0"
-                    strokeWidth="2"
+                    strokeWidth="3"
                   />
                   <div class="w-full text-xs">Ищу подходящие колонки</div>
                 </div>
@@ -81,9 +81,9 @@ import { CheckCircle, Clock } from '@lucide/vue'
                   ></div>
                 </div>
                 <div class="flex items-center gap-x-2">
-                  <CheckCircle
+                  <Check
                     class="size-4 text-green-400 shrink-0"
-                    strokeWidth="2"
+                    strokeWidth="3"
                   />
                   <div class="w-full text-xs">Создаю необходимые колонки</div>
                 </div>
@@ -93,9 +93,9 @@ import { CheckCircle, Clock } from '@lucide/vue'
                   ></div>
                 </div>
                 <div class="flex items-center gap-x-2">
-                  <CheckCircle
+                  <Check
                     class="size-4 text-green-400 shrink-0"
-                    strokeWidth="2"
+                    strokeWidth="3"
                   />
                   <div class="w-full text-xs">Заполняю задачи</div>
                 </div>
@@ -117,8 +117,8 @@ import { CheckCircle, Clock } from '@lucide/vue'
 
             <h3 class="text-xl font-semibold leading-7 text-zinc-900">Многошаговые команды</h3>
             <p class="mt-3 text-base leading-relaxed text-zinc-600">
-              Kanway не просто создаст карточку, а последовательно выполнит весь сценарий: развернет
-              новые колонки, распределит по ним задачи, и выставит дедлайны за один проход.
+              Забудьте про ручное заполнение. Агент выполнит весь сценарий целиком: развернет
+              колонки, распределит задачи и выставит дедлайны за один проход.
             </p>
           </div>
         </div>
@@ -171,8 +171,8 @@ import { CheckCircle, Clock } from '@lucide/vue'
               Интеллектуальное уточнение
             </h3>
             <p class="mt-3 text-base leading-relaxed text-zinc-600">
-              Агент сам анализирует контекст, задает уточняющие вопросы, автоматически проставляет
-              приоритеты, дедлайны и нужные теги.
+              Контекстный анализ без лишних кликов. Агент задает уточняющие вопросы, самостоятельно
+              проставляет приоритеты, дедлайны и нужные теги.
             </p>
           </div>
         </div>
@@ -246,8 +246,8 @@ import { CheckCircle, Clock } from '@lucide/vue'
 
             <h3 class="text-xl font-semibold leading-7 text-zinc-900">Работа с проектами</h3>
             <p class="mt-3 text-base leading-relaxed text-zinc-600">
-              От одной команды до готовой доски. Агент генерирует колонки, доски и бэклог, мгновенно
-              подготавливая пространство для работы.
+              От одной команды до готовой доски. Агент генерирует колонки, бэклог и структуру,
+              мгновенно подготавливая пространство к работе.
             </p>
           </div>
         </div>

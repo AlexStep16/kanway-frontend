@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoveRight } from '@lucide/vue'
+import { Check, MoveRight, X } from '@lucide/vue'
 </script>
 
 <template>
@@ -22,8 +22,8 @@ import { MoveRight } from '@lucide/vue'
           >
         </div>
         <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 mb-4 tracking-tight">
-          Обычный Канбан - это формы <br class="hidden md:block" />
-          Kanway - это живой диалог
+          Обычный Канбан — это формы <br class="hidden md:block" />
+          Kanway — это живой диалог
         </h2>
         <p class="text-base text-zinc-600 leading-relaxed">
           Забудьте про ручное заполнение карточек, клики и перетаскивания. Вы просто пишете в чат, а
@@ -90,19 +90,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Рутина с формами</h3>
@@ -142,19 +130,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-indigo-950 mb-1.5">Задачи через чат</h3>
@@ -183,19 +159,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Сложные фильтры</h3>
@@ -232,19 +196,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-indigo-950 mb-1.5">Мгновенные сводки</h3>
@@ -273,19 +225,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Ручное перемещение</h3>
@@ -323,19 +263,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-indigo-950 mb-1.5">Управление текстом</h3>
@@ -364,19 +292,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-zinc-900 mb-1.5">Лишние клики</h3>
@@ -414,19 +330,7 @@ import { MoveRight } from '@lucide/vue'
               <div
                 class="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-white border border-indigo-100 flex items-center justify-center text-indigo-600"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <Check class="size-4" />
               </div>
               <div>
                 <h3 class="text-base font-semibold text-indigo-950 mb-1.5">

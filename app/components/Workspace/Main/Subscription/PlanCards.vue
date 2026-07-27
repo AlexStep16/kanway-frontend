@@ -89,7 +89,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> 10000 кредитов </span>
+                <span class="text-gray-500"> 10 000 кредитов </span>
               </li>
 
               <li class="flex items-center gap-x-1">
@@ -135,7 +135,7 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> 25000 кредитов </span>
+                <span class="text-gray-500"> 25 000 кредитов </span>
               </li>
 
               <li class="flex items-center gap-x-1">
