@@ -52,7 +52,7 @@ const { stop } = useIntersectionObserver(
             data-aos-once="true"
             class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight control-header"
           >
-            Вы всегда за рулем.
+            Вы всегда за рулем
           </h2>
           <p
             data-aos="fade-down"

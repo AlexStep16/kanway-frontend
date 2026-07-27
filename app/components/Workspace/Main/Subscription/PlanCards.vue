@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import { Check, X } from '@lucide/vue'
-import SettingsSubscriptionButton from '../../Settings/Buttons/SettingsSubscriptionButton.vue'
+import SubscriptionPlanButton from '~/components/Subscription/SubscriptionPlanButton.vue'
 
 defineProps<{
   isHeightIncreased?: boolean
@@ -25,7 +25,9 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовая</span>
-            <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold"
+              >0<span class="text-sm font-medium">₽/месяц</span></span
+            >
             <ul class="space-y-2 text-xs text-left grow">
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
@@ -44,16 +46,20 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Базовая модель: <b>GPT 5.4 Mini</b> </span>
+                <span class="text-gray-500">
+                  Базовая модель: <span class="font-medium">GPT 5.4 Mini</span>
+                </span>
               </li>
 
               <li class="flex items-center gap-x-1">
-                <X class="size-3.5 text-red-600 shrink-0" />
-                <span class="text-gray-500"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
+                <X class="size-3.5 text-gray-500 shrink-0" />
+                <span class="text-gray-500">
+                  Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+                </span>
               </li>
             </ul>
 
-            <SettingsSubscriptionButton :plan="SubscriptionPlanEnum.Basic" />
+            <SubscriptionPlanButton :plan="SubscriptionPlanEnum.Basic" />
           </div>
         </div>
       </div>
@@ -66,8 +72,9 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Премиум</span>
             <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽999</span>
-              /месяц
+              <span class="text-lg sm:text-xl text-gray-800 font-bold"
+                >999<span class="text-sm font-medium">₽/месяц</span></span
+              >
             </span>
             <ul class="space-y-2 text-xs text-left grow">
               <li class="flex items-center gap-x-1">
@@ -92,11 +99,13 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
+                <span class="text-gray-500">
+                  Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+                </span>
               </li>
             </ul>
 
-            <SettingsSubscriptionButton :plan="SubscriptionPlanEnum.Premium" />
+            <SubscriptionPlanButton :plan="SubscriptionPlanEnum.Premium" />
           </div>
         </div>
       </div>
@@ -109,8 +118,9 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
           <div class="flex flex-col gap-y-1 size-full">
             <span class="text-sm font-medium text-gray-800">Архитектор</span>
             <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold">₽2499</span>
-              /месяц
+              <span class="text-lg sm:text-xl text-gray-800 font-bold"
+                >2499<span class="text-sm font-medium">₽/месяц</span></span
+              >
             </span>
             <ul class="space-y-2 text-xs text-left grow">
               <li class="flex items-center gap-x-1">
@@ -135,11 +145,13 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
-                <span class="text-gray-500"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
+                <span class="text-gray-500">
+                  Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+                </span>
               </li>
             </ul>
 
-            <SettingsSubscriptionButton :plan="SubscriptionPlanEnum.Architector" />
+            <SubscriptionPlanButton :plan="SubscriptionPlanEnum.Architector" />
           </div>
         </div>
       </div>

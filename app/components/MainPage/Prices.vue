@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Check, X } from '@lucide/vue'
+import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import SubscriptionPlanButton from '~/components/Subscription/SubscriptionPlanButton.vue'
 </script>
 
 <template>
@@ -14,7 +16,7 @@ import { Check, X } from '@lucide/vue'
       >
         <div class="max-w-2xl text-center mx-auto">
           <h1 class="block font-bold text-gray-800 text-2xl md:text-3xl lg:text-4xl">
-            Выберите свой план.
+            Выберите свой план
           </h1>
         </div>
         <!-- End Title -->
@@ -35,7 +37,9 @@ import { Check, X } from '@lucide/vue'
           class="flex flex-col border border-gray-200 text-center rounded-xl p-8"
         >
           <h4 class="font-medium text-lg text-gray-800">Базовый</h4>
-          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽0</span>
+          <span class="mt-5 md:mt-7 font-bold text-3xl md:text-4xl text-gray-800"
+            >0<span class="text-lg md:text-xl font-medium">₽/месяц</span></span
+          >
           <p class="mt-2 text-sm text-gray-500">Для знакомства с ИИ-ассистентом</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
@@ -56,21 +60,23 @@ import { Check, X } from '@lucide/vue'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Базовая модель: <b>GPT 5.4 Mini</b> </span>
+              <span class="text-gray-800">
+                Базовая модель: <span class="font-medium">GPT 5.4 Mini</span>
+              </span>
             </li>
 
             <li class="flex items-center gap-x-2">
-              <X class="size-4 text-red-600 shrink-0" />
-              <span class="text-gray-800"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
+              <X class="size-4 text-gray-400 shrink-0" />
+              <span class="text-gray-800">
+                Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+              </span>
             </li>
           </ul>
 
-          <NuxtLink
-            class="mt-5 py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50"
-            to="/auth"
-          >
-            Регистрация
-          </NuxtLink>
+          <SubscriptionPlanButton
+            :plan="SubscriptionPlanEnum.Basic"
+            size="lg"
+          />
         </div>
         <!-- End Card -->
 
@@ -88,7 +94,9 @@ import { Check, X } from '@lucide/vue'
             >
           </p>
           <h4 class="font-medium text-lg text-gray-800">Премиум</h4>
-          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽999</span>
+          <span class="mt-5 md:mt-7 font-bold text-3xl md:text-4xl text-gray-800">
+            999<span class="text-lg md:text-xl font-medium">₽/месяц</span>
+          </span>
           <p class="mt-2 text-sm text-gray-500">Для активной работы и роста проектов</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
@@ -104,7 +112,7 @@ import { Check, X } from '@lucide/vue'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> 10000 кредитов </span>
+              <span class="text-gray-800"> 10 000 кредитов </span>
             </li>
 
             <li class="flex items-center gap-x-2">
@@ -114,16 +122,17 @@ import { Check, X } from '@lucide/vue'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
+              <span class="text-gray-800">
+                Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+              </span>
             </li>
           </ul>
 
-          <NuxtLink
-            class="mt-5 py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-            to="/auth"
-          >
-            Регистрация
-          </NuxtLink>
+          <SubscriptionPlanButton
+            :plan="SubscriptionPlanEnum.Premium"
+            size="lg"
+            highlight
+          />
         </div>
         <!-- End Card -->
 
@@ -135,7 +144,9 @@ import { Check, X } from '@lucide/vue'
           class="flex flex-col border border-gray-200 text-center rounded-xl p-8"
         >
           <h4 class="font-medium text-lg text-gray-800">Архитектор</h4>
-          <span class="mt-5 md:mt-7 font-bold text-4xl md:text-5xl text-gray-800">₽2499</span>
+          <span class="mt-5 md:mt-7 font-bold text-3xl md:text-4xl text-gray-800"
+            >2499<span class="text-lg md:text-xl font-medium">₽/месяц</span></span
+          >
           <p class="mt-2 text-sm text-gray-500">Для проектирования сложных систем и бизнеса</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
@@ -151,7 +162,7 @@ import { Check, X } from '@lucide/vue'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> 25000 кредитов </span>
+              <span class="text-gray-800"> 25 000 кредитов </span>
             </li>
 
             <li class="flex items-center gap-x-2">
@@ -161,16 +172,16 @@ import { Check, X } from '@lucide/vue'
 
             <li class="flex items-center gap-x-2">
               <Check class="size-4 text-blue-600 shrink-0" />
-              <span class="text-gray-800"> Доступ к моделям <b>GPT 5.4, GPT 5.5</b> </span>
+              <span class="text-gray-800">
+                Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+              </span>
             </li>
           </ul>
 
-          <NuxtLink
-            class="mt-5 py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50"
-            to="/auth"
-          >
-            Регистрация
-          </NuxtLink>
+          <SubscriptionPlanButton
+            :plan="SubscriptionPlanEnum.Architector"
+            size="lg"
+          />
         </div>
         <!-- End Card -->
       </div>

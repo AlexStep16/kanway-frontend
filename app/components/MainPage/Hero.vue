@@ -60,10 +60,10 @@ import { ChevronRight } from '@lucide/vue'
           <h1
             class="text-3xl sm:text-4xl lg:text-5xl text-center lg:text-left font-extrabold tracking-tight text-zinc-950 leading-[1.15]"
           >
-            Забудьте о кликах.<br />
+            Забудьте о кликах<br />
             Мы дали вашим
             <span class="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-violet-600">
-              задачам интеллект.</span
+              задачам интеллект</span
             >
           </h1>
         </div>

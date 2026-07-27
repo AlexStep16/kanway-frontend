@@ -9,7 +9,7 @@ import {
 
 <template>
   <section class="relative z-1 overflow-hidden bg-gray-50">
-    <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+    <div class="max-w-340 px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
       <!-- Title -->
       <div
         data-aos="fade"
@@ -18,9 +18,9 @@ import {
         class="max-w-2xl mx-auto text-center mb-10 lg:mb-14"
       >
         <h2 class="text-2xl font-bold md:text-4xl md:leading-tight">
-          Остались вопросы? У нас есть ответы.
+          Остались вопросы?<br />
+          У нас есть ответы
         </h2>
-        <p class="mt-1 text-gray-600">Ответы на самые часто задаваемые вопросы.</p>
       </div>
       <!-- End Title -->
 
@@ -174,8 +174,8 @@ import {
             </AccordionTrigger>
             <AccordionContent class="pb-0">
               <p class="text-gray-800 text-base">
-                Мы предлагаем возвраты. Мы стремимся к тому, чтобы сосредоточиться на построении
-                отношений с нашими клиентами и сообществом.
+                У нас предусмотрен возврат товаров и средств. Наш главный приоритет — доверительные
+                отношения с клиентами и нашим сообществом.
               </p>
             </AccordionContent>
           </AccordionItem>

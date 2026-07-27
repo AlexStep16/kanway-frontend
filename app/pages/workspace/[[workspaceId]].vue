@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import WorkspaceView from '~/views/WorkspaceView.vue'
+import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import { SELECTED_PLAN_STORAGE_KEY } from '~/composables/subscriptions/useSubscriptionPlanAction'
 
 definePageMeta({
   authOnly: true,
@@ -16,6 +18,41 @@ const isSettingsTabShown = computed(() => uiStore.isSettingsTabSelected)
 const isMainChat = computed(() => activeBoardId.value === null && uiStore.isBoardTabSelected)
 const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
 const isWorkspaceContentShown = computed(() => !isMainChat.value)
+
+const { data: user } = useUser()
+const { mutate: buySubscription } = useBuySubscription()
+const { mutate: upgradeSubscription } = useUpgradeSubscription()
+const { mutate: downgradeSubscription } = useDowngradeSubscription()
+
+const pendingSelectedPlan = ref<SubscriptionPlanEnum | null>(null)
+
+onMounted(() => {
+  const selectedPlan = localStorage.getItem(SELECTED_PLAN_STORAGE_KEY)
+  if (selectedPlan === null) return
+
+  localStorage.removeItem(SELECTED_PLAN_STORAGE_KEY)
+  pendingSelectedPlan.value = Number(selectedPlan)
+})
+
+watch(
+  [user, pendingSelectedPlan],
+  ([currentUser, plan]) => {
+    if (!currentUser || plan === null) return
+
+    pendingSelectedPlan.value = null
+
+    if (currentUser.subscriptionId === plan) return
+
+    if (currentUser.subscriptionId > plan) {
+      downgradeSubscription({ subscriptionId: plan })
+    } else if (currentUser.subscriptionId) {
+      upgradeSubscription({ subscriptionId: plan })
+    } else {
+      buySubscription({ subscriptionId: plan })
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

@@ -22,8 +22,8 @@ import { MoveRight } from '@lucide/vue'
           >
         </div>
         <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 mb-4 tracking-tight">
-          Обычный Канбан — это формы. <br class="hidden md:block" />
-          Kanway — это живой диалог.
+          Обычный Канбан - это формы <br class="hidden md:block" />
+          Kanway - это живой диалог
         </h2>
         <p class="text-base text-zinc-600 leading-relaxed">
           Забудьте про ручное заполнение карточек, клики и перетаскивания. Вы просто пишете в чат, а
