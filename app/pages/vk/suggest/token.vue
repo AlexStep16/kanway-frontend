@@ -35,7 +35,8 @@ async function handleCallback() {
       const user = await linkVkAccount(payload)
       queryClient.setQueryData(userKeys.me, user)
     } else {
-      await vkAuth(payload)
+      const user = await vkAuth(payload)
+      queryClient.setQueryData(userKeys.me, user)
     }
     navigateTo('/workspace')
   } catch (error) {

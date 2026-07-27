@@ -34,7 +34,8 @@ async function handleCallback() {
       const user = await linkYandexAccount(payload)
       queryClient.setQueryData(userKeys.me, user)
     } else {
-      await yandexAuth(payload)
+      const user = await yandexAuth(payload)
+      queryClient.setQueryData(userKeys.me, user)
     }
     navigateTo('/workspace')
   } catch (error) {
