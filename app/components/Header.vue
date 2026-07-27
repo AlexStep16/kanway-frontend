@@ -103,7 +103,7 @@ const isMobileMenuOpen = ref(false)
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
               <button
-                class="relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"
+                class="flex items-center relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"
               >
                 <UserAvatar />
               </button>
@@ -163,7 +163,7 @@ const isMobileMenuOpen = ref(false)
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
               <button
-                class="relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"
+                class="flex items-center relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"
               >
                 <UserAvatar />
               </button>
