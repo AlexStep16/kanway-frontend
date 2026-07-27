@@ -7,17 +7,7 @@ const props = defineProps<{
   avatarColor?: string
 }>()
 
-const runtimeConfig = useRuntimeConfig()
-
 const { data: user } = useUser()
-
-const getAvatarUrl = computed(() => {
-  if (user.value?.avatarUrl) {
-    return runtimeConfig.public.serverBaseUrl + '/' + user.value.avatarUrl
-  } else {
-    return ''
-  }
-})
 
 const getAvatarColor = computed(() => {
   return props.avatarColor || user.value?.avatarColor || AvailableColors.BLUE
@@ -36,7 +26,7 @@ const getUsernameFirstLetter = computed(() => {
   <div
     class="shrink-0 size-full rounded-full"
     :style="{
-      backgroundImage: `url(${getAvatarUrl})`,
+      backgroundImage: `url(${user.avatarUrl})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
     }"

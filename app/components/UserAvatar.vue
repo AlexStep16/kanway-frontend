@@ -12,17 +12,7 @@ withDefaults(
   },
 )
 
-const runtimeConfig = useRuntimeConfig()
-
 const { data: user } = useUser()
-
-const avatarUrl = computed(() => {
-  if (user.value?.avatarUrl) {
-    return runtimeConfig.public.serverApiUrl + '/' + user.value.avatarUrl
-  } else {
-    return ''
-  }
-})
 
 const avatarColor = computed(() => {
   return user.value?.avatarColor || AvailableColors.BLUE
@@ -45,7 +35,7 @@ const usernameFirstLetter = computed(() => {
   >
     <AvatarImage
       v-if="user?.avatarUrl"
-      :src="avatarUrl"
+      :src="user.avatarUrl"
       :alt="user.username"
     />
     <AvatarFallback
