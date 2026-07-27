@@ -2,7 +2,7 @@
 import BackgroundCircles from '~/components/BackgroundCircles.vue'
 import dayjs from 'dayjs'
 import { toast } from 'vue-sonner'
-import { linkVkAccount } from '~/services/auth'
+import { linkVkAccount, vkAuth } from '~/services/auth'
 import { useQueryClient } from '@tanstack/vue-query'
 
 const queryClient = useQueryClient()
@@ -35,7 +35,7 @@ async function handleCallback() {
       const user = await linkVkAccount(payload)
       queryClient.setQueryData(userKeys.me, user)
     } else {
-      await vkAuthApi(payload)
+      await vkAuth(payload)
     }
     navigateTo('/workspace')
   } catch (error) {

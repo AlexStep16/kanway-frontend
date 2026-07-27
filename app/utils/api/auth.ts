@@ -15,7 +15,7 @@ export async function loginApi(credentials: LoginCredentials) {
 }
 
 export async function yandexAuthApi(payload: YandexAuthDTO) {
-  return await apiCall<null>({
+  return await apiCall<IUser>({
     method: 'POST',
     url: '/auth/yandex',
     data: payload,
@@ -23,7 +23,7 @@ export async function yandexAuthApi(payload: YandexAuthDTO) {
 }
 
 export async function vkAuthApi(payload: VkAuthDTO) {
-  return await apiCall<null>({
+  return await apiCall<IUser>({
     method: 'POST',
     url: '/auth/vk',
     data: payload,

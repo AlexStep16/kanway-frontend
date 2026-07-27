@@ -91,6 +91,14 @@ export async function updatePassword(payload: UpdatePasswordVars): Promise<IUser
   return transformUser(updatedUser)
 }
 
+export async function yandexAuth(payload: YandexAuthDTO): Promise<IUser> {
+  return transformUser(await yandexAuthApi(payload))
+}
+
+export async function vkAuth(payload: VkAuthDTO): Promise<IUser> {
+  return transformUser(await vkAuthApi(payload))
+}
+
 export async function linkYandexAccount(payload: YandexAuthDTO): Promise<IUser> {
   return transformUser(await linkYandexAccountApi(payload))
 }
@@ -120,7 +128,7 @@ export async function sendPasswordRecoveryEmail(email: string): Promise<null> {
 }
 
 export async function passwordRecovery(password: string): Promise<IUser> {
-  return await passwordRecoveryApi(password)
+  return transformUser(await passwordRecoveryApi(password))
 }
 
 export async function verifyEmailToken(token: string): Promise<null> {

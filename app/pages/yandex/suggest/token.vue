@@ -2,7 +2,7 @@
 import BackgroundCircles from '@/components/BackgroundCircles.vue'
 import dayjs from 'dayjs'
 import { toast } from 'vue-sonner'
-import { linkYandexAccount } from '~/services/auth'
+import { linkYandexAccount, yandexAuth } from '~/services/auth'
 import { useQueryClient } from '@tanstack/vue-query'
 
 const queryClient = useQueryClient()
@@ -34,7 +34,7 @@ async function handleCallback() {
       const user = await linkYandexAccount(payload)
       queryClient.setQueryData(userKeys.me, user)
     } else {
-      await yandexAuthApi(payload)
+      await yandexAuth(payload)
     }
     navigateTo('/workspace')
   } catch (error) {
