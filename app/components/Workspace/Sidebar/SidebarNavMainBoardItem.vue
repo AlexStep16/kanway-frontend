@@ -104,7 +104,10 @@ function handleCloseCreateBoard() {
             />
           </div>
         </SidebarMenuButton>
-        <DropdownMenu v-model:open="createBoardDropdownOpen">
+        <DropdownMenu
+          v-model:open="createBoardDropdownOpen"
+          :modal="false"
+        >
           <DropdownMenuTrigger as-child>
             <Button
               variant="ghost"
@@ -166,7 +169,10 @@ function handleCloseCreateBoard() {
                 </div>
               </SidebarMenuSubButton>
 
-              <DropdownMenu v-model:open="openOptions[board.id]">
+              <DropdownMenu
+                v-model:open="openOptions[board.id]"
+                :modal="false"
+              >
                 <DropdownMenuTrigger as-child>
                   <SidebarMenuSubAction
                     class="bg-sidebar-accent"

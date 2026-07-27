@@ -28,7 +28,7 @@ const { isMobile } = useSidebar()
             <span>{{ item.name }}</span>
           </a>
         </SidebarMenuButton>
-        <DropdownMenu>
+        <DropdownMenu :modal="false">
           <DropdownMenuTrigger as-child>
             <SidebarMenuAction show-on-hover>
               <MoreHorizontal />

@@ -100,7 +100,7 @@ const isMobileMenuOpen = ref(false)
 
         <!-- НЕ ПОДТВЕРЖДЕН -->
         <template v-else-if="user.isConfirmed === false">
-          <DropdownMenu>
+          <DropdownMenu :modal="false">
             <DropdownMenuTrigger as-child>
               <button
                 class="flex items-center relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"
@@ -160,7 +160,7 @@ const isMobileMenuOpen = ref(false)
         <!-- АВТОРИЗОВАН -->
         <template v-else-if="user.isConfirmed === true">
           <!-- Аватар пользователя (Отображается и на десктопе, и на мобилке) -->
-          <DropdownMenu>
+          <DropdownMenu :modal="false">
             <DropdownMenuTrigger as-child>
               <button
                 class="flex items-center relative rounded-md ring-2 ring-border ring-offset-2 ring-offset-background transition-all hover:ring-primary/50 outline-none"

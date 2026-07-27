@@ -72,7 +72,10 @@ const handleCloseOptions = (workspaceId: string) => {
 <template>
   <SidebarMenu>
     <SidebarMenuItem>
-      <DropdownMenu v-model:open="isOpen">
+      <DropdownMenu
+        v-model:open="isOpen"
+        :modal="false"
+      >
         <DropdownMenuTrigger
           as-child
           :disabled="areWorkspacesLoading"
@@ -146,7 +149,10 @@ const handleCloseOptions = (workspaceId: string) => {
                 </div>
               </DropdownMenuItem>
 
-              <DropdownMenu v-model:open="openOptions[workspace.id]">
+              <DropdownMenu
+                v-model:open="openOptions[workspace.id]"
+                :modal="false"
+              >
                 <DropdownMenuTrigger as-child>
                   <DropdownMenuMore show-on-hover>
                     <MoreHorizontal class="size-4" />

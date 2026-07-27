@@ -107,7 +107,10 @@ function handleNewChat() {
                 </div>
               </SidebarMenuSubButton>
 
-              <DropdownMenu v-model:open="openOptions[chat.id]">
+              <DropdownMenu
+                v-model:open="openOptions[chat.id]"
+                :modal="false"
+              >
                 <DropdownMenuTrigger as-child>
                   <SidebarMenuSubAction
                     class="bg-sidebar-accent"
