@@ -194,12 +194,12 @@ function handleTogglePasswordConfirmationVisibility() {
           <div class="min-w-0">
             <p class="text-sm font-medium text-gray-800">Яндекс</p>
             <p class="text-xs text-gray-500">
-              {{ user?.yandexClientId ? 'Аккаунт привязан' : 'Аккаунт не привязан' }}
+              {{ user?.yandexUserId ? 'Аккаунт привязан' : 'Аккаунт не привязан' }}
             </p>
           </div>
         </div>
         <button
-          v-if="user?.yandexClientId"
+          v-if="user?.yandexUserId"
           type="button"
           class="shrink-0 py-2 px-3 text-xs font-medium rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
           :disabled="isSocialAccountUpdating"
@@ -220,12 +220,12 @@ function handleTogglePasswordConfirmationVisibility() {
           <div class="min-w-0">
             <p class="text-sm font-medium text-gray-800">VK</p>
             <p class="text-xs text-gray-500">
-              {{ user?.vkClientId ? 'Аккаунт привязан' : 'Аккаунт не привязан' }}
+              {{ user?.vkUserId ? 'Аккаунт привязан' : 'Аккаунт не привязан' }}
             </p>
           </div>
         </div>
         <button
-          v-if="user?.vkClientId"
+          v-if="user?.vkUserId"
           type="button"
           class="shrink-0 py-2 px-3 text-xs font-medium rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50"
           :disabled="isSocialAccountUpdating"

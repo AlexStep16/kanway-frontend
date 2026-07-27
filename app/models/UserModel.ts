@@ -19,8 +19,8 @@ export default class UserModel implements IUser {
   public paidCredits: number
   public avatarColor: AvailableColors
   public isTipsCompleted?: boolean
-  public yandexClientId?: string
-  public vkClientId?: string
+  public yandexUserId?: string
+  public vkUserId?: string
   public paymentMethodId?: string
   public pendingChangePlan?: SubscriptionPlanEnum | null
   public yaId?: string | null
@@ -43,8 +43,8 @@ export default class UserModel implements IUser {
     this.credits = props.credits
     this.paidCredits = props.paidCredits
     this.avatarColor = props.avatarColor
-    this.yandexClientId = props.yandexClientId
-    this.vkClientId = props.vkClientId
+    this.yandexUserId = props.yandexUserId
+    this.vkUserId = props.vkUserId
     this.paymentMethodId = props.paymentMethodId
     this.pendingChangePlan = props.pendingChangePlan
     this.yaId = props.yaId

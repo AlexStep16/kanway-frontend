@@ -18,8 +18,8 @@ export interface IUser {
   avatarColor: AvailableColors
   audioCreditsSpent: number
   isTipsCompleted?: boolean
-  yandexClientId?: string
-  vkClientId?: string
+  yandexUserId?: string
+  vkUserId?: string
   paymentMethodId?: string
   pendingChangePlan?: SubscriptionPlanEnum | null
   yaId?: string | null

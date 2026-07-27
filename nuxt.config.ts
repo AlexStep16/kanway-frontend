@@ -13,10 +13,10 @@ export default defineNuxtConfig({
     public: {
       serverApiUrl: process.env.SERVER_API_URL || 'https://kanway.ru/api',
       serverBaseUrl: process.env.SERVER_BASE_URL || 'https://kanway.ru',
-      yandexClientId: process.env.YANDEX_CLIENT_ID || '3b999a918afb4a9085e6238f30ae3df5',
+      yandexUserId: process.env.YANDEX_CLIENT_ID || '3b999a918afb4a9085e6238f30ae3df5',
       yandexRedirectUri:
         process.env.YANDEX_REDIRECT_URI || 'https://kanway.ru/yandex/suggest/token',
-      vkClientId: process.env.VK_CLIENT_ID || '54569329',
+      vkUserId: process.env.VK_CLIENT_ID || '54569329',
       vkRedirectUri: process.env.VK_REDIRECT_URI || 'https://kanway.ru/vk/suggest/token',
     },
   },
