@@ -29,9 +29,7 @@ const { mutate: moveColumn } = useMoveColumnCard()
 
 const localColumnList = ref<IColumnState[]>([])
 const isColumnFormShown = ref(false)
-toast.success('Подписка оформлена!', {
-  description: 'Тариф Архитектор активен. Баланс пополнен на 25 000 кредитов.',
-})
+
 useHead({
   title: () =>
     board.value
