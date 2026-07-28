@@ -99,6 +99,25 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+[data-sonner-toast] {
+  align-items: flex-start !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  margin-top: 3px !important;
+}
+
+[data-sonner-toast][data-type='success'] [data-icon] {
+  color: var(--color-green-600) !important; /* Tailwind green-500 */
+}
+
+[data-sonner-toast][data-type='error'] [data-icon] {
+  color: var(--color-red-500) !important; /* Tailwind red-500 */
+}
+
+[data-sonner-toast][data-type='info'] [data-icon] {
+  color: var(--color-indigo-600) !important; /* Tailwind indigo-600 */
+}
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

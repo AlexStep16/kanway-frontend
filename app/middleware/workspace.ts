@@ -11,8 +11,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const urlWorkspaceId = to.params.workspaceId as string | undefined
   const urlBoardId = to.params.boardId as string | undefined
+  const paymentId = to.query.paymentId as string | undefined
 
   try {
+    if (paymentId) runPaymentStatusPolling(paymentId)
+
     // 1. Load workspaces
     const workspaces = await $queryClient.fetchQuery({
       queryKey: workspaceKeys.lists(),

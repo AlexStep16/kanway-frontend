@@ -1,5 +1,6 @@
+import type { PaymentItemIdEnum } from '~/enums/PaymentItemIdEnum'
 import { PaymentStatusesEnum } from '~/enums/PaymentStatusesEnum'
-import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import type { PaymentTypeEnum } from '~/enums/PaymentTypeEnum'
 
 export interface IPayment {
   id: string
@@ -7,7 +8,8 @@ export interface IPayment {
   description: string
   amount: string
   currency: string
-  type: SubscriptionPlanEnum
+  column: PaymentTypeEnum
+  itemId: PaymentItemIdEnum
   status: PaymentStatusesEnum
   userId: string
   createdAt: Date

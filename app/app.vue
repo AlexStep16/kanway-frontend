@@ -11,8 +11,8 @@ import { Toaster } from 'vue-sonner'
     </NuxtLayout>
     <Toaster
       position="top-center"
-      richColors
       closeButton
+      closeButtonPosition="top-right"
       :toastOptions="{
         actionButtonStyle: {
           backgroundColor: 'var(--color-blue-500)',

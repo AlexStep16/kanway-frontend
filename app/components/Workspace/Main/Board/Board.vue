@@ -12,6 +12,7 @@ import { Separator } from '~/components/ui/separator'
 import TitleBoard from '../../Header/TitleBoard.vue'
 import SidebarInset from '~/components/ui/sidebar/SidebarInset.vue'
 import HeaderSearch from '../../Header/HeaderSearch.vue'
+import { toast } from 'vue-sonner'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
@@ -28,7 +29,9 @@ const { mutate: moveColumn } = useMoveColumnCard()
 
 const localColumnList = ref<IColumnState[]>([])
 const isColumnFormShown = ref(false)
-
+toast.success('Подписка оформлена!', {
+  description: 'Тариф Архитектор активен. Баланс пополнен на 25 000 кредитов.',
+})
 useHead({
   title: () =>
     board.value

@@ -1,6 +1,7 @@
 import { PaymentItemIdEnum } from '~/enums/PaymentItemIdEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import type { IPayment } from '~/interfaces/domain/IPayment'
+import type { IPaymentStatus } from '~/interfaces/domain/IPaymentStatus'
 import type { IUser } from '~/interfaces/domain/IUser'
 import type { IBuySubscriptionResponse } from '~/interfaces/IBuySubscriptionResponse'
 
@@ -12,7 +13,7 @@ export async function getPaymentByIdApi(paymentId: string) {
 }
 
 export async function getPaymentStatus(serviceId: string) {
-  return await apiCall<IPayment>({
+  return await apiCall<IPaymentStatus>({
     method: 'GET',
     url: `/payments/${serviceId}/status`,
   })

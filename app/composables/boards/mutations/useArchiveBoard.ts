@@ -67,6 +67,7 @@ export function useArchiveBoard() {
 
     onSuccess: (result) => {
       const boardStore = useBoardStore()
+      const uiStore = useUIStore()
 
       toast.success('Доска архивирована', {
         action: {
@@ -85,7 +86,7 @@ export function useArchiveBoard() {
         const nextBoard = boards?.length ? boards[0] : null
 
         if (nextBoard) boardStore.selectBoard(nextBoard.id)
-        else boardStore.navigateToChat()
+        else uiStore.selectChat()
       }
     },
 

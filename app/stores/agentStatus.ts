@@ -85,7 +85,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
           if (log.entitiesAfter) boardStore.selectBoard(log.entitiesAfter[0].id)
         } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
           if (log.entitiesBefore?.some((b: any) => b.id === boardStore.activeBoardId)) {
-            boardStore.navigateToChat()
+            uiStore.selectChat()
           }
         }
       }
