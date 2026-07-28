@@ -12,7 +12,6 @@ import { Separator } from '~/components/ui/separator'
 import TitleBoard from '../../Header/TitleBoard.vue'
 import SidebarInset from '~/components/ui/sidebar/SidebarInset.vue'
 import HeaderSearch from '../../Header/HeaderSearch.vue'
-import { toast } from 'vue-sonner'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
