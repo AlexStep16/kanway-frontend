@@ -60,6 +60,8 @@ export const runPaymentStatusPolling = async (paymentId: string) => {
               break
           }
         }
+
+        return
       } else if (res && res.status === PaymentStatusesEnum.canceled) {
         const toastError = getPaymentCancelInfo(res.cancellation_details)
 
@@ -82,6 +84,8 @@ export const runPaymentStatusPolling = async (paymentId: string) => {
             },
           },
         })
+
+        return
       }
     } catch {
       // Игнорируем ошибки сети в фоновом режиме
