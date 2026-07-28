@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import KanwayLogo from '~/assets/kanway_logo_white.svg?skipsvgo'
+
+const uiStore = useUIStore()
 </script>
 
 <template>
@@ -79,6 +81,14 @@ import KanwayLogo from '~/assets/kanway_logo_white.svg?skipsvgo'
                 to="/cookies"
                 >Политика Cookies</NuxtLink
               >
+            </p>
+            <p>
+              <button
+                class="inline-flex gap-x-2 text-gray-400 cursor-pointer hover:text-gray-200 focus:outline-hidden focus:text-gray-200"
+                @click="uiStore.isSupportModalOpen = true"
+              >
+                Поддержка
+              </button>
             </p>
           </div>
         </div>

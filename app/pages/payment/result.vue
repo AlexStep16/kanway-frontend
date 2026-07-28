@@ -27,7 +27,7 @@ onMounted(async () => {
   const interval = setInterval(async () => {
     if (payment.value && payment.value.serviceId) {
       const result = await checkPaymentStatus(payment.value.serviceId)
-
+      console.log(result)
       if (result && result.status === PaymentStatusesEnum.succeeded) {
         clearInterval(interval)
 

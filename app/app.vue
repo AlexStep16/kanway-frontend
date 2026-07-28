@@ -6,7 +6,9 @@ import { Toaster } from 'vue-sonner'
   <div>
     <NuxtLoadingIndicator color="#3b82f6" />
     <NuxtRouteAnnouncer />
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
     <Toaster
       position="top-center"
       richColors

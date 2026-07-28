@@ -12,7 +12,7 @@ const { data: user } = useUser()
 
 const schema = toTypedSchema(
   z.object({
-    email: z.string().email('Неверный формат почты').min(1, 'Почта должна быть заполнена'),
+    email: z.email('Неверный формат почты').min(1, 'Почта должна быть заполнена'),
     name: z
       .string()
       .min(1, 'Имя должно быть заполнено')
@@ -21,13 +21,13 @@ const schema = toTypedSchema(
       .string()
       .min(1, 'Подробности должны быть заполнены')
       .max(1000, 'Подробности должны быть не длиннее 1000 символов'),
-    theme: z.nativeEnum(ThemesEnum, {
+    theme: z.enum(ThemesEnum, {
       error: () => ({ message: 'Тема должна быть выбрана' }),
     }),
   }),
 )
 
-const { handleSubmit, resetForm, setValues } = useForm({
+const { handleSubmit, resetForm, setValues, submitCount } = useForm({
   validationSchema: schema,
   initialValues: {
     email: '',
@@ -36,6 +36,13 @@ const { handleSubmit, resetForm, setValues } = useForm({
     theme: ThemesEnum.AI_ASSISTANT,
   },
 })
+
+const validationTriggers = computed(() => ({
+  validateOnInput: submitCount.value > 0,
+  validateOnChange: submitCount.value > 0,
+  validateOnBlur: submitCount.value > 0,
+  validateOnModelUpdate: submitCount.value > 0,
+}))
 
 const onSubmit = handleSubmit((values) => {
   sendSupport(
@@ -96,6 +103,7 @@ watch(
         >
           <FormField
             v-slot="{ componentField }"
+            v-bind="validationTriggers"
             name="name"
           >
             <FormItem>
@@ -113,13 +121,14 @@ watch(
 
           <FormField
             v-slot="{ componentField }"
+            v-bind="validationTriggers"
             name="email"
           >
             <FormItem>
               <FormLabel>Почта</FormLabel>
               <FormControl>
                 <Input
-                  type="email"
+                  type="text"
                   placeholder="example@mail.com"
                   v-bind="componentField"
                 />
@@ -130,6 +139,7 @@ watch(
 
           <FormField
             v-slot="{ componentField }"
+            v-bind="validationTriggers"
             name="theme"
           >
             <FormItem>
@@ -156,6 +166,7 @@ watch(
 
           <FormField
             v-slot="{ componentField }"
+            v-bind="validationTriggers"
             name="details"
           >
             <FormItem>

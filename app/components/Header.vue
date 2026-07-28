@@ -84,15 +84,16 @@ const isMobileMenuOpen = ref(false)
         <template v-if="!user">
           <!-- Десктоп: текстовые кнопки -->
           <Button
-            variant="ghost"
+            variant="secondary"
             size="sm"
-            class="hidden sm:inline-flex"
+            class="hidden sm:inline-flex rounded-full h-9"
           >
             <NuxtLink to="/auth">Войти</NuxtLink>
           </Button>
           <Button
+            variant="default"
             size="sm"
-            class="hidden sm:inline-flex rounded-full px-5 py-2 h-auto shadow-xs transition-shadow hover:shadow-md"
+            class="hidden sm:inline-flex rounded-full px-5 h-9"
           >
             <NuxtLink to="/auth?step=signup">Начать бесплатно</NuxtLink>
           </Button>

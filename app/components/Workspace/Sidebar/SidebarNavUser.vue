@@ -95,6 +95,24 @@ const isUserHasBasicSub = computed(() => {
               Выйти
             </DropdownMenuItem>
           </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel class="text-xs flex flex-wrap gap-x-2 font-normal">
+            <NuxtLink
+              class="inline-flex gap-x-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:text-gray-500"
+              to="/terms"
+              >Соглашение</NuxtLink
+            >
+            <NuxtLink
+              class="inline-flex gap-x-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:text-gray-500"
+              to="/cookies"
+              >Cookies</NuxtLink
+            >
+            <NuxtLink
+              class="inline-flex gap-x-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:text-gray-500"
+              to="/privacy"
+              >Конфиденциальность</NuxtLink
+            >
+          </DropdownMenuLabel>
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>
