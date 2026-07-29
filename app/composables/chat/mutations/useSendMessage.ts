@@ -108,7 +108,7 @@ export function useSendMessage() {
         chatStore.startRenamingChat(realChatId)
 
         updateChatName({
-          userMessage: vars.payload.message,
+          userMessage: result.userMessage.content,
           chatId: realChatId,
         })
           .then(() => {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import WorkspaceView from '~/views/WorkspaceView.vue'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
-import { SELECTED_PLAN_STORAGE_KEY } from '~/composables/subscriptions/useSubscriptionPlanAction'
 
 definePageMeta({
   authOnly: true,

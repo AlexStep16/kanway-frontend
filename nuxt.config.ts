@@ -153,7 +153,6 @@ export default defineNuxtConfig({
         'aos', // CJS
         'plyr',
         'showdown', // CJS
-        'socket.io-client',
         '@frsource/autoresize-textarea',
         'vue-input-autowidth',
         'vue-the-mask',

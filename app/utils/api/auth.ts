@@ -1,7 +1,6 @@
 import IUser from '~/models/UserModel'
 import type LoginCredentials from '~/interfaces/LoginCredentials'
 import type RegisterCredentials from '~/interfaces/RegisterCredentials'
-import type { UpdatePasswordVars } from '~/composables/auth/mutations/useUpdatePassword'
 import type { YandexAuthDTO } from '~/interfaces/YandexAuthDTO'
 import type { VkAuthDTO } from '~/interfaces/VkAuthDTO'
 import type { FinishRegistrationDTO } from '~/interfaces/FinishRegistrationDTO'

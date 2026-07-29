@@ -13,11 +13,6 @@ import { Toaster } from 'vue-sonner'
       position="top-center"
       closeButton
       closeButtonPosition="top-right"
-      :toastOptions="{
-        actionButtonStyle: {
-          backgroundColor: 'var(--color-blue-500)',
-        },
-      }"
     />
   </div>
 </template>

@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
     "
   >
     <div
-      class="w-full flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white"
+      class="w-full flex flex-1 flex-col overflow-hidden bg-white"
       ref="chatContainerRef"
     >
       <ChatDefaultHeader v-if="isMainChat && !isMobile" />

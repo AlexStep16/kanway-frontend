@@ -1,7 +1,7 @@
 ﻿<script setup lang="ts">
 import Sparkles from '~/assets/sparkles.svg?skipsvgo'
 import ChatGPT from '~/assets/chatgpt.svg?skipsvgo'
-import MicButton from '~/components/Workspace/Main/MicButton.vue'
+import Recording from '~/components/Workspace/Main/Recording/Recording.vue'
 import { cn } from '~/lib/utils'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
@@ -10,11 +10,11 @@ const { data: user } = useUser()
 
 const chatStore = useChatStore()
 const agentStatusStore = useAgentStatusStore()
-const transcriptStore = useTranscriptStore()
 
 const { aiInputMessage } = storeToRefs(chatStore)
 
 const aiInputMessageRef = ref<HTMLTextAreaElement | null>(null)
+const micButtonRef = ref<InstanceType<typeof Recording> | null>(null)
 
 const props = defineProps<{
   isDisabled?: boolean
@@ -30,8 +30,12 @@ const update = ref(() => {})
 
 const isModelTypeSelectOpen = ref(false)
 
-function sendChatMessage() {
-  emit('send', aiInputMessage.value.trim())
+async function sendChatMessage() {
+  const message = aiInputMessage.value.trim()
+
+  if (!message) return
+
+  emit('send', message)
 
   aiInputMessage.value = ''
   if (aiInputMessageRef.value) aiInputMessageRef.value.blur()
@@ -73,10 +77,10 @@ const isGPTModel = computed(() => {
 const isRunButtonDisabled = computed(() => {
   return (
     props.isDisabled ||
-    !aiInputMessage.value.trim() ||
+    (!aiInputMessage.value.trim() && !micButtonRef.value?.hasRecording) ||
     agentStatusStore.isSSEActive() ||
-    transcriptStore.isRecording ||
-    transcriptStore.isTranscribing
+    !!micButtonRef.value?.isRecording ||
+    !!micButtonRef.value?.isTranscribing
   )
 })
 
@@ -183,26 +187,12 @@ defineExpose({
           </Select>
         </div>
         <div class="flex shrink-0 items-center gap-x-2">
-          <MicButton
-            @deltaAdd="
-              (deltaText: string) => {
-                aiInputMessage += deltaText.trim()
-              }
-            "
-            @transcriptionCompleted="
-              (finalText: string) => {
-                aiInputMessage = finalText.trim()
-              }
-            "
-            @clearInput="
-              () => {
-                aiInputMessage = ''
-              }
-            "
-          ></MicButton>
+          <Recording
+            ref="micButtonRef"
+            @setMessage="setMessage"
+          ></Recording>
           <Button
             size="sm"
-            class=""
             :disabled="isRunButtonDisabled"
             v-if="!agentStatusStore.isSSEActive()"
             @click="sendChatMessage()"
