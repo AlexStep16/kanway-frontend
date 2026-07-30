@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { ChevronDown, Hash, X, Plus } from '@lucide/vue'
+import { cn } from '~/lib/utils'
 import type { TaskModel } from '~/models/TaskModel'
 
-const props = defineProps<{
+defineProps<{
   task: TaskModel
 }>()
 
@@ -13,18 +14,6 @@ const emit = defineEmits<{
 
 const newTag = ref<string>('')
 const isPopoverOpen = ref(false)
-
-// Грамматика для тегов (оставляем твою логику)
-function getTagsEnding(count: number): string {
-  if (count % 10 === 1 && count % 100 !== 11) return ' тег'
-  if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) return ' тега'
-  return ' тегов'
-}
-
-const getTagsTitle = computed(() => {
-  const count = props.task.tags.length
-  return count > 0 ? `${count}${getTagsEnding(count)}` : 'Теги'
-})
 
 function handleAddTag() {
   const tag = newTag.value.trim()
@@ -37,23 +26,22 @@ function handleAddTag() {
 <template>
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
-      <button
-        type="button"
-        class="group h-8 px-2.5 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium border rounded-lg shadow-sm transition-all duration-200 focus:outline-none disabled:opacity-50"
-        :class="[
-          task.tags.length === 0
-            ? 'bg-secondary border-transparent text-muted-foreground hover:bg-secondary/80'
-            : 'bg-primary/10 border-primary/20 text-primary hover:bg-primary/20',
-        ]"
+      <Button
+        variant="outline"
+        :class="cn('w-auto text-muted-foreground text-xs sm:text-custom-sm')"
+        size="sm"
       >
         <div class="flex items-center gap-x-1">
           <Hash class="size-3.5" />
-          <span>{{ getTagsTitle }}</span>
+          <span>Теги</span>
         </div>
         <ChevronDown
           class="size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180"
+          :class="{
+            'rotate-180': isPopoverOpen,
+          }"
         />
-      </button>
+      </Button>
     </PopoverTrigger>
 
     <PopoverContent

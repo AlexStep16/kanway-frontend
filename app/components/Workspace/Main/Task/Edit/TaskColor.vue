@@ -3,6 +3,7 @@ import { TaskModel } from '~/models/TaskModel'
 import { Palette, CircleOff, ChevronDown } from '@lucide/vue'
 import { COLOR_NAMES_MAP } from '~/constants/COLOR_NAMES_MAP'
 import { TASK_COLORS_MAP, TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
+import { cn } from '~/lib/utils'
 
 const props = defineProps<{
   task: TaskModel
@@ -82,28 +83,30 @@ function isSelected(gridColor: any) {
 <template>
   <Popover v-model:open="isPopoverOpen">
     <PopoverTrigger as-child>
-      <button
-        type="button"
-        class="group h-8 px-2 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium border rounded-lg shadow-sm transition-all duration-200 focus:outline-none disabled:opacity-50"
-        :class="[
-          task.color
-            ? 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100'
-            : 'bg-background border-input text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-        ]"
+      <Button
+        variant="outline"
+        :class="cn('w-auto text-muted-foreground text-xs sm:text-custom-sm')"
+        size="sm"
       >
         <div class="flex items-center gap-x-2">
-          <Palette class="size-3.5 sm:size-4" />
-          <span>{{ colorTitle }}</span>
           <div
             v-if="taskColorHex"
             class="w-5 h-3.5 rounded-sm border border-black/5"
             :style="{ backgroundColor: taskColorHex }"
           />
+          <Palette
+            class="size-3.5 sm:size-4"
+            v-else
+          />
+          <span>{{ colorTitle }}</span>
         </div>
         <ChevronDown
           class="size-3.5 opacity-50 transition-transform duration-200 group-data-[state=open]:rotate-180"
+          :class="{
+            'rotate-180': isPopoverOpen,
+          }"
         />
-      </button>
+      </Button>
     </PopoverTrigger>
 
     <PopoverContent

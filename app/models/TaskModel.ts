@@ -19,6 +19,7 @@ export class TaskModel implements ITask {
   public isDeleted: boolean
   public isDeletedExternal: boolean
   public rank: string
+  public priority?: 'low' | 'medium' | 'high'
   public isCompleted: boolean
   public tags: Array<string>
   public userId: string
@@ -43,6 +44,7 @@ export class TaskModel implements ITask {
     this.isDeleted = props.isDeleted
     this.isDeletedExternal = props.isDeletedExternal
     this.rank = props.rank
+    this.priority = props.priority
     this.isCompleted = props.isCompleted
     this.tags = props.tags
     this.userId = props.userId

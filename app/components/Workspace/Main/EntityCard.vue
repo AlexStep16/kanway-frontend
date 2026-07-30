@@ -25,6 +25,7 @@ const props = defineProps<{
     description?: string | null
     isCompleted?: boolean
     isDeleted: boolean
+    priority?: 'low' | 'medium' | 'high'
     dueDate?: string | null
     dueHours?: number | null
     dueMinutes?: number | null
@@ -114,6 +115,16 @@ const hasInfo = computed(() => props.entity.column || props.entity.board)
 const isEntityCompletable = computed(
   () => !!props.options?.isCompletable && !props.options?.isStatic,
 )
+
+function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
+  const titles = {
+    low: 'Низкий',
+    medium: 'Средний',
+    high: 'Высокий',
+  }
+
+  return titles[priority]
+}
 </script>
 
 <template>
@@ -130,12 +141,32 @@ const isEntityCompletable = computed(
     "
     @click="$emit('edit')"
   >
-    <div
-      class="h-3 w-full"
-      v-if="entityColor"
-      :style="{ backgroundColor: entityColor }"
-    />
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
+      <div
+        class="w-full flex items-center gap-x-2"
+        v-if="entityColor || entity.priority"
+      >
+        <div
+          class="h-2 w-4.5 rounded-full bg-red-500"
+          v-if="entityColor"
+          :style="{ backgroundColor: entityColor }"
+        />
+        <Badge
+          v-if="entity.priority"
+          variant="outline"
+          :class="
+            cn(
+              'text-xs font-normal rounded-sm border-none',
+              entity.priority === 'low' && 'bg-emerald-100 text-emerald-600',
+              entity.priority === 'medium' && 'bg-amber-100 text-amber-600',
+              entity.priority === 'high' && 'bg-rose-100 text-rose-600',
+            )
+          "
+          title="Приоритет"
+        >
+          {{ getPriorityHumanReadable(entity.priority) }}
+        </Badge>
+      </div>
       <!-- Info -->
       <div
         class="flex items-center flex-wrap gap-2"
@@ -200,10 +231,12 @@ const isEntityCompletable = computed(
             </div>
           </div>
           <span
-            class="text-sm overflow-hidden wrap-break-word"
-            :class="{
-              'text-gray-300 decoration-1 line-through': entity.isCompleted,
-            }"
+            :class="
+              cn(
+                'text-sm overflow-hidden wrap-break-word font-medium text-secondary-foreground',
+                entity.isCompleted && 'text-gray-300 decoration-1 line-through',
+              )
+            "
           >
             {{ entity.name }}
           </span>
@@ -265,13 +298,14 @@ const isEntityCompletable = computed(
         v-if="entity.tags?.length"
         class="flex flex-wrap gap-1.5"
       >
-        <span
+        <Badge
           v-for="tag in entity.tags"
           :key="tag"
-          class="text-xs font-medium text-primary/70 bg-primary-muted px-1.5 py-0.5 rounded"
+          variant="secondaryMuted"
+          class="text-xs rounded-sm"
         >
           #{{ tag }}
-        </span>
+        </Badge>
       </div>
 
       <!-- Дата выполнения -->

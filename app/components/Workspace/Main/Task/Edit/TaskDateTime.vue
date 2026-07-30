@@ -189,7 +189,6 @@ watch(
         :class="
           cn(
             'w-auto min-w-35 flex gap-x-2 justify-between text-left text-muted-foreground text-xs sm:text-custom-sm',
-            !date && 'text-muted-foreground',
           )
         "
         size="sm"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, Layers } from '@lucide/vue'
+import { Check, Layers, Plus, X } from '@lucide/vue'
 import { Button } from '~/components/ui/button'
 import { Checkbox } from '~/components/ui/checkbox'
 
@@ -7,10 +7,11 @@ import MoveDropdown from '../../MoveDropdown/MoveDropdown.vue'
 import ActionAndCloseButtons from '../../EditEntity/ActionAndCloseButtons.vue'
 import { attach } from '@frsource/autoresize-textarea'
 import TaskDateTime from '~/components/Workspace/Main/Task/Edit/TaskDateTime.vue'
-import TaskTags from '~/components/Workspace/Main/Task/Edit/TaskTags.vue'
+import TaskPriority from '~/components/Workspace/Main/Task/Edit/TaskPriority.vue'
 import TaskColor from '~/components/Workspace/Main/Task/Edit/TaskColor.vue'
 import { toast } from 'vue-sonner'
 import _ from 'lodash'
+import type { ITaskEditApiPayload } from '~/interfaces/ITaskEditApiPayload'
 import type { ITaskState } from '~/stores/interfaces/ITaskState.js'
 
 const uiStore = useUIStore()
@@ -27,6 +28,8 @@ const status = useTaskMutationStatus(editableTaskId)
 // --- Local State (текст) ---
 const localName = ref('')
 const localDescription = ref('')
+const localTag = ref('')
+const isTagInputVisible = ref(false)
 const textareaNameRef = ref<HTMLTextAreaElement | null>(null)
 const textareaDescRef = ref<HTMLTextAreaElement | null>(null)
 const textareaNameFunc = ref<ReturnType<typeof attach> | null>(null)
@@ -38,7 +41,7 @@ const { mutate: archiveTask } = useArchiveTask()
 const { mutate: cloneTask } = useCloneTask()
 const { mutate: moveTask } = useMoveTask()
 
-const patchTask = (payload: Partial<ITaskState>) => {
+const patchTask = (payload: Omit<ITaskEditApiPayload, 'id'>) => {
   if (!task.value) return
 
   updateTask({
@@ -92,6 +95,27 @@ const handleMoveTask = (data: any) => {
   })
 }
 
+const handleTagInputOpen = () => {
+  isTagInputVisible.value = true
+  nextTick(() => {
+    const input = document.getElementById('task-tag-input') as HTMLInputElement | null
+    input?.focus()
+  })
+}
+
+const handleTagInputClose = () => {
+  isTagInputVisible.value = false
+  localTag.value = ''
+}
+
+const handleInlineAddTag = () => {
+  const normalizedTag = localTag.value.trim()
+  if (!normalizedTag) return
+
+  handleAddTag(normalizedTag)
+  handleTagInputClose()
+}
+
 watch(
   liveTask,
   (newVal, oldVal) => {
@@ -134,7 +158,7 @@ onUnmounted(() => {
 <template>
   <Dialog v-model:open="uiStore.isEditTaskModalOpen">
     <DialogContent
-      class="p-0 overflow-hidden border-none shadow-2xl rounded-lg"
+      class="p-0 overflow-hidden border-none shadow-2xl rounded-lg focus-within:ring-0 focus-within:outline-none focus-within:ring-offset-0 focus-within:outline-0 focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-offset-0 focus-visible:outline-0"
       :showCloseButton="false"
     >
       <div
@@ -213,17 +237,37 @@ onUnmounted(() => {
             rows="2"
           />
 
-          <div
-            v-if="task.tags?.length"
-            class="flex flex-wrap gap-1.5"
-          >
-            <span
-              v-for="tag in task.tags"
-              :key="tag"
-              class="text-xs font-medium text-primary/70 bg-primary-muted px-1.5 py-0.5 rounded"
+          <div class="flex flex-wrap gap-1.5 mt-1">
+            <Badge
+              v-for="(tag, index) in task.tags"
+              :key="`${tag}-${index}`"
+              variant="secondaryMuted"
+              class="text-xs h-6 gap-x-2 rounded-sm cursor-pointer transition-colors hover:bg-red-100 hover:text-red-600"
+              @click="handleRemoveTag(index)"
             >
               #{{ tag }}
-            </span>
+              <X class="size-3" />
+            </Badge>
+
+            <template v-if="isTagInputVisible">
+              <Input
+                id="task-tag-input"
+                v-model="localTag"
+                class="h-6 w-22 px-2 text-xs rounded-sm focus-visible:ring-0 outline-0 focus:ring-0 focus:ring-offset-0 focus:outline-0 font-medium border-transparent bg-muted text-foreground/50 hover:bg-secondary/80"
+                @keydown.enter.prevent="handleInlineAddTag"
+                @blur="handleTagInputClose"
+              />
+            </template>
+
+            <Badge
+              v-else
+              variant="secondaryMuted"
+              class="text-xs h-6 rounded-sm text-foreground/40 cursor-pointer border border-dashed border-muted-foreground/30 transition-colors hover:bg-secondary hover:text-foreground/80"
+              @click="handleTagInputOpen"
+            >
+              <Plus class="size-3" />
+              Добавить тег
+            </Badge>
           </div>
         </div>
 
@@ -241,10 +285,9 @@ onUnmounted(() => {
             "
             @clearTaskTime="patchTask({ dueHours: null, dueMinutes: null })"
           />
-          <TaskTags
+          <TaskPriority
             :task="task"
-            @addTag="handleAddTag"
-            @removeTag="handleRemoveTag"
+            @setPriority="(priority) => patchTask({ priority })"
           />
           <TaskColor
             :task="task"

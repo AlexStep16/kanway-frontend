@@ -11,7 +11,6 @@ import { Toaster } from 'vue-sonner'
     </NuxtLayout>
     <Toaster
       position="top-center"
-      closeButton
       closeButtonPosition="top-right"
     />
   </div>
