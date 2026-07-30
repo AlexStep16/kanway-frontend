@@ -6,11 +6,15 @@ import type { FinishRegistrationDTO } from '~/interfaces/FinishRegistrationDTO'
 import { linkVkAccountApi, linkYandexAccountApi, unlinkAccountApi } from '~/utils/api/auth'
 import type { YandexAuthDTO } from '~/interfaces/YandexAuthDTO'
 import type { VkAuthDTO } from '~/interfaces/VkAuthDTO'
+import dayjs from 'dayjs'
 
 export function transformUser(raw: IUser): UserModel {
+  const timezone = raw?.timezone || dayjs.tz.guess()
+
   const user = new UserModel({
     ...raw,
     subscriptionUntil: raw.subscriptionUntil ? new Date(raw.subscriptionUntil) : undefined,
+    deletedTime: raw.deletedTime ? dayjs.utc(raw?.deletedTime).tz(timezone).toDate() : undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })

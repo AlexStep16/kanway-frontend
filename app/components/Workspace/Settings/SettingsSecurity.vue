@@ -11,6 +11,7 @@ import VkAuth from '~/views/Auth/VkAuth.vue'
 import YandexLogo from '~/assets/yandex_logo.svg?skipsvgo'
 import VkLogo from '~/assets/vk_logo.svg?skipsvgo'
 import { unlinkAccount } from '~/services/auth'
+import dayjs from 'dayjs'
 
 const isPasswordDirty = ref(false)
 const passwordRef = ref<HTMLInputElement | null>(null)
@@ -21,19 +22,23 @@ const deleteModalRef = ref<HTMLElement | null>(null)
 const uiStore = useUIStore()
 const { data: user } = useUser()
 const hasPassword = computed(() => user.value?.hasPassword ?? false)
+
+const { mutate: recoverUser, isPending: isUserRecovering } = useRecoverUser()
+const { mutate: deleteUser, isPending: isUserDeleting } = useDeleteUser()
+
 const queryClient = useQueryClient()
 
 const schema = toTypedSchema(
   z
     .object({
       currentPassword: z.string().optional(),
-      password: z.string().min(10, 'Пароль должен содержать минимум 10 символов'),
-      passwordConfirmation: z.string().min(1, 'Повторите новый пароль'),
+      password: z.string().min(10, { message: 'Пароль должен содержать минимум 10 символов' }),
+      passwordConfirmation: z.string().min(1, { message: 'Повторите новый пароль' }),
     })
     .superRefine((values, context) => {
       if (hasPassword.value && !values.currentPassword) {
         context.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['currentPassword'],
           message: 'Текущий пароль должен быть заполнен',
         })
@@ -41,7 +46,7 @@ const schema = toTypedSchema(
 
       if (values.password !== values.passwordConfirmation) {
         context.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['passwordConfirmation'],
           message: 'Пароли не совпадают',
         })
@@ -69,7 +74,6 @@ const {
   error: updatePasswordError,
 } = useUpdatePassword()
 
-const { mutate: deleteAccount, isPending: isUserDeleting } = useDeleteUser()
 const { mutate: unlinkSocialAccount, isPending: isSocialAccountUpdating } = useMutation({
   mutationFn: unlinkAccount,
   onSuccess: () => {
@@ -120,8 +124,6 @@ const isSavePasswordDisabled = computed(
     !passwordConfirmation.value ||
     isPasswordUpdating.value,
 )
-
-const handleDeleteAccount = () => deleteAccount()
 
 function handleUnlinkSocialAccount(provider: 'yandex' | 'vk') {
   unlinkSocialAccount(provider)
@@ -177,6 +179,12 @@ function handleTogglePasswordConfirmationVisibility() {
     isPasswordConfirmationVisible.value = false
   }
 }
+
+const deleteTime = computed(() => {
+  if (!user.value?.deletedTime) return null
+
+  return dayjs(user.value.deletedTime).calendar()
+})
 </script>
 
 <template>
@@ -387,10 +395,13 @@ function handleTogglePasswordConfirmationVisibility() {
       Удаление аккаунта
     </h3>
 
-    <div class="flex flex-col gap-y-4">
+    <div
+      class="flex flex-col gap-y-4"
+      v-if="!user?.isDeleted"
+    >
       <p class="text-sm text-gray-600 max-w-110">
         Удаление вашего аккаунта является необратимым действием. Все ваши задачи, колонки, данные AI
-        и история будут безвозвратно удалены.
+        и история будут безвозвратно удалены через 30 дней.
       </p>
       <button
         type="button"
@@ -404,6 +415,27 @@ function handleTogglePasswordConfirmationVisibility() {
         <span>Удалить аккаунт</span>
       </button>
     </div>
+    <div
+      class="flex flex-col gap-y-4"
+      v-else
+    >
+      <p class="text-sm text-gray-600 max-w-110">
+        Удаление вашего аккаунта запланировано. Все ваши задачи, колонки, данные AI и история будут
+        безвозвратно удалены <b>{{ deleteTime }}</b
+        >.
+      </p>
+      <button
+        type="button"
+        class="flex items-center justify-center gap-x-2 py-2 px-3 text-xs self-start font-semibold rounded-md border border-transparent bg-blue-100 text-blue-500 transition-colors duration-100 hover:bg-blue-200 disabled:opacity-50 disabled:pointer-events-none"
+        @click="recoverUser()"
+      >
+        <Spinner
+          v-if="isUserRecovering"
+          class="size-3"
+        />
+        <span>Восстановить аккаунт</span>
+      </button>
+    </div>
   </div>
 
   <Teleport to="body">
@@ -413,7 +445,8 @@ function handleTogglePasswordConfirmationVisibility() {
           deleteModalRef = el
         }
       "
-      @confirm="handleDeleteAccount"
+      @confirm="deleteUser"
+      v-model:open="uiStore.isDeleteUserModalOpen"
     />
   </Teleport>
 </template>

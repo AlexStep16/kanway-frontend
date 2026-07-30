@@ -11,10 +11,11 @@ export default class UserModel implements IUser {
   public avatarUrl?: string
   public timezone: string
   public isConfirmed: boolean
+  public isDeleted: boolean
+  public deletedTime?: Date | null
   public subscriptionId: SubscriptionPlanEnum
   public subscriptionUntil?: Date
   public isSubscriptionActive?: boolean
-  public audioCreditsSpent: number
   public credits: number
   public paidCredits: number
   public avatarColor: AvailableColors
@@ -36,10 +37,11 @@ export default class UserModel implements IUser {
     this.avatarUrl = props.avatarUrl
     this.timezone = props.timezone
     this.isConfirmed = props.isConfirmed
+    this.isDeleted = props.isDeleted
+    this.deletedTime = props.deletedTime
     this.subscriptionId = props.subscriptionId
     this.subscriptionUntil = props.subscriptionUntil
     this.isSubscriptionActive = props.isSubscriptionActive
-    this.audioCreditsSpent = props.audioCreditsSpent
     this.credits = props.credits
     this.paidCredits = props.paidCredits
     this.avatarColor = props.avatarColor

@@ -1,12 +1,20 @@
 import ChatMessageModel from '~/models/ChatMessageModel'
 import type { IChatMessage } from '~/interfaces/domain/IChatMessage'
 import type { RateMessagePayload } from '~/interfaces/RateMessagePayload'
+import dayjs from 'dayjs'
+import type { IUser } from '~/interfaces/domain/IUser'
 
 export function transformChatMessage(raw: IChatMessage): ChatMessageModel {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   return new ChatMessageModel({
     ...raw,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   })
 }
 

@@ -19,7 +19,7 @@ export class TaskModel implements ITask {
   public isDeleted: boolean
   public isDeletedExternal: boolean
   public rank: string
-  public priority?: 'low' | 'medium' | 'high'
+  public priority?: 'low' | 'medium' | 'high' | null
   public isCompleted: boolean
   public tags: Array<string>
   public userId: string

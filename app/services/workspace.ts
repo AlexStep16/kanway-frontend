@@ -3,13 +3,21 @@ import type { IWorkspace } from '~/interfaces/domain/IWorkspace'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
 import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import type { WelcomePayload } from '~/interfaces/WelcomePayload'
+import dayjs from 'dayjs'
+import type { IUser } from '~/interfaces/domain/IUser'
 
 export function transformWorkspace(raw: IWorkspace): WorkspaceModel {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   return new WorkspaceModel({
     ...raw,
-    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    deletedTime: raw.deletedTime ? dayjs.utc(raw?.deletedTime).tz(timezone).toDate() : undefined,
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   })
 }
 

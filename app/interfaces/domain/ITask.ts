@@ -11,7 +11,7 @@ export interface ITask {
   isDeletedExternal: boolean
   rank: string
   isCompleted: boolean
-  priority?: 'low' | 'medium' | 'high'
+  priority?: 'low' | 'medium' | 'high' | null
   tags: Array<string>
   userId: string
   deletedTime?: Date | null

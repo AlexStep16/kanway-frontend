@@ -10,13 +10,14 @@ export interface IUser {
   avatarUrl?: string
   timezone: string
   isConfirmed: boolean
+  isDeleted: boolean
+  deletedTime?: Date | null
   subscriptionId: SubscriptionPlanEnum
   subscriptionUntil?: Date
   isSubscriptionActive?: boolean
   credits: number
   paidCredits: number
   avatarColor: AvailableColors
-  audioCreditsSpent: number
   isTipsCompleted?: boolean
   yandexUserId?: string
   vkUserId?: string

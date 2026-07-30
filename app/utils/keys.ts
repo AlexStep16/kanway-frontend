@@ -71,4 +71,6 @@ export const chatMessageKeys = {
 
 export const userKeys = {
   me: ['me'],
+  delete: ['user', 'delete'],
+  recover: ['user', 'recover'],
 }

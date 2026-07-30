@@ -25,7 +25,7 @@ export function transformTask(raw: ITask): ITaskState {
 
   const taskModel = new TaskModel({
     ...raw,
-    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
+    deletedTime: raw.deletedTime ? dayjs.utc(raw?.deletedTime).tz(timezone).toDate() : undefined,
     createdAt: new Date(raw.createdAt),
     updatedAt: new Date(raw.updatedAt),
   })

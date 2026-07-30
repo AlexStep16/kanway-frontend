@@ -2,7 +2,6 @@
 import { VoiceRecorder } from '~/services/VoiceRecorder'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { transcribeVoice } from '~/services/ai'
 
 const MAX_RECORD_SECONDS = 120
 
@@ -15,11 +14,11 @@ const emit = defineEmits<{
 }>()
 
 const { data: user } = useUser()
+const { mutate: transcribeVoice, isPending: isTranscribing } = useTranscribeVoice()
 
 const recorder = new VoiceRecorder()
 
 const isRecording = ref<boolean>(false)
-const isTranscribing = ref<boolean>(false)
 const recordedSeconds = ref<number>(0)
 const recordedBlob = ref<Blob | null>(null)
 const timer = ref<ReturnType<typeof setInterval> | null>(null)
@@ -152,19 +151,16 @@ async function stopRecording() {
   recordedBlob.value = result.blob
   recordedSeconds.value = result.durationSeconds
 
-  isTranscribing.value = true
-
   try {
-    const transcript = await transcribeVoice(recordedBlob.value)
-
-    emit('setMessage', transcript)
+    transcribeVoice(recordedBlob.value, {
+      onSuccess: (transcript) => {
+        emit('setMessage', transcript)
+      },
+    })
   } catch {
     toast.error('Не удалось распознать голосовое сообщение')
-    isTranscribing.value = false
     return
   }
-
-  isTranscribing.value = false
 }
 
 function clearRecording() {

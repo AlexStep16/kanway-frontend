@@ -7,12 +7,20 @@ import type { RetryAgentPayload } from '~/interfaces/RetryAgentPayload'
 import type { StopAgentPayload } from '~/interfaces/StopAgentPayload'
 import type { IChatEditPayload } from '~/interfaces/IChatEditPayload'
 import type { UpdateChatNamePayload } from '~/interfaces/UpdateChatNamePayload'
+import dayjs from 'dayjs'
+import type { IUser } from '~/interfaces/domain/IUser'
 
 export function transformChat(raw: IChat): ChatModel {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   return new ChatModel({
     ...raw,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   })
 }
 

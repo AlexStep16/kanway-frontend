@@ -116,9 +116,6 @@ function getStatusMessageByIteration(iterationId: string) {
                 <template #actions>
                   <AIResponseActions
                     :credits-spent="getStatusMessageByIteration(message.iterationId)?.creditsUsed"
-                    :audio-credits-spent="
-                      getStatusMessageByIteration(message.iterationId)?.audioCreditsUsed
-                    "
                     :message="message"
                     :is-demo="isDemo"
                   />

@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { Clock, TextAlignStart, Archive, Copy, SquareKanban, Layers, Check } from '@lucide/vue'
+import {
+  Clock,
+  TextAlignStart,
+  Archive,
+  Copy,
+  SquareKanban,
+  Layers,
+  Check,
+  Flag,
+} from '@lucide/vue'
 import { Checkbox } from '~/components/ui/checkbox'
 
 import { TimeStatus } from '~/enums/TimeStatus'
@@ -25,7 +34,7 @@ const props = defineProps<{
     description?: string | null
     isCompleted?: boolean
     isDeleted: boolean
-    priority?: 'low' | 'medium' | 'high'
+    priority?: 'low' | 'medium' | 'high' | null
     dueDate?: string | null
     dueHours?: number | null
     dueMinutes?: number | null
@@ -143,30 +152,10 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
   >
     <div class="flex flex-col gap-y-2 p-3 group/task relative">
       <div
-        class="w-full flex items-center gap-x-2"
-        v-if="entityColor || entity.priority"
-      >
-        <div
-          class="h-2 w-4.5 rounded-full bg-red-500"
-          v-if="entityColor"
-          :style="{ backgroundColor: entityColor }"
-        />
-        <Badge
-          v-if="entity.priority"
-          variant="outline"
-          :class="
-            cn(
-              'text-xs font-normal rounded-sm border-none',
-              entity.priority === 'low' && 'bg-emerald-100 text-emerald-600',
-              entity.priority === 'medium' && 'bg-amber-100 text-amber-600',
-              entity.priority === 'high' && 'bg-rose-100 text-rose-600',
-            )
-          "
-          title="Приоритет"
-        >
-          {{ getPriorityHumanReadable(entity.priority) }}
-        </Badge>
-      </div>
+        class="h-2 w-4.5 rounded-full"
+        v-if="entityColor"
+        :style="{ backgroundColor: entityColor }"
+      />
       <!-- Info -->
       <div
         class="flex items-center flex-wrap gap-2"
@@ -310,12 +299,34 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
 
       <!-- Дата выполнения -->
       <div
-        v-if="entity.dueDate"
-        class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm py-1 px-2"
-        :class="dateBadgeClasses"
+        class="flex items-center gap-x-2"
+        v-if="entity.dueDate || entity.priority"
       >
-        <Clock class="size-4" />
-        <span v-if="entity.dueDate">{{ readableDate }}</span>
+        <div
+          class="inline-flex items-center self-start gap-x-2 text-xs rounded-sm px-2 h-6"
+          :class="dateBadgeClasses"
+          v-if="entity.dueDate"
+        >
+          <Clock class="size-4" />
+          <span v-if="entity.dueDate">{{ readableDate }}</span>
+        </div>
+
+        <Badge
+          v-if="entity.priority"
+          variant="outline"
+          :class="
+            cn(
+              'flex self-start items-center gap-x-1 text-xs font-normal rounded-sm border-none h-6',
+              entity.priority === 'low' && 'bg-emerald-100 text-emerald-600',
+              entity.priority === 'medium' && 'bg-amber-100 text-amber-600',
+              entity.priority === 'high' && 'bg-rose-100 text-rose-600',
+            )
+          "
+          title="Приоритет"
+        >
+          <Flag class="size-3" />
+          {{ getPriorityHumanReadable(entity.priority) }}
+        </Badge>
       </div>
 
       <slot />

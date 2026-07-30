@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { PaymentItemIdEnum } from '~/enums/PaymentItemIdEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import type { IPayment } from '~/interfaces/domain/IPayment'
@@ -5,10 +6,16 @@ import type { IUser } from '~/interfaces/domain/IUser'
 import type { IBuySubscriptionResponse } from '~/interfaces/IBuySubscriptionResponse'
 
 export function transformPayment(raw: IPayment): IPayment {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   const payment = {
     ...raw,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   }
 
   return payment

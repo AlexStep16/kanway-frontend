@@ -3,13 +3,21 @@ import type { IBoard } from '~/interfaces/domain/IBoard'
 import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
 import type { IBoardCreateApiPayload } from '~/interfaces/IBoardCreateApiPayload'
 import type { IBoardEditApiPayload } from '~/interfaces/IBoardEditApiPayload'
+import type { IUser } from '~/interfaces/domain/IUser'
+import dayjs from 'dayjs'
 
 export function transformBoard(raw: IBoard): BoardModel {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   return new BoardModel({
     ...raw,
-    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    deletedTime: raw.deletedTime ? dayjs.utc(raw?.deletedTime).tz(timezone).toDate() : undefined,
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   })
 }
 

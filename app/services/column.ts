@@ -5,13 +5,21 @@ import type { IResponseWithLog } from '~/interfaces/IResponseWithLog'
 import type { IColumnCreateApiPayload } from '~/interfaces/IColumnCreateApiPayload'
 import type { IColumnEditApiPayload } from '~/interfaces/IColumnEditApiPayload'
 import type { IColumnMoveApiPayload } from '~/interfaces/IColumnMoveApiPayload'
+import dayjs from 'dayjs'
+import type { IUser } from '~/interfaces/domain/IUser'
 
 export function transformColumn(raw: IColumn): IColumnState {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   const columnModel = new ColumnModel({
     ...raw,
-    deletedTime: raw.deletedTime ? new Date(raw.deletedTime) : undefined,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    deletedTime: raw.deletedTime ? dayjs.utc(raw?.deletedTime).tz(timezone).toDate() : undefined,
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   })
 
   return {

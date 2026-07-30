@@ -15,7 +15,9 @@ const close = () => (isOpen.value = false)
     :open="isOpen"
     @update:open="(val) => (isOpen = val)"
   >
-    <AlertDialogContent class="max-w-sm p-0 overflow-hidden border-none shadow-2xl rounded-xl">
+    <AlertDialogContent
+      class="max-w-sm p-0 overflow-hidden border-none shadow-2xl rounded-xl gap-0"
+    >
       <button
         @click="close"
         class="absolute right-4 top-4 rounded-full p-1 opacity-70 ring-offset-background transition-opacity hover:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -26,7 +28,7 @@ const close = () => (isOpen.value = false)
 
       <div class="p-6">
         <AlertDialogHeader class="space-y-3 text-center">
-          <AlertDialogTitle class="text-xl font-bold tracking-tight text-foreground">
+          <AlertDialogTitle class="text-xl font-bold tracking-tight text-foreground m-0">
             Удаление аккаунта
           </AlertDialogTitle>
           <AlertDialogDescription class="text-sm text-muted-foreground">

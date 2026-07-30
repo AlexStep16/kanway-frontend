@@ -145,7 +145,10 @@ function handleRetryAgent() {
         </div>
       </div>
 
-      <div class="grid grid-cols-[16px_1fr] gap-x-1">
+      <div
+        class="grid grid-cols-[16px_1fr] gap-x-1"
+        v-if="props.status.logs.length > 0 || props.status.error"
+      >
         <div class="flex justify-center">
           <div class="w-0.5 bg-gray-300 h-full"></div>
         </div>
@@ -168,9 +171,11 @@ function handleRetryAgent() {
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-start gap-1">
+      <div
+        class="flex flex-wrap items-center justify-start gap-1"
+        v-if="props.status.state === StatusStatesEnum.FAILED"
+      >
         <button
-          v-if="props.status.state === StatusStatesEnum.FAILED"
           type="button"
           title="Повторить"
           aria-label="Повторить"

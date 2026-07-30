@@ -9,6 +9,9 @@ const { data: paymentsData, isPending: isPaymentsLoading } = usePayments()
 const { data: paymentMethodsData, isPending: isPaymentMethodsLoading } = usePaymentMethods()
 
 const payments = computed(() => paymentsData.value || [])
+const paymentsFiltered = computed(() =>
+  payments.value.filter((payment) => payment.status === PaymentStatusesEnum.succeeded),
+)
 const paymentMethods = computed(() => paymentMethodsData.value || [])
 
 function getPaymentStatusName(status: PaymentStatusesEnum): string {
@@ -104,7 +107,7 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
         <div class="min-w-full inline-block align-middle">
           <div
             class="border border-gray-200 rounded-lg overflow-hidden"
-            v-if="payments.length > 0"
+            v-if="paymentsFiltered.length > 0"
           >
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
@@ -138,7 +141,7 @@ function getPaymentStatusClasses(status: PaymentStatusesEnum): string {
               <tbody class="divide-y divide-gray-200">
                 <!-- Пример строки платежа -->
                 <tr
-                  v-for="payment in payments"
+                  v-for="payment in paymentsFiltered"
                   :key="payment.id"
                 >
                   <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-800">

@@ -65,7 +65,6 @@ watch(
       <NuxtPage />
 
       <LazyArchive v-if="isArchiveTabShown" />
-
       <LazySettings v-if="isSettingsTabShown" />
     </SidebarInset>
 

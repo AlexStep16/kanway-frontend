@@ -1,11 +1,19 @@
 import SettingModel from '~/models/SettingModel'
 import type { ISetting } from '~/interfaces/domain/ISetting'
+import dayjs from 'dayjs'
+import type { IUser } from '~/interfaces/domain/IUser'
 
 export function transformSetting(raw: ISetting): SettingModel {
+  const { $queryClient } = useNuxtApp()
+
+  const user = $queryClient.getQueryData<IUser>(userKeys.me)
+
+  const timezone = user?.timezone || dayjs.tz.guess()
+
   const setting = new SettingModel({
     ...raw,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt),
+    createdAt: dayjs.utc(raw.createdAt).tz(timezone).toDate(),
+    updatedAt: dayjs.utc(raw.updatedAt).tz(timezone).toDate(),
   })
 
   return setting
