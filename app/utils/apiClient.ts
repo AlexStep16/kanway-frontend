@@ -14,8 +14,12 @@ function getAxiosClient() {
   if (!axiosClient) {
     const config = useRuntimeConfig()
 
+    const serverApiUrl = import.meta.server
+      ? (config.serverApiUrl as string)
+      : config.public.serverApiUrl
+
     axiosClient = axios.create({
-      baseURL: config.public.serverApiUrl || 'https://kanway.ru/api',
+      baseURL: serverApiUrl || 'https://kanway.ru/api',
       headers: {
         'Content-Type': 'application/json',
       },

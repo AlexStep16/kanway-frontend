@@ -31,14 +31,14 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
   function connectSSE(jobId: string) {
     const runtimeConfig = useRuntimeConfig()
+    const serverApiUrl = import.meta.server
+      ? (runtimeConfig.serverApiUrl as string)
+      : runtimeConfig.public.serverApiUrl
     if (eventSource.value) eventSource.value.close()
 
-    eventSource.value = new EventSource(
-      runtimeConfig.public.serverApiUrl + `/chats/stream/${jobId}/status`,
-      {
-        withCredentials: true,
-      },
-    )
+    eventSource.value = new EventSource(serverApiUrl + `/chats/stream/${jobId}/status`, {
+      withCredentials: true,
+    })
     activeJobId.value = jobId
 
     eventSource.value.onmessage = (event: MessageEvent<string>) => {
