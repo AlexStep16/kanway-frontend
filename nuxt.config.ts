@@ -10,10 +10,9 @@ export default defineNuxtConfig({
   },
   spaLoadingTemplate: true,
   runtimeConfig: {
-    server: {
-      serverApiUrl: process.env.SERVER_API_URL_SSR || 'http://localhost:3333/api',
-      serverBaseUrl: process.env.SERVER_BASE_URL_SSR || 'http://localhost:3333',
-    },
+    serverApiUrl: process.env.SERVER_API_URL_SSR || 'http://localhost:3333/api',
+    serverBaseUrl: process.env.SERVER_BASE_URL_SSR || 'http://localhost:3333',
+
     public: {
       serverApiUrl: process.env.SERVER_API_URL || 'https://kanway.ru/api',
       serverBaseUrl: process.env.SERVER_BASE_URL || 'https://kanway.ru',
