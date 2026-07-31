@@ -106,7 +106,9 @@ import { ChevronRight } from '@lucide/vue'
         data-aos-once="true"
         class="w-full h-150 md:w-140 md:h-170 lg:w-120 lg:h-150 xl:w-140 xl:h-170 relative flex shrink-0 overflow-hidden rounded-[20px] border border-zinc-200/80 bg-white/95 shadow-sm ring-1 ring-black/2 backdrop-blur supports-backdrop-filter:bg-white/90"
       >
-        <DemoChat />
+        <ClientOnly>
+          <DemoChat />
+        </ClientOnly>
       </div>
     </div>
   </section>

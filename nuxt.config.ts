@@ -21,7 +21,7 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    '/': { ssr: false, prerender: true },
+    '/': { prerender: true },
     '/workspace/**': { ssr: false },
     '/auth/**': { ssr: false },
     '/privacy': { ssr: false },

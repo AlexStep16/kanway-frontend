@@ -3,6 +3,6 @@ const uiStore = useUIStore()
 </script>
 
 <template>
-  <LazySupport v-if="uiStore.isSupportModalOpen" />
+  <LazySupport v-if="uiStore?.isSupportModalOpen" />
   <slot />
 </template>

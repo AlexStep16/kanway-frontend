@@ -9,9 +9,11 @@ import { Toaster } from 'vue-sonner'
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <Toaster
-      position="top-center"
-      closeButtonPosition="top-right"
-    />
+    <ClientOnly>
+      <Toaster
+        position="top-center"
+        closeButtonPosition="top-right"
+      />
+    </ClientOnly>
   </div>
 </template>

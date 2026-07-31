@@ -4,11 +4,18 @@ import { useUIStore } from '~/stores/ui'
 import type { IChat } from '~/interfaces/domain/IChat'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 
+const generateUUID = () => {
+  if (import.meta.client && typeof crypto !== 'undefined') {
+    return crypto.randomUUID()
+  }
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+}
+
 export const useChatStore = defineStore('chat', () => {
   const uiStore = useUIStore()
   const boardStore = useBoardStore()
 
-  const temporaryChatId = ref(window.crypto.randomUUID())
+  const temporaryChatId = ref(generateUUID())
   const activeChatId = ref<string | null>(null)
   const modelType = ref<ModelsEnum>(ModelsEnum.GPT_5_4_MINI)
   const renamingChatSet = ref(new Set<string>())
@@ -20,7 +27,7 @@ export const useChatStore = defineStore('chat', () => {
   const isChatRenaming = (chatId: string) => renamingChatSet.value.has(chatId)
 
   function newChat() {
-    temporaryChatId.value = window.crypto.randomUUID()
+    temporaryChatId.value = generateUUID()
     activeChatId.value = temporaryChatId.value
 
     uiStore.isChatOpen = true
