@@ -51,12 +51,7 @@ import { ChevronRight } from '@lucide/vue'
         <!-- End Announcement Banner -->
 
         <!-- Title -->
-        <div
-          data-aos="fade-up"
-          data-aos-duration="1000"
-          data-aos-once="true"
-          class="max-w-2xl mt-1"
-        >
+        <div class="max-w-2xl mt-1">
           <h1
             class="text-3xl sm:text-4xl lg:text-5xl text-center lg:text-left font-extrabold tracking-tight text-zinc-950 leading-[1.15]"
           >
@@ -69,26 +64,14 @@ import { ChevronRight } from '@lucide/vue'
         </div>
         <!-- End Title -->
 
-        <div
-          data-aos="fade-up"
-          data-aos-delay="100"
-          data-aos-duration="1000"
-          data-aos-once="true"
-          class="mt-5 max-w-3xl text-center lg:text-left hero-text"
-        >
+        <div class="mt-5 max-w-3xl text-center lg:text-left hero-text">
           <p class="text-base md:text-lg text-gray-600">
             Управляйте своей Kanban-доской с помощью естественного языка. Создавайте, редактируйте и
             переносите карточки, просто написав об этом в чат.
           </p>
         </div>
 
-        <div
-          data-aos="fade-up"
-          data-aos-delay="150"
-          data-aos-duration="1000"
-          data-aos-once="true"
-          class="mt-8 flex justify-center"
-        >
+        <div class="mt-8 flex justify-center">
           <NuxtLink
             class="inline-flex justify-center items-center gap-x-3 text-center bg-linear-to-tl from-blue-500 to-violet-500 hover:from-violet-500 hover:to-blue-500 border border-transparent text-white text-sm font-medium rounded-md focus:outline-hidden focus:from-violet-600 focus:to-blue-600 py-3 px-4"
             to="/auth?step=signup"
@@ -100,10 +83,6 @@ import { ChevronRight } from '@lucide/vue'
       </div>
 
       <div
-        data-aos="fade-left"
-        data-aos-duration="1000"
-        data-aos-delay="300"
-        data-aos-once="true"
         class="w-full h-150 md:w-140 md:h-170 lg:w-120 lg:h-150 xl:w-140 xl:h-170 relative flex shrink-0 overflow-hidden rounded-[20px] border border-zinc-200/80 bg-white/95 shadow-sm ring-1 ring-black/2 backdrop-blur supports-backdrop-filter:bg-white/90"
       >
         <ClientOnly>
