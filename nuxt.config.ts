@@ -4,7 +4,37 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
-  modules: ['@peterbud/nuxt-query', '@pinia/nuxt', '@vueuse/nuxt', 'shadcn-nuxt', 'nuxt-svgo'],
+  modules: [
+    '@peterbud/nuxt-query',
+    '@pinia/nuxt',
+    '@nuxt/fonts',
+    '@vueuse/nuxt',
+    'shadcn-nuxt',
+    'nuxt-svgo',
+  ],
+  fonts: {
+    families: [
+      {
+        name: 'Inter',
+        provider: 'google',
+        global: true,
+        weights: [400, 500, 600, 700, 800],
+      },
+      {
+        name: 'Raleway',
+        provider: 'google',
+        weights: [400, 600, 700],
+      },
+      {
+        name: 'Roboto',
+        provider: 'google',
+        weights: [400, 700],
+      },
+    ],
+  },
+  features: {
+    inlineStyles: true,
+  },
   imports: {
     dirs: ['~/composables/**', '~/utils/**', '~/helpers/**'],
   },
@@ -96,8 +126,6 @@ export default defineNuxtConfig({
           async: true,
           defer: true,
         },
-        { src: 'https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.3' },
-        { src: 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.3' },
         // Твой локальный скрипт метрики из папки public
         { src: '/initYametrika.js' },
       ],
@@ -116,7 +144,6 @@ export default defineNuxtConfig({
     '~/assets/styles/style.css',
     '~/assets/styles/spinner.css',
     '~/assets/styles/transitions.css',
-    '~/assets/styles/fonts.css',
   ],
   vite: {
     plugins: [

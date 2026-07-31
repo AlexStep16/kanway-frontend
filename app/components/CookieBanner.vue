@@ -2,7 +2,7 @@
 const COOKIE_BANNER_MAX_AGE = 60 * 60 * 24 * 365
 
 const consentCookie = useCookie<boolean>('cookie_banner_accepted', {
-  default: () => false,
+  default: () => true,
   maxAge: COOKIE_BANNER_MAX_AGE,
   sameSite: 'lax',
 })
