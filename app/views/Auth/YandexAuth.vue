@@ -35,7 +35,7 @@ async function startYandexAuth() {
 
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: runtimeConfig.public.yandexUserId as string,
+    client_id: runtimeConfig.public.yandexClientId as string,
     redirect_uri: runtimeConfig.public.yandexRedirectUri as string,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',

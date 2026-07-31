@@ -13,7 +13,7 @@ let axiosClient: AxiosInstance | null = null
 function getAxiosClient() {
   if (!axiosClient) {
     const config = useRuntimeConfig()
-    
+
     axiosClient = axios.create({
       baseURL: config.public.serverApiUrl || 'https://kanway.ru/api',
       headers: {
@@ -52,7 +52,7 @@ function getAxiosClient() {
       },
     )
   }
-  
+
   return axiosClient
 }
 

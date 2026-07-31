@@ -10,17 +10,16 @@ export default defineNuxtConfig({
   },
   spaLoadingTemplate: true,
   runtimeConfig: {
-    serverApiUrl: process.env.SERVER_API_URL_SSR || 'http://localhost:3333/api',
-    serverBaseUrl: process.env.SERVER_BASE_URL_SSR || 'http://localhost:3333',
+    serverApiUrl: 'http://localho1231231st:3333/api',
+    serverBaseUrl: 'http://loc231232alhost:3333',
 
     public: {
-      serverApiUrl: process.env.SERVER_API_URL || 'https://kanway.ru/api',
-      serverBaseUrl: process.env.SERVER_BASE_URL || 'https://kanway.ru',
-      yandexUserId: process.env.YANDEX_CLIENT_ID || '3b999a918afb4a9085e6238f30ae3df5',
-      yandexRedirectUri:
-        process.env.YANDEX_REDIRECT_URI || 'https://kanway.ru/yandex/suggest/token',
-      vkUserId: process.env.VK_CLIENT_ID || '54569329',
-      vkRedirectUri: process.env.VK_REDIRECT_URI || 'https://kanway.ru/vk/suggest/token',
+      serverApiUrl: '123123123',
+      serverBaseUrl: 'https://kanway.ru',
+      yandexClientId: '3b999a918afb4a9085e6238f30ae3df5',
+      yandexRedirectUri: 'https://kanway.ru/yandex/suggest/token',
+      vkClientId: '54569329',
+      vkRedirectUri: 'https://kanway.ru/vk/suggest/token',
     },
   },
   routeRules: {

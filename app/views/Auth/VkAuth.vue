@@ -35,7 +35,7 @@ async function startVkAuth() {
 
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: runtimeConfig.public.vkUserId as string,
+    client_id: runtimeConfig.public.vkClientId as string,
     redirect_uri: runtimeConfig.public.vkRedirectUri as string,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
