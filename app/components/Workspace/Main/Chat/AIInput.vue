@@ -15,6 +15,7 @@ const { aiInputMessage } = storeToRefs(chatStore)
 
 const aiInputMessageRef = ref<HTMLTextAreaElement | null>(null)
 const micButtonRef = ref<InstanceType<typeof Recording> | null>(null)
+const isTextareaInitialized = ref(false)
 
 const props = defineProps<{
   isDisabled?: boolean
@@ -47,10 +48,11 @@ function handleTextareaRef(
     update: () => void
   } | null,
 ) {
-  if (el && el.textareaRef) {
+  if (el && el.textareaRef && !isTextareaInitialized.value) {
     aiInputMessageRef.value = el.textareaRef
     update.value = el.update
     if (props.isFocused) aiInputMessageRef.value.focus()
+    isTextareaInitialized.value = true
   }
 }
 
