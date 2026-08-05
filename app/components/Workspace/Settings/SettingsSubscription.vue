@@ -119,12 +119,9 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
                 Отменена
               </span>
             </div>
-            <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold"
-                >₽{{ currentSubscription.price }}</span
-              >
-              /месяц
-            </span>
+            <span class="text-lg sm:text-xl text-gray-800 font-bold"
+              >{{ currentSubscription.price }}<span class="text-sm font-medium">₽/месяц</span></span
+            >
             <div class="flex flex-col text-gray-400 text-xs items-start">
               <span v-if="getSubscriptionUntil">Активна до: {{ getSubscriptionUntil }}</span>
               <span
@@ -141,7 +138,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
               >
                 <button
                   type="button"
-                  class="text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none"
+                  class="flex items-center justify-center text-xs text-red-500 rounded-md bg-red-100 py-1.5 px-2.5 mt-2 hover:bg-red-200 transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none"
                   @click="cancelSubscription()"
                   :disabled="isCancelling"
                 >

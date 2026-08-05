@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import dayjs from 'dayjs'
 import KanwayLogo from '~/assets/kanway_logo_white.svg?skipsvgo'
 
 const uiStore = useUIStore()
+
+const currentYear = dayjs().format('YYYY')
 </script>
 
 <template>
@@ -98,7 +101,9 @@ const uiStore = useUIStore()
 
       <div class="mt-5 sm:mt-12 grid gap-y-2 sm:gap-y-0 sm:flex sm:justify-between sm:items-center">
         <div class="flex flex-wrap justify-between items-center gap-2">
-          <p class="text-sm text-gray-400">© 2025 Kanway.</p>
+          <p class="text-sm text-gray-400">
+            &copy;&nbsp;{{ currentYear }} Kanway. Все права защищены.
+          </p>
         </div>
         <!-- End Col -->
 
