@@ -239,7 +239,10 @@ const timezoneValue = computed({
               <SelectTrigger class="w-full bg-white text-sm shadow-none">
                 <SelectValue placeholder="Выберите пояс..." />
               </SelectTrigger>
-              <SelectContent class="max-h-72">
+              <SelectContent
+                class="max-h-72"
+                :body-lock="false"
+              >
                 <SelectItem
                   v-for="timezone in getAllTimezoneOptions"
                   :key="timezone.timezone"

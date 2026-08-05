@@ -150,7 +150,7 @@ watch(
                     <SelectValue placeholder="Выберите тему..." />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent :body-lock="false">
                   <SelectItem :value="ThemesEnum.ACCOUNT">Аккаунт</SelectItem>
                   <SelectItem :value="ThemesEnum.AI_ASSISTANT">ИИ ассистент</SelectItem>
                   <SelectItem :value="ThemesEnum.BOARDS">Доски и задачи</SelectItem>

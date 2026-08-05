@@ -32,12 +32,12 @@ export const runPaymentStatusPolling = async (paymentId: string) => {
           switch (payment.itemId) {
             case PaymentItemIdEnum.PREMIUM:
               toast.success('Подписка оформлена!', {
-                description: 'Тариф Премиум активен. Баланс пополнен на 10 000 кредитов.',
+                description: 'Тариф Премиум активен. Баланс пополнен на 10 000 кредитов',
               })
               break
             case PaymentItemIdEnum.ARCHITECTOR:
               toast.success('Подписка оформлена!', {
-                description: 'Тариф Архитектор активен. Баланс пополнен на 25 000 кредитов.',
+                description: 'Тариф Архитектор активен. Баланс пополнен на 25 000 кредитов',
               })
               break
           }
@@ -45,17 +45,17 @@ export const runPaymentStatusPolling = async (paymentId: string) => {
           switch (payment.itemId) {
             case PaymentItemIdEnum.CREDIT_PACK_SMALL:
               toast.success('Кредиты зачислены!', {
-                description: 'На ваш счёт добавлено 1 000 кредитов.',
+                description: 'На ваш счёт добавлено 1 000 кредитов',
               })
               break
             case PaymentItemIdEnum.CREDIT_PACK_MEDIUM:
               toast.success('Кредиты зачислены!', {
-                description: 'На ваш счёт добавлено 5 000 кредитов.',
+                description: 'На ваш счёт добавлено 5 000 кредитов',
               })
               break
             case PaymentItemIdEnum.CREDIT_PACK_LARGE:
               toast.success('Кредиты зачислены!', {
-                description: 'На ваш счёт добавлено 10 000 кредитов.',
+                description: 'На ваш счёт добавлено 10 000 кредитов',
               })
               break
           }

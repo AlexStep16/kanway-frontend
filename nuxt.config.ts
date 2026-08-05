@@ -40,11 +40,11 @@ export default defineNuxtConfig({
   },
   spaLoadingTemplate: true,
   runtimeConfig: {
-    serverApiUrl: 'http://localho1231231st:3333/api',
-    serverBaseUrl: 'http://loc231232alhost:3333',
+    serverApiUrl: 'http://localhost:3333/api',
+    serverBaseUrl: 'http://localhost:3333',
 
     public: {
-      serverApiUrl: '123123123',
+      serverApiUrl: 'https://kanway.ru/api',
       serverBaseUrl: 'https://kanway.ru',
       yandexClientId: '3b999a918afb4a9085e6238f30ae3df5',
       yandexRedirectUri: 'https://kanway.ru/yandex/suggest/token',
@@ -52,13 +52,20 @@ export default defineNuxtConfig({
       vkRedirectUri: 'https://kanway.ru/vk/suggest/token',
     },
   },
+  nitro: {
+    prerender: {
+      routes: ['/200.html', '/404.html'],
+      failOnError: false,
+    },
+  },
   routeRules: {
     '/': { prerender: true },
+    '/privacy': { prerender: true },
+    '/terms': { prerender: true },
+    '/cookies': { prerender: true },
+
     '/workspace/**': { ssr: false },
     '/auth/**': { ssr: false },
-    '/privacy': { ssr: false },
-    '/terms': { ssr: false },
-    '/cookies': { ssr: false },
     '/payment/**': { ssr: false },
   },
   svgo: {
@@ -163,6 +170,7 @@ export default defineNuxtConfig({
         'uuid',
         'vue-sonner',
         '@tanstack/vue-query',
+        'vuedraggable',
         'axios',
         'dayjs', // CJS
         'dayjs/plugin/relativeTime', // CJS

@@ -24,7 +24,7 @@ const getErrorMessage = computed(() => {
 </script>
 
 <template>
-  <div class="size-full bg-zinc-50 dark:bg-zinc-950 min-h-screen flex flex-col px-2">
+  <div class="size-full bg-zinc-50 min-h-screen flex flex-col px-2">
     <Header />
 
     <main class="flex-1 w-full flex items-center justify-center pt-28 pb-12 px-4 sm:pt-36 sm:pb-24">
@@ -43,8 +43,7 @@ const getErrorMessage = computed(() => {
           class="mt-2 sm:mt-4 text-sm sm:text-base text-zinc-500 leading-relaxed"
           v-if="is404Error"
         >
-          Возможно, запрашиваемый адрес устарел, был изменен или страница была перемещена. Давайте
-          вернемся к работе.
+          Возможно, запрашиваемый адрес устарел, был изменен или страница была перемещена.
         </p>
       </div>
     </main>

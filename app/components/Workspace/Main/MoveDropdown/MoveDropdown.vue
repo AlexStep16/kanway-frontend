@@ -135,7 +135,7 @@ function handleMove() {
             >
               <SelectValue placeholder="Выберите пространство..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent :body-lock="false">
               <SelectItem
                 v-for="ws in workspaces"
                 :key="ws.id"
@@ -172,7 +172,7 @@ function handleMove() {
                 :placeholder="boards.length === 0 ? 'Нет досок...' : 'Выберите доску...'"
               />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent :body-lock="false">
               <SelectItem
                 v-for="b in boards"
                 class="text-custom-sm"
@@ -209,7 +209,7 @@ function handleMove() {
                 :placeholder="columns.length === 0 ? 'Нет колонок...' : 'Выберите колонку...'"
               />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent :body-lock="false">
               <SelectItem
                 v-for="c in columns"
                 :key="c.id"

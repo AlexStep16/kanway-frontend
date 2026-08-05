@@ -41,7 +41,7 @@ import { ChevronRight } from '@lucide/vue'
     >
       <div class="flex flex-col items-center lg:items-start max-w-2xl">
         <!-- Announcement Banner -->
-        <div class="flex justify-center">
+        <div class="opacity-0 hero-appear_announcement flex justify-center">
           <span
             class="inline-flex items-center text-center gap-x-2 bg-white border border-gray-200 text-sm text-gray-500 p-1 px-3 rounded-full transition hover:border-gray-300 focus:outline-hidden focus:border-gray-300"
           >
@@ -53,7 +53,7 @@ import { ChevronRight } from '@lucide/vue'
         <!-- Title -->
         <div class="max-w-2xl mt-1">
           <h1
-            class="text-3xl sm:text-4xl lg:text-5xl text-center lg:text-left font-extrabold tracking-tight text-zinc-950 leading-[1.15]"
+            class="opacity-0 hero-appear text-3xl sm:text-4xl lg:text-5xl text-center lg:text-left font-extrabold tracking-tight text-zinc-950 leading-[1.15]"
           >
             Забудьте о кликах<br />
             Мы дали вашим
@@ -65,13 +65,13 @@ import { ChevronRight } from '@lucide/vue'
         <!-- End Title -->
 
         <div class="mt-5 max-w-3xl text-center lg:text-left hero-text">
-          <p class="text-base md:text-lg text-gray-600">
+          <p class="opacity-0 hero-appear_description text-base md:text-lg text-gray-600">
             Управляйте своей Kanban-доской с помощью естественного языка. Создавайте, редактируйте и
             переносите карточки, просто написав об этом в чат.
           </p>
         </div>
 
-        <div class="mt-8 flex justify-center">
+        <div class="opacity-0 hero-appear_buttons mt-8 flex justify-center">
           <NuxtLink
             class="inline-flex justify-center items-center gap-x-3 text-center bg-linear-to-tl from-blue-500 to-violet-500 hover:from-violet-500 hover:to-blue-500 border border-transparent text-white text-sm font-medium rounded-md focus:outline-hidden focus:from-violet-600 focus:to-blue-600 py-3 px-4"
             to="/auth?step=signup"
@@ -83,12 +83,63 @@ import { ChevronRight } from '@lucide/vue'
       </div>
 
       <div
-        class="w-full h-150 md:w-140 md:h-170 lg:w-120 lg:h-150 xl:w-140 xl:h-170 relative flex shrink-0 overflow-hidden rounded-[20px] border border-zinc-200/80 bg-white/95 shadow-sm ring-1 ring-black/2 backdrop-blur supports-backdrop-filter:bg-white/90"
+        class="opacity-0 hero-appear_chat w-full h-150 md:w-140 md:h-170 lg:w-120 lg:h-150 xl:w-140 xl:h-170 relative flex shrink-0 overflow-hidden rounded-[20px] border border-zinc-200/80 bg-white/95 shadow-sm ring-1 ring-black/2 backdrop-blur supports-backdrop-filter:bg-white/90"
       >
-        <ClientOnly>
-          <DemoChat />
-        </ClientOnly>
+        <DemoChat />
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes chatSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(3rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes buttonsAppear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hero-appear {
+  animation: heroFadeIn 0.8s ease-out forwards 0.2s;
+}
+
+.hero-appear_announcement {
+  animation: heroFadeIn 0.8s ease-out forwards;
+}
+
+.hero-appear_description {
+  animation: heroFadeIn 0.8s ease-out forwards 0.5s;
+}
+
+.hero-appear_chat {
+  animation: chatSlideIn 0.8s ease-out forwards 0.8s;
+}
+
+.hero-appear_buttons {
+  animation: buttonsAppear 0.8s ease-out forwards 1.2s;
+}
+</style>

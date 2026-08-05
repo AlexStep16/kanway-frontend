@@ -127,7 +127,7 @@ defineExpose({
               />
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent :body-lock="false">
               <SelectGroup class="p-0 text-muted-foreground">
                 <SelectItem
                   :value="ModelsEnum.GPT_5_4_MINI"

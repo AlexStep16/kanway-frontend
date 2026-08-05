@@ -22,6 +22,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       const email64 = getSafeBase64String(user?.email || '')
 
       return navigateTo({
+        ...to.query,
         path: '/auth',
         query: { step: AllowedAuthStepsEnum.VERIFY_EMAIL, payload: email64 },
       })

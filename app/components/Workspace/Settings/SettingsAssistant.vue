@@ -155,7 +155,7 @@ const handleSaveSetting = handleSubmit((values) => {
             >
               <SelectValue placeholder="Выберите действие по умолчанию..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent :body-lock="false">
               <SelectItem :value="AiConfirmationTypeEnum.ALWAYS.toString()">
                 Всегда подтверждать действия
               </SelectItem>

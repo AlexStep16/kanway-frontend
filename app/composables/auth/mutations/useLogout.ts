@@ -3,17 +3,17 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query'
 
 export function useLogout() {
   const queryClient = useQueryClient()
-  const route = useRoute() // Получаем текущий роут
+  const router = useRouter()
 
   return useMutation({
     mutationKey: ['user'],
     mutationFn: () => logout(),
-    onSuccess: () => {
-      queryClient.resetQueries()
+    onSuccess: async () => {
+      queryClient.setQueryData(userKeys.me, null)
 
-      if (route.meta.authOnly) {
-        navigateTo('/auth')
-      }
+      await router.push('/auth')
+
+      queryClient.clear()
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.me })

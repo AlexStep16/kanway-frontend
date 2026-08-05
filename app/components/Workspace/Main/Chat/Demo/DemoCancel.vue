@@ -4,7 +4,6 @@ import type { IChatMessage } from '~/interfaces/domain/IChatMessage.js'
 import { StatusStatesEnum } from '~/enums/StatusStatesEnum.js'
 import { SquareArrowOutUpRight, MessageCircle } from '@lucide/vue'
 import type { AIInput } from '#components'
-import Title from '~/components/Workspace/Header/Title.vue'
 
 const aiInputRef = ref<InstanceType<typeof AIInput> | null>(null)
 const aiInputMessage = ref<string>('')
@@ -156,13 +155,9 @@ onMounted(async () => {
         >
           <SquareArrowOutUpRight class="size-4" />
         </Button>
-        <Title
-          :initialName="'План запуска мобильного приложения'"
-          :isLoading="false"
-          :isStatic="true"
-        >
+        <DemoTitle :name="'План запуска мобильного приложения'">
           <MessageCircle class="size-4 text-zinc-500" />
-        </Title>
+        </DemoTitle>
         <div class="size-8"></div>
       </div>
     </header>
