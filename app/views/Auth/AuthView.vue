@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import KanwayLogo from '~/assets/kanway_logo.svg?skipsvgo'
-import YandexAuth from '~/views/Auth/YandexAuth.vue'
-import { Link } from '@lucide/vue'
-import VkAuth from './VkAuth.vue'
 import EmailOTPForm from '~/components/Auth/EmailOTPForm.vue'
 import LoginOTPForm from '~/components/Auth/LoginOTPForm.vue'
 import PasswordOTPForm from '~/components/Auth/PasswordOTPForm.vue'
@@ -16,6 +13,7 @@ import LoginLink from '~/components/Auth/LoginLink.vue'
 import PasswordLink from '~/components/Auth/PasswordLink.vue'
 import { ResendStorageKeysEnum } from '@/enums/ResendStorageKeysEnum'
 import FinishSignUpForm from '~/components/Auth/FinishSignUpForm.vue'
+import { SquarePen } from '@lucide/vue'
 
 const route = useRoute()
 
@@ -39,7 +37,6 @@ const email = computed(() => {
   }
 })
 
-const { mutate: sendMagicLink, isPending: isSendingMagicLink } = useSendMagicLink()
 const { mutate: sendVerificationPasswordEmail, isPending: isSendingVerificationPasswordEmail } =
   useSendVerificationPasswordEmail()
 
@@ -83,41 +80,12 @@ function handleForgotPassword() {
   })
 }
 
-function navigateToLoginVerify() {
-  if (!email.value) return
-
-  navigateTo({
-    path: '/auth',
-    query: {
-      step: AllowedAuthStepsEnum.VERIFY_LOGIN,
-      payload: getSafeBase64String(email.value.trim()),
-    },
-  })
-}
-
-function handleSendMagicLink() {
-  if (!email.value) return
-
-  const remainingResend = getRemainingResend(ResendStorageKeysEnum.LOGIN_VERIFICATION)
-
-  if (remainingResend > 0) {
-    navigateToLoginVerify()
-    return
-  }
-
-  sendMagicLink(email.value, {
-    onSuccess() {
-      navigateToLoginVerify()
-    },
-  })
-}
-
 const isVerfiyStep = computed(
   () => isVerifyEmailStep.value || isVerifyLoginStep.value || isVerifyPasswordStep.value,
 )
 
 const pageTitle = computed(() => {
-  if (isAuthStep.value) return 'Добро пожаловать'
+  if (isAuthStep.value) return 'Вход или регистрация'
   if (isSignInStep.value) return 'С возвращением'
   if (isSignUpStep.value) return 'Создание аккаунта'
   if (isVerifyEmailStep.value) return 'Подтверждение почты'
@@ -150,48 +118,60 @@ useHead({
             class="overflow-hidden relative w-full min-h-8 flex justify-center items-center mt-4"
           >
             <Transition name="slide-up">
-              <h1
-                class="block text-xl sm:text-2xl font-bold text-gray-800"
+              <h2
+                class="block sm:text-lg font-bold text-gray-800"
                 v-if="isAuthStep"
                 key="welcome"
               >
-                Добро пожаловать!
-              </h1>
+                Вход или регистрация
+              </h2>
               <div
                 v-else-if="isSignUpStep"
                 key="create-account"
               >
-                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">Создать аккаунт?</h1>
-                <p class="text-muted-foreground text-sm mt-2">Кажется такого аккаунта ещё нет</p>
-                <span class="font-medium text-sm text-gray-700">{{ email }}</span>
+                <h2 class="block sm:text-lg font-bold text-gray-800">Создание аккаунта</h2>
+                <NuxtLink
+                  :to="`/auth?payload=${getSafeBase64String(email)}`"
+                  class="flex gap-1 justify-center items-center text-gray-700 hover:text-primary hover:underline"
+                  v-if="email"
+                >
+                  <span class="font-medium text-sm">{{ email }}</span>
+                  <SquarePen class="size-3.5" />
+                </NuxtLink>
               </div>
               <div
                 v-else-if="isSignInStep"
                 key="welcome-back"
               >
-                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">С возвращением!</h1>
-                <span class="font-medium text-sm text-gray-700">{{ email }}</span>
+                <h2 class="block sm:text-lg font-bold text-gray-800">С возвращением!</h2>
+                <NuxtLink
+                  :to="`/auth?payload=${getSafeBase64String(email)}`"
+                  class="flex gap-1 justify-center items-center text-gray-700 hover:text-primary hover:underline"
+                  v-if="email"
+                >
+                  <span class="font-medium text-sm">{{ email }}</span>
+                  <SquarePen class="size-3.5" />
+                </NuxtLink>
               </div>
               <div
                 v-else-if="isPasswordResetCompleteStep"
                 key="password-reset"
               >
-                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
-                  Восстановление пароля
-                </h1>
-                <span
-                  class="font-medium text-sm text-gray-700"
+                <h2 class="block sm:text-lg font-bold text-gray-800">Восстановление пароля</h2>
+                <NuxtLink
+                  :to="`/auth?payload=${getSafeBase64String(email)}`"
+                  class="flex gap-1 justify-center items-center text-gray-700 hover:text-primary hover:underline"
                   v-if="email"
-                  >{{ email }}</span
                 >
+                  <span class="font-medium text-sm">{{ email }}</span>
+                  <SquarePen class="size-3.5" />
+                </NuxtLink>
               </div>
               <div
                 v-else-if="isFinishSignUpStep"
                 key="finish-sign-up"
               >
-                <h1 class="block text-xl sm:text-2xl font-bold text-gray-800">
-                  Завершение регистрации
-                </h1>
+                <h2 class="block sm:text-lg font-bold text-gray-800">Завершение регистрации</h2>
                 <p class="text-muted-foreground text-sm mt-2">
                   Осталось указать почту, чтобы не потерять доступ к аккаунту
                 </p>
@@ -219,40 +199,8 @@ useHead({
             :email="email"
             v-else-if="isPasswordResetCompleteStep"
           />
-          <div v-if="isAuthStep || isSignInStep">
-            <div
-              class="py-3 flex items-center text-xs text-gray-400 uppercase before:flex-1 before:border-t before:border-gray-200 before:me-6 after:flex-1 after:border-t after:border-gray-200 after:ms-6"
-            >
-              Или
-            </div>
-            <div
-              class="flex items-center justify-center gap-2"
-              v-if="isAuthStep"
-            >
-              <YandexAuth />
-              <VkAuth />
-            </div>
 
-            <Button
-              variant="outlinePrimary"
-              size="lg"
-              class="w-full"
-              v-if="isSignInStep"
-              @click="handleSendMagicLink"
-            >
-              <div
-                class="flex items-center gap-x-2"
-                v-if="!isSendingMagicLink"
-              >
-                <Link
-                  class="size-3.5"
-                  stroke-width="2.5"
-                />
-                <span>Отправить ссылку для входа</span>
-              </div>
-              <Spinner v-else />
-            </Button>
-          </div>
+          <SocialButtons v-if="isAuthStep" />
         </div>
       </div>
     </div>

@@ -7,9 +7,6 @@ export function useLogin() {
 
   return useMutation({
     mutationKey: ['user', 'login'],
-    meta: {
-      errorMessage: false,
-    },
     mutationFn: (credentials: LoginCredentials) => login(credentials),
     onSettled: () => {
       queryClient.invalidateQueries({

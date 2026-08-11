@@ -95,7 +95,7 @@ const isMobileMenuOpen = ref(false)
             size="sm"
             class="hidden sm:inline-flex rounded-full px-5 h-9"
           >
-            <NuxtLink to="/auth?step=signup">Начать бесплатно</NuxtLink>
+            <NuxtLink to="/auth">Зарегистрироваться</NuxtLink>
           </Button>
         </template>
 
@@ -358,9 +358,9 @@ const isMobileMenuOpen = ref(false)
                 @click="isMobileMenuOpen = false"
               >
                 <NuxtLink
-                  to="/auth?step=signup"
+                  to="/auth"
                   class="w-full text-center"
-                  >Начать работу</NuxtLink
+                  >Зарегистрироваться</NuxtLink
                 >
               </Button>
             </div>

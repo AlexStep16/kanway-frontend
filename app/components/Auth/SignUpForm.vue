@@ -4,7 +4,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { ArrowLeft, KeyRound } from '@lucide/vue'
+import { KeyRound } from '@lucide/vue'
 import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'
@@ -18,7 +18,7 @@ const props = withDefaults(
   },
 )
 
-const { mutate: register, isPending: isRegistering, error: registerError } = useRegister()
+const { mutate: register, isPending: isRegistering } = useRegister()
 
 const isPasswordDirty = ref(false)
 const isPasswordVisible = ref(false)
@@ -129,7 +129,7 @@ function handleTogglePasswordVisibility() {
           />
         </div>
         <ul
-          class="text-xs my-2"
+          class="text-xs mb-2"
           v-if="password && password.length > 0"
         >
           <li
@@ -145,12 +145,6 @@ function handleTogglePasswordVisibility() {
             <span>{{ item.label }}</span>
           </li>
         </ul>
-        <ul
-          class="text-xs text-red-600"
-          v-if="registerError && !isPasswordDirty"
-        >
-          <li class="list-inside">{{ registerError.message }}</li>
-        </ul>
       </div>
 
       <RegisterButton
@@ -158,14 +152,7 @@ function handleTogglePasswordVisibility() {
         text="Создать аккаунт"
       />
 
-      <div class="flex flex-wrap justify-start items-center mt-2 gap-2">
-        <NuxtLink
-          class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
-          to="/auth"
-        >
-          <ArrowLeft class="size-4" /> Назад
-        </NuxtLink>
-      </div>
+      <SocialButtons />
     </div>
   </form>
 </template>

@@ -74,7 +74,7 @@ import { ChevronRight } from '@lucide/vue'
         <div class="opacity-0 hero-appear_buttons mt-8 flex justify-center">
           <NuxtLink
             class="inline-flex justify-center items-center gap-x-3 text-center bg-linear-to-tl from-blue-500 to-violet-500 hover:from-violet-500 hover:to-blue-500 border border-transparent text-white text-sm font-medium rounded-md focus:outline-hidden focus:from-violet-600 focus:to-blue-600 py-3 px-4"
-            to="/auth?step=signup"
+            to="/auth"
           >
             Начать бесплатно
             <ChevronRight class="shrink-0 size-4" />

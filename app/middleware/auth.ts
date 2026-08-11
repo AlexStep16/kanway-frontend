@@ -21,6 +21,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     const validStepsWithoutPayload = [
       AllowedAuthStepsEnum.PASSWORD_RESET_COMPLETE,
       AllowedAuthStepsEnum.FINISH_SIGN_UP,
+      AllowedAuthStepsEnum.SIGN_UP,
     ]
 
     if (!validStepsWithoutPayload.includes(step as AllowedAuthStepsEnum)) {

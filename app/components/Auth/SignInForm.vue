@@ -3,10 +3,12 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { ArrowLeft, KeyRound } from '@lucide/vue'
+import { KeyRound } from '@lucide/vue'
 import z from 'zod'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'
+import { ResendStorageKeysEnum } from '~/enums/ResendStorageKeysEnum.js'
+import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum.js'
 
 const props = withDefaults(
   defineProps<{
@@ -17,7 +19,7 @@ const props = withDefaults(
   },
 )
 
-const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
+const { mutate: login, isPending: isLogging } = useLogin()
 
 const isPasswordDirty = ref(false)
 const passwordRef = ref<HTMLInputElement | null>(null)
@@ -82,6 +84,37 @@ function handleTogglePasswordVisibility() {
 }
 
 const isProcessing = computed(() => isLogging.value || isNavigating.value)
+
+const { mutate: sendMagicLink, isPending: isSendingMagicLink } = useSendMagicLink()
+
+function navigateToLoginVerify() {
+  if (!email.value) return
+
+  navigateTo({
+    path: '/auth',
+    query: {
+      step: AllowedAuthStepsEnum.VERIFY_LOGIN,
+      payload: getSafeBase64String(email.value.trim()),
+    },
+  })
+}
+
+function handleSendMagicLink() {
+  if (!email.value) return
+
+  const remainingResend = getRemainingResend(ResendStorageKeysEnum.LOGIN_VERIFICATION)
+
+  if (remainingResend > 0) {
+    navigateToLoginVerify()
+    return
+  }
+
+  sendMagicLink(email.value, {
+    onSuccess() {
+      navigateToLoginVerify()
+    },
+  })
+}
 </script>
 
 <template>
@@ -117,13 +150,6 @@ const isProcessing = computed(() => isLogging.value || isNavigating.value)
         >
           <li class="list-inside">{{ errors.password }}</li>
         </ul>
-        <ul
-          class="text-xs text-red-600"
-          id="password-auth-error"
-          v-if="loginError && !isPasswordDirty"
-        >
-          <li class="list-inside">{{ loginError.message }}</li>
-        </ul>
       </div>
       <!-- End Form Group -->
 
@@ -131,14 +157,27 @@ const isProcessing = computed(() => isLogging.value || isNavigating.value)
         :isProcessing="isProcessing"
         text="Войти"
       />
-      <div class="flex flex-wrap justify-between items-center mt-2 gap-2">
-        <NuxtLink
-          class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
-          to="/auth"
-        >
-          <ArrowLeft class="size-4" /> Назад
-        </NuxtLink>
 
+      <Button
+        variant="outlinePrimary"
+        size="lg"
+        class="w-full"
+        @click="handleSendMagicLink"
+      >
+        <div
+          class="flex items-center gap-x-2"
+          v-if="!isSendingMagicLink"
+        >
+          <Link
+            class="size-3.5"
+            stroke-width="2.5"
+          />
+          <span>Отправить ссылку для входа</span>
+        </div>
+        <Spinner v-else />
+      </Button>
+
+      <div class="flex flex-wrap justify-center items-center mt-4 gap-2">
         <button
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
           @click.prevent="$emit('forgot-password')"

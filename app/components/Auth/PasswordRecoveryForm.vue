@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { KeyRound, ArrowLeft } from '@lucide/vue'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'
+import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum.js'
 
 const { mutate: recover, isPending: isRecovering, error: recoverError } = usePasswordRecovery()
 
@@ -139,7 +140,9 @@ const isProcessing = computed(() => isRecovering.value || isNavigating.value)
         <NuxtLink
           class="inline-flex items-center gap-x-1 text-sm text-primary transition-colors duration-200 border-b-2 border-transparent hover:border-primary focus:outline-hidden font-medium"
           :to="
-            props.email ? `/auth?step=sign_in&payload=${getSafeBase64String(props.email)}` : '/auth'
+            props.email
+              ? `/auth?step=${AllowedAuthStepsEnum.SIGN_IN}&payload=${getSafeBase64String(props.email)}`
+              : '/auth'
           "
         >
           <ArrowLeft class="size-4" /> Назад

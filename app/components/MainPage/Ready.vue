@@ -65,9 +65,9 @@ import { ChevronRight } from '@lucide/vue'
       >
         <NuxtLink
           class="inline-flex justify-center items-center gap-x-2 py-3 px-4 font-medium rounded-lg border border-transparent bg-white text-blue-500 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none transition-colors duration-200"
-          to="/auth?step=signup"
+          to="/auth"
         >
-          Начать бесплатно
+          Зарегистрироваться
           <ChevronRight class="shrink-0 size-4" />
         </NuxtLink>
       </div>
