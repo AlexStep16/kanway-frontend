@@ -104,7 +104,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
                 class="absolute right-0 text-xs text-green-500 py-1.5 px-2.5 bg-green-100 rounded-full"
                 v-if="user?.isSubscriptionActive && !isUserHasPending"
               >
-                Активна
+                Активен
               </span>
               <span
                 class="absolute right-0 text-xs text-yellow-500 py-1.5 px-2.5 bg-yellow-100 rounded-full"
@@ -123,7 +123,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
               >{{ currentSubscription.price }}<span class="text-sm font-medium">₽/месяц</span></span
             >
             <div class="flex flex-col text-gray-400 text-xs items-start">
-              <span v-if="getSubscriptionUntil">Активна до: {{ getSubscriptionUntil }}</span>
+              <span v-if="getSubscriptionUntil">Активен до: {{ getSubscriptionUntil }}</span>
               <span
                 v-if="user?.isSubscriptionActive && user?.subscriptionUntil && !isUserHasPending"
                 >Следующий платеж: {{ getSubscriptionUntil }}</span
