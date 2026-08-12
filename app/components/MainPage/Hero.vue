@@ -37,7 +37,7 @@ import { ChevronRight } from '@lucide/vue'
       ></div>
     </div>
     <div
-      class="w-full flex flex-col lg:flex-row items-center justify-center gap-8 px-8 sm:px-10 lg:px-16 pt-12 md:pt-16 lg:pt-24 pb-10"
+      class="w-full flex flex-col lg:flex-row items-center justify-center gap-8 px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-24 pb-10"
     >
       <div class="flex flex-col items-center lg:items-start max-w-2xl">
         <!-- Announcement Banner -->

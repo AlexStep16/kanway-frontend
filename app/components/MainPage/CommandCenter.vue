@@ -35,7 +35,7 @@ import { Check, Clock } from '@lucide/vue'
           >
         </div>
         <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 mb-4 tracking-tight">
-          Это не просто чат <br class="hidden md:block" />
+          Это не просто чат <br />
           <span class="text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-blue-500"
             >Это ваш командный центр</span
           >

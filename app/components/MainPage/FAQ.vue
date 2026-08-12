@@ -41,12 +41,12 @@ import {
             class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
             <AccordionTrigger
-              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 text-base md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Как именно работает AI? Это просто чат-бот?
             </AccordionTrigger>
             <AccordionContent class="pb-0">
-              <p class="text-gray-800 text-base">
+              <p class="text-gray-800 text-sm sm:text-base">
                 Нет, это гораздо больше. Наш AI-ассистент работает как настоящий помощник: он
                 анализирует вашу команду, составляет пошаговый план действий (например, "найти
                 задачи" → "изменить цвет" → "переместить"), а затем выполняет его. Он понимает
@@ -67,12 +67,12 @@ import {
             class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
             <AccordionTrigger
-              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 text-base md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Мои задачи и данные в безопасности? Вы отправляете их в сторонние сервисы?
             </AccordionTrigger>
             <AccordionContent class="pb-0">
-              <p class="text-gray-800 text-base">
+              <p class="text-gray-800 text-sm sm:text-base">
                 Конфиденциальность — наш главный приоритет. Мы используем передовые LLM-модели через
                 защищенные API, но мы НЕ используем ваши данные для обучения моделей. Ваша
                 информация обрабатывается для выполнения команды и ни для чего больше. Все данные
@@ -92,12 +92,12 @@ import {
             class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
             <AccordionTrigger
-              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 text-base sm:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Как расходуются кредиты в Kanway AI?
             </AccordionTrigger>
             <AccordionContent class="pb-0">
-              <p class="text-gray-800 text-base">
+              <p class="text-gray-800 text-sm sm:text-base">
                 Расход кредитов напрямую зависит от объема интеллектуальной работы, которую
                 выполняет система. В Kanway задействована цепочка агентов, и чем больше информации
                 им нужно обработать и создать, тем больше ресурсов ИИ расходуется.<br /><br />
@@ -117,12 +117,12 @@ import {
             class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
             <AccordionTrigger
-              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 text-base sm:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Чем вы лучше других таск-менеджеров, в которых тоже есть AI?
             </AccordionTrigger>
             <AccordionContent class="pb-0">
-              <p class="text-gray-800 text-base">
+              <p class="text-gray-800 text-sm sm:text-base">
                 Большинство AI-инструментов — это "умное" автодополнение или генерация текста. Наш
                 сервис — это полноценный исполнительный агент. Он не просто предлагает идеи, а
                 выполняет ваши команды, понимая контекст вашей работы. Наш AI-ассистент интегрирован
@@ -143,12 +143,12 @@ import {
             class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
             <AccordionTrigger
-              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 text-base sm:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Возможна ли командная работа в Kanway?
             </AccordionTrigger>
             <AccordionContent class="pb-0">
-              <p class="text-gray-800 text-base">
+              <p class="text-gray-800 text-sm sm:text-base">
                 Сейчас архитектура Kanway оптимизирована для «второго мозга» и персональной
                 продуктивности. Это позволяет ИИ-агентам максимально глубоко подстраиваться под ваш
                 личный контекст. Многопользовательский режим и общие пространства находятся в
@@ -168,12 +168,12 @@ import {
             class="rounded-xl border-none p-6 transition-colors data-[state=open]:bg-gray-100"
           >
             <AccordionTrigger
-              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 md:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
+              class="group flex w-full items-center justify-between gap-x-3 rounded-lg py-0 pb-3 text-start font-semibold text-gray-800 transition-colors hover:no-underline hover:text-blue-500 focus:text-blue-500 focus:outline-hidden data-[state=open]:text-blue-500 text-base sm:text-lg [&>svg]:size-5 [&>svg]:text-gray-600 group-hover:[&>svg]:text-blue-500 data-[state=open]:[&>svg]:text-blue-500"
             >
               Какова ваша политика возврата?
             </AccordionTrigger>
             <AccordionContent class="pb-0">
-              <p class="text-gray-800 text-base">
+              <p class="text-gray-800 text-sm sm:text-base">
                 У нас предусмотрен возврат товаров и средств. Наш главный приоритет — доверительные
                 отношения с клиентами и нашим сообществом.
               </p>
