@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { toast } from 'vue-sonner'
 import { linkVkAccount, vkAuth } from '~/services/auth'
 import { useQueryClient } from '@tanstack/vue-query'
+import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 
 const queryClient = useQueryClient()
 
@@ -34,11 +35,16 @@ async function handleCallback() {
     if (isAccountLinking) {
       const user = await linkVkAccount(payload)
       queryClient.setQueryData(userKeys.me, user)
+      navigateTo('/workspace')
     } else {
       const user = await vkAuth(payload)
+      if (!user) {
+        await navigateTo({ path: '/auth', query: { step: AllowedAuthStepsEnum.FINISH_SIGN_UP } })
+        return
+      }
       queryClient.setQueryData(userKeys.me, user)
+      navigateTo('/workspace')
     }
-    navigateTo('/workspace')
   } catch (error) {
     console.error('Authentication failed', error)
     toast.error(error instanceof Error ? error.message : 'Не удалось привязать аккаунт VK')

@@ -22,7 +22,7 @@ export async function yandexAuthApi(payload: YandexAuthDTO) {
 }
 
 export async function vkAuthApi(payload: VkAuthDTO) {
-  return await apiCall<IUser>({
+  return await apiCall<IUser | null>({
     method: 'POST',
     url: '/auth/vk',
     data: payload,

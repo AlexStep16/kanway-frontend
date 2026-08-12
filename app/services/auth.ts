@@ -98,8 +98,10 @@ export async function yandexAuth(payload: YandexAuthDTO): Promise<IUser> {
   return transformUser(await yandexAuthApi(payload))
 }
 
-export async function vkAuth(payload: VkAuthDTO): Promise<IUser> {
-  return transformUser(await vkAuthApi(payload))
+export async function vkAuth(payload: VkAuthDTO): Promise<UserModel | null> {
+  const raw = await vkAuthApi(payload)
+  if (!raw) return null
+  return transformUser(raw)
 }
 
 export async function linkYandexAccount(payload: YandexAuthDTO): Promise<IUser> {
