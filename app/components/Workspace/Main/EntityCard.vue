@@ -188,7 +188,7 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
           }"
         >
           <div
-            class="relative top-0.5 inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none transition-all duration-100 group-hover/task:opacity-100 group-hover/task:pointer-events-auto"
+            class="relative top-px inline-flex items-center pointer-fine:opacity-0 pointer-fine:pointer-events-none transition-all duration-100 group-hover/task:opacity-100 group-hover/task:pointer-events-auto"
             :class="{
               'opacity-100! pointer-events-auto!': entity.isCompleted,
             }"
