@@ -151,6 +151,22 @@ function handleTogglePasswordVisibility() {
         :isProcessing="isProcessing"
         text="Создать аккаунт"
       />
+      <p class="text-xs text-gray-500 text-center">
+        Создавая аккаунт, вы соглашаетесь с нашими
+        <NuxtLink
+          to="/terms"
+          class="text-blue-500 hover:underline"
+        >
+          Условиями использования
+        </NuxtLink>
+        и
+        <NuxtLink
+          to="/privacy"
+          class="text-blue-500 hover:underline"
+        >
+          Политикой конфиденциальности
+        </NuxtLink>
+      </p>
 
       <SocialButtons />
     </div>
