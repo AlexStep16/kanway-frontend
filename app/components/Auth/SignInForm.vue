@@ -162,7 +162,7 @@ function handleSendMagicLink() {
         variant="outlinePrimary"
         size="lg"
         class="w-full"
-        @click="handleSendMagicLink"
+        @click.prevent="handleSendMagicLink"
       >
         <div
           class="flex items-center gap-x-2"
