@@ -39,6 +39,7 @@ async function startVkAuth() {
     redirect_uri: runtimeConfig.public.vkRedirectUri as string,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
+    scope: 'email',
     state: state,
   })
 
