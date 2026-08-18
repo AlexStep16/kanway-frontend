@@ -6,6 +6,9 @@ export function usePasswordRecovery() {
 
   return useMutation({
     mutationKey: ['user'],
+    meta: {
+      errorMessage: false,
+    },
     mutationFn: async ({ password }: { password: string }) => passwordRecovery(password),
     onSettled: () => {
       queryClient.invalidateQueries({

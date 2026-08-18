@@ -24,7 +24,7 @@ const aiInputRef = ref<InstanceType<typeof AIInput> | null>(null)
 const abortController = ref<AbortController | null>(null)
 const savedMessage = ref<string>('')
 
-const { data: messages, isFetching: areMessagesLoading } = useChatMessages(activeChatId)
+const { data: messages, isFetching: areMessagesFetching } = useChatMessages(activeChatId)
 const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
 
 const { mutate: stopAgent } = useStopAgent()
@@ -100,9 +100,11 @@ const isMainChat = computed(() => {
   return boardStore.activeBoardId === null && uiStore.isBoardTabSelected
 })
 
-const isInitialMessagesLoading = computed(() => {
-  return areMessagesLoading.value && messages.value?.length === 0
-})
+const isInitialMessagesLoading = useDelayedLoading(
+  computed(() => {
+    return areMessagesFetching.value && messages.value?.length === 0
+  }),
+)
 
 const isMobile = useMediaQuery('(max-width: 768px)')
 const observer = ref<ResizeObserver | null>(null)

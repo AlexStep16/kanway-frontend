@@ -60,9 +60,9 @@ function handleAddTag() {
               v-for="(tag, index) in task.tags"
               :key="tag + task.id"
               variant="secondary"
-              class="pl-2 pr-1 py-0.5 text-[11px] font-medium transition-colors hover:bg-secondary/80"
+              class="pl-2 pr-1 py-0.5 text-[11px] font-medium transition-colors hover:bg-secondary/80 max-w-full truncate"
             >
-              {{ tag }}
+              <span class="truncate">#{{ tag }}</span>
               <button
                 type="button"
                 class="ml-1 p-0.5 rounded-full hover:bg-red-100 hover:text-red-500 transition-colors"
@@ -86,8 +86,9 @@ function handleAddTag() {
             <Input
               v-model="newTag"
               placeholder="Новый тег..."
-              class="h-8 text-xs focus-visible:ring-primary"
+              class="h-8 min-w-30 text-xs focus-visible:ring-primary"
               @keyup.enter="handleAddTag"
+              v-autowidth
             />
             <Button
               size="sm"

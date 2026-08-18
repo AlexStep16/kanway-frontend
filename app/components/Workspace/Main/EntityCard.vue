@@ -238,38 +238,56 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
               isCopyAvailable || isDeleteAvailable,
           }"
         >
-          <button
-            type="button"
-            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-            title="Копировать"
-            @click.stop="$emit('copy')"
-            v-if="isCopyAvailable"
-          >
-            <Spinner
-              v-if="toValue(status.isCloning)"
-              class="size-4"
-            />
-            <Copy
-              v-else
-              class="size-4"
-            />
-          </button>
-          <button
-            type="button"
-            class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-            title="Архивировать"
-            v-if="isDeleteAvailable"
-            @click.stop="$emit('archive')"
-          >
-            <Spinner
-              v-if="toValue(status.isArchiving)"
-              class="size-4"
-            />
-            <Archive
-              v-else
-              class="size-4"
-            />
-          </button>
+          <TooltipProvider :disableHoverableContent="true">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <button
+                  type="button"
+                  class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+                  @click.stop="$emit('copy')"
+                  v-if="isCopyAvailable"
+                >
+                  <Spinner
+                    v-if="toValue(status.isCloning)"
+                    class="size-4"
+                  />
+                  <Copy
+                    v-else
+                    class="size-4"
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent :sideOffset="-4">
+                <p>Копировать</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider :disableHoverableContent="true">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <button
+                  type="button"
+                  class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+                  title="Архивировать"
+                  v-if="isDeleteAvailable"
+                  @click.stop="$emit('archive')"
+                >
+                  <Spinner
+                    v-if="toValue(status.isArchiving)"
+                    class="size-4"
+                  />
+                  <Archive
+                    v-else
+                    class="size-4"
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent :sideOffset="-4">
+                <p>Архивировать</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -291,9 +309,9 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
           v-for="tag in entity.tags"
           :key="tag"
           variant="secondaryMuted"
-          class="text-xs rounded-sm"
+          class="text-xs rounded-sm max-w-full truncate"
         >
-          #{{ tag }}
+          <span class="truncate">#{{ tag }}</span>
         </Badge>
       </div>
 

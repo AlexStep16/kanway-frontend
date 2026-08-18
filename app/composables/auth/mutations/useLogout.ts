@@ -7,11 +7,16 @@ export function useLogout() {
 
   return useMutation({
     mutationKey: ['user'],
-    mutationFn: () => logout(),
-    onSuccess: async () => {
+    mutationFn: async (isRedirectToAuth: boolean) => {
+      await logout()
+      return { isRedirectToAuth }
+    },
+    onSuccess: async (vars: { isRedirectToAuth: boolean }) => {
       queryClient.setQueryData(userKeys.me, null)
 
-      await router.push('/auth')
+      if (vars.isRedirectToAuth) {
+        await router.push('/auth')
+      }
 
       queryClient.clear()
     },

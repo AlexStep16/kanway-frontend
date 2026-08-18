@@ -64,8 +64,24 @@ watch(
     >
       <NuxtPage />
 
-      <LazyArchive v-if="isArchiveTabShown" />
-      <LazySettings v-if="isSettingsTabShown" />
+      <Suspense v-if="isArchiveTabShown">
+        <template #default>
+          <LazyArchive />
+        </template>
+
+        <template #fallback>
+          <ArchiveSkeleton />
+        </template>
+      </Suspense>
+      <Suspense v-if="isSettingsTabShown">
+        <template #default>
+          <LazySettings />
+        </template>
+
+        <template #fallback>
+          <SettingsSkeleton />
+        </template>
+      </Suspense>
     </SidebarInset>
 
     <Chat

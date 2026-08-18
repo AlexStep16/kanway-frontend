@@ -129,7 +129,7 @@ const isMobileMenuOpen = ref(false)
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   class="text-destructive data-highlighted:bg-destructive/10 data-highlighted:text-destructive active:bg-destructive/10 active:scale-[0.98] transition-all duration-100"
-                  @click="logout()"
+                  @click="logout(true)"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -189,7 +189,7 @@ const isMobileMenuOpen = ref(false)
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   class="text-destructive data-highlighted:bg-destructive/10 data-highlighted:text-destructive active:bg-destructive/10 active:scale-[0.98] transition-all duration-100"
-                  @click="logout()"
+                  @click="logout(true)"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -392,7 +392,7 @@ const isMobileMenuOpen = ref(false)
                 class="w-full justify-center rounded-xl text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                 @click="
                   () => {
-                    logout()
+                    logout(true)
                     isMobileMenuOpen = false
                   }
                 "
@@ -452,7 +452,7 @@ const isMobileMenuOpen = ref(false)
                 class="w-full justify-center rounded-xl text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                 @click="
                   () => {
-                    logout()
+                    logout(true)
                     isMobileMenuOpen = false
                   }
                 "

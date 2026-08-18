@@ -20,8 +20,11 @@ const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
 
 const { data: board } = useBoard(activeBoardId, activeWorkspaceId)
 const { data: workspace } = useWorkspace(activeWorkspaceId)
-const { data: columns, isPending: areColumnsLoading } = useColumns(activeBoardId)
-const { isPending: isBoardsLoading } = useBoards(activeWorkspaceId)
+const { data: columns, isPending: areColumnsPending } = useColumns(activeBoardId)
+const { isPending: areBoardsPending } = useBoards(activeWorkspaceId)
+
+const areColumnsLoading = useDelayedLoading(areColumnsPending)
+const areBoardsLoading = useDelayedLoading(areBoardsPending)
 
 const { mutate: moveColumn } = useMoveColumnCard()
 
@@ -85,7 +88,7 @@ function draggableChange(event: any) {
 
   <div class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">
     <div class="size-full pt-4 pb-2 flex gap-3 overflow-y-hidden custom-scrollbar">
-      <template v-if="!isBoardsLoading">
+      <template v-if="!areBoardsLoading">
         <draggable
           v-model="localColumnList"
           @change="draggableChange"

@@ -4,6 +4,7 @@ import ChatGPT from '~/assets/chatgpt.svg?skipsvgo'
 import { Mic } from '@lucide/vue'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { cn } from '~/lib/utils'
+import { AI_INPUT_PLACEHOLDERS } from '~/constants/AI_INPUT_PLACEHOLDERS'
 
 defineProps<{
   isRunning: boolean
@@ -13,6 +14,9 @@ const aiInputMessage = defineModel<string>('aiInputMessage', { default: '' })
 const modelType = ref<ModelsEnum>(ModelsEnum.GPT_5_4_MINI)
 const isModelTypeSelectOpen = ref(false)
 const aiInputMessageRef = ref<HTMLTextAreaElement | null>(null)
+
+const currentPlaceholderIndex = ref(0)
+let placeholderIntervalId: any = null
 
 const update = ref(() => {})
 
@@ -44,6 +48,17 @@ function updateTextarea() {
   }
 }
 
+onMounted(() => {
+  placeholderIntervalId = setInterval(() => {
+    currentPlaceholderIndex.value =
+      (currentPlaceholderIndex.value + 1) % AI_INPUT_PLACEHOLDERS.length
+  }, 4000)
+})
+
+onUnmounted(() => {
+  clearInterval(placeholderIntervalId)
+})
+
 defineExpose({
   updateTextarea,
 })
@@ -54,13 +69,26 @@ defineExpose({
     class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2"
   >
     <div class="flex flex-col gap-2 items-end">
-      <div class="w-full flex items-center">
+      <div class="w-full flex items-center relative">
         <Textarea
           class="p-0 border-none shadow-none min-h-12 rounded-none placeholder:text-zinc-400"
           placeholder="Опиши проект или просто выгрузи мысли..."
           v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
         />
+
+        <Transition
+          name="placeholder-fade"
+          mode="out-in"
+        >
+          <span
+            v-if="!aiInputMessage.trim()"
+            :key="currentPlaceholderIndex"
+            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none"
+          >
+            {{ AI_INPUT_PLACEHOLDERS[currentPlaceholderIndex] }}
+          </span>
+        </Transition>
       </div>
       <div class="flex justify-between items-center gap-2 w-full">
         <div class="flex min-w-0 items-center gap-2">

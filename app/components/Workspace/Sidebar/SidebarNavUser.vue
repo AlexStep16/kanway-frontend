@@ -89,7 +89,7 @@ const isUserHasBasicSub = computed(() => {
             </DropdownMenuItem>
             <DropdownMenuItem
               class="text-destructive focus:text-destructive focus:bg-red-100"
-              @click="logout()"
+              @click="logout(true)"
             >
               <LogOut />
               Выйти

@@ -10,6 +10,33 @@ const { isMobile } = useSidebar()
 
 const { data: workspacesData, isPending: areWorkspacesLoading } = useWorkspaces()
 const workspaces = computed(() => workspacesData.value || [])
+const { data: user } = useUser()
+const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
+const subscriptions = computed(() => subscriptionsData.value || [])
+
+const currentSubscription = computed(() => {
+  if (!user.value) {
+    return null
+  }
+
+  return (
+    subscriptions.value.find(
+      (subscription) => subscription.subscriptionId === user.value?.subscriptionId,
+    ) || null
+  )
+})
+
+const maxWorkspaces = computed(() => {
+  if (!currentSubscription.value) {
+    return 0
+  }
+
+  return currentSubscription.value.limitWorkspaces
+})
+
+const isCreateWorkspaceButtonActive = computed(() => {
+  return workspaces.value.length < maxWorkspaces.value || maxWorkspaces.value === -1
+})
 
 const openOptions = ref<Record<string, boolean>>({})
 
@@ -149,10 +176,7 @@ const handleCloseOptions = (workspaceId: string) => {
                 </div>
               </DropdownMenuItem>
 
-              <DropdownMenu
-                v-model:open="openOptions[workspace.id]"
-                :modal="false"
-              >
+              <DropdownMenu v-model:open="openOptions[workspace.id]">
                 <DropdownMenuTrigger as-child>
                   <DropdownMenuMore show-on-hover>
                     <MoreHorizontal class="size-4" />
@@ -169,17 +193,43 @@ const handleCloseOptions = (workspaceId: string) => {
             </div>
           </div>
           <DropdownMenuSeparator />
-          <Button
-            variant="secondary"
-            size="sm"
-            class="flex gap-x-2 px-2 w-full font-normal justify-start"
-            @click="openWorkspaceDialog()"
+
+          <TooltipProvider
+            :disableHoverableContent="true"
+            :disabled="isCreateWorkspaceButtonActive"
           >
-            <div class="size-5 flex items-center justify-center rounded-sm bg-secondary">
-              <Plus class="size-4" />
-            </div>
-            <span class="text-nowrap">Создать</span>
-          </Button>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  class="flex gap-x-2 px-2 w-full font-normal justify-start disabled:pointer-events-auto disabled:bg-accent"
+                  :disabled="!isCreateWorkspaceButtonActive"
+                  @click="openWorkspaceDialog()"
+                >
+                  <div class="size-5 flex items-center justify-center rounded-sm bg-secondary">
+                    <Plus class="size-4" />
+                  </div>
+                  <span
+                    class="text-nowrap"
+                    v-if="!isSubscriptionsLoading"
+                    >Создать</span
+                  >
+
+                  <Spinner
+                    class="size-3.5 text-muted-foreground"
+                    v-else
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent
+                :sideOffset="-4"
+                side="bottom"
+              >
+                <p>Достигнут лимит пространств</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </DropdownMenuContent>
       </DropdownMenu>
     </SidebarMenuItem>

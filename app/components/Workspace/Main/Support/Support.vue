@@ -83,124 +83,118 @@ watch(
 </script>
 
 <template>
-  <Dialog v-model:open="uiStore.isSupportModalOpen">
-    <DialogContent
-      class="sm:max-w-125 max-h-[95svh] p-0 overflow-hidden border-none shadow-2xl rounded-xl"
+  <div class="relative bg-background p-6 sm:p-8">
+    <div class="text-center mb-8">
+      <DialogTitle class="text-2xl font-bold text-foreground sm:text-3xl">
+        Как мы можем вам помочь?
+      </DialogTitle>
+      <DialogDescription class="mt-2 text-sm text-muted-foreground">
+        Расскажите о вашей проблеме, и мы свяжемся с вами.
+      </DialogDescription>
+    </div>
+
+    <form
+      @submit="onSubmit"
+      class="space-y-4"
     >
-      <div class="relative bg-background p-6 sm:p-8">
-        <div class="text-center mb-8">
-          <DialogTitle class="text-2xl font-bold text-foreground sm:text-3xl">
-            Как мы можем вам помочь?
-          </DialogTitle>
-          <DialogDescription class="mt-2 text-sm text-muted-foreground">
-            Расскажите о вашей проблеме, и мы свяжемся с вами.
-          </DialogDescription>
-        </div>
+      <FormField
+        v-slot="{ componentField }"
+        v-bind="validationTriggers"
+        name="name"
+      >
+        <FormItem>
+          <FormLabel>Имя</FormLabel>
+          <FormControl>
+            <Input
+              type="text"
+              placeholder="Иван"
+              v-bind="componentField"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
 
-        <form
-          @submit="onSubmit"
-          class="space-y-4"
+      <FormField
+        v-slot="{ componentField }"
+        v-bind="validationTriggers"
+        name="email"
+      >
+        <FormItem>
+          <FormLabel>Почта</FormLabel>
+          <FormControl>
+            <Input
+              type="text"
+              placeholder="example@mail.com"
+              v-bind="componentField"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField
+        v-slot="{ componentField }"
+        v-bind="validationTriggers"
+        name="theme"
+      >
+        <FormItem>
+          <FormLabel>Тема</FormLabel>
+          <Select v-bind="componentField">
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите тему..." />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent :body-lock="false">
+              <SelectItem :value="ThemesEnum.ACCOUNT">Аккаунт</SelectItem>
+              <SelectItem :value="ThemesEnum.AI_ASSISTANT">ИИ ассистент</SelectItem>
+              <SelectItem :value="ThemesEnum.BOARDS">Доски и задачи</SelectItem>
+              <SelectItem :value="ThemesEnum.PAYMENTS">Оплата</SelectItem>
+              <SelectItem :value="ThemesEnum.BUG_REPORT">Ошибка</SelectItem>
+              <SelectItem :value="ThemesEnum.FEATURE_REQUEST">Предложение</SelectItem>
+              <SelectItem :value="ThemesEnum.OTHER">Другое</SelectItem>
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <FormField
+        v-slot="{ componentField }"
+        v-bind="validationTriggers"
+        name="details"
+      >
+        <FormItem>
+          <FormLabel>Подробности</FormLabel>
+          <FormControl>
+            <Textarea
+              placeholder="Опишите вашу проблему..."
+              class="resize-none"
+              rows="4"
+              v-bind="componentField"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      </FormField>
+
+      <div class="pt-2">
+        <Button
+          type="submit"
+          class="w-full"
+          :disabled="isSending"
         >
-          <FormField
-            v-slot="{ componentField }"
-            v-bind="validationTriggers"
-            name="name"
-          >
-            <FormItem>
-              <FormLabel>Имя</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="Иван"
-                  v-bind="componentField"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-
-          <FormField
-            v-slot="{ componentField }"
-            v-bind="validationTriggers"
-            name="email"
-          >
-            <FormItem>
-              <FormLabel>Почта</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="example@mail.com"
-                  v-bind="componentField"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-
-          <FormField
-            v-slot="{ componentField }"
-            v-bind="validationTriggers"
-            name="theme"
-          >
-            <FormItem>
-              <FormLabel>Тема</FormLabel>
-              <Select v-bind="componentField">
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите тему..." />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent :body-lock="false">
-                  <SelectItem :value="ThemesEnum.ACCOUNT">Аккаунт</SelectItem>
-                  <SelectItem :value="ThemesEnum.AI_ASSISTANT">ИИ ассистент</SelectItem>
-                  <SelectItem :value="ThemesEnum.BOARDS">Доски и задачи</SelectItem>
-                  <SelectItem :value="ThemesEnum.PAYMENTS">Оплата</SelectItem>
-                  <SelectItem :value="ThemesEnum.BUG_REPORT">Ошибка</SelectItem>
-                  <SelectItem :value="ThemesEnum.FEATURE_REQUEST">Предложение</SelectItem>
-                  <SelectItem :value="ThemesEnum.OTHER">Другое</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-
-          <FormField
-            v-slot="{ componentField }"
-            v-bind="validationTriggers"
-            name="details"
-          >
-            <FormItem>
-              <FormLabel>Подробности</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Опишите вашу проблему..."
-                  class="resize-none"
-                  rows="4"
-                  v-bind="componentField"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-
-          <div class="pt-2">
-            <Button
-              type="submit"
-              class="w-full"
-              :disabled="isSending"
-            >
-              <Spinner
-                v-if="isSending"
-                class="mr-2 size-4"
-              />
-              Отправить запрос
-            </Button>
-            <p class="mt-3 text-center text-[11px] text-muted-foreground">
-              Мы свяжемся с вами в течение 1-2 рабочих дней.
-            </p>
-          </div>
-        </form>
+          <Spinner
+            v-if="isSending"
+            class="mr-2 size-4"
+          />
+          Отправить запрос
+        </Button>
+        <p class="mt-3 text-center text-[11px] text-muted-foreground">
+          Мы свяжемся с вами в течение 1-2 рабочих дней.
+        </p>
       </div>
-    </DialogContent>
-  </Dialog>
+    </form>
+  </div>
 </template>

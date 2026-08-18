@@ -39,49 +39,65 @@ function handleDislikeMessage() {
 
 <template>
   <div class="flex flex-wrap items-center justify-start gap-1">
-    <button
-      type="button"
-      title="Нравится"
-      aria-label="Нравится"
-      :disabled="isLikePending || isDislikePending"
-      class="text-xs flex items-center justify-center rounded-md text-gray-500 p-1.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100"
-      :class="{
-        'bg-green-100 text-green-600':
-          props.message.rating === true || (demoRating === true && props.isDemo),
-      }"
-      @click="handleLikeMessage"
-    >
-      <ThumbsUp
-        class="size-3"
-        v-if="!isLikePending"
-      />
-      <span
-        class="w-3 h-3 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"
-        v-else
-      ></span>
-    </button>
+    <TooltipProvider :disableHoverableContent="true">
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <button
+            type="button"
+            aria-label="Нравится"
+            :disabled="isLikePending || isDislikePending"
+            class="text-xs flex items-center justify-center rounded-md text-gray-500 p-1.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100"
+            :class="{
+              'bg-green-100 text-green-600':
+                props.message.rating === true || (demoRating === true && props.isDemo),
+            }"
+            @click="handleLikeMessage"
+          >
+            <ThumbsUp
+              class="size-3"
+              v-if="!isLikePending"
+            />
+            <span
+              class="w-3 h-3 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"
+              v-else
+            ></span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent :sideOffset="-4">
+          <p>Нравится</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
 
-    <button
-      type="button"
-      title="Не нравится"
-      aria-label="Не нравится"
-      :disabled="isLikePending || isDislikePending"
-      class="text-xs flex items-center justify-center rounded-md text-gray-500 p-1.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100 mr-1"
-      :class="{
-        'bg-red-100 text-red-500':
-          props.message.rating === false || (demoRating === false && props.isDemo),
-      }"
-      @click="handleDislikeMessage"
-    >
-      <ThumbsDown
-        class="size-3"
-        v-if="!isDislikePending"
-      />
-      <span
-        class="w-3 h-3 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"
-        v-else
-      ></span>
-    </button>
+    <TooltipProvider :disableHoverableContent="true">
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <button
+            type="button"
+            aria-label="Не нравится"
+            :disabled="isLikePending || isDislikePending"
+            class="text-xs flex items-center justify-center rounded-md text-gray-500 p-1.5 bg-gray-100 hover:bg-gray-200 transition-colors duration-100 mr-1"
+            :class="{
+              'bg-red-100 text-red-500':
+                props.message.rating === false || (demoRating === false && props.isDemo),
+            }"
+            @click="handleDislikeMessage"
+          >
+            <ThumbsDown
+              class="size-3"
+              v-if="!isDislikePending"
+            />
+            <span
+              class="w-3 h-3 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"
+              v-else
+            ></span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent :sideOffset="-4">
+          <p>Не нравится</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
 
     <div
       v-if="creditsSpent"

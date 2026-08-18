@@ -242,20 +242,21 @@ onUnmounted(() => {
               v-for="(tag, index) in task.tags"
               :key="`${tag}-${index}`"
               variant="secondaryMuted"
-              class="text-xs h-6 gap-x-2 rounded-sm cursor-pointer transition-colors hover:bg-red-100 hover:text-red-600"
               @click="handleRemoveTag(index)"
+              class="text-xs h-6 gap-x-2 rounded-sm cursor-pointer transition-colors hover:bg-red-100 hover:text-red-600 max-w-full truncate"
             >
-              #{{ tag }}
-              <X class="size-3" />
+              <span class="truncate">#{{ tag }}</span>
+              <X class="size-3 shrink-0" />
             </Badge>
 
             <template v-if="isTagInputVisible">
               <Input
                 id="task-tag-input"
                 v-model="localTag"
-                class="h-6 w-22 px-2 text-xs rounded-sm focus-visible:ring-0 outline-0 focus:ring-0 focus:ring-offset-0 focus:outline-0 font-medium border-transparent bg-muted text-foreground/50 hover:bg-secondary/80"
+                class="h-6 w-22 px-2 text-xs min-w-30 rounded-sm focus-visible:ring-0 outline-0 focus:ring-0 focus:ring-offset-0 focus:outline-0 font-medium border-transparent bg-muted text-foreground/50 hover:bg-secondary/80"
                 @keydown.enter.prevent="handleInlineAddTag"
                 @blur="handleTagInputClose"
+                v-autowidth
               />
             </template>
 

@@ -16,6 +16,29 @@ const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
 const createBoardDropdownOpen = ref(false)
 
 const { data: boardsData, isPending: areBoardsLoading } = useBoards(activeWorkspaceId)
+const { data: user } = useUser()
+const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
+const subscriptions = computed(() => subscriptionsData.value || [])
+
+const currentSubscription = computed(() => {
+  if (!user.value) {
+    return null
+  }
+
+  return (
+    subscriptions.value.find(
+      (subscription) => subscription.subscriptionId === user.value?.subscriptionId,
+    ) || null
+  )
+})
+
+const maxBoards = computed(() => {
+  if (!currentSubscription.value) {
+    return 0
+  }
+
+  return currentSubscription.value.limitBoards
+})
 
 const boards = computed(() => boardsData.value || [])
 const open = ref(true)
@@ -32,6 +55,10 @@ const connectExposed = (exposed: any) => {
 function toggle() {
   open.value = !open.value
 }
+
+const isCreateBoardButtonActive = computed(() => {
+  return boards.value.length < maxBoards.value || maxBoards.value === -1
+})
 
 watch(createBoardDropdownOpen, (newVal) => {
   if (newVal) {
@@ -88,7 +115,7 @@ function handleCloseCreateBoard() {
     as-child
     :open="open"
   >
-    <SidebarMenuItem>
+    <SidebarMenuItem class="flex flex-col min-h-0 h-full">
       <div class="flex items-center w-full">
         <SidebarMenuButton
           variant="muted"
@@ -109,18 +136,41 @@ function handleCloseCreateBoard() {
           :modal="false"
         >
           <DropdownMenuTrigger as-child>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              class="text-muted-foreground md:opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-sidebar-accent-foreground data-[state=open]:bg-accent focus-within:opacity-100"
-              @click.stop
+            <TooltipProvider
+              :disableHoverableContent="true"
+              :disabled="isSubscriptionsLoading"
             >
-              <Plus
-                class="size-3.5"
-                stroke-width="2.5"
-              />
-              <span class="sr-only">Создать доску</span>
-            </Button>
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    class="text-muted-foreground disabled:pointer-events-auto disabled:opacity-0 disabled:bg-accent disabled:group-hover/menu-item:opacity-50 md:opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-sidebar-accent-foreground data-[state=open]:bg-accent focus-within:opacity-100"
+                    v-if="!isSubscriptionsLoading"
+                    :disabled="!isCreateBoardButtonActive"
+                    @click.stop="createBoardDropdownOpen = !createBoardDropdownOpen"
+                  >
+                    <Plus
+                      class="size-3.5"
+                      stroke-width="2.5"
+                    />
+                    <span class="sr-only">Создать доску</span>
+                  </Button>
+
+                  <Spinner
+                    class="size-3.5 text-muted-foreground"
+                    v-else
+                  />
+                </TooltipTrigger>
+                <TooltipContent
+                  :sideOffset="-4"
+                  side="right"
+                >
+                  <p v-if="isCreateBoardButtonActive">Создать доску</p>
+                  <p v-else>Достигнут лимит досок</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             class="w-56 rounded-lg"
@@ -136,70 +186,72 @@ function handleCloseCreateBoard() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <CollapsibleContent>
-        <SidebarMenuSub class="pr-0 mr-0">
-          <template v-if="!areBoardsLoading">
-            <SidebarMenuSubItem v-if="orderedBoards.length === 0">
-              <div class="text-xs font-medium text-muted-foreground w-full text-center py-2">
-                Нет досок
-              </div>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem
-              v-for="board in orderedBoards"
-              :key="board.id"
-            >
-              <SidebarMenuSubButton
-                class="cursor-default"
-                size="md"
-                as-child
-                :is-active="board.id === activeBoardId"
-                @click="handleSelectBoard(board)"
-              >
-                <div class="flex gap-x-1 items-center">
-                  <Star
-                    :class="
-                      cn(
-                        'size-3.5! fill-sidebar-ring text-sidebar-ring!',
-                        board.id === activeBoardId && 'fill-primary text-primary!',
-                      )
-                    "
-                    v-if="board.isFavorite"
-                  />
-                  <span class="text-nowrap">{{ board.name }}</span>
+      <CollapsibleContent class="flex-1 min-h-0 flex flex-col">
+        <div class="flex-1 overflow-auto custom-scrollbar pr-1">
+          <SidebarMenuSub class="pr-0 mr-0">
+            <template v-if="!areBoardsLoading">
+              <SidebarMenuSubItem v-if="orderedBoards.length === 0">
+                <div class="text-xs font-medium text-muted-foreground w-full text-center py-2">
+                  Нет досок
                 </div>
-              </SidebarMenuSubButton>
-
-              <DropdownMenu
-                v-model:open="openOptions[board.id]"
-                :modal="false"
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem
+                v-for="board in orderedBoards"
+                :key="board.id"
               >
-                <DropdownMenuTrigger as-child>
-                  <SidebarMenuSubAction
-                    class="bg-sidebar-accent"
-                    show-on-hover
-                    @autofocus.prevent
-                  >
-                    <MoreHorizontal />
-                    <span class="sr-only">Больше</span>
-                  </SidebarMenuSubAction>
-                </DropdownMenuTrigger>
-                <BoardOptions
-                  :board="board"
-                  :is-mobile="isMobile"
-                  @close="openOptions[board.id] = false"
-                />
-              </DropdownMenu>
-            </SidebarMenuSubItem>
-          </template>
-          <template v-else>
-            <SidebarMenuSubItem
-              v-for="n in 3"
-              :key="`skeleton-board-${n}`"
-            >
-              <Skeleton class="w-full h-8" />
-            </SidebarMenuSubItem>
-          </template>
-        </SidebarMenuSub>
+                <SidebarMenuSubButton
+                  class="cursor-default"
+                  size="md"
+                  as-child
+                  :is-active="board.id === activeBoardId"
+                  @click="handleSelectBoard(board)"
+                >
+                  <div class="flex gap-x-1 items-center">
+                    <Star
+                      :class="
+                        cn(
+                          'size-3.5! fill-sidebar-ring text-sidebar-ring!',
+                          board.id === activeBoardId && 'fill-primary text-primary!',
+                        )
+                      "
+                      v-if="board.isFavorite"
+                    />
+                    <span class="text-nowrap">{{ board.name }}</span>
+                  </div>
+                </SidebarMenuSubButton>
+
+                <DropdownMenu
+                  v-model:open="openOptions[board.id]"
+                  :modal="false"
+                >
+                  <DropdownMenuTrigger as-child>
+                    <SidebarMenuSubAction
+                      class="bg-sidebar-accent"
+                      show-on-hover
+                      @autofocus.prevent
+                    >
+                      <MoreHorizontal />
+                      <span class="sr-only">Больше</span>
+                    </SidebarMenuSubAction>
+                  </DropdownMenuTrigger>
+                  <BoardOptions
+                    :board="board"
+                    :is-mobile="isMobile"
+                    @close="openOptions[board.id] = false"
+                  />
+                </DropdownMenu>
+              </SidebarMenuSubItem>
+            </template>
+            <template v-else>
+              <SidebarMenuSubItem
+                v-for="n in 3"
+                :key="`skeleton-board-${n}`"
+              >
+                <Skeleton class="w-full h-8" />
+              </SidebarMenuSubItem>
+            </template>
+          </SidebarMenuSub>
+        </div>
       </CollapsibleContent>
     </SidebarMenuItem>
   </Collapsible>

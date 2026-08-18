@@ -40,6 +40,7 @@ async function startYandexAuth() {
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state: state,
+    force_confirm: 'yes',
   })
 
   window.location.href = `https://oauth.yandex.ru/authorize?${params.toString()}`

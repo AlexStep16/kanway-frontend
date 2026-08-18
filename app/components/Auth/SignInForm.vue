@@ -3,7 +3,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 
 import RegisterButton from '~/components/Buttons/RegisterButton.vue'
-import { KeyRound } from '@lucide/vue'
+import { CircleX, KeyRound } from '@lucide/vue'
 import z from 'zod'
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { toast } from 'vue-sonner'
@@ -19,11 +19,12 @@ const props = withDefaults(
   },
 )
 
-const { mutate: login, isPending: isLogging } = useLogin()
+const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
 
-const isPasswordDirty = ref(false)
 const passwordRef = ref<HTMLInputElement | null>(null)
+
 const isNavigating = ref(false)
+const isPasswordModifiedAfterSubmit = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -50,8 +51,17 @@ watch(
   },
 )
 
+watch(submitCount, () => {
+  isPasswordModifiedAfterSubmit.value = false
+})
+
+watch(password, () => {
+  if (submitCount.value > 0) {
+    isPasswordModifiedAfterSubmit.value = true
+  }
+})
+
 const onSubmit = handleSubmit((values) => {
-  isPasswordDirty.value = false
   login(
     { email: values.email.trim(), password: values.password },
     {
@@ -83,8 +93,6 @@ function handleTogglePasswordVisibility() {
   }
 }
 
-const isProcessing = computed(() => isLogging.value || isNavigating.value)
-
 const { mutate: sendMagicLink, isPending: isSendingMagicLink } = useSendMagicLink()
 
 function navigateToLoginVerify() {
@@ -115,6 +123,9 @@ function handleSendMagicLink() {
     },
   })
 }
+
+const isProcessing = computed(() => isLogging.value || isNavigating.value)
+const isRegisterButtonDisabled = computed(() => !email.value)
 </script>
 
 <template>
@@ -133,8 +144,11 @@ function handleSendMagicLink() {
             name="password"
             ref="passwordRef"
             placeholder="Введите пароль"
-            @input="isPasswordDirty = true"
-            class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+            class="py-2.5 px-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+            :class="{
+              'ring-1 ring-red-500 focus:ring-red-500 focus:border-red-500':
+                errors.password && submitCount > 0 && !isPasswordModifiedAfterSubmit,
+            }"
             v-model="password"
             v-bind="passwordAttrs"
           />
@@ -146,15 +160,27 @@ function handleSendMagicLink() {
         <ul
           class="text-xs text-red-600"
           id="password-validation-error"
-          v-if="errors.password && submitCount > 0"
+          v-if="errors.password && submitCount > 0 && !isPasswordModifiedAfterSubmit"
         >
-          <li class="list-inside">{{ errors.password }}</li>
+          <li class="list-inside flex items-center gap-1">
+            <CircleX class="size-3" /><span>{{ errors.password }}</span>
+          </li>
+        </ul>
+        <ul
+          class="text-xs text-red-600"
+          id="password-auth-error"
+          v-if="loginError && !isPasswordModifiedAfterSubmit"
+        >
+          <li class="list-inside flex items-center gap-1">
+            <CircleX class="size-3" /><span>{{ loginError.message }}</span>
+          </li>
         </ul>
       </div>
       <!-- End Form Group -->
 
       <RegisterButton
         :isProcessing="isProcessing"
+        :isDisabled="isRegisterButtonDisabled"
         text="Войти"
       />
 

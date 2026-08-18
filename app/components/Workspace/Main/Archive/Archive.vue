@@ -11,10 +11,15 @@ import ColumnCard from '../Column/ColumnCard.vue'
 import BoardCard from '../Board/BoardCard.vue'
 import WorkspaceCard from '../../WorkspaceCard.vue'
 
-const { data: tasksData, isPending: isTasksLoading } = useArchivedTasks()
-const { data: columnsData, isPending: isColumnsLoading } = useArchivedColumns()
-const { data: boardsData, isPending: isBoardsLoading } = useArchivedBoards()
-const { data: workspacesData, isPending: isWorkspacesLoading } = useArchivedWorkspaces()
+const { data: tasksData, isPending: areTasksPending } = useArchivedTasks()
+const { data: columnsData, isPending: areColumnsPending } = useArchivedColumns()
+const { data: boardsData, isPending: areBoardsPending } = useArchivedBoards()
+const { data: workspacesData, isPending: areWorkspacesPending } = useArchivedWorkspaces()
+
+const areTasksLoading = useDelayedLoading(areTasksPending)
+const areColumnsLoading = useDelayedLoading(areColumnsPending)
+const areBoardsLoading = useDelayedLoading(areBoardsPending)
+const areWorkspacesLoading = useDelayedLoading(areWorkspacesPending)
 
 const { mutate: recoverTask } = useRecoverTask()
 const { mutate: deleteTask } = useDeleteTask()
@@ -35,10 +40,10 @@ const workspaceContainerRef = ref<HTMLElement | null>(null)
 
 const isSomeLoading = computed(
   () =>
-    isTasksLoading.value ||
-    isColumnsLoading.value ||
-    isBoardsLoading.value ||
-    isWorkspacesLoading.value,
+    areTasksLoading.value ||
+    areColumnsLoading.value ||
+    areBoardsLoading.value ||
+    areWorkspacesLoading.value,
 )
 
 const isArchiveEmpty = computed(() => {
@@ -90,15 +95,15 @@ useHead({
     </div>
 
     <div
-      class="size-full py-2 my-1 px-0.5 flex flex-col gap-5 overflow-y-auto custom-scrollbar"
+      class="w-full py-2 my-1 px-0.5 flex flex-col gap-5 overflow-y-auto custom-scrollbar"
       v-else
     >
       <div
         class="w-full flex flex-col gap-y-2"
         ref="tasksContainerRef"
-        v-if="tasks.length > 0 || isTasksLoading"
+        v-if="tasks.length > 0 || areTasksLoading"
       >
-        <template v-if="!isTasksLoading">
+        <template v-if="!areTasksLoading">
           <TitleWithBadge
             title="Задачи"
             :number="tasks.length"
@@ -123,6 +128,7 @@ useHead({
                 classes="self-start"
               >
                 <RecoverButtons
+                  type="task"
                   @recover="recoverTask({ task })"
                   @delete="deleteTask({ task })"
                 />
@@ -135,7 +141,7 @@ useHead({
           <TitleWithBadge
             title="Задачи"
             :number="tasks.length"
-            :isLoading="isTasksLoading"
+            :isLoading="areTasksLoading"
           ></TitleWithBadge>
 
           <div class="flex gap-2">
@@ -164,9 +170,9 @@ useHead({
       <div
         class="w-full flex flex-col gap-y-2"
         ref="columnContainerRef"
-        v-if="columns.length > 0 || isColumnsLoading"
+        v-if="columns.length > 0 || areColumnsLoading"
       >
-        <template v-if="!isColumnsLoading">
+        <template v-if="!areColumnsLoading">
           <TitleWithBadge
             title="Колонки"
             :number="columns.length"
@@ -178,7 +184,7 @@ useHead({
             :items="columns"
             :containerRef="columnContainerRef"
             :initialCountShown="20"
-            v-if="!isColumnsLoading"
+            v-if="!areColumnsLoading"
           >
             <template v-slot:default="slotProps">
               <ColumnCard
@@ -192,6 +198,7 @@ useHead({
                 classes="self-start"
               >
                 <RecoverButtons
+                  type="column"
                   @recover="recoverColumn({ column })"
                   @delete="deleteColumn({ column })"
                 />
@@ -204,7 +211,7 @@ useHead({
           <TitleWithBadge
             title="Колонки"
             :number="columns.length"
-            :isLoading="isColumnsLoading"
+            :isLoading="areColumnsLoading"
           />
 
           <div class="flex gap-2">
@@ -233,9 +240,9 @@ useHead({
       <div
         class="w-full flex flex-col gap-y-2"
         ref="boardContainerRef"
-        v-if="boards.length > 0 || isBoardsLoading"
+        v-if="boards.length > 0 || areBoardsLoading"
       >
-        <template v-if="!isBoardsLoading">
+        <template v-if="!areBoardsLoading">
           <TitleWithBadge
             title="Доски"
             :number="boards.length"
@@ -260,6 +267,7 @@ useHead({
                 classes="self-start"
               >
                 <RecoverButtons
+                  type="board"
                   @recover="recoverBoard({ board })"
                   @delete="deleteBoard({ board })"
                 />
@@ -272,7 +280,7 @@ useHead({
           <TitleWithBadge
             title="Доски"
             :number="boards.length"
-            :isLoading="isBoardsLoading"
+            :isLoading="areBoardsLoading"
           />
 
           <div class="flex gap-2">
@@ -301,13 +309,13 @@ useHead({
       <div
         class="w-full flex flex-col gap-y-2"
         ref="workspaceContainerRef"
-        v-if="workspaces.length > 0 || isWorkspacesLoading"
+        v-if="workspaces.length > 0 || areWorkspacesLoading"
       >
-        <template v-if="!isWorkspacesLoading">
+        <template v-if="!areWorkspacesLoading">
           <TitleWithBadge
             title="Пространства"
             :number="workspaces.length"
-            v-if="!isWorkspacesLoading"
+            v-if="!areWorkspacesLoading"
           >
             <div class="w-full h-[.5px] bg-gray-200"></div>
           </TitleWithBadge>
@@ -316,7 +324,7 @@ useHead({
             :items="workspaces"
             :containerRef="workspaceContainerRef"
             :initialCountShown="20"
-            v-if="!isWorkspacesLoading"
+            v-if="!areWorkspacesLoading"
           >
             <template v-slot:default="slotProps">
               <WorkspaceCard
@@ -330,6 +338,7 @@ useHead({
                 classes="self-start"
               >
                 <RecoverButtons
+                  type="workspace"
                   @recover="recoverWorkspace({ workspace })"
                   @delete="deleteWorkspace({ workspace })"
                 />
@@ -342,7 +351,7 @@ useHead({
           <TitleWithBadge
             title="Пространства"
             :number="workspaces.length"
-            :isLoading="isWorkspacesLoading"
+            :isLoading="areWorkspacesLoading"
           />
 
           <div class="flex gap-2">

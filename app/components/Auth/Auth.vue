@@ -33,6 +33,7 @@ const { errors, handleSubmit, submitCount, defineField } = useForm({
 
 const [email, emailAttrs] = defineField('email')
 const isCheckingEmail = ref(false)
+const isEmailModifiedAfterSubmit = ref(false)
 
 watch(
   () => props.initialEmail,
@@ -40,6 +41,16 @@ watch(
     email.value = newEmail
   },
 )
+
+watch(submitCount, () => {
+  isEmailModifiedAfterSubmit.value = false
+})
+
+watch(email, () => {
+  if (submitCount.value > 0) {
+    isEmailModifiedAfterSubmit.value = true
+  }
+})
 
 const onSubmit = handleSubmit(async (values) => {
   isCheckingEmail.value = true
@@ -68,6 +79,8 @@ const onSubmit = handleSubmit(async (values) => {
     isCheckingEmail.value = false
   }
 })
+
+const isRegisterButtonDisabled = computed(() => !email.value)
 </script>
 
 <template>
@@ -93,7 +106,7 @@ const onSubmit = handleSubmit(async (values) => {
         <ul
           class="text-xs text-red-600"
           id="email-error"
-          v-if="errors.email && submitCount > 0"
+          v-if="errors.email && submitCount > 0 && !isEmailModifiedAfterSubmit"
         >
           <li class="list-inside">{{ errors.email }}</li>
         </ul>
@@ -102,6 +115,7 @@ const onSubmit = handleSubmit(async (values) => {
 
       <RegisterButton
         :isProcessing="isCheckingEmail"
+        :isDisabled="isRegisterButtonDisabled"
         text="Продолжить"
       />
     </div>

@@ -5,6 +5,7 @@ import Recording from '~/components/Workspace/Main/Recording/Recording.vue'
 import { cn } from '~/lib/utils'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import { AI_INPUT_PLACEHOLDERS } from '~/constants/AI_INPUT_PLACEHOLDERS'
 
 const { data: user } = useUser()
 
@@ -16,6 +17,9 @@ const { aiInputMessage } = storeToRefs(chatStore)
 const aiInputMessageRef = ref<HTMLTextAreaElement | null>(null)
 const micButtonRef = ref<InstanceType<typeof Recording> | null>(null)
 const isTextareaInitialized = ref(false)
+
+const currentPlaceholderIndex = ref(0)
+let placeholderIntervalId: any = null
 
 const props = defineProps<{
   isDisabled?: boolean
@@ -90,6 +94,25 @@ const isUserBasic = computed(() => {
   return user.value?.subscriptionId === SubscriptionPlanEnum.Basic
 })
 
+const handleEnterPress = () => {
+  if (isRunButtonDisabled.value) {
+    return
+  }
+
+  sendChatMessage()
+}
+
+onMounted(() => {
+  placeholderIntervalId = setInterval(() => {
+    currentPlaceholderIndex.value =
+      (currentPlaceholderIndex.value + 1) % AI_INPUT_PLACEHOLDERS.length
+  }, 4000)
+})
+
+onUnmounted(() => {
+  clearInterval(placeholderIntervalId)
+})
+
 defineExpose({
   setMessage,
   updateTextarea,
@@ -101,13 +124,26 @@ defineExpose({
     class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2"
   >
     <div class="flex flex-col gap-2 items-end">
-      <div class="w-full flex items-center">
+      <div class="w-full flex items-center relative">
         <Textarea
-          class="p-0 border-none shadow-none min-h-12 rounded-none placeholder:text-zinc-400"
-          placeholder="Опиши проект или просто выгрузи мысли..."
+          class="p-0 border-none shadow-none min-h-12 rounded-none"
           v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
+          @keydown.enter.exact.prevent="handleEnterPress"
         />
+
+        <Transition
+          name="placeholder-fade"
+          mode="out-in"
+        >
+          <span
+            v-if="!aiInputMessage.trim()"
+            :key="currentPlaceholderIndex"
+            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none"
+          >
+            {{ AI_INPUT_PLACEHOLDERS[currentPlaceholderIndex] }}
+          </span>
+        </Transition>
       </div>
       <div class="flex justify-between items-center gap-2 w-full">
         <div class="flex min-w-0 items-center gap-2">
@@ -197,7 +233,7 @@ defineExpose({
             size="sm"
             :disabled="isRunButtonDisabled"
             v-if="!agentStatusStore.isSSEActive()"
-            @click="sendChatMessage()"
+            @click="sendChatMessage"
           >
             <span class="text-xs">Отправить</span>
             <Sparkles class="size-4" />
@@ -225,3 +261,15 @@ defineExpose({
     </div>
   </div>
 </template>
+
+<style scoped>
+.placeholder-fade-enter-active,
+.placeholder-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.placeholder-fade-enter-from,
+.placeholder-fade-leave-to {
+  opacity: 0;
+}
+</style>

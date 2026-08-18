@@ -1,5 +1,4 @@
 ﻿<script setup lang="ts">
-import RegisterButton from '~/components/Buttons/RegisterButton.vue'
 import KanwayLogo from '~/assets/kanway_logo.svg?skipsvgo'
 
 const OTP_LENGTH = 6
@@ -165,7 +164,7 @@ defineExpose({
   inputRefs,
 })
 
-const isProcessing = computed(() => props.isVerifying || props.isNavigating)
+const isProcessing = computed(() => props.isVerifying || props.isNavigating || props.isResending)
 </script>
 
 <template>
@@ -206,19 +205,12 @@ const isProcessing = computed(() => props.isVerifying || props.isNavigating)
             />
           </div>
 
-          <RegisterButton
-            :isProcessing="isProcessing"
-            text="Подтвердить"
-            @click="handleVerify"
-          />
-
           <div class="flex flex-col items-center">
             <span class="text-sm text-gray-500">Не получили письмо?</span>
 
             <button
               v-if="timer === 0"
               class="mt-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50"
-              :disabled="isProcessing"
               @click="handleResend"
             >
               {{ isResending ? 'Отправляем...' : 'Отправить ещё раз' }}

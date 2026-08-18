@@ -12,7 +12,9 @@ const workspaceStore = useWorkspaceStore()
 const activeChatId = computed(() => chatStore.activeChatId)
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
 
-const { data: chatsData, isPending: areChatsLoading } = useChats(activeWorkspaceId)
+const { data: chatsData, isPending: areChatsPending } = useChats(activeWorkspaceId)
+
+const areChatsLoading = useDelayedLoading(areChatsPending)
 
 const chats = computed(() => chatsData.value || [])
 const open = ref(true)
@@ -54,7 +56,7 @@ function handleNewChat() {
     as-child
     :open="open"
   >
-    <SidebarMenuItem>
+    <SidebarMenuItem class="flex flex-col min-h-0 h-full">
       <div class="flex items-center w-full">
         <SidebarMenuButton
           variant="muted"
@@ -70,74 +72,88 @@ function handleNewChat() {
             />
           </div>
         </SidebarMenuButton>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          class="text-muted-foreground md:opacity-0 group-hover/menu-item:opacity-100"
-          @click.stop="handleNewChat"
-        >
-          <Plus
-            class="size-3.5"
-            stroke-width="2.5"
-          />
-          <span class="sr-only">Создать чат</span>
-        </Button>
-      </div>
-      <CollapsibleContent>
-        <SidebarMenuSub class="pr-0 mr-0">
-          <template v-if="!areChatsLoading">
-            <SidebarMenuSubItem v-if="chats.length === 0">
-              <div class="text-xs font-medium text-muted-foreground w-full text-center py-2">
-                Нет чатов
-              </div>
-            </SidebarMenuSubItem>
-            <SidebarMenuSubItem
-              v-for="chat in chats"
-              :key="chat.id"
-            >
-              <SidebarMenuSubButton
-                class="cursor-default"
-                size="md"
-                as-child
-                :is-active="isChatOpen(chat.id)"
-                @click="handleSelectChat(chat)"
+        <TooltipProvider :disableHoverableContent="true">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                class="text-muted-foreground md:opacity-0 group-hover/menu-item:opacity-100"
+                @click.stop="handleNewChat"
               >
-                <div>
-                  <span class="text-nowrap truncate">{{ chat.name }}</span>
-                </div>
-              </SidebarMenuSubButton>
-
-              <DropdownMenu
-                v-model:open="openOptions[chat.id]"
-                :modal="false"
-              >
-                <DropdownMenuTrigger as-child>
-                  <SidebarMenuSubAction
-                    class="bg-sidebar-accent"
-                    show-on-hover
-                    @autofocus.prevent
-                  >
-                    <MoreHorizontal />
-                    <span class="sr-only">Больше</span>
-                  </SidebarMenuSubAction>
-                </DropdownMenuTrigger>
-                <ChatOptions
-                  :is-mobile="isMobile"
-                  :chat="chat"
-                  @close="openOptions[chat.id] = false"
+                <Plus
+                  class="size-3.5"
+                  stroke-width="2.5"
                 />
-              </DropdownMenu>
-            </SidebarMenuSubItem>
-          </template>
-          <template v-else>
-            <SidebarMenuSubItem
-              v-for="n in 3"
-              :key="`skeleton-board-${n}`"
+                <span class="sr-only">Создать чат</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent
+              :sideOffset="-4"
+              side="right"
             >
-              <Skeleton class="w-full h-8" />
-            </SidebarMenuSubItem>
-          </template>
-        </SidebarMenuSub>
+              <p>Создать чат</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <CollapsibleContent class="flex-1 min-h-0 flex flex-col">
+        <div class="flex-1 overflow-auto custom-scrollbar pr-1">
+          <SidebarMenuSub class="pr-0 mr-0">
+            <template v-if="!areChatsLoading">
+              <SidebarMenuSubItem v-if="chats.length === 0">
+                <div class="text-xs font-medium text-muted-foreground w-full text-center py-2">
+                  Нет чатов
+                </div>
+              </SidebarMenuSubItem>
+              <SidebarMenuSubItem
+                v-for="chat in chats"
+                :key="chat.id"
+              >
+                <SidebarMenuSubButton
+                  class="cursor-default"
+                  size="md"
+                  as-child
+                  :is-active="isChatOpen(chat.id)"
+                  @click="handleSelectChat(chat)"
+                >
+                  <div>
+                    <span class="text-nowrap truncate">{{ chat.name }}</span>
+                  </div>
+                </SidebarMenuSubButton>
+
+                <DropdownMenu
+                  v-model:open="openOptions[chat.id]"
+                  :modal="false"
+                >
+                  <DropdownMenuTrigger as-child>
+                    <SidebarMenuSubAction
+                      class="bg-sidebar-accent"
+                      show-on-hover
+                      @autofocus.prevent
+                    >
+                      <MoreHorizontal />
+                      <span class="sr-only">Больше</span>
+                    </SidebarMenuSubAction>
+                  </DropdownMenuTrigger>
+                  <ChatOptions
+                    :is-mobile="isMobile"
+                    :chat="chat"
+                    @close="openOptions[chat.id] = false"
+                  />
+                </DropdownMenu>
+              </SidebarMenuSubItem>
+            </template>
+            <template v-else>
+              <SidebarMenuSubItem
+                v-for="n in 3"
+                :key="`skeleton-board-${n}`"
+              >
+                <Skeleton class="w-full h-8" />
+              </SidebarMenuSubItem>
+            </template>
+          </SidebarMenuSub>
+        </div>
       </CollapsibleContent>
     </SidebarMenuItem>
   </Collapsible>

@@ -23,6 +23,9 @@ const step: ComputedRef<AllowedAuthStepsEnum | undefined> = computed(
 const payload: ComputedRef<string | undefined> = computed(
   () => route.query.payload as string | undefined,
 )
+const backStep: ComputedRef<AllowedAuthStepsEnum> = computed(
+  () => (route.query.backStep as AllowedAuthStepsEnum) || AllowedAuthStepsEnum.SIGN_UP,
+)
 const token: ComputedRef<string | undefined> = computed(
   () => route.query.token as string | undefined,
 )
@@ -219,6 +222,7 @@ useHead({
 
     <template v-if="isVerifyEmailStep">
       <EmailOTPForm
+        :back-step="backStep"
         :email="email"
         v-if="email && !token"
       />

@@ -138,9 +138,9 @@ const timezoneValue = computed({
     class="contents"
     @submit.prevent
   >
-    <div class="flex flex-col gap-y-2 pb-px">
-      <div class="flex items-center gap-x-2 pb-1 sm:pb-2">
-        <h3 class="text-lg font-medium text-gray-800">Профиль</h3>
+    <div class="flex flex-col gap-y-5 pb-px">
+      <div class="flex items-center gap-x-2">
+        <h3 class="text-lg font-bold text-gray-800">Профиль</h3>
         <Spinner
           v-if="isUsernameUpdating"
           class="text-gray-400"

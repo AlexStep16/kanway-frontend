@@ -10,8 +10,8 @@ import { toast } from 'vue-sonner'
 
 const { mutate: finishSignup, isPending: isRegistering, error: registerError } = useFinishSignup()
 
-const isPasswordDirty = ref(false)
 const isNavigating = ref(false)
+const isEmailModifiedAfterSubmit = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -29,7 +29,6 @@ const { errors, handleSubmit, defineField, submitCount } = useForm({
 const [email, emailAttrs] = defineField('email')
 
 const onSubmit = handleSubmit((values) => {
-  isPasswordDirty.value = false
   finishSignup(
     { email: values.email.trim() },
     {
@@ -41,6 +40,7 @@ const onSubmit = handleSubmit((values) => {
             query: {
               step: AllowedAuthStepsEnum.VERIFY_EMAIL,
               payload: getSafeBase64String(values.email.trim()),
+              backStep: AllowedAuthStepsEnum.FINISH_SIGN_UP,
             },
           })
         } catch {
@@ -53,7 +53,18 @@ const onSubmit = handleSubmit((values) => {
   )
 })
 
+watch(submitCount, () => {
+  isEmailModifiedAfterSubmit.value = false
+})
+
+watch(email, () => {
+  if (submitCount.value > 0) {
+    isEmailModifiedAfterSubmit.value = true
+  }
+})
+
 const isProcessing = computed(() => isRegistering.value || isNavigating.value)
+const isRegisterButtonDisabled = computed(() => !email.value)
 </script>
 
 <template>
@@ -78,13 +89,13 @@ const isProcessing = computed(() => isRegistering.value || isNavigating.value)
         <ul
           class="text-xs text-red-600"
           id="email-error"
-          v-if="errors.email && submitCount > 0"
+          v-if="errors.email && submitCount > 0 && !isEmailModifiedAfterSubmit"
         >
           <li class="list-inside">{{ errors.email }}</li>
         </ul>
         <ul
           class="text-xs text-red-600"
-          v-if="registerError && !isPasswordDirty"
+          v-if="registerError && !isEmailModifiedAfterSubmit"
         >
           <li class="list-inside">{{ registerError.message }}</li>
         </ul>
@@ -92,6 +103,7 @@ const isProcessing = computed(() => isRegistering.value || isNavigating.value)
 
       <RegisterButton
         :isProcessing="isProcessing"
+        :isDisabled="isRegisterButtonDisabled"
         text="Завершить регистрацию"
       />
     </div>

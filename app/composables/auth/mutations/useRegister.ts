@@ -6,6 +6,9 @@ export function useRegister() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    meta: {
+      errorMessage: false,
+    },
     mutationFn: (credentials: { email: string; password: string }) =>
       register({
         ...credentials,

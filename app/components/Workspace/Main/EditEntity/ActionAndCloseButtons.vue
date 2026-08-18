@@ -25,36 +25,52 @@ defineEmits<{
       </div>
 
       <template v-if="!editableEntity.isDeleted">
-        <button
-          type="button"
-          class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-          title="Копировать"
-          @click.stop="$emit('copy', editableEntity)"
-        >
-          <Spinner
-            v-if="isEntityCopying"
-            class="size-4"
-          />
-          <Copy
-            v-else
-            class="size-4"
-          />
-        </button>
-        <button
-          type="button"
-          class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-          title="Архивировать"
-          @click.stop="$emit('archive', editableEntity)"
-        >
-          <Spinner
-            v-if="isEntityArchiving"
-            class="size-4"
-          />
-          <Archive
-            v-else
-            class="size-4"
-          />
-        </button>
+        <TooltipProvider :disableHoverableContent="true">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <button
+                type="button"
+                class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+                @click.stop="$emit('copy', editableEntity)"
+              >
+                <Spinner
+                  v-if="isEntityCopying"
+                  class="size-4"
+                />
+                <Copy
+                  v-else
+                  class="size-4"
+                />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent :sideOffset="-4">
+              <p>Копировать</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider :disableHoverableContent="true">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <button
+                type="button"
+                class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
+                @click.stop="$emit('archive', editableEntity)"
+              >
+                <Spinner
+                  v-if="isEntityArchiving"
+                  class="size-4"
+                />
+                <Archive
+                  v-else
+                  class="size-4"
+                />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent :sideOffset="-4">
+              <p>Архивировать</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </template>
     </div>
 
