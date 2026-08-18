@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ShowPasswordButton from './ShowPasswordButton.vue'
 import { CircleX, KeyRound } from '@lucide/vue'
-import { zxcvbn } from '~/utils/zxcvbn.js'
+import { checkPasswordStrengthApi } from '~/utils/api/auth'
 
 defineOptions({ inheritAttrs: false })
 
@@ -27,6 +27,7 @@ const emit = defineEmits<{
 
 const passwordRef = ref<HTMLInputElement | null>(null)
 const isPasswordVisible = ref(false)
+const isCheckingStrength = ref(false)
 
 const internalValue = computed({
   get: () => props.modelValue,
@@ -38,9 +39,26 @@ const debouncedValue = refDebounced(
   300,
 )
 
-const passwordStrength = computed(() => {
-  if (!debouncedValue.value) return null
-  return zxcvbn.check(debouncedValue.value.trim())
+const passwordStrength = ref<null | {
+  score: number
+  feedback: { warning: string; suggestions: string[] }
+}>(null)
+
+watch(debouncedValue, async (newValue) => {
+  if (!newValue) {
+    passwordStrength.value = null
+    return
+  }
+
+  isCheckingStrength.value = true
+
+  try {
+    passwordStrength.value = await checkPasswordStrengthApi(newValue.trim())
+  } catch {
+    passwordStrength.value = null
+  } finally {
+    isCheckingStrength.value = false
+  }
 })
 
 const strengthLabel = computed(() => {
@@ -122,9 +140,14 @@ defineExpose({
               passwordStrength && passwordStrength.score >= 2 ? 'text-green-600' : 'text-red-500',
               'font-semibold',
             ]"
+            v-if="!isCheckingStrength"
           >
             {{ strengthLabel }}
           </span>
+          <Spinner
+            class="size-3.5 text-gray-400"
+            v-else
+          />
         </div>
         <div class="flex gap-x-1">
           <div

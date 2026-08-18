@@ -34,22 +34,7 @@ const schema = toTypedSchema(
     password: z
       .string()
       .min(10, 'Пароль должен быть не менее 10 символов')
-      .max(128, 'Пароль должен быть не более 128 символов')
-      .superRefine((val, ctx) => {
-        const strengthCheck = zxcvbn.check(val)
-
-        if (strengthCheck.score < 2) {
-          const warning = strengthCheck.feedback.warning || 'Пароль слишком простой.'
-          const suggestions = strengthCheck.feedback.suggestions.join(' ')
-          const errorMessage = `${warning} ${suggestions}`.trim()
-
-          ctx.addIssue({
-            code: 'custom',
-            input: val,
-            message: errorMessage,
-          })
-        }
-      }),
+      .max(128, 'Пароль должен быть не более 128 символов'),
   }),
 )
 
@@ -112,10 +97,8 @@ const onSubmit = handleSubmit((values) => {
   )
 })
 
-const passwordStrength = computed(() => {
-  if (!password.value) return null
-  return zxcvbn.check(password.value.trim())
-})
+const passwordStrength = computed(() => passwordInputRef.value?.passwordStrength ?? null)
+const passwordInputRef = ref<InstanceType<typeof PasswordInput> | null>(null)
 const isProcessing = computed(() => isRegistering.value || isNavigating.value)
 const isRegisterButtonDisabled = computed(() =>
   passwordStrength.value ? passwordStrength.value.score < 2 : true,
@@ -129,6 +112,7 @@ const isRegisterButtonDisabled = computed(() =>
   >
     <div class="grid gap-y-2">
       <PasswordInput
+        ref="passwordInputRef"
         v-model="password"
         v-bind="passwordAttrs"
         :error="errors.password"

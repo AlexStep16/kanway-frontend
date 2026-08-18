@@ -216,3 +216,11 @@ export async function passwordRecoveryApi(password: string) {
     data: { password },
   })
 }
+
+export async function checkPasswordStrengthApi(password: string) {
+  return apiCall<{ score: number; feedback: { warning: string; suggestions: string[] } }>({
+    method: 'POST',
+    url: '/auth/check-password-strength',
+    data: { password },
+  })
+}

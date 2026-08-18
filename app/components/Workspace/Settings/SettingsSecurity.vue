@@ -114,10 +114,8 @@ const handleSavePassword = handleSubmit((values) => {
   )
 })
 
-const passwordStrength = computed(() => {
-  if (!password.value) return null
-  return zxcvbn.check(password.value.trim())
-})
+const passwordInputRef = ref<InstanceType<typeof PasswordInput> | null>(null)
+const passwordStrength = computed(() => passwordInputRef.value?.passwordStrength ?? null)
 
 const isSavePasswordDisabled = computed(
   () =>
@@ -291,6 +289,7 @@ const deleteTime = computed(() => {
                   <div class="flex flex-col gap-y-1">
                     <label class="text-custom-sm font-medium text-gray-500">Новый пароль</label>
                     <PasswordInput
+                      ref="passwordInputRef"
                       v-model="password"
                       v-bind="passwordAttrs"
                       variant="settings"
