@@ -72,7 +72,6 @@ defineExpose({
       <div class="w-full flex items-center relative">
         <Textarea
           class="p-0 border-none shadow-none min-h-12 rounded-none placeholder:text-zinc-400"
-          placeholder="Опиши проект или просто выгрузи мысли..."
           v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
         />
