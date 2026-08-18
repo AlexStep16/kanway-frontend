@@ -114,7 +114,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
                   class="absolute right-0 text-xs text-red-500 py-1.5 px-2.5 bg-red-100 rounded-full"
                   v-else
                 >
-                  Отменена
+                  Отменён
                 </span>
               </div>
               <span class="text-lg sm:text-xl text-gray-800 font-bold"
