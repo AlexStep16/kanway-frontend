@@ -261,15 +261,3 @@ defineExpose({
     </div>
   </div>
 </template>
-
-<style scoped>
-.placeholder-fade-enter-active,
-.placeholder-fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.placeholder-fade-enter-from,
-.placeholder-fade-leave-to {
-  opacity: 0;
-}
-</style>
