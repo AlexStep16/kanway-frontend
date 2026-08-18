@@ -88,17 +88,14 @@ function handleNewChat() {
                 <span class="sr-only">Создать чат</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent
-              :sideOffset="-4"
-              side="right"
-            >
+            <TooltipContent>
               <p>Создать чат</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
-      <CollapsibleContent class="flex-1 min-h-0 flex flex-col">
-        <div class="flex-1 overflow-auto custom-scrollbar pr-1">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-1">
+        <CollapsibleContent class="flex-1 min-h-0 flex flex-col">
           <SidebarMenuSub class="pr-0 mr-0">
             <template v-if="!areChatsLoading">
               <SidebarMenuSubItem v-if="chats.length === 0">
@@ -153,8 +150,8 @@ function handleNewChat() {
               </SidebarMenuSubItem>
             </template>
           </SidebarMenuSub>
-        </div>
-      </CollapsibleContent>
+        </CollapsibleContent>
+      </div>
     </SidebarMenuItem>
   </Collapsible>
 </template>

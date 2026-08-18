@@ -12,20 +12,33 @@ const isMobile = useMediaQuery('(max-width: 768px)')
     class="w-full p-4 flex flex-col gap-1 border-b border-zinc-200/70 bg-white/80 backdrop-blur-sm"
   >
     <div class="flex items-center justify-between gap-2">
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        class="border border-zinc-200/80 bg-white/80 text-zinc-600"
-        aria-label="Open"
-        @click="chatStore.openFullChat()"
-        v-if="!isMobile"
+      <TooltipProvider
+        :disableHoverableContent="true"
+        :disable="isMobile"
       >
-        <SquareArrowOutUpRight class="size-4" />
-      </Button>
-      <SidebarTrigger
-        class="-ml-1"
-        v-else
-      />
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              class="border border-zinc-200/80 bg-white/80 text-zinc-600"
+              aria-label="Open"
+              @click="chatStore.openFullChat()"
+              v-if="!isMobile"
+            >
+              <SquareArrowOutUpRight class="size-4" />
+            </Button>
+            <SidebarTrigger
+              class="-ml-1"
+              v-else
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Открыть чат</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       <TitleChat />
       <Button
         variant="ghost"

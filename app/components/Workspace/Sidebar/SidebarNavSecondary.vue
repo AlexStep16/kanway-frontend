@@ -16,7 +16,7 @@ const uiStore = useUIStore()
 const { isMobile, toggleSidebar } = useSidebar()
 
 const handleSelectArchive = () => {
-  uiStore.selectArchive()
+  uiStore.selectArchive(isMobile.value)
 
   if (isMobile.value) {
     toggleSidebar()
@@ -24,7 +24,7 @@ const handleSelectArchive = () => {
 }
 
 const handleSelectSettings = () => {
-  uiStore.selectSettings()
+  uiStore.selectSettings(isMobile.value)
 
   if (isMobile.value) {
     toggleSidebar()

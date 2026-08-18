@@ -222,10 +222,7 @@ const handleCloseOptions = (workspaceId: string) => {
                   />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent
-                :sideOffset="-4"
-                side="bottom"
-              >
+              <TooltipContent side="bottom">
                 <p>Достигнут лимит пространств</p>
               </TooltipContent>
             </Tooltip>

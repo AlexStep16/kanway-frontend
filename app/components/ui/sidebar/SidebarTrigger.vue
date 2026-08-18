@@ -27,7 +27,7 @@ const { toggleSidebar, open } = useSidebar()
           <span class="sr-only">Toggle Sidebar</span>
         </Button>
       </TooltipTrigger>
-      <TooltipContent :sideOffset="-4">
+      <TooltipContent>
         <p v-if="open">Свернуть боковое меню</p>
         <p v-else>Развернуть боковое меню</p>
       </TooltipContent>

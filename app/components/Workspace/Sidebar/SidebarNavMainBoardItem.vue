@@ -115,7 +115,7 @@ function handleCloseCreateBoard() {
     as-child
     :open="open"
   >
-    <SidebarMenuItem class="flex flex-col min-h-0 h-full">
+    <SidebarMenuItem class="flex flex-col min-h-0">
       <div class="flex items-center w-full">
         <SidebarMenuButton
           variant="muted"
@@ -162,10 +162,7 @@ function handleCloseCreateBoard() {
                     v-else
                   />
                 </TooltipTrigger>
-                <TooltipContent
-                  :sideOffset="-4"
-                  side="right"
-                >
+                <TooltipContent>
                   <p v-if="isCreateBoardButtonActive">Создать доску</p>
                   <p v-else>Достигнут лимит досок</p>
                 </TooltipContent>
@@ -186,8 +183,8 @@ function handleCloseCreateBoard() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <CollapsibleContent class="flex-1 min-h-0 flex flex-col">
-        <div class="flex-1 overflow-auto custom-scrollbar pr-1">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-1">
+        <CollapsibleContent class="min-h-0 flex flex-col">
           <SidebarMenuSub class="pr-0 mr-0">
             <template v-if="!areBoardsLoading">
               <SidebarMenuSubItem v-if="orderedBoards.length === 0">
@@ -251,8 +248,8 @@ function handleCloseCreateBoard() {
               </SidebarMenuSubItem>
             </template>
           </SidebarMenuSub>
-        </div>
-      </CollapsibleContent>
+        </CollapsibleContent>
+      </div>
     </SidebarMenuItem>
   </Collapsible>
 </template>

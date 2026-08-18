@@ -63,7 +63,7 @@ function handleDislikeMessage() {
             ></span>
           </button>
         </TooltipTrigger>
-        <TooltipContent :sideOffset="-4">
+        <TooltipContent>
           <p>Нравится</p>
         </TooltipContent>
       </Tooltip>
@@ -93,7 +93,7 @@ function handleDislikeMessage() {
             ></span>
           </button>
         </TooltipTrigger>
-        <TooltipContent :sideOffset="-4">
+        <TooltipContent>
           <p>Не нравится</p>
         </TooltipContent>
       </Tooltip>

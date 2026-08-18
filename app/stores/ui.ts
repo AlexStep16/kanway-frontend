@@ -56,13 +56,23 @@ export const useUIStore = defineStore('ui', () => {
     editableTask.value = task
   }
 
-  function selectArchive() {
+  function selectArchive(shouldChatClose: boolean = false) {
     currentTab.value = Tabs.Archive
+
+    if (shouldChatClose) {
+      isChatOpen.value = false
+    }
+
     boardStore.clearBoard()
   }
 
-  function selectSettings() {
+  function selectSettings(shouldChatClose: boolean = false) {
     currentTab.value = Tabs.Settings
+
+    if (shouldChatClose) {
+      isChatOpen.value = false
+    }
+
     boardStore.clearBoard()
   }
 

@@ -257,7 +257,7 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
                   />
                 </button>
               </TooltipTrigger>
-              <TooltipContent :sideOffset="-4">
+              <TooltipContent>
                 <p>Копировать</p>
               </TooltipContent>
             </Tooltip>
@@ -283,7 +283,7 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
                   />
                 </button>
               </TooltipTrigger>
-              <TooltipContent :sideOffset="-4">
+              <TooltipContent>
                 <p>Архивировать</p>
               </TooltipContent>
             </Tooltip>
