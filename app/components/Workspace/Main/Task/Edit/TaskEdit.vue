@@ -24,6 +24,7 @@ const { data: liveTask } = useTask(editableTask.value!.id, editableTask.value!.b
 
 const task = ref<ITaskState | null>(null)
 const status = useTaskMutationStatus(editableTaskId)
+const tagRef = ref<HTMLInputElement | null>(null)
 
 // --- Local State (текст) ---
 const localName = ref('')
@@ -98,8 +99,7 @@ const handleMoveTask = (data: any) => {
 const handleTagInputOpen = () => {
   isTagInputVisible.value = true
   nextTick(() => {
-    const input = document.getElementById('task-tag-input') as HTMLInputElement | null
-    input?.focus()
+    tagRef.value?.focus()
   })
 }
 
@@ -108,12 +108,22 @@ const handleTagInputClose = () => {
   localTag.value = ''
 }
 
-const handleInlineAddTag = () => {
+const handleTagInputBlur = () => {
+  const normalizedTag = localTag.value.trim()
+  if (!normalizedTag) handleTagInputClose()
+  else handleInlineAddTag(true)
+}
+
+const handleInlineAddTag = (shouldClose = false) => {
   const normalizedTag = localTag.value.trim()
   if (!normalizedTag) return
 
   handleAddTag(normalizedTag)
-  handleTagInputClose()
+  if (shouldClose) handleTagInputClose()
+  else {
+    localTag.value = ''
+    handleTagInputOpen()
+  }
 }
 
 watch(
@@ -142,6 +152,16 @@ watch(
   { immediate: true },
 )
 
+function handleConnectInputRef(refObj: any) {
+  const exposed = refObj as { inputRef: HTMLInputElement | null } | null
+  if (!exposed) return
+
+  tagRef.value = exposed.inputRef
+  if (exposed.inputRef) {
+    exposed.inputRef.focus()
+  }
+}
+
 onMounted(() => {
   window.addEventListener('resize', () => {
     if (textareaNameRef.value) textareaNameFunc.value?.update()
@@ -156,148 +176,148 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Dialog v-model:open="uiStore.isEditTaskModalOpen">
-    <DialogContent
-      class="p-0 overflow-hidden border-none shadow-2xl rounded-lg focus-within:ring-0 focus-within:outline-none focus-within:ring-offset-0 focus-within:outline-0 focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-offset-0 focus-visible:outline-0"
-      :showCloseButton="false"
-    >
-      <div
-        v-if="task"
-        class="flex flex-col bg-background overflow-hidden"
-      >
-        <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-border">
-          <div class="flex items-center gap-2 min-w-0">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              @click="toggleTaskCompletion"
-              class="py-1.5 px-2 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200"
-              :class="
-                task.isCompleted
-                  ? 'bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-700'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary-foreground/20'
-              "
+  <div
+    v-if="task"
+    class="flex flex-col bg-background overflow-hidden"
+  >
+    <div class="flex justify-between items-center gap-x-2 px-4 py-2 border-b border-border">
+      <div class="flex items-center gap-2 min-w-0">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          @click="toggleTaskCompletion"
+          class="py-1.5 px-2 inline-flex items-center gap-x-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200"
+          :class="
+            task.isCompleted
+              ? 'bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-700'
+              : 'bg-secondary text-secondary-foreground hover:bg-secondary-foreground/20'
+          "
+        >
+          <div class="inline-flex items-center size-3.5 sm:size-4.5 shrink-0">
+            <Checkbox
+              :model-value="task.isCompleted"
+              aria-hidden="true"
+              tabindex="-1"
+              class="pointer-events-none size-3.5 sm:size-4.5 rounded-full border-slate-300 bg-slate-100 text-white shadow data-[state=checked]:border-green-600 data-[state=checked]:bg-green-600"
             >
-              <div class="inline-flex items-center size-3.5 sm:size-4.5 shrink-0">
-                <Checkbox
-                  :model-value="task.isCompleted"
-                  aria-hidden="true"
-                  tabindex="-1"
-                  class="pointer-events-none size-3.5 sm:size-4.5 rounded-full border-slate-300 bg-slate-100 text-white shadow data-[state=checked]:border-green-600 data-[state=checked]:bg-green-600"
-                >
-                  <Check
-                    class="size-3"
-                    stroke-width="4"
-                  />
-                </Checkbox>
-              </div>
-              {{ task.isCompleted ? 'Выполнено' : 'Выполняется' }}
-            </Button>
-
-            <MoveDropdown
-              v-if="!task.isDeleted"
-              :task="task"
-              @move="handleMoveTask"
-            >
-              <Layers class="size-3.5 shrink-0" />
-            </MoveDropdown>
-          </div>
-
-          <ActionAndCloseButtons
-            :editableEntity="task"
-            :isEntityCopying="status.isCloning?.value"
-            :isEntityArchiving="status.isArchiving?.value"
-            :isEntityUpdating="status.isUpdating?.value"
-            @copy="
-              cloneTask({ id: task.id }, { onSuccess: () => (uiStore.isEditTaskModalOpen = false) })
-            "
-            @archive="
-              archiveTask({ task }, { onSuccess: () => (uiStore.isEditTaskModalOpen = false) })
-            "
-          />
-        </div>
-
-        <div class="p-4 flex flex-col gap-y-2">
-          <textarea
-            ref="textareaNameRef"
-            v-model="localName"
-            @input="debouncedUpdateName"
-            class="p-0 w-full bg-transparent border-none focus:ring-0 text-lg font-medium resize-none placeholder:text-muted-foreground/50"
-            placeholder="Имя задачи"
-            rows="1"
-          />
-
-          <textarea
-            ref="textareaDescRef"
-            v-model="localDescription"
-            @input="debouncedUpdateDescription"
-            class="p-0 w-full bg-transparent border-none focus:ring-0 text-sm text-muted-foreground resize-none placeholder:text-muted-foreground/40"
-            placeholder="Описание задачи..."
-            rows="2"
-          />
-
-          <div class="flex flex-wrap gap-1.5 mt-1">
-            <Badge
-              v-for="(tag, index) in task.tags"
-              :key="`${tag}-${index}`"
-              variant="secondaryMuted"
-              @click="handleRemoveTag(index)"
-              class="text-xs h-6 gap-x-2 rounded-sm cursor-pointer transition-colors hover:bg-red-100 hover:text-red-600 max-w-full truncate"
-            >
-              <span class="truncate">#{{ tag }}</span>
-              <X class="size-3 shrink-0" />
-            </Badge>
-
-            <template v-if="isTagInputVisible">
-              <Input
-                id="task-tag-input"
-                v-model="localTag"
-                class="h-6 w-22 px-2 text-xs min-w-30 rounded-sm focus-visible:ring-0 outline-0 focus:ring-0 focus:ring-offset-0 focus:outline-0 font-medium border-transparent bg-muted text-foreground/50 hover:bg-secondary/80"
-                @keydown.enter.prevent="handleInlineAddTag"
-                @blur="handleTagInputClose"
-                v-autowidth
+              <Check
+                class="size-3"
+                stroke-width="4"
               />
-            </template>
-
-            <Badge
-              v-else
-              variant="secondaryMuted"
-              class="text-xs h-6 rounded-sm text-foreground/40 cursor-pointer border border-dashed border-muted-foreground/30 transition-colors hover:bg-secondary hover:text-foreground/80"
-              @click="handleTagInputOpen"
-            >
-              <Plus class="size-3" />
-              Добавить тег
-            </Badge>
+            </Checkbox>
           </div>
-        </div>
+          {{ task.isCompleted ? 'Выполнено' : 'Выполняется' }}
+        </Button>
 
-        <div class="flex flex-wrap gap-2 px-4 py-4 border-t bg-muted/5">
-          <TaskDateTime
-            :task="task"
-            @changeDate="(d) => patchTask({ dueDate: d })"
-            @clearTaskDue="patchTask({ dueHours: null, dueMinutes: null, dueDate: null })"
-            @changeTime="
-              (t) =>
-                patchTask({
-                  dueHours: Number(t.split(':')[0]),
-                  dueMinutes: Number(t.split(':')[1]),
-                })
-            "
-            @clearTaskTime="patchTask({ dueHours: null, dueMinutes: null })"
-          />
-          <TaskPriority
-            :task="task"
-            @setPriority="(priority) => patchTask({ priority })"
-          />
-          <TaskColor
-            :task="task"
-            @setColor="(c) => patchTask({ color: c })"
-          />
-        </div>
+        <MoveDropdown
+          v-if="!task.isDeleted"
+          :task="task"
+          @move="handleMoveTask"
+        >
+          <Layers class="size-3.5 shrink-0" />
+        </MoveDropdown>
       </div>
 
-      <DialogTitle class="sr-only">Редактирование задачи</DialogTitle>
-    </DialogContent>
-  </Dialog>
+      <ActionAndCloseButtons
+        :editableEntity="task"
+        :isEntityCopying="status.isCloning?.value"
+        :isEntityArchiving="status.isArchiving?.value"
+        :isEntityUpdating="status.isUpdating?.value"
+        @copy="
+          cloneTask({ id: task.id }, { onSuccess: () => (uiStore.isEditTaskModalOpen = false) })
+        "
+        @archive="archiveTask({ task }, { onSuccess: () => (uiStore.isEditTaskModalOpen = false) })"
+      />
+    </div>
+
+    <div class="p-4 flex flex-col gap-y-2">
+      <textarea
+        ref="textareaNameRef"
+        v-model="localName"
+        @input="debouncedUpdateName"
+        class="p-0 w-full bg-transparent border-none focus:ring-0 text-lg font-medium resize-none placeholder:text-muted-foreground/50"
+        placeholder="Имя задачи"
+        rows="1"
+      />
+
+      <textarea
+        ref="textareaDescRef"
+        v-model="localDescription"
+        @input="debouncedUpdateDescription"
+        class="p-0 w-full bg-transparent border-none focus:ring-0 text-sm text-muted-foreground resize-none placeholder:text-muted-foreground/40"
+        placeholder="Описание задачи..."
+        rows="2"
+      />
+
+      <div class="flex flex-wrap gap-1.5 mt-1">
+        <Badge
+          v-for="(tag, index) in task.tags"
+          :key="`${tag}-${index}`"
+          variant="secondaryMuted"
+          @click="handleRemoveTag(index)"
+          class="text-xs h-6 gap-x-2 rounded-sm cursor-pointer transition-colors hover:bg-red-100 hover:text-red-600 max-w-full truncate"
+        >
+          <span class="truncate">#{{ tag }}</span>
+          <X class="size-3 shrink-0" />
+        </Badge>
+
+        <template v-if="isTagInputVisible">
+          <form
+            @submit.prevent="handleInlineAddTag(false)"
+            class="inline-block"
+          >
+            <Input
+              id="task-tag-input"
+              :ref="handleConnectInputRef"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              enterkeyhint="done"
+              v-model="localTag"
+              class="h-6 w-14 px-2 text-xs min-w-20 rounded-sm focus-visible:ring-0 outline-0 focus:ring-0 focus:ring-offset-0 focus:outline-0 font-medium border-transparent bg-muted text-foreground/50 hover:bg-secondary/80"
+              @blur="handleTagInputBlur"
+              v-autowidth
+            />
+          </form>
+        </template>
+
+        <Badge
+          v-else
+          variant="secondaryMuted"
+          class="text-xs h-6 rounded-sm text-foreground/40 cursor-pointer border border-dashed border-muted-foreground/30 transition-colors hover:bg-secondary hover:text-foreground/80"
+          @click="handleTagInputOpen"
+        >
+          <Plus class="size-3" />
+          Добавить тег
+        </Badge>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2 px-4 py-4 border-t bg-muted/5">
+      <TaskDateTime
+        :task="task"
+        @changeDate="(d) => patchTask({ dueDate: d })"
+        @clearTaskDue="patchTask({ dueHours: null, dueMinutes: null, dueDate: null })"
+        @changeTime="
+          (t) =>
+            patchTask({
+              dueHours: Number(t.split(':')[0]),
+              dueMinutes: Number(t.split(':')[1]),
+            })
+        "
+        @clearTaskTime="patchTask({ dueHours: null, dueMinutes: null })"
+      />
+      <TaskPriority
+        :task="task"
+        @setPriority="(priority) => patchTask({ priority })"
+      />
+      <TaskColor
+        :task="task"
+        @setColor="(c) => patchTask({ color: c })"
+      />
+    </div>
+  </div>
+
+  <DialogTitle class="sr-only">Редактирование задачи</DialogTitle>
 </template>

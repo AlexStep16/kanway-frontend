@@ -128,86 +128,76 @@ const getFirstNameLetter = computed(() => {
 </script>
 
 <template>
-  <Dialog
-    class="z-90"
-    v-model:open="isDialogOpen"
+  <DialogClose
+    class="absolute top-2.5 right-2.5 inline-flex appearance-none items-center justify-center rounded-md p-1 hover:bg-secondary hover:text-foreground"
+    aria-label="Close"
   >
-    <DialogContent
-      class="sm:max-w-106.25 p-4"
-      :show-close-button="false"
-    >
-      <DialogClose
-        class="absolute top-2.5 right-2.5 inline-flex appearance-none items-center justify-center rounded-md p-1 hover:bg-secondary hover:text-foreground"
-        aria-label="Close"
-      >
-        <X class="size-4.5" />
-      </DialogClose>
+    <X class="size-4.5" />
+  </DialogClose>
 
-      <DialogHeader>
-        <DialogTitle class="text-base">{{ dialogTitle }}</DialogTitle>
-        <DialogDescription class="sr-only">
-          {{ dialogDescription }}
-        </DialogDescription>
-      </DialogHeader>
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-          <Label
-            for="name-1"
-            class="text-sm"
-            >Название</Label
-          >
-          <Input
-            id="name-1"
-            autocomplete="off"
-            name="workspace"
-            v-bind="nameAttrs"
-            v-model="name"
-          />
-        </div>
-        <div class="flex flex-col gap-1">
-          <Label class="text-sm">Цвет</Label>
-          <div class="flex gap-2 w-full flex-wrap">
-            <Button
-              :class="
-                cn(
-                  'size-7 flex p-0 hover:scale-115 transition-transform duration-200',
-                  color === availableColor && 'ring-2 ring-blue-500 ring-offset-1 scale-110',
-                )
-              "
-              v-for="availableColor in Object.values(AvailableColors)"
-              :key="availableColor"
-              :style="{ backgroundColor: availableColor }"
-              @click="color = availableColor"
-            >
-              {{ availableColor === color ? getFirstNameLetter || '✓' : '' }}
-            </Button>
-          </div>
-        </div>
-      </div>
-      <Separator />
-      <DialogFooter>
-        <DialogClose as-child>
-          <Button
-            size="sm"
-            class="text-xs"
-            variant="outline"
-          >
-            Отмена
-          </Button>
-        </DialogClose>
+  <DialogHeader>
+    <DialogTitle class="text-base">{{ dialogTitle }}</DialogTitle>
+    <DialogDescription class="sr-only">
+      {{ dialogDescription }}
+    </DialogDescription>
+  </DialogHeader>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1">
+      <Label
+        for="name-1"
+        class="text-sm"
+        >Название</Label
+      >
+      <Input
+        id="name-1"
+        autocomplete="off"
+        name="workspace"
+        v-bind="nameAttrs"
+        v-model="name"
+      />
+    </div>
+    <div class="flex flex-col gap-1">
+      <Label class="text-sm">Цвет</Label>
+      <div class="flex gap-2 w-full flex-wrap">
         <Button
-          size="sm"
-          class="text-xs"
-          @click="onSubmit"
-          :disabled="isSubmitDisabled"
+          :class="
+            cn(
+              'size-7 flex p-0 hover:scale-115 transition-transform duration-200',
+              color === availableColor && 'ring-2 ring-blue-500 ring-offset-1 scale-110',
+            )
+          "
+          v-for="availableColor in Object.values(AvailableColors)"
+          :key="availableColor"
+          :style="{ backgroundColor: availableColor }"
+          @click="color = availableColor"
         >
-          <template v-if="isSubmitting">
-            <Spinner />
-            <span>{{ isEditMode ? 'Сохранение' : 'Создание' }}</span>
-          </template>
-          <span v-else>{{ isEditMode ? 'Сохранить' : 'Создать' }}</span>
+          {{ availableColor === color ? getFirstNameLetter || '✓' : '' }}
         </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+      </div>
+    </div>
+  </div>
+  <Separator />
+  <DialogFooter>
+    <DialogClose as-child>
+      <Button
+        size="sm"
+        class="text-xs"
+        variant="outline"
+      >
+        Отмена
+      </Button>
+    </DialogClose>
+    <Button
+      size="sm"
+      class="text-xs"
+      @click="onSubmit"
+      :disabled="isSubmitDisabled"
+    >
+      <template v-if="isSubmitting">
+        <Spinner />
+        <span>{{ isEditMode ? 'Сохранение' : 'Создание' }}</span>
+      </template>
+      <span v-else>{{ isEditMode ? 'Сохранить' : 'Создать' }}</span>
+    </Button>
+  </DialogFooter>
 </template>
