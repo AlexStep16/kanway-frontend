@@ -47,6 +47,25 @@ function getAxiosClient() {
 
         if (error.response) {
           status = error.response.status
+
+          if (status === 401 && import.meta.client) {
+            const nuxtApp = useNuxtApp()
+            const currentRoute = nuxtApp.$router.currentRoute.value
+
+            nuxtApp.$queryClient.setQueryData(userKeys.me, null)
+
+            localStorage.removeItem('activeWorkspaceId')
+            localStorage.removeItem('activeBoardId')
+
+            const isAuthRequired = currentRoute.meta.authOnly === true
+
+            if (isAuthRequired) {
+              await navigateTo({
+                path: '/auth',
+                query: { redirect: currentRoute.fullPath },
+              })
+            }
+          }
         } else if (error.request) {
           message = ErrorsMessage.NETWORK_ERROR
           isNetworkError = true

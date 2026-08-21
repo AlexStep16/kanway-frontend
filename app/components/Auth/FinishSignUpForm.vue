@@ -13,6 +13,11 @@ const { mutate: finishSignup, isPending: isRegistering, error: registerError } =
 const isNavigating = ref(false)
 const isEmailModifiedAfterSubmit = ref(false)
 
+const route = useRoute()
+const redirect: ComputedRef<string | undefined> = computed(
+  () => route.query.redirect as string | undefined,
+)
+
 const schema = toTypedSchema(
   z.object({
     email: z.email('Неверный формат почты'),
@@ -41,6 +46,7 @@ const onSubmit = handleSubmit((values) => {
               step: AllowedAuthStepsEnum.VERIFY_EMAIL,
               payload: getSafeBase64String(values.email.trim()),
               backStep: AllowedAuthStepsEnum.FINISH_SIGN_UP,
+              redirect: redirect.value,
             },
           })
         } catch {

@@ -10,6 +10,12 @@ const props = defineProps<{
   isEmailSending: boolean
 }>()
 
+const route = useRoute()
+
+const redirect: ComputedRef<string | undefined> = computed(
+  () => route.query.redirect as string | undefined,
+)
+
 const otpFormRef = ref<InstanceType<typeof OTPForm> | null>(null)
 const isNavigating = ref(false)
 
@@ -23,6 +29,12 @@ function handleVerifyLoginOTP(code: string) {
       onSuccess: async () => {
         try {
           isNavigating.value = true
+
+          if (redirect.value) {
+            await navigateTo(redirect.value)
+            return
+          }
+
           await navigateTo('/workspace')
         } catch {
           toast.error('Произошла ошибка при переходе в пространство')
@@ -68,6 +80,7 @@ function handleResendMagicLink() {
               query: {
                 step: AllowedAuthStepsEnum.SIGN_IN,
                 payload: getSafeBase64String(props.email),
+                redirect: redirect,
               },
             })
           "

@@ -24,6 +24,11 @@ const schema = toTypedSchema(
   }),
 )
 
+const route = useRoute()
+const redirect: ComputedRef<string | undefined> = computed(
+  () => route.query.redirect as string | undefined,
+)
+
 const { errors, handleSubmit, submitCount, defineField } = useForm({
   validationSchema: schema,
   initialValues: {
@@ -65,6 +70,7 @@ const onSubmit = handleSubmit(async (values) => {
         query: {
           step: AllowedAuthStepsEnum.SIGN_IN,
           payload: getSafeBase64String(normalizedEmail),
+          redirect: redirect.value,
         },
       })
     else
@@ -73,6 +79,7 @@ const onSubmit = handleSubmit(async (values) => {
         query: {
           step: AllowedAuthStepsEnum.SIGN_UP,
           payload: getSafeBase64String(normalizedEmail),
+          redirect: redirect.value,
         },
       })
   } finally {

@@ -10,8 +10,17 @@ useSeoMeta({
     'Персональный AI-агент для управления проектами. Создавайте задачи голосом или текстом, организуйте проекты и повышайте свою продуктивность. Попробуйте бесплатно!',
 })
 
-definePageMeta({
-  guestOnly: true,
+useHead({
+  script: [
+    {
+      innerHTML: `
+        if (document.cookie.split('; ').some(row => row.startsWith('is_logged_in=true'))) {
+          window.location.replace('/workspace');
+        }
+      `,
+      tagPosition: 'head',
+    },
+  ],
 })
 </script>
 

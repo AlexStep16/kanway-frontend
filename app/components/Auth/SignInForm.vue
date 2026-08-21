@@ -19,6 +19,12 @@ const props = withDefaults(
   },
 )
 
+const route = useRoute()
+
+const redirect: ComputedRef<string | undefined> = computed(
+  () => route.query.redirect as string | undefined,
+)
+
 const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
 
 const passwordRef = ref<HTMLInputElement | null>(null)
@@ -68,6 +74,12 @@ const onSubmit = handleSubmit((values) => {
       onSuccess: async () => {
         try {
           isNavigating.value = true
+
+          if (redirect.value) {
+            await navigateTo(redirect.value)
+            return
+          }
+
           await navigateTo('/workspace')
         } catch {
           toast.error('Произошла ошибка при переходе в пространство')
@@ -103,6 +115,7 @@ function navigateToLoginVerify() {
     query: {
       step: AllowedAuthStepsEnum.VERIFY_LOGIN,
       payload: getSafeBase64String(email.value.trim()),
+      redirect: redirect.value,
     },
   })
 }

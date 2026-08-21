@@ -14,6 +14,9 @@ export function useLogout() {
     onSuccess: async (vars: { isRedirectToAuth: boolean }) => {
       queryClient.setQueryData(userKeys.me, null)
 
+      localStorage.removeItem('activeWorkspaceId')
+      localStorage.removeItem('activeBoardId')
+
       if (vars.isRedirectToAuth) {
         await router.push('/auth')
       }

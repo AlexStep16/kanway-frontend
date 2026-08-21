@@ -45,6 +45,12 @@ export async function finishSignup(credentials: FinishRegistrationDTO) {
 }
 
 export async function checkFinishSignupToken(): Promise<null> {
+  const hasFinishSignUp = useCookie('has_finish_signup').value
+
+  if (!hasFinishSignUp) {
+    throw new Error('Finish signup token is missing')
+  }
+
   return await checkSignupTokenApi()
 }
 
@@ -53,9 +59,17 @@ export async function checkEmailExists(email: string): Promise<boolean> {
 }
 
 export async function getMe(): Promise<UserModel | null> {
+  const isLoggedInCookie = useCookie('is_logged_in')
+
+  if (!isLoggedInCookie.value) {
+    return null
+  }
+
   try {
     return transformUser(await meApi())
   } catch (error: any) {
+    console.log(error)
+
     if (
       (error instanceof HttpError && error.status === 401) ||
       (error instanceof BackendError && error.code === 401)

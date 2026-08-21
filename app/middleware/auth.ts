@@ -6,7 +6,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const payload = to.query.payload as string
 
   if (step && !Object.values(AllowedAuthStepsEnum).includes(step as any)) {
-    return navigateTo('/auth')
+    return navigateTo(
+      {
+        path: '/auth',
+        query: {
+          ...to.query,
+        },
+      },
+      { replace: true },
+    )
   }
 
   if (step && payload) {
@@ -15,7 +23,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
       z.email().parse(email)
     } catch {
-      return navigateTo('/auth')
+      return navigateTo(
+        {
+          path: '/auth',
+          query: {
+            ...to.query,
+          },
+        },
+        { replace: true },
+      )
     }
   } else if (step && !payload) {
     const validStepsWithoutPayload = [
@@ -25,7 +41,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
     ]
 
     if (!validStepsWithoutPayload.includes(step as AllowedAuthStepsEnum)) {
-      return navigateTo('/auth')
+      return navigateTo(
+        {
+          path: '/auth',
+          query: {
+            ...to.query,
+          },
+        },
+        { replace: true },
+      )
     }
   }
 })

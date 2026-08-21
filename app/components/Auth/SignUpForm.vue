@@ -9,6 +9,11 @@ import PasswordInput from './PasswordInput.vue'
 import { toast } from 'vue-sonner'
 import { CircleX } from '@lucide/vue'
 
+const route = useRoute()
+const redirect: ComputedRef<string | undefined> = computed(
+  () => route.query.redirect as string | undefined,
+)
+
 const props = withDefaults(
   defineProps<{
     initialEmail?: string
@@ -85,6 +90,7 @@ const onSubmit = handleSubmit((values) => {
               step: AllowedAuthStepsEnum.VERIFY_EMAIL,
               payload: getSafeBase64String(values.email.trim()),
               backStep: AllowedAuthStepsEnum.SIGN_UP,
+              redirect: redirect.value,
             },
           })
         } catch {

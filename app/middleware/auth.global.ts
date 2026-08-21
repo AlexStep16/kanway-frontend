@@ -7,24 +7,23 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const { $queryClient } = useNuxtApp()
 
-  const user = await $queryClient.fetchQuery({
-    queryKey: userKeys.me,
-    queryFn: () => getMe(),
-    staleTime: 1000 * 60 * 5,
-  })
-
   if (!isAuthRequired && !isGuestOnly) {
     return
   }
+
+  const user = await $queryClient.fetchQuery({
+    queryKey: userKeys.me,
+    queryFn: () => getMe(),
+    retry: false,
+  })
 
   if (user && user.isConfirmed === false) {
     if (to.query.step !== AllowedAuthStepsEnum.VERIFY_EMAIL) {
       const email64 = getSafeBase64String(user?.email || '')
 
       return navigateTo({
-        ...to.query,
         path: '/auth',
-        query: { step: AllowedAuthStepsEnum.VERIFY_EMAIL, payload: email64 },
+        query: { ...to.query, step: AllowedAuthStepsEnum.VERIFY_EMAIL, payload: email64 },
       })
     }
 
@@ -39,18 +38,25 @@ export default defineNuxtRouteMiddleware(async (to) => {
         if (to.query.step !== AllowedAuthStepsEnum.FINISH_SIGN_UP) {
           return navigateTo({
             path: '/auth',
-            query: { step: AllowedAuthStepsEnum.FINISH_SIGN_UP },
+            query: { ...to.query, step: AllowedAuthStepsEnum.FINISH_SIGN_UP },
           })
         }
       } catch {
-        return navigateTo('/auth')
+        return navigateTo({
+          path: '/auth',
+          query: {
+            redirect: to.fullPath !== '/' ? to.fullPath : undefined,
+          },
+        })
       }
     }
   }
 
   if (isGuestOnly) {
     if (user && user.isConfirmed === true) {
-      return navigateTo('/workspace')
+      const redirectUrl = (to.query.redirect as string) || '/workspace'
+      console.log('redirectUrl', redirectUrl)
+      return navigateTo(redirectUrl)
     }
   }
 })

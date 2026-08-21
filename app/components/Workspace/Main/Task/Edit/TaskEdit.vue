@@ -127,21 +127,21 @@ const handleInlineAddTag = (shouldClose = false) => {
 }
 
 watch(
-  liveTask,
-  (newVal, oldVal) => {
-    if (!newVal) return
+  () => liveTask.value?.id,
+  (newId, oldId) => {
+    const current = liveTask.value
 
-    task.value = newVal ? _.cloneDeep(newVal) : null
-
-    if (!newVal) {
+    if (!current) {
+      task.value = null
       localName.value = ''
       localDescription.value = ''
       return
     }
 
-    if (newVal.id !== oldVal?.id || (!localName.value && !localDescription.value)) {
-      localName.value = newVal.name
-      localDescription.value = newVal.description || ''
+    if (newId !== oldId) {
+      task.value = _.cloneDeep(current)
+      localName.value = current.name || ''
+      localDescription.value = current.description || ''
 
       nextTick(() => {
         if (textareaNameRef.value) textareaNameFunc.value = attach(textareaNameRef.value) as any

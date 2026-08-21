@@ -10,6 +10,12 @@ const props = defineProps<{
   backStep: AllowedAuthStepsEnum
 }>()
 
+const route = useRoute()
+
+const redirect: ComputedRef<string | undefined> = computed(
+  () => route.query.redirect as string | undefined,
+)
+
 const otpFormRef = ref<InstanceType<typeof OTPForm> | null>(null)
 const isNavigating = ref(false)
 
@@ -24,6 +30,12 @@ function handleVerifyEmailOTP(code: string) {
       onSuccess: async () => {
         try {
           isNavigating.value = true
+
+          if (redirect.value) {
+            await navigateTo(redirect.value)
+            return
+          }
+
           await navigateTo('/workspace')
         } catch {
           toast.error('Произошла ошибка при переходе в пространство')
@@ -47,6 +59,7 @@ function handleBack() {
         query: {
           step: props.backStep,
           payload: getSafeBase64String(props.email),
+          redirect: redirect.value,
         },
       })
     },
