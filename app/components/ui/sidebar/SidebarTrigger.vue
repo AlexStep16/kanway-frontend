@@ -14,7 +14,7 @@ const { toggleSidebar, open } = useSidebar()
 
 <template>
   <TooltipProvider :disableHoverableContent="true">
-    <Tooltip>
+    <Tooltip :delayDuration="300">
       <TooltipTrigger as-child>
         <Button
           data-sidebar="trigger"

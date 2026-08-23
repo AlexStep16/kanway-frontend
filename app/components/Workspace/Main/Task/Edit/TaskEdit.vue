@@ -45,9 +45,14 @@ const { mutate: moveTask } = useMoveTask()
 const patchTask = (payload: Omit<ITaskEditApiPayload, 'id'>) => {
   if (!task.value) return
 
+  const taskId = task.value.id
+  const boardId = task.value.board.id
+
+  Object.assign(task.value, payload)
+
   updateTask({
-    payload: { id: task.value.id, ...payload },
-    boardId: task.value.board.id,
+    payload: { id: taskId, ...payload },
+    boardId,
   })
 }
 

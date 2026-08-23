@@ -108,8 +108,10 @@ export async function updatePassword(payload: UpdatePasswordVars): Promise<IUser
   return transformUser(updatedUser)
 }
 
-export async function yandexAuth(payload: YandexAuthDTO): Promise<IUser> {
-  return transformUser(await yandexAuthApi(payload))
+export async function yandexAuth(payload: YandexAuthDTO): Promise<UserModel | null> {
+  const raw = await yandexAuthApi(payload)
+  if (!raw) return null
+  return transformUser(raw)
 }
 
 export async function vkAuth(payload: VkAuthDTO): Promise<UserModel | null> {

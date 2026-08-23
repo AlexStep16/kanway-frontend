@@ -14,7 +14,7 @@ export async function loginApi(credentials: LoginCredentials) {
 }
 
 export async function yandexAuthApi(payload: YandexAuthDTO) {
-  return await apiCall<IUser>({
+  return await apiCall<IUser | null>({
     method: 'POST',
     url: '/auth/yandex',
     data: payload,

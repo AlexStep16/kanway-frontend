@@ -176,20 +176,33 @@ const handleCloseOptions = (workspaceId: string) => {
                 </div>
               </DropdownMenuItem>
 
-              <DropdownMenu v-model:open="openOptions[workspace.id]">
-                <DropdownMenuTrigger as-child>
-                  <DropdownMenuMore show-on-hover>
-                    <MoreHorizontal class="size-4" />
-                    <span class="sr-only">Больше</span>
-                  </DropdownMenuMore>
-                </DropdownMenuTrigger>
+              <TooltipProvider :disableHoverableContent="true">
+                <DropdownMenu v-model:open="openOptions[workspace.id]">
+                  <DropdownMenuTrigger as-child>
+                    <DropdownMenuMore show-on-hover>
+                      <Tooltip :delayDuration="300">
+                        <TooltipTrigger as-child>
+                          <MoreHorizontal class="outline-none size-4" />
+                          <span class="sr-only">Больше</span>
+                        </TooltipTrigger>
 
-                <WorkspaceOptions
-                  :workspace="workspace"
-                  :is-mobile="isMobile"
-                  @close="handleCloseOptions(workspace.id)"
-                />
-              </DropdownMenu>
+                        <TooltipContent
+                          v-if="!openOptions[workspace.id]"
+                          :side-offset="10"
+                        >
+                          Действия с пространством
+                        </TooltipContent>
+                      </Tooltip>
+                    </DropdownMenuMore>
+                  </DropdownMenuTrigger>
+
+                  <WorkspaceOptions
+                    :workspace="workspace"
+                    :is-mobile="isMobile"
+                    @close="handleCloseOptions(workspace.id)"
+                  />
+                </DropdownMenu>
+              </TooltipProvider>
             </div>
           </div>
           <DropdownMenuSeparator />
@@ -198,7 +211,7 @@ const handleCloseOptions = (workspaceId: string) => {
             :disableHoverableContent="true"
             :disabled="isCreateWorkspaceButtonActive"
           >
-            <Tooltip>
+            <Tooltip :delayDuration="300">
               <TooltipTrigger as-child>
                 <Button
                   variant="secondary"

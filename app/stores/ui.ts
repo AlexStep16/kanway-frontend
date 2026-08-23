@@ -20,8 +20,6 @@ export const useUIStore = defineStore('ui', () => {
 
   const currentTab = ref<Tabs>(Tabs.Board)
   const currentSettingsTab = ref<SettingTabs>(SettingTabs.PROFILE)
-
-  const isSidebarOpen = ref(true)
   const isChatOpen = ref(false)
 
   function openWorkspaceDialog(workspace?: IWorkspace | null) {
@@ -32,14 +30,6 @@ export const useUIStore = defineStore('ui', () => {
   function closeWorkspaceDialog() {
     isWorkspaceDialogOpen.value = false
     editableWorkspace.value = null
-  }
-
-  function openSidebar() {
-    isSidebarOpen.value = true
-  }
-
-  function closeSidebar() {
-    isSidebarOpen.value = false
   }
 
   function clearTaskToEdit() {
@@ -115,7 +105,6 @@ export const useUIStore = defineStore('ui', () => {
     isEditTaskModalOpen,
     isDeleteUserModalOpen,
 
-    isSidebarOpen,
     currentTab,
     currentSettingsTab,
     isChatOpen,
@@ -128,8 +117,6 @@ export const useUIStore = defineStore('ui', () => {
     editableWorkspace,
 
     // Actions
-    openSidebar,
-    closeSidebar,
     selectArchive,
     selectSettings,
     openProfileSettings,

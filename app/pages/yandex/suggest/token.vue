@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { toast } from 'vue-sonner'
 import { linkYandexAccount, yandexAuth } from '~/services/auth'
 import { useQueryClient } from '@tanstack/vue-query'
+import { AllowedAuthStepsEnum } from '~/enums/AllowedAuthStepsEnum'
 
 const queryClient = useQueryClient()
 
@@ -35,6 +36,10 @@ async function handleCallback() {
       queryClient.setQueryData(userKeys.me, user)
     } else {
       const user = await yandexAuth(payload)
+      if (!user) {
+        await navigateTo({ path: '/auth', query: { step: AllowedAuthStepsEnum.FINISH_SIGN_UP } })
+        return
+      }
       queryClient.setQueryData(userKeys.me, user)
     }
     navigateTo('/workspace')

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { TaskModel } from '~/models/TaskModel'
 import { Palette, CircleOff, ChevronDown } from '@lucide/vue'
-import { COLOR_NAMES_MAP } from '~/constants/COLOR_NAMES_MAP'
 import { TASK_COLORS_MAP, TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
 import { cn } from '~/lib/utils'
 
@@ -18,13 +17,20 @@ const emit = defineEmits<{
 
 const isPopoverOpen = ref(false)
 
-const getColorName = (colorName?: (typeof TASK_COLORS_TITLES)[number] | null) => {
+const getColorName = (
+  colorName?: (typeof TASK_COLORS_TITLES)[number] | null,
+  tone?: 'light' | 'medium' | 'dark',
+) => {
   if (!colorName) return 'Без цвета'
-  return COLOR_NAMES_MAP[colorName] || colorName
+  const entry = Object.values(TASK_COLORS_MAP).find(
+    (c) => c.name === colorName && (!tone || c.tone === tone),
+  )
+  const name = entry?.ru || colorName
+  return name.at(0)?.toUpperCase() + name.slice(1)
 }
 
 const colorTitle = computed(() => {
-  return props.task.color ? getColorName(props.task.color.value) : 'Цвет'
+  return props.task.color ? getColorName(props.task.color.value, props.task.color.tone) : 'Цвет'
 })
 
 const taskColorHex = computed(() => {
@@ -135,7 +141,7 @@ function isSelected(gridColor: any) {
             class="text-xs font-semibold"
             :style="{ color: taskColorHex }"
           >
-            {{ getColorName(task.color?.value) }}
+            {{ getColorName(task.color?.value, task.color?.tone) }}
           </span>
           <div
             class="flex-1 h-4 rounded-[2px]"

@@ -234,12 +234,12 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
         <div
           class="flex items-center absolute right-2 pointer-fine:opacity-0 transition-all pointer-events-none duration-100 top-2"
           :class="{
-            'group-hover/task:opacity-100 group-hover/task:bg-white pointer-events-auto!':
+            'group-hover/task:opacity-100 group-hover/task:bg-white group-hover/task:pointer-events-auto':
               isCopyAvailable || isDeleteAvailable,
           }"
         >
           <TooltipProvider :disableHoverableContent="true">
-            <Tooltip>
+            <Tooltip :delayDuration="300">
               <TooltipTrigger as-child>
                 <button
                   type="button"
@@ -264,7 +264,7 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
           </TooltipProvider>
 
           <TooltipProvider :disableHoverableContent="true">
-            <Tooltip>
+            <Tooltip :delayDuration="300">
               <TooltipTrigger as-child>
                 <button
                   type="button"

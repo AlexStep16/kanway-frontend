@@ -35,8 +35,8 @@ const update = ref(() => {})
 
 const isModelTypeSelectOpen = ref(false)
 
-async function sendChatMessage() {
-  const message = aiInputMessage.value.trim()
+async function sendChatMessage(message: string) {
+  message = message.trim()
 
   if (!message) return
 
@@ -99,7 +99,7 @@ const handleEnterPress = () => {
     return
   }
 
-  sendChatMessage()
+  sendChatMessage(aiInputMessage.value)
 }
 
 onMounted(() => {
@@ -227,7 +227,7 @@ defineExpose({
         <div class="flex shrink-0 items-center gap-x-2">
           <Recording
             ref="micButtonRef"
-            @setMessage="setMessage"
+            @sendMessage="sendChatMessage"
           ></Recording>
           <Button
             size="sm"

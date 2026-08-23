@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { COLOR_NAMES_MAP } from '~/constants/COLOR_NAMES_MAP'
-import { TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
+import { TASK_COLORS_MAP, TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
 
 interface Color {
   value: (typeof TASK_COLORS_TITLES)[number]
@@ -25,15 +24,23 @@ const hasColorChange = computed(() => {
   )
 })
 
-const getColorName = (colorName?: (typeof TASK_COLORS_TITLES)[number] | null) => {
+const getColorName = (
+  colorName?: (typeof TASK_COLORS_TITLES)[number] | null,
+  tone?: 'light' | 'medium' | 'dark',
+) => {
   if (!colorName) return 'Без цвета'
-
-  return COLOR_NAMES_MAP[colorName] || colorName
+  const entry = Object.values(TASK_COLORS_MAP).find(
+    (c) => c.name === colorName && (!tone || c.tone === tone),
+  )
+  return entry?.ru || colorName
 }
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-1" v-if="hasColorChange">
+  <div
+    class="flex flex-wrap gap-1"
+    v-if="hasColorChange"
+  >
     <div
       class="flex items-center flex-wrap gap-1 text-xs"
       :class="baseBlockBeforeClasses"
@@ -45,9 +52,15 @@ const getColorName = (colorName?: (typeof TASK_COLORS_TITLES)[number] | null) =>
           backgroundColor: getColorByNameAndTone(props.before.color.value, props.before.color.tone),
         }"
       ></div>
-      <span>{{ getColorName(props.before.color.value) }}</span>
+      <span>{{ getColorName(props.before.color.value, props.before.color.tone) }}</span>
     </div>
-    <div class="flex flex-wrap text-xs" :class="baseBlockBeforeClasses" v-else>Нет цвета</div>
+    <div
+      class="flex flex-wrap text-xs"
+      :class="baseBlockBeforeClasses"
+      v-else
+    >
+      Нет цвета
+    </div>
 
     <div
       class="flex items-center flex-wrap gap-1 text-xs"
@@ -60,8 +73,14 @@ const getColorName = (colorName?: (typeof TASK_COLORS_TITLES)[number] | null) =>
           backgroundColor: getColorByNameAndTone(after.color.value, after.color.tone),
         }"
       ></div>
-      <span>{{ getColorName(after.color.value) }}</span>
+      <span>{{ getColorName(after.color.value, after.color.tone) }}</span>
     </div>
-    <div class="flex flex-wrap text-xs" :class="baseBlockAfterClasses" v-else>Нет цвета</div>
+    <div
+      class="flex flex-wrap text-xs"
+      :class="baseBlockAfterClasses"
+      v-else
+    >
+      Нет цвета
+    </div>
   </div>
 </template>

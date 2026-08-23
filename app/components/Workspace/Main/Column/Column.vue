@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Options from '~/components/Options/Options.vue'
 import Task from '../Task/Task.vue'
-import { ListFilter, Plus, SquarePen } from '@lucide/vue'
+import { Plus, SquarePen } from '@lucide/vue'
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
 import draggable from 'vuedraggable'
 import type { ITaskState } from '~/stores/interfaces/ITaskState'
@@ -20,7 +20,11 @@ const taskFilterStore = useTaskFilterStore()
 const columnId = computed(() => props.column.id)
 const columnBoardId = computed(() => props.column.board.id)
 
-const { isPending: areTasksLoading } = useTasks(columnBoardId)
+const { isPending: areTasksLoading, data: allTasks } = useTasks(columnBoardId)
+
+const totalTaskCount = computed(
+  () => allTasks.value?.filter((t) => !t.isDeleted && t.column.id === columnId.value).length ?? 0,
+)
 
 const { tasks } = useVisibleTasks(columnBoardId, columnId)
 const { data: boardsData } = useBoards(computed(() => props.column.workspace.id))
@@ -145,21 +149,21 @@ const otherBoards = computed(() => {
     <!-- Header -->
     <div class="flex w-full px-4 justify-between items-center">
       <div
-        class="flex gap-x-2 items-center h-8 min-w-0 text-sm text-gray-800 cursor-pointer transition-colors duration-100 group"
+        class="flex flex-col min-w-0 cursor-pointer transition-colors duration-100 group"
         @click="showInput"
         v-show="!isInputVisible"
       >
-        <div
-          class="flex items-center justify-center"
-          v-if="taskFilterStore.isFilterActive"
-          title="Применён фильтр"
-        >
-          <ListFilter class="size-4 text-blue-500" />
+        <div class="flex gap-x-2 items-center h-8 text-sm text-gray-800">
+          <span class="font-semibold group-hover:text-gray-600 truncate">{{ column.name }}</span>
+          <SquarePen
+            class="size-3.5 shrink-0 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          />
         </div>
-        <span class="font-semibold group-hover:text-gray-600 truncate">{{ column.name }}</span>
-        <SquarePen
-          class="size-3.5 shrink-0 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-        />
+        <span
+          v-if="taskFilterStore.isFilterActive"
+          class="text-xs text-gray-400 leading-none -mt-1"
+          >Задач соответствует фильтрам: {{ localTaskList.length }}
+        </span>
       </div>
 
       <div
@@ -180,32 +184,53 @@ const otherBoards = computed(() => {
         </div>
       </div>
 
-      <Options
-        :options="{
-          copy: true,
-          move: true,
-          archive: true,
-        }"
-        :status="status"
-        :item="column"
-        :isAlwaysVisible="true"
-        :entityType="EntityType.Column"
-        groupName="column"
-        class="text-gray-600 undraggable"
-        @archive="handleArchive"
-        @copy="handleCopy"
-      >
-        <template #transfer-content="{ close }">
-          <TransferForm
-            :items="otherBoards"
-            :isProcessing="status.isBusy"
-            :isItemMoving="status.isMoving"
-            :noItemsText="'Нет других досок'"
-            @close="close"
-            @moveItem="handleMove"
-          />
-        </template>
-      </Options>
+      <div class="flex items-center gap-x-1 pl-1">
+        <TooltipProvider
+          :disableHoverableContent="true"
+          v-if="!taskFilterStore.isFilterActive"
+        >
+          <Tooltip :delayDuration="300">
+            <TooltipTrigger as-child>
+              <span
+                class="text-sm text-gray-400 tabular-nums hover:text-gray-500 transition-colors duration-100"
+                title="Всего задач"
+                >{{ totalTaskCount }}</span
+              >
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Всего задач</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <Options
+          :options="{
+            copy: true,
+            move: true,
+            archive: true,
+          }"
+          :status="status"
+          :item="column"
+          :isAlwaysVisible="true"
+          :entityType="EntityType.Column"
+          tooltipEntityType="колонкой"
+          groupName="column"
+          class="text-gray-600 undraggable"
+          @archive="handleArchive"
+          @copy="handleCopy"
+        >
+          <template #transfer-content="{ close }">
+            <TransferForm
+              :items="otherBoards"
+              :isProcessing="status.isBusy"
+              :isItemMoving="status.isMoving"
+              :noItemsText="'Нет других досок'"
+              @close="close"
+              @moveItem="handleMove"
+            />
+          </template>
+        </Options>
+      </div>
     </div>
 
     <!-- Tasks -->

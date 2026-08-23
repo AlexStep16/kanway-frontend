@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'setMessage', message: string): void
+  (e: 'sendMessage', message: string): void
 }>()
 
 const { data: user } = useUser()
@@ -154,7 +154,12 @@ async function stopRecording() {
   try {
     transcribeVoice(recordedBlob.value, {
       onSuccess: (transcript) => {
-        emit('setMessage', transcript)
+        if (!transcript) {
+          toast.error('Кажется, вы ничего не сказали. Попробуйте еще раз.')
+          return
+        }
+
+        emit('sendMessage', transcript)
       },
     })
   } catch {

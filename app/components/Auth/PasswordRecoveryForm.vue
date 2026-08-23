@@ -88,6 +88,7 @@ const isRegisterButtonDisabled = computed(
           :submit-count="submitCount"
           :is-password-modified-after-submit="isPasswordModifiedAfterSubmit"
           placeholder="Введите новый пароль"
+          @submit="onSubmit"
         />
         <ul
           class="text-xs text-red-600"

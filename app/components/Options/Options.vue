@@ -23,6 +23,7 @@ export interface ItemStatus {
 
 const props = defineProps<{
   item: { id: string; name: string; isFavorite?: boolean }
+  tooltipEntityType: string
   options: {
     edit?: boolean
     copy?: boolean
@@ -92,155 +93,165 @@ function onEdit() {
 </script>
 
 <template>
-  <Popover v-model:open="isMenuOpen">
-    <PopoverTrigger as-child>
-      <button
-        type="button"
-        :class="
-          cn(
-            'p-1 transition-all duration-200 rounded-full hover:bg-gray-200 focus:outline-none data-[state=open]:bg-blue-200 data-[state=open]:text-primary',
-            hoverClass,
-            visibilityClasses,
-          )
-        "
+  <TooltipProvider :disableHoverableContent="true">
+    <Popover v-model:open="isMenuOpen">
+      <PopoverTrigger as-child>
+        <Tooltip :delayDuration="300">
+          <TooltipTrigger as-child>
+            <button
+              type="button"
+              :class="
+                cn(
+                  'p-1 transition-all duration-200 rounded-full hover:bg-gray-200 focus:outline-none data-[state=open]:bg-blue-200 data-[state=open]:text-primary',
+                  hoverClass,
+                  visibilityClasses,
+                )
+              "
+              @click="isMenuOpen = !isMenuOpen"
+            >
+              <EllipsisVertical class="size-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Действия с {{ props.tooltipEntityType }}</p>
+          </TooltipContent>
+        </Tooltip>
+      </PopoverTrigger>
+
+      <PopoverContent
+        class="w-60 p-1"
+        align="start"
+        :side-offset="5"
       >
-        <EllipsisVertical class="size-4" />
-      </button>
-    </PopoverTrigger>
-
-    <PopoverContent
-      class="w-60 p-1"
-      align="start"
-      :side-offset="5"
-    >
-      <div
-        v-if="activeView === 'menu'"
-        class="flex flex-col gap-y-0.5"
-      >
-        <Button
-          v-if="options.edit"
-          variant="ghost"
-          class="w-full justify-start font-normal h-9 px-2 gap-x-2"
-          :disabled="toValue(status.isBusy)"
-          @click="onEdit"
+        <div
+          v-if="activeView === 'menu'"
+          class="flex flex-col gap-y-0.5"
         >
-          <Pen class="size-4" /> Редактировать
-        </Button>
-
-        <Button
-          v-if="options.copy"
-          variant="ghost"
-          class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
-          :disabled="toValue(status.isBusy)"
-          @click="onAction('copy')"
-        >
-          <div
-            v-if="toValue(status.isCloning)"
-            class="absolute inset-0 flex items-center justify-center bg-background/80"
+          <Button
+            v-if="options.edit"
+            variant="ghost"
+            class="w-full justify-start font-normal h-9 px-2 gap-x-2"
+            :disabled="toValue(status.isBusy)"
+            @click="onEdit"
           >
-            <Spinner class="size-4 mr-2" /> Копирование...
-          </div>
-          <template v-else> <Copy class="size-4" /> Копировать </template>
-        </Button>
+            <Pen class="size-4" /> Редактировать
+          </Button>
 
-        <Button
-          v-if="options.move"
-          variant="ghost"
-          class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
-          :disabled="toValue(status.isBusy)"
-          @click="activeView = 'transfer'"
-        >
-          <div
-            v-if="toValue(status.isMoving)"
-            class="absolute inset-0 flex items-center justify-center bg-background/80"
+          <Button
+            v-if="options.copy"
+            variant="ghost"
+            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            :disabled="toValue(status.isBusy)"
+            @click="onAction('copy')"
           >
-            <Spinner class="size-4 mr-2" /> Перемещение...
-          </div>
-          <template v-else> <MoveHorizontal class="size-4" /> Переместить </template>
-        </Button>
+            <div
+              v-if="toValue(status.isCloning)"
+              class="absolute inset-0 flex items-center justify-center bg-background/80"
+            >
+              <Spinner class="size-4 mr-2" /> Копирование...
+            </div>
+            <template v-else> <Copy class="size-4" /> Копировать </template>
+          </Button>
 
-        <Button
-          v-if="options.favorite"
-          variant="ghost"
-          class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
-          :disabled="toValue(status.isBusy)"
-          @click="$emit('favorite')"
-        >
-          <div
-            v-if="toValue(status.isFavoritePending)"
-            class="absolute inset-0 flex items-center justify-center bg-background/80"
+          <Button
+            v-if="options.move"
+            variant="ghost"
+            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            :disabled="toValue(status.isBusy)"
+            @click="activeView = 'transfer'"
           >
-            <Spinner class="size-4 mr-2" />
-            {{ isItemFavorite ? 'Удаление...' : 'Добавление...' }}
-          </div>
-          <template v-else>
-            <component
-              :is="isItemFavorite ? StarOff : Star"
-              class="size-4"
-            />
-            {{ isItemFavorite ? 'Удалить из избранного' : 'В избранное' }}
-          </template>
-        </Button>
+            <div
+              v-if="toValue(status.isMoving)"
+              class="absolute inset-0 flex items-center justify-center bg-background/80"
+            >
+              <Spinner class="size-4 mr-2" /> Перемещение...
+            </div>
+            <template v-else> <MoveHorizontal class="size-4" /> Переместить </template>
+          </Button>
 
-        <Button
-          v-if="options.archive"
-          variant="ghost"
-          class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
-          :disabled="toValue(status.isBusy)"
-          @click="onAction('archive')"
-        >
-          <div
-            v-if="toValue(status.isArchiving)"
-            class="absolute inset-0 flex items-center justify-center bg-background/80"
+          <Button
+            v-if="options.favorite"
+            variant="ghost"
+            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            :disabled="toValue(status.isBusy)"
+            @click="$emit('favorite')"
           >
-            <Spinner class="size-4 mr-2" /> Архивирование...
-          </div>
-          <template v-else> <Archive class="size-4" /> В архив </template>
-        </Button>
+            <div
+              v-if="toValue(status.isFavoritePending)"
+              class="absolute inset-0 flex items-center justify-center bg-background/80"
+            >
+              <Spinner class="size-4 mr-2" />
+              {{ isItemFavorite ? 'Удаление...' : 'Добавление...' }}
+            </div>
+            <template v-else>
+              <component
+                :is="isItemFavorite ? StarOff : Star"
+                class="size-4"
+              />
+              {{ isItemFavorite ? 'Удалить из избранного' : 'В избранное' }}
+            </template>
+          </Button>
+
+          <Button
+            v-if="options.archive"
+            variant="ghost"
+            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            :disabled="toValue(status.isBusy)"
+            @click="onAction('archive')"
+          >
+            <div
+              v-if="toValue(status.isArchiving)"
+              class="absolute inset-0 flex items-center justify-center bg-background/80"
+            >
+              <Spinner class="size-4 mr-2" /> Архивирование...
+            </div>
+            <template v-else> <Archive class="size-4" /> В архив </template>
+          </Button>
+
+          <div
+            v-if="options.delete"
+            class="my-1 border-t"
+          />
+
+          <Button
+            v-if="options.delete"
+            variant="ghost"
+            class="w-full justify-start font-normal h-9 px-2 gap-x-2 text-destructive hover:text-destructive hover:bg-destructive/10 relative"
+            :disabled="toValue(status.isBusy)"
+            @click="onAction('delete')"
+          >
+            <div
+              v-if="toValue(status.isDeleting)"
+              class="absolute inset-0 flex items-center justify-center bg-background/80"
+            >
+              <Spinner class="size-4 mr-2" /> Удаление...
+            </div>
+            <template v-else> <Trash class="size-4" /> Удалить </template>
+          </Button>
+        </div>
 
         <div
-          v-if="options.delete"
-          class="my-1 border-t"
-        />
-
-        <Button
-          v-if="options.delete"
-          variant="ghost"
-          class="w-full justify-start font-normal h-9 px-2 gap-x-2 text-destructive hover:text-destructive hover:bg-destructive/10 relative"
-          :disabled="toValue(status.isBusy)"
-          @click="onAction('delete')"
+          v-else-if="activeView === 'edit'"
+          class="p-2"
         >
-          <div
-            v-if="toValue(status.isDeleting)"
-            class="absolute inset-0 flex items-center justify-center bg-background/80"
-          >
-            <Spinner class="size-4 mr-2" /> Удаление...
-          </div>
-          <template v-else> <Trash class="size-4" /> Удалить </template>
-        </Button>
-      </div>
+          <slot
+            name="edit-content"
+            :close="() => (activeView = 'menu')"
+            :closeDropdown="closeMenu"
+          />
+        </div>
 
-      <div
-        v-else-if="activeView === 'edit'"
-        class="p-2"
-      >
-        <slot
-          name="edit-content"
-          :close="() => (activeView = 'menu')"
-          :closeDropdown="closeMenu"
-        />
-      </div>
-
-      <div
-        v-else-if="activeView === 'transfer'"
-        class="p-2"
-      >
-        <slot
-          name="transfer-content"
-          :close="() => (activeView = 'menu')"
-          :closeDropdown="closeMenu"
-        />
-      </div>
-    </PopoverContent>
-  </Popover>
+        <div
+          v-else-if="activeView === 'transfer'"
+          class="p-2"
+        >
+          <slot
+            name="transfer-content"
+            :close="() => (activeView = 'menu')"
+            :closeDropdown="closeMenu"
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
+  </TooltipProvider>
 </template>

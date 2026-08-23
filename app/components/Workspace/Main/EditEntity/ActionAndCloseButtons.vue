@@ -26,7 +26,7 @@ defineEmits<{
 
       <template v-if="!editableEntity.isDeleted">
         <TooltipProvider :disableHoverableContent="true">
-          <Tooltip>
+          <Tooltip :delayDuration="300">
             <TooltipTrigger as-child>
               <button
                 type="button"
@@ -49,7 +49,7 @@ defineEmits<{
           </Tooltip>
         </TooltipProvider>
         <TooltipProvider :disableHoverableContent="true">
-          <Tooltip>
+          <Tooltip :delayDuration="300">
             <TooltipTrigger as-child>
               <button
                 type="button"

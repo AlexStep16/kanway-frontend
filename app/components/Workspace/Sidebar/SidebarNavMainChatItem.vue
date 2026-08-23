@@ -73,7 +73,7 @@ function handleNewChat() {
           </div>
         </SidebarMenuButton>
         <TooltipProvider :disableHoverableContent="true">
-          <Tooltip>
+          <Tooltip :delayDuration="300">
             <TooltipTrigger as-child>
               <Button
                 variant="ghost"

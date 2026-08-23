@@ -1,5 +1,13 @@
 import { useTaskFilterStore } from '~/stores/taskFilters'
+import { TASK_COLORS_MAP } from '~/constants/TASK_COLORS'
 import dayjs from 'dayjs'
+
+// lookup: { name, tone } → hex
+const colorHexLookup: Record<string, Record<string, string>> = {}
+Object.entries(TASK_COLORS_MAP).forEach(([hex, { name, tone }]) => {
+  if (!colorHexLookup[name]) colorHexLookup[name] = {}
+  colorHexLookup[name][tone] = hex
+})
 
 export function useVisibleTasks(
   boardId: MaybeRef<string | null>,
@@ -92,6 +100,22 @@ export function useVisibleTasks(
       result = result.filter((t) => {
         return t.tags.some((tag) => f.tags.includes(tag))
       })
+    }
+
+    if (f.colors && f.colors.length > 0) {
+      result = result.filter((t) => {
+        if (!t.color) return false
+        const hex = colorHexLookup[t.color.value]?.[t.color.tone]
+        return hex != null && f.colors.includes(hex)
+      })
+    }
+
+    if (f.isNoColor === true) {
+      result = result.filter((t) => !t.color)
+    }
+
+    if (f.priorities && f.priorities.length > 0) {
+      result = result.filter((t) => t.priority != null && f.priorities.includes(t.priority))
     }
 
     return result

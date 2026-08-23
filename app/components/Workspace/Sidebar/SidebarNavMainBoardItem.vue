@@ -140,7 +140,7 @@ function handleCloseCreateBoard() {
               :disableHoverableContent="true"
               :disabled="isSubscriptionsLoading"
             >
-              <Tooltip>
+              <Tooltip :delayDuration="300">
                 <TooltipTrigger as-child>
                   <Button
                     variant="ghost"
@@ -217,26 +217,40 @@ function handleCloseCreateBoard() {
                   </div>
                 </SidebarMenuSubButton>
 
-                <DropdownMenu
-                  v-model:open="openOptions[board.id]"
-                  :modal="false"
-                >
-                  <DropdownMenuTrigger as-child>
-                    <SidebarMenuSubAction
-                      class="bg-sidebar-accent"
-                      show-on-hover
-                      @autofocus.prevent
-                    >
-                      <MoreHorizontal />
-                      <span class="sr-only">Больше</span>
-                    </SidebarMenuSubAction>
-                  </DropdownMenuTrigger>
-                  <BoardOptions
-                    :board="board"
-                    :is-mobile="isMobile"
-                    @close="openOptions[board.id] = false"
-                  />
-                </DropdownMenu>
+                <TooltipProvider :disableHoverableContent="true">
+                  <DropdownMenu
+                    v-model:open="openOptions[board.id]"
+                    :modal="false"
+                  >
+                    <DropdownMenuTrigger as-child>
+                      <SidebarMenuSubAction
+                        class="bg-sidebar-accent"
+                        show-on-hover
+                        @autofocus.prevent
+                      >
+                        <Tooltip :delayDuration="300">
+                          <TooltipTrigger as-child>
+                            <MoreHorizontal class="outline-none size-4" />
+                            <span class="sr-only">Больше</span>
+                          </TooltipTrigger>
+
+                          <TooltipContent
+                            v-if="!openOptions[board.id]"
+                            :side-offset="10"
+                          >
+                            Действия с доской
+                          </TooltipContent>
+                        </Tooltip>
+                      </SidebarMenuSubAction>
+                    </DropdownMenuTrigger>
+
+                    <BoardOptions
+                      :board="board"
+                      :is-mobile="isMobile"
+                      @close="openOptions[board.id] = false"
+                    />
+                  </DropdownMenu>
+                </TooltipProvider>
               </SidebarMenuSubItem>
             </template>
             <template v-else>

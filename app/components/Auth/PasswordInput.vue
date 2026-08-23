@@ -23,6 +23,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:modelValue': [value: string | undefined]
+  submit: []
 }>()
 
 const passwordRef = ref<HTMLInputElement | null>(null)
@@ -114,6 +115,7 @@ defineExpose({
         :placeholder="placeholder"
         v-model="internalValue"
         v-bind="$attrs"
+        @keydown.enter.prevent="$emit('submit')"
         :class="[
           variant === 'auth'
             ? 'py-2.5 px-10 bg-muted rounded-lg hover:border-gray-200 hover:bg-white focus-within:bg-white border-muted focus:border-blue-500 focus:ring-blue-500'

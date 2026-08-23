@@ -16,7 +16,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
         :disableHoverableContent="true"
         :disable="isMobile"
       >
-        <Tooltip>
+        <Tooltip :delayDuration="300">
           <TooltipTrigger as-child>
             <Button
               variant="ghost"

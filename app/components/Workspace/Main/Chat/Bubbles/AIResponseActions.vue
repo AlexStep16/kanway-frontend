@@ -40,7 +40,7 @@ function handleDislikeMessage() {
 <template>
   <div class="flex flex-wrap items-center justify-start gap-1">
     <TooltipProvider :disableHoverableContent="true">
-      <Tooltip>
+      <Tooltip :delayDuration="300">
         <TooltipTrigger as-child>
           <button
             type="button"
@@ -70,7 +70,7 @@ function handleDislikeMessage() {
     </TooltipProvider>
 
     <TooltipProvider :disableHoverableContent="true">
-      <Tooltip>
+      <Tooltip :delayDuration="300">
         <TooltipTrigger as-child>
           <button
             type="button"

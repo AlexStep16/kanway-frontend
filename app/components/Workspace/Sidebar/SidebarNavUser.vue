@@ -16,7 +16,7 @@ const { mutate: logout } = useLogout()
 
 const { data: user } = useUser()
 
-const { isMobile } = useSidebar()
+const { isMobile, setOpenMobile } = useSidebar()
 
 const isUserHasArchitectorSub = computed(() => {
   return user.value?.subscriptionId === SubscriptionPlanEnum.Architector
@@ -25,6 +25,30 @@ const isUserHasArchitectorSub = computed(() => {
 const isUserHasBasicSub = computed(() => {
   return user.value?.subscriptionId === SubscriptionPlanEnum.Basic
 })
+
+function handleOpenProfile() {
+  uiStore.openProfileSettings()
+
+  setOpenMobile(false)
+}
+
+function handleOpenPayments() {
+  uiStore.openPaymentsSettings()
+
+  setOpenMobile(false)
+}
+
+function handleOpenPlans() {
+  uiStore.openPlansSettings()
+
+  setOpenMobile(false)
+}
+
+function handleOpenSupport() {
+  uiStore.isSupportModalOpen = true
+
+  setOpenMobile(false)
+}
 </script>
 
 <template>
@@ -58,7 +82,7 @@ const isUserHasBasicSub = computed(() => {
           <DropdownMenuItem
             class="bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] text-white!"
             v-if="!isUserHasArchitectorSub"
-            @click="uiStore.isPlansModalOpen = true"
+            @click="handleOpenPlans()"
           >
             <Sparkles />
             Улучшить план
@@ -72,18 +96,18 @@ const isUserHasBasicSub = computed(() => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem @click="uiStore.openProfileSettings()">
+            <DropdownMenuItem @click="handleOpenProfile()">
               <BadgeCheck />
               Профиль
             </DropdownMenuItem>
-            <DropdownMenuItem @click="uiStore.openPaymentsSettings()">
+            <DropdownMenuItem @click="handleOpenPayments()">
               <CreditCard />
               Платежи
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem @click="uiStore.isSupportModalOpen = true">
+            <DropdownMenuItem @click="handleOpenSupport()">
               <MessageCircleQuestionMark />
               Поддержка
             </DropdownMenuItem>

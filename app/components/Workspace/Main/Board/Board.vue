@@ -11,6 +11,7 @@ import { SidebarTrigger } from '~/components/ui/sidebar'
 import { Separator } from '~/components/ui/separator'
 import TitleBoard from '../../Header/TitleBoard.vue'
 import HeaderSearch from '../../Header/HeaderSearch.vue'
+import HeaderFilter from '../../Header/HeaderFilter.vue'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
@@ -81,7 +82,10 @@ function draggableChange(event: any) {
       />
       <TitleBoard />
     </div>
-    <HeaderSearch />
+    <div class="flex items-center gap-x-2">
+      <HeaderFilter />
+      <HeaderSearch />
+    </div>
   </header>
 
   <Separator />

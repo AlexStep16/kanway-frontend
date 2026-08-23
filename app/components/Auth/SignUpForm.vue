@@ -105,6 +105,7 @@ const onSubmit = handleSubmit((values) => {
 
 const passwordStrength = computed(() => passwordInputRef.value?.passwordStrength ?? null)
 const passwordInputRef = ref<InstanceType<typeof PasswordInput> | null>(null)
+
 const isProcessing = computed(() => isRegistering.value || isNavigating.value)
 const isRegisterButtonDisabled = computed(() =>
   passwordStrength.value ? passwordStrength.value.score < 2 : true,
@@ -125,6 +126,7 @@ const isRegisterButtonDisabled = computed(() =>
         :is-password-modified-after-submit="isPasswordModifiedAfterSubmit"
         :submit-count="submitCount"
         placeholder="Пароль"
+        @submit="onSubmit"
       />
 
       <ul

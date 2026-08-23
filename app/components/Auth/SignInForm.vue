@@ -29,7 +29,8 @@ const { mutate: login, isPending: isLogging, error: loginError } = useLogin()
 
 const passwordRef = ref<HTMLInputElement | null>(null)
 
-const isNavigating = ref(false)
+const isSuccessNavigating = ref(false)
+const isVerifyNavigating = ref(false)
 const isPasswordModifiedAfterSubmit = ref(false)
 
 const schema = toTypedSchema(
@@ -73,7 +74,7 @@ const onSubmit = handleSubmit((values) => {
     {
       onSuccess: async () => {
         try {
-          isNavigating.value = true
+          isSuccessNavigating.value = true
 
           if (redirect.value) {
             await navigateTo(redirect.value)
@@ -84,7 +85,7 @@ const onSubmit = handleSubmit((values) => {
         } catch {
           toast.error('Произошла ошибка при переходе в пространство')
         } finally {
-          isNavigating.value = false
+          isSuccessNavigating.value = false
         }
       },
     },
@@ -107,10 +108,12 @@ function handleTogglePasswordVisibility() {
 
 const { mutate: sendMagicLink, isPending: isSendingMagicLink } = useSendMagicLink()
 
-function navigateToLoginVerify() {
+async function navigateToLoginVerify() {
   if (!email.value) return
 
-  navigateTo({
+  isVerifyNavigating.value = true
+
+  await navigateTo({
     path: '/auth',
     query: {
       step: AllowedAuthStepsEnum.VERIFY_LOGIN,
@@ -118,6 +121,8 @@ function navigateToLoginVerify() {
       redirect: redirect.value,
     },
   })
+
+  isVerifyNavigating.value = false
 }
 
 function handleSendMagicLink() {
@@ -137,8 +142,12 @@ function handleSendMagicLink() {
   })
 }
 
-const isProcessing = computed(() => isLogging.value || isNavigating.value)
-const isRegisterButtonDisabled = computed(() => !email.value)
+const isInputDisabled = computed(
+  () => isLogging.value || isSuccessNavigating.value || isVerifyNavigating.value,
+)
+const isLoginButtonProcessing = computed(() => isLogging.value || isSuccessNavigating.value)
+const isSendButtonProcessing = computed(() => isVerifyNavigating.value || isSendingMagicLink.value)
+const isRegisterButtonDisabled = computed(() => !email.value || isSendButtonProcessing.value)
 </script>
 
 <template>
@@ -162,6 +171,8 @@ const isRegisterButtonDisabled = computed(() => !email.value)
               'ring-1 ring-red-500 focus:ring-red-500 focus:border-red-500':
                 errors.password && submitCount > 0 && !isPasswordModifiedAfterSubmit,
             }"
+            :disabled="isInputDisabled"
+            @keydown.enter.prevent="onSubmit"
             v-model="password"
             v-bind="passwordAttrs"
           />
@@ -192,7 +203,7 @@ const isRegisterButtonDisabled = computed(() => !email.value)
       <!-- End Form Group -->
 
       <RegisterButton
-        :isProcessing="isProcessing"
+        :isProcessing="isLoginButtonProcessing"
         :isDisabled="isRegisterButtonDisabled"
         text="Войти"
       />
@@ -205,7 +216,7 @@ const isRegisterButtonDisabled = computed(() => !email.value)
       >
         <div
           class="flex items-center gap-x-2"
-          v-if="!isSendingMagicLink"
+          v-if="!isSendButtonProcessing"
         >
           <Link
             class="size-3.5"

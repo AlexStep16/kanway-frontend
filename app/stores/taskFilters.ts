@@ -10,7 +10,10 @@ export const useTaskFilterStore = defineStore('taskFilters', () => {
     isDueToday: false,
     isDueTomorrow: false,
     isDueThisWeek: false,
+    isNoColor: false,
     tags: [],
+    colors: [],
+    priorities: [],
   })
 
   const isFilterActive = computed(() => {
@@ -24,7 +27,10 @@ export const useTaskFilterStore = defineStore('taskFilters', () => {
     filters.value.isDueToday = false
     filters.value.isDueTomorrow = false
     filters.value.isDueThisWeek = false
+    filters.value.isNoColor = false
     filters.value.tags = []
+    filters.value.colors = []
+    filters.value.priorities = []
   }
 
   return { filters, isFilterActive, clearFilters }

@@ -5,5 +5,8 @@ export interface ITaskFilters {
   isDueToday: boolean
   isDueTomorrow: boolean
   isDueThisWeek: boolean
+  isNoColor: boolean
   tags: string[]
+  colors: string[] // hex values, unique per color+tone
+  priorities: ('low' | 'medium' | 'high')[]
 }
