@@ -232,7 +232,7 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
         </div>
 
         <div
-          class="flex items-center absolute right-2 pointer-fine:opacity-0 pointer-fine:pointer-events-auto transition-all pointer-events-none duration-100 top-2"
+          class="flex items-center absolute right-2 pointer-fine:opacity-0 pointer-fine:pointer-events-none transition-all pointer-events-auto duration-100 top-2"
           :class="{
             'group-hover/task:opacity-100 group-hover/task:bg-white group-hover/task:pointer-events-auto':
               isCopyAvailable || isDeleteAvailable,
