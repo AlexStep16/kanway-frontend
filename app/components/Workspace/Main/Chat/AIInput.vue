@@ -31,6 +31,7 @@ const emit = defineEmits<{
   (e: 'stop'): void
 }>()
 
+const isMobile = useMediaQuery('(max-width: 768px)')
 const update = ref(() => {})
 
 const isModelTypeSelectOpen = ref(false)
@@ -101,7 +102,7 @@ const handleInput = (e: Event) => {
 const handleKeyDown = (e: KeyboardEvent) => {
   if (e.isComposing) return
 
-  if (e.key === 'Enter' && !e.shiftKey) {
+  if (e.key === 'Enter' && !e.shiftKey && !isMobile.value) {
     e.preventDefault()
 
     if (isRunButtonDisabled.value) {
