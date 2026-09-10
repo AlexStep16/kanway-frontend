@@ -269,7 +269,6 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
                 <button
                   type="button"
                   class="flex text-gray-400 hover:text-gray-500 p-1.5 rounded-full bg-white hover:bg-gray-100"
-                  title="Архивировать"
                   v-if="isDeleteAvailable"
                   @click.stop="$emit('archive')"
                 >

@@ -94,12 +94,22 @@ const isUserBasic = computed(() => {
   return user.value?.subscriptionId === SubscriptionPlanEnum.Basic
 })
 
-const handleEnterPress = () => {
-  if (isRunButtonDisabled.value) {
-    return
-  }
+const handleInput = (e: Event) => {
+  aiInputMessage.value = (e.target as HTMLTextAreaElement).value
+}
 
-  sendChatMessage(aiInputMessage.value)
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.isComposing) return
+
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+
+    if (isRunButtonDisabled.value) {
+      return
+    }
+
+    sendChatMessage(aiInputMessage.value)
+  }
 }
 
 onMounted(() => {
@@ -124,12 +134,13 @@ defineExpose({
     class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2"
   >
     <div class="flex flex-col gap-2 items-end">
-      <div class="w-full flex items-center relative">
+      <div class="w-full flex items-center relative group">
         <Textarea
           class="p-0 border-none shadow-none min-h-12 rounded-none"
-          v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
-          @keydown.enter.exact.prevent="handleEnterPress"
+          v-model="aiInputMessage"
+          @input="handleInput"
+          @keydown="handleKeyDown"
         />
 
         <Transition
@@ -139,7 +150,7 @@ defineExpose({
           <span
             v-if="!aiInputMessage.trim()"
             :key="currentPlaceholderIndex"
-            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none"
+            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none group-focus-within:invisible"
           >
             {{ AI_INPUT_PLACEHOLDERS[currentPlaceholderIndex] }}
           </span>
@@ -233,7 +244,7 @@ defineExpose({
             size="sm"
             :disabled="isRunButtonDisabled"
             v-if="!agentStatusStore.isSSEActive()"
-            @click="sendChatMessage"
+            @click="sendChatMessage(aiInputMessage)"
           >
             <span class="text-xs">Отправить</span>
             <Sparkles class="size-4" />

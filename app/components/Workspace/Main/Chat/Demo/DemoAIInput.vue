@@ -48,6 +48,10 @@ function updateTextarea() {
   }
 }
 
+const handleInput = (e: Event) => {
+  aiInputMessage.value = (e.target as HTMLTextAreaElement).value
+}
+
 onMounted(() => {
   placeholderIntervalId = setInterval(() => {
     currentPlaceholderIndex.value =
@@ -69,11 +73,12 @@ defineExpose({
     class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2"
   >
     <div class="flex flex-col gap-2 items-end">
-      <div class="w-full flex items-center relative">
+      <div class="w-full flex items-center relative group">
         <Textarea
           class="p-0 border-none shadow-none min-h-12 rounded-none placeholder:text-zinc-400"
           v-model="aiInputMessage"
           :ref="(el) => handleTextareaRef(el as any)"
+          @input="handleInput"
         />
 
         <Transition
@@ -83,7 +88,7 @@ defineExpose({
           <span
             v-if="!aiInputMessage.trim()"
             :key="currentPlaceholderIndex"
-            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none"
+            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none group-focus-within:invisible"
           >
             {{ AI_INPUT_PLACEHOLDERS[currentPlaceholderIndex] }}
           </span>

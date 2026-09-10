@@ -193,7 +193,6 @@ const otherBoards = computed(() => {
             <TooltipTrigger as-child>
               <span
                 class="text-sm text-gray-400 tabular-nums hover:text-gray-500 transition-colors duration-100"
-                title="Всего задач"
                 >{{ totalTaskCount }}</span
               >
             </TooltipTrigger>
