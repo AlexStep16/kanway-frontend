@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Banknote } from '@lucide/vue'
+import { Banknote, SettingsIcon } from '@lucide/vue'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 
 const uiStore = useUIStore()
@@ -89,9 +89,18 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
             class="bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
             size="xs"
             @click="uiStore.isPlansModalOpen = true"
-            v-if="user.subscriptionId !== SubscriptionPlanEnum.Architector"
+            v-if="user.subscriptionId === SubscriptionPlanEnum.Basic"
           >
             Улучшить
+          </Button>
+          <Button
+            class="text-secondary-foreground/90 border border-secondary-foreground/20 bg-white hover:bg-muted"
+            size="xs"
+            @click="uiStore.openPlansSettings()"
+            v-else
+          >
+            <SettingsIcon class="size-4" />
+            <span>Управлять</span>
           </Button>
         </CardHeader>
         <CardContent class="p-4 pt-0 flex flex-col gap-y-2">

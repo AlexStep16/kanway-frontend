@@ -1,6 +1,7 @@
 ﻿<script setup lang="ts">
 import Sparkles from '~/assets/sparkles.svg?skipsvgo'
 import ChatGPT from '~/assets/chatgpt.svg?skipsvgo'
+import Gemini from '~/assets/google-color.svg?skipsvgo'
 import Recording from '~/components/Workspace/Main/Recording/Recording.vue'
 import { cn } from '~/lib/utils'
 import { ModelsEnum } from '~/enums/ModelsEnum'
@@ -74,10 +75,18 @@ function updateTextarea() {
 const isGPTModel = computed(() => {
   return (
     chatStore.modelType === ModelsEnum.GPT_TRANSCRIBE ||
+    chatStore.modelType === ModelsEnum.GPT_5_6_LUNA ||
     chatStore.modelType === ModelsEnum.GPT_5_4_NANO ||
     chatStore.modelType === ModelsEnum.GPT_5_4_MINI ||
     chatStore.modelType === ModelsEnum.GPT_5_4 ||
     chatStore.modelType === ModelsEnum.GPT_5_5
+  )
+})
+
+const isGoogleModel = computed(() => {
+  return (
+    chatStore.modelType === ModelsEnum.GEMINI_3_7_FLASH ||
+    chatStore.modelType === ModelsEnum.GEMINI_3_1_PRO_PREVIEW
   )
 })
 
@@ -175,6 +184,10 @@ defineExpose({
                 class="size-4 shrink-0"
                 v-if="isGPTModel"
               />
+              <Gemini
+                class="size-4 shrink-0"
+                v-else-if="isGoogleModel"
+              />
               <SelectValue />
             </SelectTrigger>
             <SelectContent :body-lock="false">
@@ -237,6 +250,46 @@ defineExpose({
                 >
                   <div class="flex items-center gap-x-2">
                     <ChatGPT class="size-4 shrink-0" /><span>GPT-5.5</span>
+                    <span
+                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
+                      v-if="isUserBasic"
+                    >
+                      PRO
+                    </span>
+                  </div>
+                </SelectItem>
+                <SelectItem
+                  :disabled="isUserBasic"
+                  :value="ModelsEnum.GEMINI_3_7_FLASH"
+                  :class="
+                    cn(
+                      'focus:text-primary',
+                      chatStore.modelType === ModelsEnum.GEMINI_3_7_FLASH && 'text-primary',
+                    )
+                  "
+                >
+                  <div class="flex items-center gap-x-2">
+                    <Gemini class="size-4 shrink-0" /><span>Gemini 3.7 Flash</span>
+                    <span
+                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
+                      v-if="isUserBasic"
+                    >
+                      PRO
+                    </span>
+                  </div>
+                </SelectItem>
+                <SelectItem
+                  :disabled="isUserBasic"
+                  :value="ModelsEnum.GEMINI_3_1_PRO_PREVIEW"
+                  :class="
+                    cn(
+                      'focus:text-primary',
+                      chatStore.modelType === ModelsEnum.GEMINI_3_1_PRO_PREVIEW && 'text-primary',
+                    )
+                  "
+                >
+                  <div class="flex items-center gap-x-2">
+                    <Gemini class="size-4 shrink-0" /><span>Gemini 3.1 Pro</span>
                     <span
                       class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
                       v-if="isUserBasic"

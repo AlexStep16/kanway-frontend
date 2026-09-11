@@ -94,7 +94,14 @@ export function useSendMessage() {
         (oldMessages = []) => {
           const filtered = oldMessages.filter((msg) => msg.id !== optimisticUserMessage?.id)
 
-          const updated = [...filtered, result.userMessage, result.statusMessage]
+          // SSE may have already delivered these messages, so upsert instead of blindly appending
+          const updated = [result.userMessage, result.statusMessage].reduce((acc, message) => {
+            const existingIndex = acc.findIndex((msg) => msg.id === message.id)
+
+            if (existingIndex === -1) return [...acc, message]
+
+            return acc.map((msg, index) => (index === existingIndex ? { ...msg, ...message } : msg))
+          }, filtered)
 
           return updated.sort((a, b) => dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf())
         },

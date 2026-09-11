@@ -17,15 +17,44 @@ const textConverter = new showdown.Converter({
 
 <template>
   <div
-    class="prose prose-zinc prose-p:my-2 prose-headings:mt-4 prose-sm max-w-none text-zinc-800 overflow-x-auto leading-6"
+    class="prose prose-zinc prose-sm max-w-none text-zinc-800 overflow-x-auto leading-6 prose-chat"
     v-html="textConverter.makeHtml(text || '')"
   ></div>
 </template>
 
-<style lang="css" scoped>
-.prose-sm :deep(li),
-.prose-sm :deep(ul) {
-  list-style: disc !important;
-  list-style-type: disc !important;
+<style scoped>
+.prose-chat :deep(p) {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.prose-chat :deep(h1),
+.prose-chat :deep(h2),
+.prose-chat :deep(h3),
+.prose-chat :deep(h4) {
+  margin-top: 0.85rem !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.3 !important;
+}
+
+.prose-chat :deep(h4) {
+  margin-bottom: 0.2rem !important;
+}
+
+.prose-chat :deep(hr) {
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.prose-chat :deep(ul),
+.prose-chat :deep(ol) {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.5rem !important;
+  padding-left: 1.25rem !important;
+}
+
+.prose-chat :deep(li) {
+  margin-top: 0.1rem !important;
+  margin-bottom: 0.1rem !important;
 }
 </style>

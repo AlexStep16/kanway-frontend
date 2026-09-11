@@ -70,7 +70,16 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
       $queryClient.setQueryData<IChatMessage[]>(
         chatMessageKeys.byChat(message.chatId),
         (oldChatMessages: IChatMessage[] | undefined) => {
-          return oldChatMessages ? [...oldChatMessages, message] : [message]
+          if (!oldChatMessages) return [message]
+
+          // Avoid duplicates if the same message was already appended elsewhere (e.g. mutation onSuccess)
+          if (oldChatMessages.some((msg) => msg.id === message.id)) {
+            return oldChatMessages.map((msg) =>
+              msg.id === message.id ? { ...msg, ...message } : msg,
+            )
+          }
+
+          return [...oldChatMessages, message]
         },
       )
     } else if (event.role === CustomEventsEnum.OPERATION) {
