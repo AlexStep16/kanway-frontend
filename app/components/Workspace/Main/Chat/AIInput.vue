@@ -73,7 +73,7 @@ function updateTextarea() {
 
 const isGPTModel = computed(() => {
   return (
-    chatStore.modelType === ModelsEnum.GPT_4O_TRANSCRIBE ||
+    chatStore.modelType === ModelsEnum.GPT_TRANSCRIBE ||
     chatStore.modelType === ModelsEnum.GPT_5_4_NANO ||
     chatStore.modelType === ModelsEnum.GPT_5_4_MINI ||
     chatStore.modelType === ModelsEnum.GPT_5_4 ||
@@ -180,6 +180,19 @@ defineExpose({
             <SelectContent :body-lock="false">
               <SelectGroup class="p-0 text-muted-foreground">
                 <SelectItem
+                  :value="ModelsEnum.GPT_5_6_LUNA"
+                  :class="
+                    cn(
+                      'focus:text-primary',
+                      chatStore.modelType === ModelsEnum.GPT_5_6_LUNA && 'text-primary',
+                    )
+                  "
+                >
+                  <div class="flex items-center gap-x-2">
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.6 Luna</span>
+                  </div>
+                </SelectItem>
+                <SelectItem
                   :value="ModelsEnum.GPT_5_4_MINI"
                   :class="
                     cn(
@@ -189,7 +202,7 @@ defineExpose({
                   "
                 >
                   <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT 5.4 Mini</span>
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.4 Mini</span>
                   </div>
                 </SelectItem>
                 <SelectItem
@@ -203,7 +216,7 @@ defineExpose({
                   "
                 >
                   <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT 5.4</span>
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.4</span>
                     <span
                       class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
                       v-if="isUserBasic"
@@ -223,7 +236,7 @@ defineExpose({
                   "
                 >
                   <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT 5.5</span>
+                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.5</span>
                     <span
                       class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
                       v-if="isUserBasic"
