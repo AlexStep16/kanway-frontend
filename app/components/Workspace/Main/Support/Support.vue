@@ -107,7 +107,7 @@ watch(
           <FormControl>
             <Input
               type="text"
-              placeholder="Иван"
+              placeholder="Имя"
               v-bind="componentField"
             />
           </FormControl>

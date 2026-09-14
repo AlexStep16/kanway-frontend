@@ -8,6 +8,8 @@ import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
 import { FolderKanban, UserSquare } from '@lucide/vue'
 import { cn } from '~/lib/utils'
+import SetupOptionsStep from '~/components/Welcome/SetupOptionsStep.vue'
+import type WorkspaceModel from '~/models/WorkspaceModel'
 
 const { data: user } = useUser()
 
@@ -29,6 +31,8 @@ const schema = toTypedSchema(
 
 const openItem = ref('')
 const isWorkspaceLoading = ref(false)
+const step = ref<'workspace' | 'setup'>('workspace')
+const createdWorkspace = ref<WorkspaceModel | null>(null)
 
 function preloadWorkspaceRoutes() {
   void Promise.all([
@@ -73,16 +77,9 @@ const onSubmit = handleSubmit(
         },
       },
       {
-        onSuccess: async (workspace) => {
-          try {
-            isWorkspaceLoading.value = true
-            await nextTick()
-            await navigateTo(`/workspace/${workspace.id}`)
-          } catch {
-            toast.error('Произошла ошибка при переходе на страницу рабочего пространства')
-          } finally {
-            isWorkspaceLoading.value = false
-          }
+        onSuccess: (workspace) => {
+          createdWorkspace.value = workspace
+          step.value = 'setup'
         },
       },
     )
@@ -92,6 +89,20 @@ const onSubmit = handleSubmit(
     if (values.errors.username) toast.error(values.errors.username)
   },
 )
+
+async function finishSetup() {
+  if (!createdWorkspace.value) return
+
+  try {
+    isWorkspaceLoading.value = true
+    await nextTick()
+    await navigateTo(`/workspace/${createdWorkspace.value.id}`)
+  } catch {
+    toast.error('Произошла ошибка при переходе на страницу рабочего пространства')
+  } finally {
+    isWorkspaceLoading.value = false
+  }
+}
 
 const isCreatingWorkspace = computed(() => isWelcomePending.value)
 </script>
@@ -126,107 +137,142 @@ const isCreatingWorkspace = computed(() => isWelcomePending.value)
     </header>
 
     <main class="flex items-center justify-center grow">
-      <div class="flex flex-col gap-4 w-full max-w-100">
-        <h2 class="text-center text-2xl text-gray-700 font-bold">Давайте начнем!</h2>
-        <div class="bg-white rounded-md border border-gray-200 p-4 justify-between w-full">
-          <form
-            @submit.prevent="onSubmit"
-            novalidate
-          >
-            <div class="flex flex-col gap-y-2">
+      <Transition
+        name="step-slide"
+        mode="out-in"
+      >
+        <div
+          v-if="step === 'workspace'"
+          key="workspace"
+          class="flex flex-col gap-4 w-full max-w-100"
+        >
+          <h2 class="text-center text-2xl text-gray-700 font-bold">Давайте начнем!</h2>
+          <div class="bg-white rounded-md border border-gray-200 p-4 justify-between w-full">
+            <form
+              @submit.prevent="onSubmit"
+              novalidate
+            >
               <div class="flex flex-col gap-y-2">
-                <span class="text-sm font-medium text-gray-700"
-                  >Название рабочего пространства</span
-                >
-                <div class="flex items-center relative">
-                  <FolderKanban class="size-4 absolute left-4 text-gray-400" />
-                  <input
-                    type="text"
-                    @input="workspaceNameInputHandler"
-                    id="workspaceName"
-                    name="workspaceName"
-                    class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    v-model="workspaceName"
-                    v-bind="workspaceNameAttrs"
-                    placeholder="Маркетинг"
-                  />
-                </div>
-                <Accordion
-                  v-model="openItem"
-                  type="single"
-                  collapsible
-                  class="w-full border-none"
-                >
-                  <AccordionItem
-                    value="color-selection"
-                    class="border-none"
+                <div class="flex flex-col gap-y-2">
+                  <span class="text-sm font-medium text-gray-700"
+                    >Название рабочего пространства</span
                   >
-                    <AccordionTrigger class="hidden" />
+                  <div class="flex items-center relative">
+                    <FolderKanban class="size-4 absolute left-4 text-gray-400" />
+                    <input
+                      type="text"
+                      @input="workspaceNameInputHandler"
+                      id="workspaceName"
+                      name="workspaceName"
+                      class="py-2.5 pr-4 pl-10 text-sm block w-full placeholder:text-gray-400 border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                      v-model="workspaceName"
+                      v-bind="workspaceNameAttrs"
+                      placeholder="Пространство"
+                    />
+                  </div>
+                  <Accordion
+                    v-model="openItem"
+                    type="single"
+                    collapsible
+                    class="w-full border-none"
+                  >
+                    <AccordionItem
+                      value="color-selection"
+                      class="border-none"
+                    >
+                      <AccordionTrigger class="hidden" />
 
-                    <AccordionContent class="pb-2">
-                      <div class="flex gap-2 w-full flex-wrap">
-                        <Button
-                          :class="
-                            cn(
-                              'size-7 flex p-0 hover:scale-115 transition-transform duration-200',
-                              workspaceColor === availableColor &&
-                                'ring-2 ring-blue-500 ring-offset-1 scale-110',
-                            )
-                          "
-                          v-for="availableColor in Object.values(AvailableColors)"
-                          :key="availableColor"
-                          :style="{ backgroundColor: availableColor }"
-                          @click="workspaceColor = availableColor"
-                        >
-                          {{
-                            availableColor === workspaceColor
-                              ? workspaceName?.substring(0, 1) || '✓'
-                              : ''
-                          }}
-                        </Button>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-
-              <div class="flex flex-col gap-y-2">
-                <span class="text-sm font-medium text-gray-700">Как к вам обращаться?</span>
-                <div class="flex items-center relative">
-                  <UserSquare class="size-4 absolute left-4 text-gray-400" />
-                  <input
-                    type="text"
-                    id="userName"
-                    name="userName"
-                    class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    v-model="username"
-                    v-bind="usernameAttrs"
-                    placeholder="Иван"
-                  />
+                      <AccordionContent class="pb-2">
+                        <div class="flex gap-2 w-full flex-wrap">
+                          <Button
+                            :class="
+                              cn(
+                                'size-7 flex p-0 hover:scale-115 transition-transform duration-200',
+                                workspaceColor === availableColor &&
+                                  'ring-2 ring-blue-500 ring-offset-1 scale-110',
+                              )
+                            "
+                            v-for="availableColor in Object.values(AvailableColors)"
+                            :key="availableColor"
+                            :style="{ backgroundColor: availableColor }"
+                            @click="workspaceColor = availableColor"
+                          >
+                            {{
+                              availableColor === workspaceColor
+                                ? workspaceName?.substring(0, 1) || '✓'
+                                : ''
+                            }}
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
-              </div>
 
-              <Button
-                variant="default"
-                size="default"
-                class="text-xs mt-2"
-                :disabled="isCreatingWorkspace"
-              >
-                <Spinner
-                  class="size-4 absolute"
-                  v-if="isCreatingWorkspace"
-                />
-                <span
-                  :class="{
-                    'opacity-0': isCreatingWorkspace,
-                  }"
-                  >Начать работу</span
+                <div class="flex flex-col gap-y-2">
+                  <span class="text-sm font-medium text-gray-700">Как к вам обращаться?</span>
+                  <div class="flex items-center relative">
+                    <UserSquare class="size-4 absolute left-4 text-gray-400" />
+                    <input
+                      type="text"
+                      id="userName"
+                      name="userName"
+                      class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted placeholder:text-gray-400 hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                      v-model="username"
+                      v-bind="usernameAttrs"
+                      placeholder="Имя"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  variant="default"
+                  size="default"
+                  class="text-xs mt-2"
+                  :disabled="isCreatingWorkspace"
                 >
-              </Button>
-            </div>
-          </form>
+                  <Spinner
+                    class="size-4 absolute"
+                    v-if="isCreatingWorkspace"
+                  />
+                  <span
+                    :class="{
+                      'opacity-0': isCreatingWorkspace,
+                    }"
+                    >Начать работу</span
+                  >
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+
+        <SetupOptionsStep
+          v-else
+          key="setup"
+          :workspace-id="createdWorkspace!.id"
+          @finish="finishSetup"
+        />
+      </Transition>
     </main>
   </div>
 </template>
+
+<style scoped>
+.step-slide-enter-active,
+.step-slide-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.step-slide-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.step-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+</style>
