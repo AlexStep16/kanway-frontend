@@ -3,6 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { useUIStore } from '~/stores/ui'
 import type { IChat } from '~/interfaces/domain/IChat'
 import { ModelsEnum } from '~/enums/ModelsEnum'
+import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import { ProModelsEnum } from '~/enums/ProModelsEnum'
 
 const MODEL_TYPE_STORAGE_KEY = 'chatModelType'
 
@@ -16,6 +18,16 @@ const generateUUID = () => {
 function getStoredModelType(): ModelsEnum {
   if (import.meta.client) {
     const stored = localStorage.getItem(MODEL_TYPE_STORAGE_KEY)
+    const { data: user } = useUser()
+
+    if (
+      stored &&
+      user.value?.subscriptionId === SubscriptionPlanEnum.Basic &&
+      Object.values(ProModelsEnum).includes(stored as ProModelsEnum)
+    ) {
+      return ModelsEnum.GPT_5_6_LUNA
+    }
+
     if (stored && Object.values(ModelsEnum).includes(stored as ModelsEnum)) {
       return stored as ModelsEnum
     }

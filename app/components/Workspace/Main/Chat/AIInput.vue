@@ -144,7 +144,7 @@ defineExpose({
     class="w-full relative p-2.5 rounded-xl bg-white/95 border border-zinc-200/80 shadow-sm ring-1 ring-black/2"
   >
     <div class="flex flex-col gap-2 items-end">
-      <div class="w-full flex items-center relative group">
+      <div class="w-full flex items-center relative">
         <Textarea
           class="p-0 border-none shadow-none min-h-12 rounded-none"
           :ref="(el) => handleTextareaRef(el as any)"
@@ -160,7 +160,7 @@ defineExpose({
           <span
             v-if="!aiInputMessage.trim()"
             :key="currentPlaceholderIndex"
-            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none group-focus-within:invisible"
+            class="absolute inset-0 pointer-events-none text-zinc-400 text-sm select-none"
           >
             {{ AI_INPUT_PLACEHOLDERS[currentPlaceholderIndex] }}
           </span>
