@@ -90,9 +90,7 @@ const { mutateAsync: createColumnAsync } = useCreateColumn()
 
 const { data: user } = useUser()
 const { data: subscriptionsData } = useSubscriptions()
-const { data: existingBoardsCountData } = useBoardsCount(
-  computed(() => props.workspaceId),
-)
+const { data: existingBoardsCountData } = useBoardsCount(computed(() => props.workspaceId))
 
 const currentSubscription = computed(() => {
   if (!user.value) return null
@@ -117,7 +115,8 @@ const selectableBoardsCount = computed(() =>
   Math.min(boards.value.length, remainingBoardsLimit.value),
 )
 const allBoardsSelected = computed(
-  () => selectableBoardsCount.value > 0 && selectedBoardIds.value.size === selectableBoardsCount.value,
+  () =>
+    selectableBoardsCount.value > 0 && selectedBoardIds.value.size === selectableBoardsCount.value,
 )
 
 function openTemplatesStep() {
@@ -339,7 +338,9 @@ function toggleBoard(boardId: string) {
     nextSelected.delete(boardId)
   } else {
     if (nextSelected.size >= remainingBoardsLimit.value) {
-      toast.error(`По вашему тарифу можно импортировать не более ${remainingBoardsLimit.value} досок`)
+      toast.error(
+        `По вашему тарифу можно импортировать не более ${remainingBoardsLimit.value} досок`,
+      )
       return
     }
 
@@ -736,7 +737,8 @@ onUnmounted(() => {
                 class="flex items-center gap-x-2 text-sm text-gray-700 cursor-pointer select-none"
                 :class="{
                   'opacity-50 cursor-not-allowed':
-                    !selectedBoardIds.has(board.id) && selectedBoardIds.size >= remainingBoardsLimit,
+                    !selectedBoardIds.has(board.id) &&
+                    selectedBoardIds.size >= remainingBoardsLimit,
                 }"
               >
                 <Checkbox
