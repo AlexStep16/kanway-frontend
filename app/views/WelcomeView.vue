@@ -239,7 +239,7 @@ const isCreatingWorkspace = computed(() => isWelcomePending.value)
                     :class="{
                       'opacity-0': isCreatingWorkspace,
                     }"
-                    >Начать работу</span
+                    >Продолжить</span
                   >
                 </Button>
               </div>

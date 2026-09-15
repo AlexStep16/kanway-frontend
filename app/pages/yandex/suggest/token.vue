@@ -15,13 +15,27 @@ async function handleCallback() {
 
   // Проверка state для защиты от CSRF
   const savedState = localStorage.getItem('yandex_auth_state')
+  const authMode = localStorage.getItem('yandex_auth_mode')
+
+  if (authMode === 'tracker-import') {
+    const isValid = Boolean(code && state && state === savedState)
+
+    // codeVerifier stays in localStorage for the opener window to read and clean up itself
+    window.opener?.postMessage(
+      { source: 'kanway-yandex-tracker-auth', code: isValid ? code : undefined },
+      window.location.origin,
+    )
+    window.close()
+    return
+  }
+
   if (state !== savedState) {
     console.error('Invalid state')
     return
   }
 
   const codeVerifier = localStorage.getItem('yandex_code_verifier')
-  const isAccountLinking = localStorage.getItem('yandex_auth_mode') === 'link'
+  const isAccountLinking = authMode === 'link'
 
   if (!code || !state || !codeVerifier) {
     console.error('Missing required parameters')

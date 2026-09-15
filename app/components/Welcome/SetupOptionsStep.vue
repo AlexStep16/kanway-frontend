@@ -5,8 +5,10 @@ import { toast } from 'vue-sonner'
 import z from 'zod'
 import { LayoutTemplate, PlugZap, Clock3, ArrowLeft, UploadCloud } from '@lucide/vue'
 import TrelloLogo from '~/assets/trello.svg?skipsvgo'
+import YandexTrackerLogo from '~/assets/Logo_Yandex_Tracker_2021.svg?skipsvgo'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { ITrelloBoard } from '~/interfaces/domain/ITrelloBoard'
+import type { IYandexTrackerBoard } from '~/interfaces/domain/IYandexTrackerBoard'
 
 interface BoardTemplate {
   id: string
@@ -44,10 +46,12 @@ const emit = defineEmits<{
   finish: []
 }>()
 
-type Step = 'options' | 'templates' | 'services' | 'trello' | 'trello-json'
+type Step = 'options' | 'templates' | 'services' | 'trello' | 'trello-json' | 'yandex-tracker'
 type TrelloPhase = 'connect' | 'manual' | 'boards'
+type YandexTrackerPhase = 'connect' | 'org' | 'boards'
 
 const TRELLO_AUTH_MESSAGE_SOURCE = 'kanway-trello-auth'
+const YANDEX_TRACKER_AUTH_MESSAGE_SOURCE = 'kanway-yandex-tracker-auth'
 
 const step = ref<Step>('options')
 const trelloPhase = ref<TrelloPhase>('connect')
@@ -61,8 +65,16 @@ const selectedBoardIds = ref<Set<string>>(new Set())
 
 const jsonDropZoneRef = ref<HTMLDivElement | null>(null)
 
+const yandexTrackerPhase = ref<YandexTrackerPhase>('connect')
+const yandexTrackerToken = ref<string | null>(null)
+const yandexTrackerOrgId = ref<string | null>(null)
+const yandexTrackerBoards = ref<IYandexTrackerBoard[]>([])
+const selectedYandexBoardIds = ref<Set<number>>(new Set())
+
 let authPopup: Window | null = null
 let popupWatcher: ReturnType<typeof setInterval> | undefined
+let yandexAuthPopup: Window | null = null
+let yandexPopupWatcher: ReturnType<typeof setInterval> | undefined
 
 const manualSchema = toTypedSchema(
   z.object({
@@ -81,10 +93,33 @@ const {
 
 const [manualToken, manualTokenAttrs] = defineField('token')
 
+const yandexOrgIdSchema = toTypedSchema(
+  z.object({
+    orgId: z.string().min(1, 'Введите идентификатор организации'),
+  }),
+)
+
+const {
+  handleSubmit: handleYandexOrgIdSubmit,
+  defineField: defineYandexOrgIdField,
+  resetForm: resetYandexOrgIdForm,
+} = useForm({
+  validationSchema: yandexOrgIdSchema,
+  initialValues: { orgId: '' },
+})
+
+const [yandexOrgIdField, yandexOrgIdFieldAttrs] = defineYandexOrgIdField('orgId')
+
 const { mutateAsync: getTrelloConfig, isPending: isLoadingConfig } = useTrelloConfig()
 const { mutateAsync: getTrelloBoards, isPending: isLoadingBoards } = useTrelloBoards()
 const { mutate: importTrello, isPending: isImporting } = useTrelloImport()
 const { mutate: importTrelloJson, isPending: isImportingJson } = useTrelloImportJson()
+const { mutateAsync: connectYandexTracker, isPending: isConnectingYandex } =
+  useYandexTrackerConnect()
+const { mutateAsync: getYandexTrackerBoards, isPending: isLoadingYandexBoards } =
+  useYandexTrackerBoards()
+const { mutate: importYandexTracker, isPending: isImportingYandexTracker } =
+  useYandexTrackerImport()
 const { mutateAsync: createBoardAsync } = useCreateBoard()
 const { mutateAsync: createColumnAsync } = useCreateColumn()
 
@@ -117,6 +152,15 @@ const selectableBoardsCount = computed(() =>
 const allBoardsSelected = computed(
   () =>
     selectableBoardsCount.value > 0 && selectedBoardIds.value.size === selectableBoardsCount.value,
+)
+
+const selectableYandexBoardsCount = computed(() =>
+  Math.min(yandexTrackerBoards.value.length, remainingBoardsLimit.value),
+)
+const allYandexBoardsSelected = computed(
+  () =>
+    selectableYandexBoardsCount.value > 0 &&
+    selectedYandexBoardIds.value.size === selectableYandexBoardsCount.value,
 )
 
 function openTemplatesStep() {
@@ -175,6 +219,34 @@ function openTrelloJsonStep() {
   step.value = 'trello-json'
 }
 
+function stopWatchingYandexPopup() {
+  if (yandexPopupWatcher) {
+    clearInterval(yandexPopupWatcher)
+    yandexPopupWatcher = undefined
+  }
+  yandexAuthPopup = null
+}
+
+function resetYandexTrackerState() {
+  yandexTrackerPhase.value = 'connect'
+  yandexTrackerToken.value = null
+  yandexTrackerOrgId.value = null
+  yandexTrackerBoards.value = []
+  selectedYandexBoardIds.value = new Set()
+  resetYandexOrgIdForm()
+  stopWatchingYandexPopup()
+}
+
+function openYandexTrackerStep() {
+  step.value = 'yandex-tracker'
+  resetYandexTrackerState()
+}
+
+function backToServicesFromYandexTracker() {
+  step.value = 'services'
+  resetYandexTrackerState()
+}
+
 function stopWatchingPopup() {
   if (popupWatcher) {
     clearInterval(popupWatcher)
@@ -230,6 +302,155 @@ async function handleJsonFile(file: File) {
       },
       onError: () => {
         toast.error('Не удалось импортировать доску из файла')
+      },
+    },
+  )
+}
+
+async function loadYandexTrackerBoards(orgId: string) {
+  if (!yandexTrackerToken.value) return
+
+  try {
+    const fetchedBoards = await getYandexTrackerBoards({
+      token: yandexTrackerToken.value,
+      orgId,
+    })
+
+    yandexTrackerOrgId.value = orgId
+    yandexTrackerBoards.value = fetchedBoards
+    selectedYandexBoardIds.value = new Set(
+      fetchedBoards.slice(0, remainingBoardsLimit.value).map((board) => board.id),
+    )
+    yandexTrackerPhase.value = 'boards'
+
+    if (remainingBoardsLimit.value < fetchedBoards.length) {
+      toast.info(`По вашему тарифу доступно к импорту не более ${remainingBoardsLimit.value} досок`)
+    }
+  } catch {
+    toast.error(
+      'Не удалось получить доски Yandex Tracker. Проверьте идентификатор организации и попробуйте снова',
+    )
+  }
+}
+
+const onYandexOrgIdSubmit = handleYandexOrgIdSubmit(async (values) => {
+  await loadYandexTrackerBoards(values.orgId)
+})
+
+async function handleYandexAuthMessage(event: MessageEvent) {
+  if (event.origin !== window.location.origin) return
+  if (event.data?.source !== YANDEX_TRACKER_AUTH_MESSAGE_SOURCE) return
+
+  stopWatchingYandexPopup()
+
+  const receivedCode = event.data.code as string | undefined
+  const codeVerifier = localStorage.getItem('yandex_code_verifier')
+
+  localStorage.removeItem('yandex_auth_state')
+  localStorage.removeItem('yandex_code_verifier')
+  localStorage.removeItem('yandex_auth_mode')
+
+  if (!receivedCode || !codeVerifier) {
+    toast.error('Не удалось подключиться к Yandex. Попробуйте ещё раз')
+    return
+  }
+
+  try {
+    const { token } = await connectYandexTracker({ code: receivedCode, codeVerifier })
+
+    yandexTrackerToken.value = token
+    yandexTrackerPhase.value = 'org'
+  } catch {
+    toast.error('Не удалось подключиться к Yandex Tracker')
+  }
+}
+
+function connectYandex() {
+  const codeVerifier = generateRandomString(64)
+  const state = generateRandomString(16)
+
+  localStorage.setItem('yandex_code_verifier', codeVerifier)
+  localStorage.setItem('yandex_auth_state', state)
+  localStorage.setItem('yandex_auth_mode', 'tracker-import')
+
+  generateCodeChallenge(codeVerifier).then((codeChallenge) => {
+    const runtimeConfig = useRuntimeConfig()
+
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: runtimeConfig.public.yandexClientId as string,
+      redirect_uri: runtimeConfig.public.yandexRedirectUri as string,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
+      state,
+      force_confirm: 'yes',
+    })
+
+    stopWatchingYandexPopup()
+    yandexAuthPopup = window.open(
+      `https://oauth.yandex.ru/authorize?${params.toString()}`,
+      'yandex-tracker-auth',
+      'width=520,height=720',
+    )
+
+    yandexPopupWatcher = setInterval(() => {
+      if (yandexAuthPopup?.closed) stopWatchingYandexPopup()
+    }, 500)
+  })
+}
+
+function toggleYandexBoard(boardId: number) {
+  const nextSelected = new Set(selectedYandexBoardIds.value)
+
+  if (nextSelected.has(boardId)) {
+    nextSelected.delete(boardId)
+  } else {
+    if (nextSelected.size >= remainingBoardsLimit.value) {
+      toast.error(
+        `По вашему тарифу можно импортировать не более ${remainingBoardsLimit.value} досок`,
+      )
+      return
+    }
+
+    nextSelected.add(boardId)
+  }
+
+  selectedYandexBoardIds.value = nextSelected
+}
+
+function toggleAllYandexBoards() {
+  if (allYandexBoardsSelected.value) {
+    selectedYandexBoardIds.value = new Set()
+    return
+  }
+
+  if (remainingBoardsLimit.value < yandexTrackerBoards.value.length) {
+    toast.info(`По вашему тарифу доступно к импорту не более ${remainingBoardsLimit.value} досок`)
+  }
+
+  selectedYandexBoardIds.value = new Set(
+    yandexTrackerBoards.value.slice(0, remainingBoardsLimit.value).map((board) => board.id),
+  )
+}
+
+function submitYandexTrackerImport() {
+  if (!yandexTrackerToken.value || !yandexTrackerOrgId.value) return
+  if (selectedYandexBoardIds.value.size === 0) return
+
+  importYandexTracker(
+    {
+      token: yandexTrackerToken.value,
+      orgId: yandexTrackerOrgId.value,
+      workspaceId: props.workspaceId,
+      boardIds: Array.from(selectedYandexBoardIds.value),
+    },
+    {
+      onSuccess: (importedBoards) => {
+        toast.success(`Импортировано досок: ${importedBoards.length}`)
+        emit('finish')
+      },
+      onError: () => {
+        toast.error('Не удалось импортировать выбранные доски')
       },
     },
   )
@@ -388,11 +609,14 @@ function submitImport() {
 
 onMounted(() => {
   window.addEventListener('message', handleAuthMessage)
+  window.addEventListener('message', handleYandexAuthMessage)
 })
 
 onUnmounted(() => {
   window.removeEventListener('message', handleAuthMessage)
+  window.removeEventListener('message', handleYandexAuthMessage)
   stopWatchingPopup()
+  stopWatchingYandexPopup()
 })
 </script>
 
@@ -547,6 +771,20 @@ onUnmounted(() => {
                 <span class="text-xs text-gray-400">Загрузить файл экспорта доски</span>
               </div>
             </button>
+
+            <button
+              type="button"
+              class="flex items-center gap-3 p-3 rounded-lg border border-muted bg-muted hover:border-gray-200 hover:bg-white transition-colors text-left"
+              @click="openYandexTrackerStep"
+            >
+              <YandexTrackerLogo class="size-5 shrink-0 rounded" />
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-700">Yandex Tracker</span>
+                <span class="text-xs text-gray-400"
+                  >Подключить аккаунт и указать код организации</span
+                >
+              </div>
+            </button>
           </div>
         </div>
 
@@ -600,6 +838,179 @@ onUnmounted(() => {
               class="text-xs text-gray-400"
               >или нажмите, чтобы выбрать файл</span
             >
+          </div>
+        </div>
+
+        <div
+          v-else-if="step === 'yandex-tracker'"
+          key="yandex-tracker"
+          class="flex flex-col gap-y-3"
+        >
+          <button
+            type="button"
+            class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 w-fit"
+            @click="backToServicesFromYandexTracker"
+          >
+            <ArrowLeft class="size-3.5" />
+            Назад
+          </button>
+
+          <div class="flex items-center gap-2">
+            <YandexTrackerLogo class="size-6 rounded" />
+            <span class="text-sm font-medium text-gray-700">Импорт из Yandex Tracker</span>
+          </div>
+
+          <div
+            v-if="yandexTrackerPhase === 'connect'"
+            class="flex flex-col gap-y-3"
+          >
+            <p class="text-xs text-gray-400">
+              Войдите через Яндекс, чтобы разрешить доступ к доскам Yandex Tracker.
+            </p>
+
+            <Button
+              type="button"
+              variant="default"
+              size="default"
+              class="text-xs"
+              :disabled="isConnectingYandex"
+              @click="connectYandex"
+            >
+              <Spinner
+                class="size-4 absolute"
+                v-if="isConnectingYandex"
+              />
+              <span :class="{ 'opacity-0': isConnectingYandex }">Войти через Яндекс</span>
+            </Button>
+          </div>
+
+          <form
+            v-else-if="yandexTrackerPhase === 'org'"
+            @submit.prevent="onYandexOrgIdSubmit"
+            novalidate
+          >
+            <div class="flex flex-col gap-y-3">
+              <p class="text-xs text-gray-400">
+                Укажите ID вашей организации в Трекере, чтобы получить список доступных досок.
+              </p>
+
+              <div class="flex flex-col gap-y-2">
+                <div class="flex items-center gap-x-2">
+                  <span class="text-sm font-medium text-gray-700"
+                    >ID вашей организации в Трекере</span
+                  >
+                  <Popover>
+                    <PopoverTrigger
+                      type="button"
+                      class="text-xs text-blue-500 hover:text-blue-600 underline underline-offset-2"
+                    >
+                      Где его найти?
+                    </PopoverTrigger>
+                    <PopoverContent class="text-xs text-gray-600 max-w-64">
+                      В левом нижнем углу Трекера: Администрирование → Организации → скопируйте ID
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <input
+                  type="text"
+                  id="yandexOrgId"
+                  name="yandexOrgId"
+                  class="py-2.5 px-4 text-sm block w-full placeholder:text-gray-400 border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                  v-model="yandexOrgIdField"
+                  v-bind="yandexOrgIdFieldAttrs"
+                  placeholder="Например, 1234567"
+                />
+              </div>
+
+              <Button
+                variant="default"
+                size="default"
+                class="text-xs"
+                :disabled="isLoadingYandexBoards"
+              >
+                <Spinner
+                  class="size-4 absolute"
+                  v-if="isLoadingYandexBoards"
+                />
+                <span :class="{ 'opacity-0': isLoadingYandexBoards }">Продолжить</span>
+              </Button>
+            </div>
+          </form>
+
+          <div
+            v-else
+            class="flex flex-col gap-y-3"
+          >
+            <p class="text-xs text-gray-400">Выберите доски, которые нужно импортировать.</p>
+
+            <p
+              v-if="Number.isFinite(remainingBoardsLimit)"
+              class="text-xs text-gray-400"
+            >
+              Доступно к импорту:
+              <span class="font-medium text-gray-600"
+                >{{ selectedYandexBoardIds.size }} из {{ remainingBoardsLimit }}</span
+              >
+              по вашему тарифу
+            </p>
+
+            <div class="flex flex-col gap-y-2 max-h-64 overflow-y-auto pr-1">
+              <label
+                v-if="yandexTrackerBoards.length > 1"
+                class="flex items-center gap-x-2 text-xs font-medium text-gray-500 cursor-pointer select-none pb-1 border-b border-muted"
+              >
+                <Checkbox
+                  :model-value="allYandexBoardsSelected"
+                  @update:model-value="toggleAllYandexBoards"
+                />
+                Выбрать все
+              </label>
+
+              <p
+                v-if="yandexTrackerBoards.length === 0"
+                class="text-xs text-gray-400"
+              >
+                Не найдено доступных досок в Yandex Tracker
+              </p>
+
+              <label
+                v-for="board in yandexTrackerBoards"
+                :key="board.id"
+                class="flex items-center gap-x-2 text-sm text-gray-700 cursor-pointer select-none"
+                :class="{
+                  'opacity-50 cursor-not-allowed':
+                    !selectedYandexBoardIds.has(board.id) &&
+                    selectedYandexBoardIds.size >= remainingBoardsLimit,
+                }"
+              >
+                <Checkbox
+                  :model-value="selectedYandexBoardIds.has(board.id)"
+                  :disabled="
+                    !selectedYandexBoardIds.has(board.id) &&
+                    selectedYandexBoardIds.size >= remainingBoardsLimit
+                  "
+                  @update:model-value="toggleYandexBoard(board.id)"
+                />
+                {{ board.name }}
+              </label>
+            </div>
+
+            <Button
+              type="button"
+              variant="default"
+              size="default"
+              class="text-xs"
+              :disabled="isImportingYandexTracker || selectedYandexBoardIds.size === 0"
+              @click="submitYandexTrackerImport"
+            >
+              <Spinner
+                class="size-4 absolute"
+                v-if="isImportingYandexTracker"
+              />
+              <span :class="{ 'opacity-0': isImportingYandexTracker }"
+                >Импортировать выбранные</span
+              >
+            </Button>
           </div>
         </div>
 
