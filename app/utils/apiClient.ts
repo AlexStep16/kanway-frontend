@@ -56,6 +56,9 @@ function getAxiosClient() {
 
             localStorage.removeItem('activeWorkspaceId')
             localStorage.removeItem('activeBoardId')
+            localStorage.removeItem('selectedChatId')
+            localStorage.removeItem('selectedChatWorkspaceId')
+            localStorage.removeItem('chatIsOpen')
 
             const isAuthRequired = currentRoute.meta.authOnly === true
 

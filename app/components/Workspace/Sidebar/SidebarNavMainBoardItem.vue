@@ -145,7 +145,11 @@ function handleCloseCreateBoard() {
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    class="text-muted-foreground disabled:pointer-events-auto disabled:opacity-0 disabled:bg-accent disabled:group-hover/menu-item:opacity-50 md:opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-sidebar-accent-foreground data-[state=open]:bg-accent focus-within:opacity-100"
+                    class="text-muted-foreground disabled:pointer-events-auto disabled:bg-accent focus-within:opacity-100"
+                    :class="{
+                      'opacity-100 text-sidebar-accent-foreground bg-accent':
+                        createBoardDropdownOpen,
+                    }"
                     v-if="!isSubscriptionsLoading"
                     :disabled="!isCreateBoardButtonActive"
                     @click.stop="createBoardDropdownOpen = !createBoardDropdownOpen"

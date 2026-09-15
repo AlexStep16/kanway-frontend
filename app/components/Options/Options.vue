@@ -102,9 +102,10 @@ function onEdit() {
               type="button"
               :class="
                 cn(
-                  'p-1 transition-all duration-200 rounded-full hover:bg-gray-200 focus:outline-none data-[state=open]:bg-blue-200 data-[state=open]:text-primary',
+                  'p-1 transition-all duration-200 rounded-full hover:bg-gray-200 focus:outline-none',
                   hoverClass,
                   visibilityClasses,
+                  isMenuOpen && 'bg-blue-200 text-primary',
                 )
               "
               @click="isMenuOpen = !isMenuOpen"

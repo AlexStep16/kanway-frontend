@@ -85,6 +85,7 @@ export function useSendMessage() {
       const optimisticUserMessage = context?.userMessage
 
       chatStore.activeChatId = realChatId
+      chatStore.persistActiveChat(realChatId)
 
       queryClient.invalidateQueries({ queryKey: chatKeys.byWorkspace(result.chat.workspaceId) })
       queryClient.invalidateQueries({ queryKey: chatKeys.detailed(result.chat.id) })

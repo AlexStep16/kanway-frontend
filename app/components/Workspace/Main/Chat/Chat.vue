@@ -111,6 +111,8 @@ const observer = ref<ResizeObserver | null>(null)
 const { state } = useSidebar()
 
 onMounted(() => {
+  chatStore.restoreSession()
+
   window.addEventListener('beforeunload', stopActiveAgent)
 
   observer.value = new ResizeObserver(() => {

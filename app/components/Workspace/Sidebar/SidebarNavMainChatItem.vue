@@ -78,7 +78,7 @@ function handleNewChat() {
               <Button
                 variant="ghost"
                 size="icon-xs"
-                class="text-muted-foreground md:opacity-0 group-hover/menu-item:opacity-100"
+                class="text-muted-foreground"
                 @click.stop="handleNewChat"
               >
                 <Plus

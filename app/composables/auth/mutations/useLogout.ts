@@ -16,6 +16,9 @@ export function useLogout() {
 
       localStorage.removeItem('activeWorkspaceId')
       localStorage.removeItem('activeBoardId')
+      localStorage.removeItem('selectedChatId')
+      localStorage.removeItem('selectedChatWorkspaceId')
+      localStorage.removeItem('chatIsOpen')
 
       if (vars.isRedirectToAuth) {
         await router.push('/auth')
