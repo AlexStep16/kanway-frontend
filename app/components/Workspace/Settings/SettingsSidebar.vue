@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem } from '@lucide/vue'
+import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem, PlugZap } from '@lucide/vue'
 import { SettingTabs } from '~/enums/SettingTabs'
 
 defineProps<{
@@ -28,6 +28,10 @@ const sections = [
       { id: SettingTabs.PLANS, label: 'Тарифы', icon: Gem },
       { id: SettingTabs.PAYMENTS, label: 'Платежи', icon: CreditCard },
     ],
+  },
+  {
+    label: 'ИНТЕГРАЦИИ',
+    tabs: [{ id: SettingTabs.IMPORT, label: 'Импорт', icon: PlugZap }],
   },
 ]
 </script>

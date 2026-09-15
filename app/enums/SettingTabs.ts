@@ -4,4 +4,5 @@ export enum SettingTabs {
   ASSISTANT = 2,
   PLANS = 3,
   PAYMENTS = 4,
+  IMPORT = 5,
 }

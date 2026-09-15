@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem } from '@lucide/vue'
+import { CircleUserRound, LockKeyhole, Bot, CreditCard, Gem, PlugZap } from '@lucide/vue'
 import { SettingTabs } from '~/enums/SettingTabs'
 
 defineProps<{
@@ -17,6 +17,7 @@ const tabs = [
   { id: SettingTabs.ASSISTANT, label: 'Ассистент', icon: Bot },
   { id: SettingTabs.PLANS, label: 'Тарифы', icon: Gem },
   { id: SettingTabs.PAYMENTS, label: 'Платежи', icon: CreditCard },
+  { id: SettingTabs.IMPORT, label: 'Импорт', icon: PlugZap },
 ]
 
 const scrollContainer = ref<HTMLElement | null>(null)

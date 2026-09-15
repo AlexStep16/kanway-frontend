@@ -48,6 +48,7 @@ const currentTab = computed(() => uiStore.currentSettingsTab)
             <LazySettingsAssistant v-if="currentTab === SettingTabs.ASSISTANT" />
             <LazySettingsSubscription v-if="currentTab === SettingTabs.PLANS" />
             <LazySettingsPayments v-if="currentTab === SettingTabs.PAYMENTS" />
+            <LazySettingsImport v-if="currentTab === SettingTabs.IMPORT" />
           </div>
         </template>
 
