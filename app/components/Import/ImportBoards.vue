@@ -9,6 +9,8 @@ import YandexTrackerLogo from '~/assets/Logo_Yandex_Tracker_2021.svg?skipsvgo'
 import { Checkbox } from '~/components/ui/checkbox'
 import type { ITrelloBoard } from '~/interfaces/domain/ITrelloBoard'
 import type { IYandexTrackerBoard } from '~/interfaces/domain/IYandexTrackerBoard'
+import { YANDEX_TRACKER_AUTH_MESSAGE_SOURCE } from '~/constants/YANDEX_TRACKER_AUTH_MESSAGE_SOURCE'
+import { TRELLO_AUTH_MESSAGE_SOURCE } from '~/constants/TRELLO_AUTH_MESSAGE_SOURCE'
 
 const props = withDefaults(
   defineProps<{
@@ -28,9 +30,6 @@ const emit = defineEmits<{
 type Step = 'services' | 'trello' | 'trello-json' | 'yandex-tracker'
 type TrelloPhase = 'connect' | 'manual' | 'boards'
 type YandexTrackerPhase = 'connect' | 'org' | 'boards'
-
-const TRELLO_AUTH_MESSAGE_SOURCE = 'kanway-trello-auth'
-const YANDEX_TRACKER_AUTH_MESSAGE_SOURCE = 'kanway-yandex-tracker-auth'
 
 const step = ref<Step>('services')
 const trelloPhase = ref<TrelloPhase>('connect')
@@ -430,6 +429,10 @@ async function loadBoards(token: string) {
 async function handleAuthMessage(event: MessageEvent) {
   if (event.origin !== window.location.origin) return
   if (event.data?.source !== TRELLO_AUTH_MESSAGE_SOURCE) return
+
+  if (typeof window !== 'undefined') {
+    ;(window as any).ym?.(108746868, 'reachGoal', 'connect_trello_success')
+  }
 
   stopWatchingPopup()
 
@@ -879,9 +882,14 @@ onUnmounted(() => {
             class="size-4 absolute"
             v-if="isConnecting"
           />
-          <span :class="{ 'opacity-0': isConnecting }"
-            >Подключить Trello <span class="text-gray-300">(Нужен VPN)</span></span
-          >
+          <span :class="{ 'opacity-0': isConnecting }">
+            Подключить Trello
+            <span
+              class="text-gray-300"
+              v-if="isRussianIp"
+              >(Нужен VPN)</span
+            >
+          </span>
         </Button>
 
         <button

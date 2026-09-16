@@ -29,6 +29,10 @@ export const runPaymentStatusPolling = async (paymentId: string) => {
         $queryClient.invalidateQueries({ queryKey: userKeys.me })
 
         if (payment.column === PaymentTypeEnum.SUBSCRIPTION) {
+          if (typeof window !== 'undefined') {
+            ;(window as any).ym?.(108746868, 'reachGoal', 'buy_subscription')
+          }
+
           switch (payment.itemId) {
             case PaymentItemIdEnum.PREMIUM:
               toast.success('Подписка оформлена!', {
@@ -42,6 +46,10 @@ export const runPaymentStatusPolling = async (paymentId: string) => {
               break
           }
         } else if (payment.column === PaymentTypeEnum.CREDIT_PACK) {
+          if (typeof window !== 'undefined') {
+            ;(window as any).ym?.(108746868, 'reachGoal', 'buy_credit_pack')
+          }
+
           switch (payment.itemId) {
             case PaymentItemIdEnum.CREDIT_PACK_SMALL:
               toast.success('Кредиты зачислены!', {

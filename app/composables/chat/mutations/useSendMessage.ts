@@ -132,6 +132,10 @@ export function useSendMessage() {
             chatStore.stopRenamingChat(realChatId)
           })
       }
+
+      if (typeof window !== 'undefined') {
+        ;(window as any).ym?.(108746868, 'reachGoal', 'ai_sent_message')
+      }
     },
 
     onError: (error, _v, context) => {

@@ -7,6 +7,11 @@ export function useTranscribeVoice() {
   return useMutation({
     mutationKey: ['user'],
     mutationFn: (file: Blob) => transcribeVoice(file),
+    onSuccess: () => {
+      if (typeof window !== 'undefined') {
+        ;(window as any).ym?.(108746868, 'reachGoal', 'transcribe_voice_success')
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.me })
     },

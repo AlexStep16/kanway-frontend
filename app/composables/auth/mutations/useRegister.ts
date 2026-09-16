@@ -14,6 +14,11 @@ export function useRegister() {
         ...credentials,
         timezone: dayjs.tz.guess(),
       }),
+    onSuccess: () => {
+      if (typeof window !== 'undefined') {
+        ;(window as any).ym?.(108746868, 'reachGoal', 'sign_up')
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: userKeys.me,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const TRELLO_AUTH_MESSAGE_SOURCE = 'kanway-trello-auth'
+import { TRELLO_AUTH_MESSAGE_SOURCE } from '~/constants/TRELLO_AUTH_MESSAGE_SOURCE'
 
 function handleCallback() {
   const hash = window.location.hash.startsWith('#')

@@ -12,6 +12,10 @@ export function useTrelloImportJson() {
       queryClient.invalidateQueries({ queryKey: boardKeys.lists() })
       queryClient.invalidateQueries({ queryKey: columnKeys.lists() })
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() })
+
+      if (typeof window !== 'undefined') {
+        ;(window as any).ym?.(108746868, 'reachGoal', 'import_trello_success')
+      }
     },
   })
 }
