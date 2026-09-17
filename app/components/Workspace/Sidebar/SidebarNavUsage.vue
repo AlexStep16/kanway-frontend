@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Banknote, SettingsIcon } from '@lucide/vue'
+import { useSidebar } from '~/components/ui/sidebar'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 
 const uiStore = useUIStore()
@@ -15,6 +16,8 @@ const { data: workspacesData } = useWorkspaces()
 
 const subscriptions = computed(() => subscriptionsData.value || [])
 const workspaces = computed(() => workspacesData.value || [])
+
+const { isMobile, toggleSidebar } = useSidebar()
 
 const currentSubscription = computed(() => {
   if (!user.value) {
@@ -68,6 +71,14 @@ const workspacesProgress = computed(() => {
   return Math.min((workspaces.value.length / maxWorkspaces.value) * 100, 100)
 })
 
+function handleManagePlan() {
+  uiStore.openPlansSettings()
+
+  if (isMobile.value) {
+    toggleSidebar()
+  }
+}
+
 const userCredits = computed(() => user.value?.credits ?? 0)
 const userPaidCredits = computed(() => user.value?.paidCredits ?? 0)
 const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
@@ -96,7 +107,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
           <Button
             class="text-secondary-foreground/90 border border-secondary-foreground/20 bg-white hover:bg-muted"
             size="xs"
-            @click="uiStore.openPlansSettings()"
+            @click="handleManagePlan"
             v-else
           >
             <SettingsIcon class="size-4" />
