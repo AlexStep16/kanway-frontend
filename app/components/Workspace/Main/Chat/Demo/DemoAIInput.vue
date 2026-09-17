@@ -34,7 +34,6 @@ function handleTextareaRef(
 
 const isGPTModel = computed(() => {
   return (
-    modelType.value === ModelsEnum.GPT_4O_TRANSCRIBE ||
     modelType.value === ModelsEnum.GPT_5_4_NANO ||
     modelType.value === ModelsEnum.GPT_5_4_MINI ||
     modelType.value === ModelsEnum.GPT_5_4 ||

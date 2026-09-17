@@ -116,7 +116,10 @@ export const useChatStore = defineStore('chat', () => {
     const isFirstTime = !wasOpen && localStorage.getItem(CHAT_OPEN_KEY) !== 'false'
     const workspaceId = localStorage.getItem(SELECTED_CHAT_WORKSPACE_ID_KEY)
 
-    if (isFirstTime) uiStore.isChatOpen = true
+    if (isFirstTime) {
+      uiStore.isChatOpen = true
+      activeChatId.value = temporaryChatId.value
+    }
     if (!chatId || !wasOpen) return
 
     if (

@@ -66,7 +66,7 @@ useHead({
             <li>Индивидуальный предприниматель Иванов Александр Дмитриевич</li>
             <li>ОГРНИП: 324784700304914</li>
             <li>ИНН: 781802682825</li>
-            <li>Адрес для связи: privacy@kanway.ru / support@kanway.ru</li>
+            <li>Адрес для связи: alexander@kanway.ru</li>
           </ul>
 
           <p>

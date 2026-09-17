@@ -7,6 +7,8 @@ import { cn } from '~/lib/utils'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import { AI_INPUT_PLACEHOLDERS } from '~/constants/AI_INPUT_PLACEHOLDERS'
+import { AI_MODEL_OPTIONS } from '~/constants/AI_MODEL_OPTIONS'
+import { Brain, Zap } from '@lucide/vue'
 
 const { data: user } = useUser()
 
@@ -122,6 +124,13 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
+const currentModelLabel = computed(() => {
+  return AI_MODEL_OPTIONS.find((model) => model.value === chatStore.modelType)?.label ?? ''
+})
+
+const standardModels = computed(() => AI_MODEL_OPTIONS.filter((model) => !model.isPro))
+const proModels = computed(() => AI_MODEL_OPTIONS.filter((model) => model.isPro))
+
 onMounted(() => {
   placeholderIntervalId = setInterval(() => {
     currentPlaceholderIndex.value =
@@ -188,114 +197,161 @@ defineExpose({
                 class="size-4 shrink-0"
                 v-else-if="isGoogleModel"
               />
-              <SelectValue />
+              <SelectValue>
+                {{ currentModelLabel }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent :body-lock="false">
               <SelectGroup class="p-0 text-muted-foreground">
+                <SelectLabel
+                  class="px-2 pt-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+                >
+                  Стандартные
+                </SelectLabel>
                 <SelectItem
-                  :value="ModelsEnum.GPT_5_6_LUNA"
+                  v-for="model in standardModels"
+                  :key="model.value"
+                  :value="model.value"
+                  :hide-indicator="true"
                   :class="
                     cn(
-                      'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.GPT_5_6_LUNA && 'text-primary',
+                      'focus:text-primary min-w-54 [&>span:last-child]:w-full group/models',
+                      chatStore.modelType === model.value && 'text-primary',
                     )
                   "
                 >
-                  <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.6 Luna</span>
+                  <div class="flex w-full flex-col gap-1">
+                    <div class="flex items-center justify-between gap-x-2">
+                      <div
+                        :class="
+                          cn(
+                            'pl-2 border-l-3 border-muted-secondary flex items-center gap-x-2 group-hover/models:border-muted-foreground transition-colors duration-200',
+                            chatStore.modelType === model.value &&
+                              'border-primary group-hover/models:border-primary',
+                          )
+                        "
+                      >
+                        <ChatGPT
+                          v-if="model.provider === 'chatgpt'"
+                          class="size-4 shrink-0"
+                        />
+                        <Gemini
+                          v-else
+                          class="size-4 shrink-0"
+                        />
+                        <span
+                          :class="
+                            cn(
+                              'font-medium text-muted-foreground text-xs',
+                              chatStore.modelType === model.value && 'text-primary',
+                            )
+                          "
+                          >{{ model.label }}</span
+                        >
+                      </div>
+                      <span class="text-xs text-muted-foreground tabular-nums">{{
+                        model.cost
+                      }}</span>
+                    </div>
+                    <div class="flex items-center gap-x-1 pl-8.5 text-muted-foreground/90">
+                      <span class="flex items-center gap-1">
+                        <span class="flex items-center gap-0.5">
+                          <Brain
+                            v-for="i in model.smart"
+                            :key="i"
+                            class="size-3 shrink-0"
+                          />
+                        </span>
+                      </span>
+                      <span>•</span>
+                      <span class="flex items-center gap-1">
+                        <span class="flex items-center gap-0.5">
+                          <Zap
+                            v-for="i in model.fast"
+                            :key="i"
+                            class="size-3 shrink-0"
+                          />
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </SelectItem>
-                <SelectItem
-                  :value="ModelsEnum.GPT_5_4_MINI"
-                  :class="
-                    cn(
-                      'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.GPT_5_4_MINI && 'text-primary',
-                    )
-                  "
+              </SelectGroup>
+              <SelectSeparator />
+
+              <SelectGroup class="p-0 text-muted-foreground">
+                <SelectLabel
+                  class="px-2 pt-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
                 >
-                  <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.4 Mini</span>
-                  </div>
-                </SelectItem>
+                  Pro
+                </SelectLabel>
                 <SelectItem
+                  v-for="model in proModels"
+                  :key="model.value"
                   :disabled="isUserBasic"
-                  :value="ModelsEnum.GPT_5_4"
+                  :value="model.value"
+                  :hide-indicator="true"
                   :class="
                     cn(
-                      'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.GPT_5_4 && 'text-primary',
+                      'focus:text-primary [&>span:last-child]:w-full group/models',
+                      chatStore.modelType === model.value && 'text-primary',
                     )
                   "
                 >
-                  <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.4</span>
-                    <span
-                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
-                      v-if="isUserBasic"
-                    >
-                      PRO
-                    </span>
-                  </div>
-                </SelectItem>
-                <SelectItem
-                  :disabled="isUserBasic"
-                  :value="ModelsEnum.GPT_5_5"
-                  :class="
-                    cn(
-                      'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.GPT_5_5 && 'text-primary',
-                    )
-                  "
-                >
-                  <div class="flex items-center gap-x-2">
-                    <ChatGPT class="size-4 shrink-0" /><span>GPT-5.5</span>
-                    <span
-                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
-                      v-if="isUserBasic"
-                    >
-                      PRO
-                    </span>
-                  </div>
-                </SelectItem>
-                <SelectItem
-                  :disabled="isUserBasic"
-                  :value="ModelsEnum.GEMINI_3_7_FLASH"
-                  :class="
-                    cn(
-                      'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.GEMINI_3_7_FLASH && 'text-primary',
-                    )
-                  "
-                >
-                  <div class="flex items-center gap-x-2">
-                    <Gemini class="size-4 shrink-0" /><span>Gemini 3.7 Flash</span>
-                    <span
-                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
-                      v-if="isUserBasic"
-                    >
-                      PRO
-                    </span>
-                  </div>
-                </SelectItem>
-                <SelectItem
-                  :disabled="isUserBasic"
-                  :value="ModelsEnum.GEMINI_3_1_PRO_PREVIEW"
-                  :class="
-                    cn(
-                      'focus:text-primary',
-                      chatStore.modelType === ModelsEnum.GEMINI_3_1_PRO_PREVIEW && 'text-primary',
-                    )
-                  "
-                >
-                  <div class="flex items-center gap-x-2">
-                    <Gemini class="size-4 shrink-0" /><span>Gemini 3.1 Pro</span>
-                    <span
-                      class="rounded-sm font-medium text-[10px] text-white py-0.5 px-1 bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)]"
-                      v-if="isUserBasic"
-                    >
-                      PRO
-                    </span>
+                  <div class="flex w-full flex-col gap-1">
+                    <div class="flex items-center justify-between gap-x-2">
+                      <div
+                        :class="
+                          cn(
+                            'pl-2 border-l-3 border-muted-secondary flex items-center gap-x-2 group-hover/models:border-muted-foreground transition-colors duration-200',
+                            chatStore.modelType === model.value &&
+                              'border-primary group-hover/models:border-primary',
+                          )
+                        "
+                      >
+                        <ChatGPT
+                          v-if="model.provider === 'chatgpt'"
+                          class="size-4 shrink-0"
+                        />
+                        <Gemini
+                          v-else
+                          class="size-4 shrink-0"
+                        />
+                        <span
+                          :class="
+                            cn(
+                              'font-medium text-muted-foreground text-xs',
+                              chatStore.modelType === model.value && 'text-primary',
+                            )
+                          "
+                          >{{ model.label }}</span
+                        >
+                      </div>
+                      <span class="text-xs text-muted-foreground tabular-nums">{{
+                        model.cost
+                      }}</span>
+                    </div>
+                    <div class="flex items-center gap-x-1 pl-8.5 text-muted-foreground/90">
+                      <span class="flex items-center gap-1">
+                        <span class="flex items-center gap-0.5">
+                          <Brain
+                            v-for="i in model.smart"
+                            :key="i"
+                            class="size-3 shrink-0"
+                          />
+                        </span>
+                      </span>
+                      <span>•</span>
+                      <span class="flex items-center gap-1">
+                        <span class="flex items-center gap-0.5">
+                          <Zap
+                            v-for="i in model.fast"
+                            :key="i"
+                            class="size-3 shrink-0"
+                          />
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </SelectItem>
               </SelectGroup>
