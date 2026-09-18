@@ -17,7 +17,7 @@ const { data: workspacesData } = useWorkspaces()
 const subscriptions = computed(() => subscriptionsData.value || [])
 const workspaces = computed(() => workspacesData.value || [])
 
-const { isMobile, toggleSidebar } = useSidebar()
+const { isMobile, setOpenMobile } = useSidebar()
 
 const currentSubscription = computed(() => {
   if (!user.value) {
@@ -72,11 +72,9 @@ const workspacesProgress = computed(() => {
 })
 
 function handleManagePlan() {
-  uiStore.openPlansSettings()
+  uiStore.openPlansSettings(isMobile.value)
 
-  if (isMobile.value) {
-    toggleSidebar()
-  }
+  setOpenMobile(false)
 }
 
 const userCredits = computed(() => user.value?.credits ?? 0)

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useUIStore } from '~/stores/ui'
 import PlanCards from './PlanCards.vue'
-
-const uiStore = useUIStore()
 </script>
 
 <template>

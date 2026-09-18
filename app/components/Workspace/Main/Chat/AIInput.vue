@@ -7,8 +7,8 @@ import { cn } from '~/lib/utils'
 import { ModelsEnum } from '~/enums/ModelsEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import { AI_INPUT_PLACEHOLDERS } from '~/constants/AI_INPUT_PLACEHOLDERS'
-import { AI_MODEL_OPTIONS } from '~/constants/AI_MODEL_OPTIONS'
-import { Brain, Zap } from '@lucide/vue'
+import { AI_MODEL_OPTIONS, type IAIModelOption } from '~/constants/AI_MODEL_OPTIONS'
+import { Brain, Zap, ChevronDown, Check, Lock } from '@lucide/vue'
 
 const { data: user } = useUser()
 
@@ -37,7 +37,8 @@ const emit = defineEmits<{
 const isMobile = useMediaQuery('(max-width: 768px)')
 const update = ref(() => {})
 
-const isModelTypeSelectOpen = ref(false)
+// Единое состояние открытия для Popover и Drawer
+const isModelPickerOpen = ref(false)
 
 async function sendChatMessage(message: string) {
   message = message.trim()
@@ -124,12 +125,18 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-const currentModelLabel = computed(() => {
-  return AI_MODEL_OPTIONS.find((model) => model.value === chatStore.modelType)?.label ?? ''
+const currentModel = computed(() => {
+  return AI_MODEL_OPTIONS.find((model) => model.value === chatStore.modelType)
 })
 
 const standardModels = computed(() => AI_MODEL_OPTIONS.filter((model) => !model.isPro))
 const proModels = computed(() => AI_MODEL_OPTIONS.filter((model) => model.isPro))
+
+function selectModel(model: IAIModelOption, disabled = false) {
+  if (disabled) return
+  chatStore.modelType = model.value
+  isModelPickerOpen.value = false
+}
 
 onMounted(() => {
   placeholderIntervalId = setInterval(() => {
@@ -175,189 +182,452 @@ defineExpose({
           </span>
         </Transition>
       </div>
+
       <div class="flex justify-between items-center gap-2 w-full">
         <div class="flex min-w-0 items-center gap-2">
-          <Select
-            v-model:open="isModelTypeSelectOpen"
-            v-model="chatStore.modelType"
+          <!-- ========================================================= -->
+          <!-- 1. ДЕСКТОП: Компактный Popover + Tooltip                 -->
+          <!-- ========================================================= -->
+          <Popover
+            v-if="!isMobile"
+            v-model:open="isModelPickerOpen"
           >
-            <SelectTrigger
-              :class="
-                cn(
-                  'w-full items-center whitespace-nowrap border-zinc-200 bg-zinc-50/80 py-2 ring-offset-background data-placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300/60 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate text-start border flex shadow-sm h-8 text-xs text-zinc-600 rounded-lg font-medium gap-2 hover:bg-zinc-100/80 justify-start px-2.5 transition-all duration-200',
-                )
-              "
-              :is-open="isModelTypeSelectOpen"
+            <PopoverTrigger as-child>
+              <button
+                type="button"
+                :class="
+                  cn(
+                    'items-center whitespace-nowrap border-zinc-200 bg-zinc-50/80 py-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-zinc-300/60 text-start border flex shadow-sm h-8 text-xs text-zinc-700 rounded-lg font-medium gap-2 hover:bg-zinc-100/80 justify-between px-2.5 transition-all duration-200 cursor-pointer',
+                  )
+                "
+              >
+                <div class="flex items-center gap-2 truncate">
+                  <ChatGPT
+                    class="size-4 shrink-0"
+                    v-if="isGPTModel"
+                  />
+                  <Gemini
+                    class="size-4 shrink-0"
+                    v-else-if="isGoogleModel"
+                  />
+                  <span class="truncate">{{ currentModel?.label }}</span>
+                </div>
+                <ChevronDown
+                  class="size-3 text-zinc-400 shrink-0 ml-0.5 transition-transform duration-200"
+                  :class="isModelPickerOpen ? 'rotate-180' : ''"
+                />
+              </button>
+            </PopoverTrigger>
+
+            <PopoverContent
+              align="start"
+              :side-offset="6"
+              class="w-64 p-1 rounded-xl shadow-lg border border-zinc-200/80 bg-white"
+              @open-auto-focus.prevent
             >
-              <ChatGPT
-                class="size-4 shrink-0"
-                v-if="isGPTModel"
-              />
-              <Gemini
-                class="size-4 shrink-0"
-                v-else-if="isGoogleModel"
-              />
-              <SelectValue>
-                {{ currentModelLabel }}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent :body-lock="false">
-              <SelectGroup class="p-0 text-muted-foreground">
-                <SelectLabel
-                  class="px-2 pt-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+              <TooltipProvider :delay-duration="0">
+                <!-- Стандартные модели -->
+                <div
+                  class="px-2 pt-1.5 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
                 >
                   Стандартные
-                </SelectLabel>
-                <SelectItem
-                  v-for="model in standardModels"
-                  :key="model.value"
-                  :value="model.value"
-                  :hide-indicator="true"
-                  :class="
-                    cn(
-                      'focus:text-primary min-w-54 [&>span:last-child]:w-full group/models',
-                      chatStore.modelType === model.value && 'text-primary',
-                    )
-                  "
-                >
-                  <div class="flex w-full flex-col gap-1">
-                    <div class="flex items-center justify-between gap-x-2">
-                      <div
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <Tooltip
+                    v-for="model in standardModels"
+                    :key="model.value"
+                  >
+                    <TooltipTrigger as-child>
+                      <button
+                        type="button"
+                        @click="selectModel(model)"
                         :class="
                           cn(
-                            'pl-2 border-l-3 border-muted-secondary flex items-center gap-x-2 group-hover/models:border-muted-foreground transition-colors duration-200',
+                            'w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-colors text-start cursor-pointer hover:bg-zinc-100/80',
                             chatStore.modelType === model.value &&
-                              'border-primary group-hover/models:border-primary',
+                              'bg-zinc-100 text-zinc-900 font-medium',
                           )
                         "
                       >
-                        <ChatGPT
-                          v-if="model.provider === 'chatgpt'"
-                          class="size-4 shrink-0"
-                        />
-                        <Gemini
-                          v-else
-                          class="size-4 shrink-0"
-                        />
-                        <span
-                          :class="
-                            cn(
-                              'font-medium text-muted-foreground text-xs',
-                              chatStore.modelType === model.value && 'text-primary',
-                            )
-                          "
-                          >{{ model.label }}</span
-                        >
-                      </div>
-                      <span class="text-xs text-muted-foreground tabular-nums">{{
-                        model.cost
-                      }}</span>
-                    </div>
-                    <div class="flex items-center gap-x-1 pl-8.5 text-muted-foreground/90">
-                      <span class="flex items-center gap-1">
-                        <span class="flex items-center gap-0.5">
-                          <Brain
-                            v-for="i in model.smart"
-                            :key="i"
-                            class="size-3 shrink-0"
+                        <div class="flex items-center gap-2">
+                          <ChatGPT
+                            v-if="model.provider === 'chatgpt'"
+                            class="size-4 shrink-0"
                           />
-                        </span>
-                      </span>
-                      <span>•</span>
-                      <span class="flex items-center gap-1">
-                        <span class="flex items-center gap-0.5">
-                          <Zap
-                            v-for="i in model.fast"
-                            :key="i"
-                            class="size-3 shrink-0"
+                          <Gemini
+                            v-else
+                            class="size-4 shrink-0"
                           />
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                </SelectItem>
-              </SelectGroup>
-              <SelectSeparator />
+                          <span
+                            :class="
+                              chatStore.modelType === model.value
+                                ? 'text-zinc-900 font-medium'
+                                : 'text-zinc-600'
+                            "
+                          >
+                            {{ model.label }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-[11px] text-zinc-400 tabular-nums">{{
+                            model.cost
+                          }}</span>
+                        </div>
+                      </button>
+                    </TooltipTrigger>
 
-              <SelectGroup class="p-0 text-muted-foreground">
-                <SelectLabel
-                  class="px-2 pt-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+                    <TooltipContent
+                      side="right"
+                      :side-offset="10"
+                      class="z-70 flex flex-col gap-1.5 p-2 text-xs bg-zinc-900 text-white rounded-lg shadow-md border-none"
+                    >
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-zinc-400">Мышление:</span>
+                        <div class="flex items-center gap-1">
+                          <span class="flex items-center gap-0.5 text-zinc-100">
+                            <Brain
+                              v-for="i in model.smart"
+                              :key="i"
+                              class="size-3 shrink-0"
+                            />
+                          </span>
+                        </div>
+                      </div>
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-zinc-400">Скорость:</span>
+                        <div class="flex items-center gap-1">
+                          <span class="flex items-center gap-0.5 text-amber-400">
+                            <Zap
+                              v-for="i in model.fast"
+                              :key="i"
+                              class="size-3 shrink-0 fill-current"
+                            />
+                          </span>
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                <!-- Разделитель -->
+                <div class="my-1.5 border-t border-zinc-100" />
+
+                <!-- Pro модели -->
+                <div
+                  class="px-2 pt-1 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400 flex items-center justify-between"
                 >
-                  Pro
-                </SelectLabel>
-                <SelectItem
-                  v-for="model in proModels"
-                  :key="model.value"
-                  :disabled="isUserBasic"
-                  :value="model.value"
-                  :hide-indicator="true"
-                  :class="
-                    cn(
-                      'focus:text-primary [&>span:last-child]:w-full group/models',
-                      chatStore.modelType === model.value && 'text-primary',
-                    )
-                  "
-                >
-                  <div class="flex w-full flex-col gap-1">
-                    <div class="flex items-center justify-between gap-x-2">
-                      <div
+                  <span>Pro</span>
+                  <span
+                    v-if="isUserBasic"
+                    class="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-normal lowercase"
+                  >
+                    нужен pro
+                  </span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <Tooltip
+                    v-for="model in proModels"
+                    :key="model.value"
+                  >
+                    <TooltipTrigger as-child>
+                      <button
+                        type="button"
+                        :disabled="isUserBasic"
+                        @click="selectModel(model, isUserBasic)"
                         :class="
                           cn(
-                            'pl-2 border-l-3 border-muted-secondary flex items-center gap-x-2 group-hover/models:border-muted-foreground transition-colors duration-200',
+                            'w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-colors text-start',
+                            isUserBasic
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'cursor-pointer hover:bg-zinc-100/80',
                             chatStore.modelType === model.value &&
-                              'border-primary group-hover/models:border-primary',
+                              'bg-zinc-100 text-zinc-900 font-medium',
                           )
                         "
                       >
-                        <ChatGPT
-                          v-if="model.provider === 'chatgpt'"
-                          class="size-4 shrink-0"
-                        />
-                        <Gemini
-                          v-else
-                          class="size-4 shrink-0"
-                        />
-                        <span
-                          :class="
-                            cn(
-                              'font-medium text-muted-foreground text-xs',
-                              chatStore.modelType === model.value && 'text-primary',
-                            )
-                          "
-                          >{{ model.label }}</span
-                        >
+                        <div class="flex items-center gap-2">
+                          <ChatGPT
+                            v-if="model.provider === 'chatgpt'"
+                            class="size-4 shrink-0"
+                          />
+                          <Gemini
+                            v-else
+                            class="size-4 shrink-0"
+                          />
+                          <span
+                            :class="
+                              chatStore.modelType === model.value
+                                ? 'text-zinc-900 font-medium'
+                                : 'text-zinc-600'
+                            "
+                          >
+                            {{ model.label }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                          <Lock
+                            v-if="isUserBasic"
+                            class="size-3 text-zinc-400"
+                          />
+                          <span class="text-[11px] text-zinc-400 tabular-nums">{{
+                            model.cost
+                          }}</span>
+                        </div>
+                      </button>
+                    </TooltipTrigger>
+
+                    <TooltipContent
+                      side="right"
+                      :side-offset="10"
+                      class="z-70 flex flex-col gap-1.5 p-2 text-xs bg-zinc-900 text-white rounded-lg shadow-md border-none"
+                    >
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-zinc-400">Мышление:</span>
+                        <div class="flex items-center gap-1">
+                          <span class="flex items-center gap-0.5 text-zinc-100">
+                            <Brain
+                              v-for="i in model.smart"
+                              :key="i"
+                              class="size-3 shrink-0"
+                            />
+                          </span>
+                        </div>
                       </div>
-                      <span class="text-xs text-muted-foreground tabular-nums">{{
-                        model.cost
-                      }}</span>
-                    </div>
-                    <div class="flex items-center gap-x-1 pl-8.5 text-muted-foreground/90">
-                      <span class="flex items-center gap-1">
-                        <span class="flex items-center gap-0.5">
-                          <Brain
-                            v-for="i in model.smart"
-                            :key="i"
-                            class="size-3 shrink-0"
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-zinc-400">Скорость:</span>
+                        <div class="flex items-center gap-1">
+                          <span class="flex items-center gap-0.5 text-amber-400">
+                            <Zap
+                              v-for="i in model.fast"
+                              :key="i"
+                              class="size-3 shrink-0 fill-current"
+                            />
+                          </span>
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+            </PopoverContent>
+          </Popover>
+
+          <Drawer
+            v-else
+            v-model:open="isModelPickerOpen"
+          >
+            <DrawerTrigger as-child>
+              <button
+                type="button"
+                :class="
+                  cn(
+                    'items-center whitespace-nowrap border-zinc-200 bg-zinc-50/80 py-2 ring-offset-background text-start border flex shadow-sm h-8 text-xs text-zinc-700 rounded-lg font-medium gap-2 active:bg-zinc-100 justify-between px-2.5',
+                  )
+                "
+              >
+                <div class="flex items-center gap-2 truncate">
+                  <ChatGPT
+                    class="size-4 shrink-0"
+                    v-if="isGPTModel"
+                  />
+                  <Gemini
+                    class="size-4 shrink-0"
+                    v-else-if="isGoogleModel"
+                  />
+                  <span class="truncate">{{ currentModel?.label }}</span>
+                </div>
+                <ChevronDown class="size-3 text-zinc-400 shrink-0 ml-0.5" />
+              </button>
+            </DrawerTrigger>
+
+            <DrawerContent class="max-h-[85vh] flex flex-col overflow-hidden">
+              <DrawerHeader class="px-5 py-4 text-left shrink-0">
+                <DrawerTitle class="text-base font-semibold text-zinc-900">
+                  Выбор модели
+                </DrawerTitle>
+                <DrawerDescription class="text-xs text-zinc-500">
+                  Выберите модель под вашу задачу
+                </DrawerDescription>
+              </DrawerHeader>
+
+              <div class="flex-1 overflow-y-auto overflow-x-hidden px-5 pb-8 space-y-4">
+                <div>
+                  <div
+                    class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2"
+                  >
+                    Стандартные
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div
+                      v-for="model in standardModels"
+                      :key="model.value"
+                      @click="selectModel(model)"
+                      :class="
+                        cn(
+                          'p-3 rounded-xl border transition-all flex flex-col gap-2.5 bg-white cursor-pointer select-none',
+                          chatStore.modelType === model.value
+                            ? 'border-zinc-900 ring-1 ring-zinc-900 bg-zinc-50/60'
+                            : 'border-zinc-200 active:bg-zinc-50',
+                        )
+                      "
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 min-w-0">
+                          <ChatGPT
+                            v-if="model.provider === 'chatgpt'"
+                            class="size-4.5 shrink-0"
                           />
-                        </span>
-                      </span>
-                      <span>•</span>
-                      <span class="flex items-center gap-1">
-                        <span class="flex items-center gap-0.5">
-                          <Zap
-                            v-for="i in model.fast"
-                            :key="i"
-                            class="size-3 shrink-0"
+                          <Gemini
+                            v-else
+                            class="size-4.5 shrink-0"
                           />
-                        </span>
-                      </span>
+                          <span class="font-medium text-sm text-zinc-900 truncate">{{
+                            model.label
+                          }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                          <span class="text-xs font-mono text-zinc-400">{{ model.cost }}</span>
+                          <Check
+                            v-if="chatStore.modelType === model.value"
+                            class="size-4 text-zinc-900"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="flex flex-col gap-1.5 pt-2 border-t border-zinc-100 text-xs">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="text-zinc-400 text-[11px]">Мышление</span>
+                          <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center gap-0.5 text-zinc-700">
+                              <Brain
+                                v-for="i in model.smart"
+                                :key="i"
+                                class="size-3 shrink-0"
+                              />
+                            </div>
+                            <span class="text-[11px] text-zinc-500 font-medium"
+                              >({{ model.smartLabel }})</span
+                            >
+                          </div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="text-zinc-400 text-[11px]">Скорость</span>
+                          <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center gap-0.5 text-amber-500">
+                              <Zap
+                                v-for="i in model.fast"
+                                :key="i"
+                                class="size-3 shrink-0 fill-current"
+                              />
+                            </div>
+                            <span class="text-[11px] text-zinc-500 font-medium"
+                              >({{ model.fastLabel }})</span
+                            >
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+                </div>
+
+                <div>
+                  <div
+                    class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2 flex items-center justify-between"
+                  >
+                    <span>Pro</span>
+                    <span
+                      v-if="isUserBasic"
+                      class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-medium"
+                    >
+                      Нужна подписка Pro
+                    </span>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <div
+                      v-for="model in proModels"
+                      :key="model.value"
+                      @click="selectModel(model, isUserBasic)"
+                      :class="
+                        cn(
+                          'p-3 rounded-xl border transition-all flex flex-col gap-2.5 select-none',
+                          isUserBasic
+                            ? 'opacity-60 bg-zinc-50 border-zinc-200 cursor-not-allowed'
+                            : 'bg-white cursor-pointer active:bg-zinc-50',
+                          chatStore.modelType === model.value
+                            ? 'border-zinc-900 ring-1 ring-zinc-900 bg-zinc-50/60'
+                            : 'border-zinc-200',
+                        )
+                      "
+                    >
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 min-w-0">
+                          <ChatGPT
+                            v-if="model.provider === 'chatgpt'"
+                            class="size-4.5 shrink-0"
+                          />
+                          <Gemini
+                            v-else
+                            class="size-4.5 shrink-0"
+                          />
+                          <span class="font-medium text-sm text-zinc-900 truncate">{{
+                            model.label
+                          }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                          <Lock
+                            v-if="isUserBasic"
+                            class="size-3.5 text-zinc-400"
+                          />
+                          <span class="text-xs font-mono text-zinc-400">{{ model.cost }}</span>
+                          <Check
+                            v-if="chatStore.modelType === model.value"
+                            class="size-4 text-zinc-900"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="flex flex-col gap-1.5 pt-2 border-t border-zinc-100 text-xs">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="text-zinc-400 text-[11px]">Мышление</span>
+                          <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center gap-0.5 text-zinc-700">
+                              <Brain
+                                v-for="i in model.smart"
+                                :key="i"
+                                class="size-3 shrink-0"
+                              />
+                            </div>
+                            <span class="text-[11px] text-zinc-500 font-medium"
+                              >({{ model.smartLabel }})</span
+                            >
+                          </div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="text-zinc-400 text-[11px]">Скорость</span>
+                          <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center gap-0.5 text-amber-500">
+                              <Zap
+                                v-for="i in model.fast"
+                                :key="i"
+                                class="size-3 shrink-0 fill-current"
+                              />
+                            </div>
+                            <span class="text-[11px] text-zinc-500 font-medium"
+                              >({{ model.fastLabel }})</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
+
         <div class="flex shrink-0 items-center gap-x-2">
           <Recording
             ref="micButtonRef"

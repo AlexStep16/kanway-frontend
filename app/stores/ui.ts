@@ -66,19 +66,19 @@ export const useUIStore = defineStore('ui', () => {
     boardStore.clearBoard()
   }
 
-  function openProfileSettings() {
+  function openProfileSettings(shouldChatClose: boolean = false) {
     currentSettingsTab.value = SettingTabs.PROFILE
-    selectSettings()
+    selectSettings(shouldChatClose)
   }
 
-  function openPlansSettings() {
+  function openPlansSettings(shouldChatClose: boolean = false) {
     currentSettingsTab.value = SettingTabs.PLANS
-    selectSettings()
+    selectSettings(shouldChatClose)
   }
 
-  function openPaymentsSettings() {
+  function openPaymentsSettings(shouldChatClose: boolean = false) {
     currentSettingsTab.value = SettingTabs.PAYMENTS
-    selectSettings()
+    selectSettings(shouldChatClose)
   }
 
   const isArchiveTabSelected = computed(() => currentTab.value === Tabs.Archive)

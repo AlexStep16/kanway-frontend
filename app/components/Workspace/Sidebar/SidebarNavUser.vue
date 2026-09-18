@@ -27,19 +27,19 @@ const isUserHasBasicSub = computed(() => {
 })
 
 function handleOpenProfile() {
-  uiStore.openProfileSettings()
+  uiStore.openProfileSettings(isMobile.value)
 
   setOpenMobile(false)
 }
 
 function handleOpenPayments() {
-  uiStore.openPaymentsSettings()
+  uiStore.openPaymentsSettings(isMobile.value)
 
   setOpenMobile(false)
 }
 
 function handleOpenPlans() {
-  uiStore.openPlansSettings()
+  uiStore.openPlansSettings(isMobile.value)
 
   setOpenMobile(false)
 }
@@ -82,13 +82,13 @@ function handleOpenSupport() {
           <DropdownMenuItem
             class="bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] text-white!"
             v-if="!isUserHasArchitectorSub"
-            @click="handleOpenPlans()"
+            @click="uiStore.isPlansModalOpen = true"
           >
             <Sparkles />
             Улучшить план
           </DropdownMenuItem>
           <DropdownMenuItem
-            @click="uiStore.openPlansSettings()"
+            @click="handleOpenPlans()"
             v-if="!isUserHasBasicSub"
           >
             <Sparkles />
