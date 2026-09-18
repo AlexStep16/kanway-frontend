@@ -54,7 +54,6 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
   function handleIncomingEvent(event: Event) {
     const { $queryClient } = useNuxtApp()
-    const isMobile = useMediaQuery('(max-width: 768px)')
 
     if (event.status === 'completed' || event.status === 'failed') {
       closeSSE()
@@ -92,7 +91,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
       if (log.collectionName === 'boards') {
         if (log.operationType === 'CREATE') {
-          if (log.entitiesAfter && !isMobile) boardStore.selectBoard(log.entitiesAfter[0].id)
+          if (log.entitiesAfter) boardStore.selectBoard(log.entitiesAfter[0].id)
         } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
           if (log.entitiesBefore?.some((b: any) => b.id === boardStore.activeBoardId)) {
             uiStore.selectChat()
@@ -102,7 +101,7 @@ export const useAgentStatusStore = defineStore('agentStatus', () => {
 
       if (log.collectionName === 'workspaces') {
         if (log.operationType === 'CREATE') {
-          if (log.entitiesAfter && !isMobile) workspaceStore.selectWorkspace(log.entitiesAfter[0])
+          if (log.entitiesAfter) workspaceStore.selectWorkspace(log.entitiesAfter[0])
         }
       } else if (['DELETE', 'ARCHIVE'].includes(log.operationType)) {
         if (log.entitiesBefore?.some((w: any) => w.id === workspaceStore.activeWorkspaceId)) {

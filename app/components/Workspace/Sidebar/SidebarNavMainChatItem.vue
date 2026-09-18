@@ -6,7 +6,6 @@ import { useSidebar } from '~/components/ui/sidebar'
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
-const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
 
 const activeChatId = computed(() => chatStore.activeChatId)
@@ -37,7 +36,6 @@ function handleSelectChat(chat: IChat) {
 
   if (isMobile.value) {
     toggleSidebar()
-    boardStore.clearBoard()
   }
 }
 
@@ -46,7 +44,6 @@ function handleNewChat() {
 
   if (isMobile.value) {
     toggleSidebar()
-    boardStore.clearBoard()
   }
 }
 </script>

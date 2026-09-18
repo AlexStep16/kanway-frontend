@@ -4,7 +4,6 @@ import ChatSideHeader from './ChatSideHeader.vue'
 import ChatMain from './ChatMain.vue'
 import ChatDefaultHeader from './ChatDefaultHeader.vue'
 import { useSidebar } from '~/components/ui/sidebar/utils.js'
-import { cn } from '~/lib/utils.js'
 
 const uiStore = useUIStore()
 const chatStore = useChatStore()
@@ -26,6 +25,10 @@ const savedMessage = ref<string>('')
 
 const { data: messages, isFetching: areMessagesFetching } = useChatMessages(activeChatId)
 const { mutate: sendMessage, isPending: isMessageSending } = useSendMessage()
+
+const isBoardEmpty = computed(() => activeBoardId.value === null)
+const shouldUseDrawer = computed(() => isMobile.value && !isBoardEmpty.value)
+const isChatTabShown = computed(() => uiStore.isChatOpen)
 
 const { mutate: stopAgent } = useStopAgent()
 
@@ -96,19 +99,14 @@ function sendAgain() {
   }
 }
 
-const isMainChat = computed(() => {
-  return boardStore.activeBoardId === null && uiStore.isBoardTabSelected
-})
-
 const isInitialMessagesLoading = useDelayedLoading(
   computed(() => {
     return areMessagesFetching.value && messages.value?.length === 0
   }),
 )
 
-const isMobile = useMediaQuery('(max-width: 768px)')
 const observer = ref<ResizeObserver | null>(null)
-const { state } = useSidebar()
+const { state, isMobile } = useSidebar()
 
 onMounted(() => {
   chatStore.restoreSession()
@@ -120,12 +118,19 @@ onMounted(() => {
       aiInputRef.value.updateTextarea()
     }
   })
-  observer.value.observe(chatContainerRef.value!)
+
+  if (chatContainerRef.value) {
+    observer.value.observe(chatContainerRef.value)
+  }
+})
+
+watch(chatContainerRef, (el) => {
+  if (el && observer.value) {
+    observer.value.observe(el)
+  }
 })
 
 onBeforeUnmount(() => {
-  stopActiveAgent()
-
   window.removeEventListener('beforeunload', stopActiveAgent)
   if (observer.value) {
     observer.value.disconnect()
@@ -134,24 +139,68 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <Drawer
+    v-if="shouldUseDrawer"
+    :open="uiStore.isChatOpen"
+    @update:open="(val: boolean) => !val && uiStore.closeChat()"
+  >
+    <DrawerContent class="h-[90dvh] flex flex-col p-0 focus:outline-none">
+      <DrawerHeader class="sr-only">
+        <DrawerTitle>AI Чат</DrawerTitle>
+      </DrawerHeader>
+
+      <ChatDrawerHeader />
+
+      <div
+        class="flex-1 overflow-hidden flex flex-col"
+        data-vaul-no-drag
+      >
+        <ChatMain
+          :isMainChat="false"
+          :isSending="isMessageSending"
+          :aiInputRef="aiInputRef"
+          :reversedMessages="reversedMessages"
+          :areMessagesLoading="isInitialMessagesLoading"
+          @sendAgain="sendAgain"
+          @setMessagesRef="(el: HTMLDivElement) => (messagesRef = el)"
+        />
+      </div>
+
+      <footer
+        class="w-full flex justify-center p-4 sm:p-5 border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm"
+      >
+        <div class="w-full max-w-4xl">
+          <AIInput
+            @send="send"
+            @stop="handleStop"
+            ref="aiInputRef"
+            :is-disabled="isMessageSending"
+            :is-focused="true"
+          />
+        </div>
+      </footer>
+    </DrawerContent>
+  </Drawer>
+
   <SidebarInset
-    class="z-20"
-    :class="
-      cn(
-        isMobile && 'absolute max-w-screen w-full',
-        state === 'collapsed' && !isMobile && activeBoardId && 'ml-0!',
-      )
-    "
+    v-else
+    v-show="isChatTabShown"
+    class="relative z-20 flex flex-col bg-white overflow-hidden border-l border-zinc-200"
+    :class="[
+      uiStore.isChatFullscreen && 'flex-1',
+      !uiStore.isChatFullscreen && 'w-130 lg:flex-[0_0_520px] shrink-0',
+      state === 'collapsed' && activeBoardId && 'ml-0!',
+    ]"
   >
     <div
       class="w-full flex flex-1 flex-col overflow-hidden bg-white"
       ref="chatContainerRef"
     >
-      <ChatDefaultHeader v-if="isMainChat && !isMobile" />
+      <ChatDefaultHeader v-if="uiStore.isChatFullscreen" />
       <ChatSideHeader v-else />
 
       <ChatMain
-        :isMainChat="isMainChat"
+        :isMainChat="uiStore.isChatFullscreen"
         :isSending="isMessageSending"
         :aiInputRef="aiInputRef"
         :reversedMessages="reversedMessages"

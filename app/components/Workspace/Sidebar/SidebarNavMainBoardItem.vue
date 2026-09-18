@@ -9,6 +9,7 @@ import { useSidebar } from '~/components/ui/sidebar'
 const workspaceStore = useWorkspaceStore()
 const boardStore = useBoardStore()
 const chatStore = useChatStore()
+const uiStore = useUIStore()
 
 const activeBoardId = computed(() => boardStore.activeBoardId)
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
@@ -18,6 +19,7 @@ const createBoardDropdownOpen = ref(false)
 const { data: boardsData, isPending: areBoardsLoading } = useBoards(activeWorkspaceId)
 const { data: user } = useUser()
 const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
+
 const subscriptions = computed(() => subscriptionsData.value || [])
 
 const currentSubscription = computed(() => {
@@ -91,8 +93,15 @@ const orderedBoards = computed(() => {
   return [...favoriteBoards, ...otherBoards]
 })
 
+const isBoardActive = computed(() => {
+  return (boardId: string) =>
+    boardId === activeBoardId.value && !uiStore.isChatFullscreen && uiStore.isBoardTabSelected
+})
+
 function handleSelectBoard(board: IBoard) {
   boardStore.selectBoard(board.id)
+
+  uiStore.closeChatFullscreen()
 
   if (isMobile.value) {
     toggleSidebar()
@@ -204,7 +213,7 @@ function handleCloseCreateBoard() {
                   class="cursor-default"
                   size="md"
                   as-child
-                  :is-active="board.id === activeBoardId"
+                  :is-active="isBoardActive(board.id)"
                   @click="handleSelectBoard(board)"
                 >
                   <div class="flex gap-x-1 items-center">

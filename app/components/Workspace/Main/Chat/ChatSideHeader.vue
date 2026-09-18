@@ -3,6 +3,7 @@ import { X, SquareArrowOutUpRight } from '@lucide/vue'
 import TitleChat from '../../Header/TitleChat.vue'
 
 const chatStore = useChatStore()
+const uiStore = useUIStore()
 
 const isMobile = useMediaQuery('(max-width: 768px)')
 </script>
@@ -23,7 +24,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
               size="icon-sm"
               class="border border-zinc-200/80 bg-white/80 text-zinc-600"
               aria-label="Open"
-              @click="chatStore.openFullChat()"
+              @click="uiStore.openChatFullscreen"
               v-if="!isMobile"
             >
               <SquareArrowOutUpRight class="size-4" />
@@ -47,7 +48,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
         @click="chatStore.closeChat()"
         v-if="!isMobile"
       >
-        <X class="size-4.5" />
+        <X class="size-4.5 text-zinc-500" />
       </Button>
       <div
         class="size-8"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import WorkspaceView from '~/views/WorkspaceView.vue'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
+import Sparkles from '~/assets/sparkles.svg?skipsvgo'
 
 definePageMeta({
   authOnly: true,
@@ -14,14 +15,22 @@ const { activeBoardId } = storeToRefs(boardStore)
 
 const isArchiveTabShown = computed(() => uiStore.isArchiveTabSelected)
 const isSettingsTabShown = computed(() => uiStore.isSettingsTabSelected)
-const isMainChat = computed(() => activeBoardId.value === null && uiStore.isBoardTabSelected)
-const isChatTabShown = computed(() => uiStore.isChatOpen || isMainChat.value)
-const isWorkspaceContentShown = computed(() => !isMainChat.value)
 
 const { data: user } = useUser()
 const { mutate: buySubscription } = useBuySubscription()
 const { mutate: upgradeSubscription } = useUpgradeSubscription()
 const { mutate: downgradeSubscription } = useDowngradeSubscription()
+
+const isMobile = useMediaQuery('(max-width: 768px)')
+
+const isBoardEmpty = computed(() => activeBoardId.value === null)
+const isWorkspaceContentShown = computed(() => {
+  if (isBoardEmpty.value) return false
+
+  if (uiStore.isChatFullscreen) return false
+
+  return true
+})
 
 const pendingSelectedPlan = ref<SubscriptionPlanEnum | null>(null)
 
@@ -60,7 +69,7 @@ watch(
 
     <SidebarInset
       v-show="isWorkspaceContentShown"
-      class="min-w-0 overflow-hidden"
+      class="min-w-0 flex-1 overflow-hidden"
     >
       <NuxtPage />
 
@@ -84,14 +93,16 @@ watch(
       </Suspense>
     </SidebarInset>
 
-    <Chat
-      v-show="isChatTabShown"
-      class="min-w-0 overflow-hidden"
-      :class="{
-        'grow lg:flex-[0_0_520px]': !isMainChat,
-        'flex-1': isMainChat,
-      }"
-    />
+    <Chat />
   </SidebarProvider>
+
+  <button
+    v-if="isMobile && !isBoardEmpty && !uiStore.isChatOpen"
+    @click="uiStore.selectChat()"
+    class="fixed bottom-5 right-5 z-40 flex size-12 items-center justify-center rounded-full bg-primary/75 text-white shadow-xl active:scale-95 transition-transform"
+  >
+    <Sparkles class="size-5" />
+  </button>
+
   <WorkspaceView />
 </template>

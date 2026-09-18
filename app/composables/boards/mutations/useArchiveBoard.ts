@@ -86,7 +86,10 @@ export function useArchiveBoard() {
         const nextBoard = boards?.length ? boards[0] : null
 
         if (nextBoard) boardStore.selectBoard(nextBoard.id)
-        else uiStore.selectChat()
+        else {
+          boardStore.clearBoard()
+          uiStore.selectChat()
+        }
       }
     },
 

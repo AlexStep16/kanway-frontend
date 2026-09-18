@@ -9,8 +9,8 @@ export const useUIStore = defineStore('ui', () => {
   const isSupportModalOpen = ref(false)
   const isEditTaskModalOpen = ref(false)
   const isDeleteUserModalOpen = ref(false)
+  const isChatFullscreen = ref(false)
 
-  const boardStore = useBoardStore()
   const chatStore = useChatStore()
 
   const editableTask = ref<ITaskState | null>(null)
@@ -48,22 +48,20 @@ export const useUIStore = defineStore('ui', () => {
 
   function selectArchive(shouldChatClose: boolean = false) {
     currentTab.value = Tabs.Archive
+    closeChatFullscreen()
 
     if (shouldChatClose) {
       isChatOpen.value = false
     }
-
-    boardStore.clearBoard()
   }
 
   function selectSettings(shouldChatClose: boolean = false) {
     currentTab.value = Tabs.Settings
+    closeChatFullscreen()
 
     if (shouldChatClose) {
       isChatOpen.value = false
     }
-
-    boardStore.clearBoard()
   }
 
   function openProfileSettings(shouldChatClose: boolean = false) {
@@ -94,7 +92,20 @@ export const useUIStore = defineStore('ui', () => {
       chatStore.newChat()
     }
     isChatOpen.value = true
-    boardStore.clearBoard()
+  }
+
+  function closeChat() {
+    isChatOpen.value = false
+  }
+
+  function openChatFullscreen() {
+    isChatFullscreen.value = true
+
+    selectBoard()
+  }
+
+  function closeChatFullscreen() {
+    isChatFullscreen.value = false
   }
 
   return {
@@ -104,6 +115,7 @@ export const useUIStore = defineStore('ui', () => {
     isSupportModalOpen,
     isEditTaskModalOpen,
     isDeleteUserModalOpen,
+    isChatFullscreen,
 
     currentTab,
     currentSettingsTab,
@@ -124,6 +136,9 @@ export const useUIStore = defineStore('ui', () => {
     openPaymentsSettings,
     selectBoard,
     selectChat,
+    closeChat,
+    openChatFullscreen,
+    closeChatFullscreen,
     openTaskToEdit,
     updateEditableTask,
     clearTaskToEdit,

@@ -41,7 +41,6 @@ function getStoredModelType(): ModelsEnum {
 
 export const useChatStore = defineStore('chat', () => {
   const uiStore = useUIStore()
-  const boardStore = useBoardStore()
   const workspaceStore = useWorkspaceStore()
 
   const temporaryChatId = ref(generateUUID())
@@ -137,11 +136,6 @@ export const useChatStore = defineStore('chat', () => {
     $queryClient.invalidateQueries({ queryKey: chatMessageKeys.byChat(chatId) })
   }
 
-  function openFullChat() {
-    boardStore.clearBoard()
-    uiStore.selectBoard()
-  }
-
   function startRenamingChat(chatId: string) {
     renamingChatSet.value.add(chatId)
   }
@@ -164,7 +158,6 @@ export const useChatStore = defineStore('chat', () => {
     selectChat,
     closeChat,
     restoreSession,
-    openFullChat,
     startRenamingChat,
     stopRenamingChat,
   }

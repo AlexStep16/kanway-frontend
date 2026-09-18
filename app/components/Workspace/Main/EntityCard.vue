@@ -223,7 +223,7 @@ function getPriorityHumanReadable(priority: 'low' | 'medium' | 'high'): string {
             :class="
               cn(
                 'text-sm overflow-hidden wrap-break-word font-medium text-secondary-foreground',
-                entity.isCompleted && 'text-gray-300 decoration-1 line-through',
+                entity.isCompleted && 'text-gray-400 decoration-1 line-through',
               )
             "
           >

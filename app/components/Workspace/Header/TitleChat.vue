@@ -37,11 +37,11 @@ function handleUpdateChatName(newName: string) {
     v-if="activeChat && !chatStore.isActiveChatTemporary && !isChatLoading"
   >
     <MessageCircle
-      class="size-4 text-zinc-500"
+      class="size-4"
       v-if="!isChatRenaming"
     />
     <Spinner
-      class="size-4 text-zinc-500"
+      class="size-4"
       v-else
     />
   </Title>

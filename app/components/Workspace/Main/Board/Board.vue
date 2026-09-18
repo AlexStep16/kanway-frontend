@@ -2,6 +2,8 @@
 import draggable from 'vuedraggable'
 import { Plus } from '@lucide/vue'
 
+import KanwayLogo from '~/assets/kanway_logo.svg?skipsvgo'
+
 import type { IColumnState } from '~/stores/interfaces/IColumnState'
 
 import Column from '~/components/Workspace/Main/Column/Column.vue'
@@ -15,6 +17,7 @@ import HeaderFilter from '../../Header/HeaderFilter.vue'
 
 const boardStore = useBoardStore()
 const workspaceStore = useWorkspaceStore()
+const uiStore = useUIStore()
 
 const activeBoardId = computed(() => boardStore.activeBoardId)
 const activeWorkspaceId = computed(() => workspaceStore.activeWorkspaceId)
@@ -90,7 +93,10 @@ function draggableChange(event: any) {
 
   <Separator />
 
-  <div class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto">
+  <div
+    class="flex flex-1 flex-col gap-4 p-4 pt-0 min-h-0 overflow-y-auto"
+    v-if="activeBoardId"
+  >
     <div class="size-full pt-4 pb-2 flex gap-3 overflow-y-hidden custom-scrollbar">
       <template v-if="!areBoardsLoading">
         <draggable
@@ -151,5 +157,24 @@ function draggableChange(event: any) {
         </div>
       </template>
     </div>
+  </div>
+
+  <div
+    v-else
+    class="flex flex-col items-center justify-center h-full text-center p-6"
+  >
+    <div class="flex items-center justify-center mb-3">
+      <KanwayLogo class="h-12 sm:w-55 sm:h-16" />
+    </div>
+    <h3 class="text-base font-semibold text-zinc-800">Доска не выбрана</h3>
+    <p class="text-sm text-zinc-500 max-w-xs mt-1">
+      Откройте меню слева вверху ☰, чтобы выбрать доску, или создайте новую через AI-ассистента.
+    </p>
+    <button
+      @click="uiStore.selectChat()"
+      class="mt-4 px-4 py-2 bg-zinc-900 text-white rounded-lg text-sm font-medium"
+    >
+      ✨ Создать доску с AI
+    </button>
   </div>
 </template>
