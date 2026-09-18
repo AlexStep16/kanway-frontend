@@ -10,7 +10,7 @@ const workspaceId = computed(() => workspaceStore.activeWorkspaceId ?? '')
   <div class="flex flex-col gap-y-5">
     <h3 class="text-lg font-bold text-gray-800">Импорт</h3>
 
-    <div class="max-w-100">
+    <div class="max-w-100 overflow-x-hidden">
       <ImportBoards
         v-if="workspaceId"
         :workspace-id="workspaceId"
