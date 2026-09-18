@@ -57,6 +57,10 @@ watch(email, () => {
   }
 })
 
+function handleEmailInput(event: Event) {
+  email.value = (event.target as HTMLInputElement).value
+}
+
 const onSubmit = handleSubmit(async (values) => {
   isCheckingEmail.value = true
   const normalizedEmail = values.email.trim()
@@ -107,6 +111,7 @@ const isRegisterButtonDisabled = computed(() => !email.value)
             class="py-2.5 pr-4 pl-10 text-sm block w-full border-muted hover:border-gray-200 hover:bg-white focus-within:bg-white bg-muted rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
             v-model="email"
             v-bind="emailAttrs"
+            @input="handleEmailInput"
             placeholder="Введите почту"
           />
         </div>
