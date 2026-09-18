@@ -100,7 +100,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
             @click="uiStore.isPlansModalOpen = true"
             v-if="user.subscriptionId === SubscriptionPlanEnum.Basic"
           >
-            Улучшить
+            Повысить
           </Button>
           <Button
             class="text-secondary-foreground/90 border border-secondary-foreground/20 bg-white hover:bg-muted"

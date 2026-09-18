@@ -8,10 +8,11 @@ import { ModelsEnum } from '~/enums/ModelsEnum'
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import { AI_INPUT_PLACEHOLDERS } from '~/constants/AI_INPUT_PLACEHOLDERS'
 import { AI_MODEL_OPTIONS, type IAIModelOption } from '~/constants/AI_MODEL_OPTIONS'
-import { Brain, Zap, ChevronDown, Check, Lock } from '@lucide/vue'
+import { Brain, Zap, ChevronDown, Check, Lock, ChevronsUp } from '@lucide/vue'
 
 const { data: user } = useUser()
 
+const uiStore = useUIStore()
 const chatStore = useChatStore()
 const agentStatusStore = useAgentStatusStore()
 
@@ -314,15 +315,17 @@ defineExpose({
 
                 <!-- Pro модели -->
                 <div
-                  class="px-2 pt-1 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400 flex items-center justify-between"
+                  class="px-2 pt-1 pb-1 text-[11px] font-medium text-zinc-400 flex items-center justify-between"
                 >
-                  <span>Pro</span>
-                  <span
+                  <span class="uppercase tracking-wide">Pro</span>
+                  <button
                     v-if="isUserBasic"
-                    class="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-normal lowercase"
+                    class="flex items-center gap-x-1 text-[10px] text-violet-600 bg-violet-100 px-1.5 py-0.5 rounded cursor-pointer hover:bg-violet-200"
+                    @click="uiStore.isPlansModalOpen = true"
                   >
-                    нужен pro
-                  </span>
+                    <span>Повысить</span>
+                    <ChevronsUp class="size-3" />
+                  </button>
                 </div>
                 <div class="flex flex-col gap-0.5">
                   <Tooltip
