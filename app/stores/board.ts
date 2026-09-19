@@ -31,6 +31,8 @@ export const useBoardStore = defineStore('board', () => {
     const idealPath = `/workspace/${workspaceId}/${boardId}`
     const route = useRoute()
 
+    uiStore.closeChatFullscreen()
+
     if (route.path === idealPath) {
       // Already at the right URL — middleware won't fire, sync state manually
       setActiveBoard(boardId)

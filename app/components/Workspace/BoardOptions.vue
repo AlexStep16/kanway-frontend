@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Copy, Star, StarOff, Archive } from '@lucide/vue'
+import { Copy, Star, StarOff, Archive, MoveHorizontal } from '@lucide/vue'
 import type { IBoard } from '~/interfaces/domain/IBoard'
+import TransferForm from '~/components/Options/TransferForm.vue'
 
 const props = defineProps<{
   board: IBoard
@@ -14,8 +15,15 @@ const emits = defineEmits<{
 const { mutate: archiveBoard, isPending: isArchiving } = useArchiveBoard()
 const { mutate: cloneBoard, isPending: isCloning } = useCloneBoard()
 const { mutate: makeFavorite } = useFavoriteBoard()
+const { mutate: moveBoard, isPending: isMoving } = useMoveBoard()
+const { data: workspacesData } = useWorkspaces()
 
 const isArchiveConfirmOpen = ref(false)
+const activeView = ref<'menu' | 'transfer'>('menu')
+
+const otherWorkspaces = computed(
+  () => workspacesData.value?.filter((w) => w.id !== props.board.workspace.id) || [],
+)
 
 function handleArchive() {
   emits('close')
@@ -41,6 +49,21 @@ function handleCopy() {
   )
 }
 
+function handleMove(newWorkspaceId: string) {
+  moveBoard({
+    payload: {
+      id: props.board.id,
+      workspaceId: newWorkspaceId,
+    },
+    oldWorkspaceId: props.board.workspace.id,
+    newWorkspaceId,
+  })
+}
+
+function handleClose() {
+  emits('close')
+}
+
 const isFavorite = computed(() => props.board.isFavorite)
 
 function handleFavorite() {
@@ -55,55 +78,84 @@ function handleFavorite() {
     class="w-56 rounded-lg"
     :side="isMobile ? 'bottom' : 'right'"
     :align="isMobile ? 'end' : 'start'"
+    @closeAutoFocus="activeView = 'menu'"
   >
-    <template v-if="!toValue(isCloning)">
-      <DropdownMenuItem
-        @click="handleCopy"
-        @select.prevent
-      >
-        <Copy />
-        <span>Копировать</span>
-      </DropdownMenuItem>
-    </template>
-    <template v-else>
-      <DropdownMenuItem disabled>
-        <Spinner />
-        <span>Копирование</span>
-      </DropdownMenuItem>
-    </template>
-    <DropdownMenuItem
-      v-if="isFavorite"
-      @click="handleFavorite"
-      @select.prevent
-    >
-      <StarOff />
-      <span>Удалить из избранного</span>
-    </DropdownMenuItem>
+    <template v-if="activeView === 'menu'">
+      <template v-if="!toValue(isCloning)">
+        <DropdownMenuItem
+          @click="handleCopy"
+          @select.prevent
+        >
+          <Copy />
+          <span>Копировать</span>
+        </DropdownMenuItem>
+      </template>
+      <template v-else>
+        <DropdownMenuItem disabled>
+          <Spinner />
+          <span>Копирование</span>
+        </DropdownMenuItem>
+      </template>
 
-    <DropdownMenuItem
-      v-else
-      @click="handleFavorite"
-      @select.prevent
-    >
-      <Star />
-      <span>Добавить в избранное</span>
-    </DropdownMenuItem>
-    <DropdownMenuSeparator />
-    <template v-if="!toValue(isArchiving)">
+      <template v-if="!toValue(isMoving)">
+        <DropdownMenuItem
+          @click="activeView = 'transfer'"
+          @select.prevent
+        >
+          <MoveHorizontal />
+          <span>Переместить</span>
+        </DropdownMenuItem>
+      </template>
+      <template v-else>
+        <DropdownMenuItem disabled>
+          <Spinner />
+          <span>Перемещение</span>
+        </DropdownMenuItem>
+      </template>
+
       <DropdownMenuItem
-        @click="handleArchive"
+        v-if="isFavorite"
+        @click="handleFavorite"
         @select.prevent
       >
-        <Archive />
-        <span>Архивировать</span>
+        <StarOff />
+        <span>Удалить из избранного</span>
       </DropdownMenuItem>
-    </template>
-    <template v-else>
-      <DropdownMenuItem disabled>
-        <Spinner />
-        <span>Архивирование</span>
+
+      <DropdownMenuItem
+        v-else
+        @click="handleFavorite"
+        @select.prevent
+      >
+        <Star />
+        <span>Добавить в избранное</span>
       </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <template v-if="!toValue(isArchiving)">
+        <DropdownMenuItem
+          @click="handleArchive"
+          @select.prevent
+        >
+          <Archive />
+          <span>Архивировать</span>
+        </DropdownMenuItem>
+      </template>
+      <template v-else>
+        <DropdownMenuItem disabled>
+          <Spinner />
+          <span>Архивирование</span>
+        </DropdownMenuItem>
+      </template>
     </template>
+
+    <TransferForm
+      v-else
+      :items="otherWorkspaces"
+      :isProcessing="isMoving"
+      :noItemsText="'Нет других пространств'"
+      @close="handleClose"
+      @select="handleMove"
+    />
   </DropdownMenuContent>
 
   <AlertDialog

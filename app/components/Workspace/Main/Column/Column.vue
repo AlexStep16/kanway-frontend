@@ -108,7 +108,10 @@ function handleMove(newBoardId: string) {
 
   if (board) {
     moveColumn({
-      payload: props.column,
+      payload: {
+        id: props.column.id,
+        boardId: board.id,
+      },
       oldBoardId: props.column.board.id,
       newBoardId: board.id,
     })
@@ -218,14 +221,14 @@ const otherBoards = computed(() => {
           @archive="handleArchive"
           @copy="handleCopy"
         >
-          <template #transfer-content="{ close }">
+          <template #transfer-content="{ closeDropdown }">
             <TransferForm
               :items="otherBoards"
               :isProcessing="status.isBusy"
               :isItemMoving="status.isMoving"
               :noItemsText="'Нет других досок'"
-              @close="close"
-              @moveItem="handleMove"
+              @close="closeDropdown"
+              @select="handleMove"
             />
           </template>
         </Options>

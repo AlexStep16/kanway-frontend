@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import type { ISingleUpdate } from '~/interfaces/domain/ISingleUpdate'
 import { toast } from 'vue-sonner'
-import type { IColumn } from '~/interfaces/domain/IColumn'
+import type { IColumnEditApiPayload } from '~/interfaces/IColumnEditApiPayload'
 import { saveColumn } from '~/services/column'
 
 interface MoveColumnVars {
-  payload: ISingleUpdate<IColumn>
+  payload: IColumnEditApiPayload
   oldBoardId: string
   newBoardId: string
 }

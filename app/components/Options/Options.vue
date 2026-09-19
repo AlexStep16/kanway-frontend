@@ -63,7 +63,7 @@ watch(isMenuOpen, (isOpen) => {
     setTimeout(() => {
       activeView.value = 'menu'
       props.resetForm?.()
-    }, 200)
+    }, 500)
   }
 })
 
@@ -131,7 +131,7 @@ function onEdit() {
           <Button
             v-if="options.edit"
             variant="ghost"
-            class="w-full justify-start font-normal h-9 px-2 gap-x-2"
+            class="w-full justify-start font-normal h-auto px-2 py-1.5 gap-x-2"
             :disabled="toValue(status.isBusy)"
             @click="onEdit"
           >
@@ -141,7 +141,7 @@ function onEdit() {
           <Button
             v-if="options.copy"
             variant="ghost"
-            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            class="w-full justify-start font-normal h-auto px-2 py-1.5 gap-x-2 relative"
             :disabled="toValue(status.isBusy)"
             @click="onAction('copy')"
           >
@@ -157,7 +157,7 @@ function onEdit() {
           <Button
             v-if="options.move"
             variant="ghost"
-            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            class="w-full justify-start font-normal h-auto px-2 py-1.5 gap-x-2 relative"
             :disabled="toValue(status.isBusy)"
             @click="activeView = 'transfer'"
           >
@@ -173,7 +173,7 @@ function onEdit() {
           <Button
             v-if="options.favorite"
             variant="ghost"
-            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            class="w-full justify-start font-normal h-auto px-2 py-1.5 gap-x-2 relative"
             :disabled="toValue(status.isBusy)"
             @click="$emit('favorite')"
           >
@@ -196,7 +196,7 @@ function onEdit() {
           <Button
             v-if="options.archive"
             variant="ghost"
-            class="w-full justify-start font-normal h-9 px-2 gap-x-2 relative"
+            class="w-full justify-start font-normal h-auto px-2 py-1.5 gap-x-2 relative"
             :disabled="toValue(status.isBusy)"
             @click="onAction('archive')"
           >
@@ -217,7 +217,7 @@ function onEdit() {
           <Button
             v-if="options.delete"
             variant="ghost"
-            class="w-full justify-start font-normal h-9 px-2 gap-x-2 text-destructive hover:text-destructive hover:bg-destructive/10 relative"
+            class="w-full justify-start font-normal h-auto px-2 py-1.5 gap-x-2 text-destructive hover:text-destructive hover:bg-destructive/10 relative"
             :disabled="toValue(status.isBusy)"
             @click="onAction('delete')"
           >
@@ -242,10 +242,7 @@ function onEdit() {
           />
         </div>
 
-        <div
-          v-else-if="activeView === 'transfer'"
-          class="p-2"
-        >
+        <div v-else-if="activeView === 'transfer'">
           <slot
             name="transfer-content"
             :close="() => (activeView = 'menu')"

@@ -11,6 +11,7 @@ export const useUIStore = defineStore('ui', () => {
   const isDeleteUserModalOpen = ref(false)
   const isChatFullscreen = ref(false)
 
+  const boardStore = useBoardStore()
   const chatStore = useChatStore()
 
   const editableTask = ref<ITaskState | null>(null)
@@ -90,6 +91,9 @@ export const useUIStore = defineStore('ui', () => {
   function selectChat() {
     if (!chatStore.activeChatId) {
       chatStore.newChat()
+    }
+    if (!boardStore.activeBoardId) {
+      isChatFullscreen.value = true
     }
     isChatOpen.value = true
   }

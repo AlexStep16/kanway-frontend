@@ -221,7 +221,7 @@ function handleCloseCreateBoard() {
                       :class="
                         cn(
                           'size-3.5! fill-sidebar-ring text-sidebar-ring!',
-                          board.id === activeBoardId && 'fill-primary text-primary!',
+                          isBoardActive(board.id) && 'fill-primary text-primary!',
                         )
                       "
                       v-if="board.isFavorite"
