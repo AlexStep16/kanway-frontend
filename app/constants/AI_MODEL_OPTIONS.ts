@@ -84,6 +84,16 @@ const AI_MODEL_BASE_OPTIONS: Omit<IAIModelOption, 'isPro'>[] = [
     cost: 'x1',
   },
   {
+    value: ModelsEnum.GEMINI_3_8_FLASH,
+    label: 'Gemini 3.8 Flash',
+    provider: 'gemini',
+    smart: 4,
+    smartLabel: 'Высокий',
+    fast: 4,
+    fastLabel: 'Быстрый',
+    cost: 'x1',
+  },
+  {
     value: ModelsEnum.GEMINI_3_1_PRO_PREVIEW,
     label: 'Gemini 3.1 Pro',
     provider: 'gemini',

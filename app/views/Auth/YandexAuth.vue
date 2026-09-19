@@ -54,7 +54,7 @@ async function startYandexAuth() {
       :class="props.label ? 'py-2 px-3 text-xs font-medium' : 'size-11'"
       @click="startYandexAuth"
     >
-      <YandexLogo class="size-7" />
+      <YandexLogo class="size-6" />
       <span v-if="props.label">{{ props.label }}</span>
     </button>
   </div>

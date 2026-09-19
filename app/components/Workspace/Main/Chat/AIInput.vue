@@ -90,6 +90,7 @@ const isGPTModel = computed(() => {
 const isGoogleModel = computed(() => {
   return (
     chatStore.modelType === ModelsEnum.GEMINI_3_7_FLASH ||
+    chatStore.modelType === ModelsEnum.GEMINI_3_8_FLASH ||
     chatStore.modelType === ModelsEnum.GEMINI_3_1_PRO_PREVIEW
   )
 })
