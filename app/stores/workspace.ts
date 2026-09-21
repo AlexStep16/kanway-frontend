@@ -2,6 +2,7 @@ import WorkspaceModel from '~/models/WorkspaceModel'
 
 export const useWorkspaceStore = defineStore('workspace', () => {
   const activeWorkspaceId = ref<string | null>(null)
+  const chatStore = useChatStore()
 
   /** Sync state from the route middleware — no navigation, no side effects. */
   function setActiveWorkspace(workspaceId: string) {
@@ -16,6 +17,8 @@ export const useWorkspaceStore = defineStore('workspace', () => {
   async function selectWorkspace(workspace: WorkspaceModel) {
     localStorage.setItem('activeWorkspaceId', workspace.id)
     await navigateTo(`/workspace/${workspace.id}`)
+
+    chatStore.closeChat()
   }
 
   return {

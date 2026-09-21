@@ -96,6 +96,7 @@ export const useChatStore = defineStore('chat', () => {
   function closeChat() {
     activeChatId.value = temporaryChatId.value
     uiStore.isChatOpen = false
+    uiStore.closeChatFullscreen()
 
     if (import.meta.client) {
       localStorage.removeItem(SELECTED_CHAT_ID_KEY)
