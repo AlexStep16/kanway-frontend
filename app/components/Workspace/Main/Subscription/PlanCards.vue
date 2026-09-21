@@ -2,12 +2,17 @@
 import { SubscriptionPlanEnum } from '~/enums/SubscriptionPlanEnum'
 import { Check, X } from '@lucide/vue'
 import SubscriptionPlanButton from '~/components/Subscription/SubscriptionPlanButton.vue'
+import { AI_MODEL_OPTIONS } from '~/constants/AI_MODEL_OPTIONS'
 
 defineProps<{
   isHeightIncreased?: boolean
 }>()
 
 const { isPending: isSubscriptionsLoading } = useSubscriptions()
+
+const baseModels = AI_MODEL_OPTIONS.filter((model) => !model.isPro)
+const proModels = AI_MODEL_OPTIONS.filter((model) => model.isPro)
+const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
 </script>
 
 <template>
@@ -47,15 +52,47 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
                 <span class="text-gray-500">
-                  Базовая модель: <span class="font-medium">GPT 5.4 Mini</span>
+                  Базовые модели:
+                  <span class="font-medium">{{ baseModelsLabel }}</span>
                 </span>
               </li>
 
               <li class="flex items-center gap-x-1">
                 <X class="size-3.5 text-gray-500 shrink-0" />
+                <span class="text-gray-500"> Приоритетная поддержка </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <X class="size-3.5 text-gray-500 shrink-0" />
                 <span class="text-gray-500">
-                  Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+                  Доступ к моделям
+                  <TooltipProvider :disableHoverableContent="true">
+                    <Tooltip :delayDuration="300">
+                      <TooltipTrigger as-child>
+                        <span
+                          class="ml-0.5 inline-flex cursor-default items-center rounded bg-linear-to-r from-blue-500 to-violet-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white align-middle"
+                        >
+                          PRO
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent class="text-left">
+                        <ul class="space-y-0.5">
+                          <li
+                            v-for="model in proModels"
+                            :key="model.value"
+                          >
+                            {{ model.label }}
+                          </li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <X class="size-3.5 text-gray-500 shrink-0" />
+                <span class="text-gray-500"> Приоритетная очередь генерации </span>
               </li>
             </ul>
 
@@ -94,14 +131,48 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500">
+                  Базовые модели:
+                  <span class="font-medium">{{ baseModelsLabel }}</span>
+                </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
                 <span class="text-gray-500"> Приоритетная поддержка </span>
               </li>
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
                 <span class="text-gray-500">
-                  Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+                  Доступ к моделям
+                  <TooltipProvider :disableHoverableContent="true">
+                    <Tooltip :delayDuration="300">
+                      <TooltipTrigger as-child>
+                        <span
+                          class="ml-0.5 inline-flex cursor-default items-center rounded bg-linear-to-r from-blue-500 to-violet-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white align-middle"
+                        >
+                          PRO
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent class="text-left">
+                        <ul class="space-y-0.5">
+                          <li
+                            v-for="model in proModels"
+                            :key="model.value"
+                          >
+                            {{ model.label }}
+                          </li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <X class="size-3.5 text-gray-500 shrink-0" />
+                <span class="text-gray-500"> Приоритетная очередь генерации </span>
               </li>
             </ul>
 
@@ -140,14 +211,48 @@ const { isPending: isSubscriptionsLoading } = useSubscriptions()
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500">
+                  Базовые модели:
+                  <span class="font-medium">{{ baseModelsLabel }}</span>
+                </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
                 <span class="text-gray-500"> Приоритетная поддержка </span>
               </li>
 
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
                 <span class="text-gray-500">
-                  Доступ к моделям <span class="font-medium">GPT 5.4, GPT 5.5</span>
+                  Доступ к моделям
+                  <TooltipProvider :disableHoverableContent="true">
+                    <Tooltip :delayDuration="300">
+                      <TooltipTrigger as-child>
+                        <span
+                          class="ml-0.5 inline-flex cursor-default items-center rounded bg-linear-to-r from-blue-500 to-violet-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white align-middle"
+                        >
+                          PRO
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent class="text-left">
+                        <ul class="space-y-0.5">
+                          <li
+                            v-for="model in proModels"
+                            :key="model.value"
+                          >
+                            {{ model.label }}
+                          </li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </span>
+              </li>
+
+              <li class="flex items-center gap-x-1">
+                <Check class="size-3.5 text-blue-600 shrink-0" />
+                <span class="text-gray-500"> Приоритетная очередь генерации </span>
               </li>
             </ul>
 
