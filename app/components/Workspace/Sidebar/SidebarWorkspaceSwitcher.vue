@@ -4,15 +4,20 @@ import WorkspaceOptions from '../WorkspaceOptions.vue'
 import ActiveWorkspaceAvatar from '~/components/Workspace/ActiveWorkspaceAvatar.vue'
 import { cn } from '~/lib/utils'
 import { useSidebar } from '~/components/ui/sidebar'
+import type { IWorkspace } from '~/interfaces/domain/IWorkspace.ts'
 
 const isOpen = ref(false)
 const { isMobile } = useSidebar()
 
 const { data: workspacesData, isPending: areWorkspacesLoading } = useWorkspaces()
-const workspaces = computed(() => workspacesData.value || [])
 const { data: user } = useUser()
 const { data: subscriptionsData, isPending: isSubscriptionsLoading } = useSubscriptions()
+
+const { mutate: archiveWorkspace, isPending: isArchiving } = useArchiveWorkspace()
+
+const workspaces = computed(() => workspacesData.value || [])
 const subscriptions = computed(() => subscriptionsData.value || [])
+const workspaceToArchive = ref<IWorkspace | null>(null)
 
 const currentSubscription = computed(() => {
   if (!user.value) {
@@ -46,6 +51,8 @@ const workspaceStore = useWorkspaceStore()
 const { activeWorkspaceId } = storeToRefs(workspaceStore)
 
 const activeWorkspace = useWorkspaceSelector(activeWorkspaceId)
+
+const isArchiveConfirmOpen = ref(false)
 
 const { data: boardsCountData, isPending: areBoardsCountLoading } =
   useBoardsCount(activeWorkspaceId)
@@ -87,6 +94,22 @@ const openWorkspaceDialog = () => {
   uiStore.openWorkspaceDialog()
 
   isOpen.value = false
+}
+
+function handleArchive(workspace: IWorkspace) {
+  handleCloseOptions(workspace.id)
+  workspaceToArchive.value = workspace
+  isArchiveConfirmOpen.value = true
+}
+
+function confirmArchive() {
+  if (workspaceToArchive.value) {
+    archiveWorkspace({
+      workspace: workspaceToArchive.value,
+    })
+    workspaceToArchive.value = null
+  }
+  isArchiveConfirmOpen.value = false
 }
 
 const handleCloseOptions = (workspaceId: string) => {
@@ -177,7 +200,10 @@ const handleCloseOptions = (workspaceId: string) => {
               </DropdownMenuItem>
 
               <TooltipProvider :disableHoverableContent="true">
-                <DropdownMenu v-model:open="openOptions[workspace.id]">
+                <DropdownMenu
+                  v-model:open="openOptions[workspace.id]"
+                  :modal="false"
+                >
                   <DropdownMenuTrigger as-child>
                     <DropdownMenuMore show-on-hover>
                       <Tooltip :delayDuration="300">
@@ -199,7 +225,9 @@ const handleCloseOptions = (workspaceId: string) => {
                   <WorkspaceOptions
                     :workspace="workspace"
                     :is-mobile="isMobile"
+                    :is-archiving="isArchiving"
                     @close="handleCloseOptions(workspace.id)"
+                    @archive="handleArchive(workspace)"
                   />
                 </DropdownMenu>
               </TooltipProvider>
@@ -244,4 +272,43 @@ const handleCloseOptions = (workspaceId: string) => {
       </DropdownMenu>
     </SidebarMenuItem>
   </SidebarMenu>
+
+  <AlertDialog
+    :open="isArchiveConfirmOpen"
+    @update:open="(val) => (isArchiveConfirmOpen = val)"
+  >
+    <AlertDialogContent
+      class="max-w-sm p-0 overflow-hidden border-none shadow-2xl rounded-xl gap-0"
+    >
+      <div class="p-6">
+        <AlertDialogHeader class="space-y-3 text-center">
+          <AlertDialogTitle class="text-xl font-bold tracking-tight text-foreground m-0">
+            Архивирование пространства
+          </AlertDialogTitle>
+          <AlertDialogDescription class="text-sm text-muted-foreground">
+            Вы уверены, что хотите архивировать пространство
+            <span class="font-medium text-foreground">{{ workspaceToArchive?.name }}</span
+            >? Все доски, колонки и задачи будут перемещены в архив.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+      </div>
+
+      <div class="border-t border-border bg-muted/30 px-6 py-4">
+        <AlertDialogFooter class="flex-row gap-3 sm:justify-center">
+          <AlertDialogCancel
+            @click="isArchiveConfirmOpen = false"
+            class="mt-0 flex-1 bg-background hover:bg-accent border-border"
+          >
+            Отмена
+          </AlertDialogCancel>
+          <AlertDialogAction
+            @click="confirmArchive()"
+            class="flex-1 bg-blue-500 text-white hover:bg-blue-600"
+          >
+            Архивировать
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </div>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>
