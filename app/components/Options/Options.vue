@@ -105,7 +105,7 @@ function onEdit() {
                   'p-1 transition-all duration-200 rounded-full hover:bg-gray-200 focus:outline-none',
                   hoverClass,
                   visibilityClasses,
-                  isMenuOpen && 'bg-blue-200 text-primary',
+                  isMenuOpen && 'bg-blue-200 text-primary hover:bg-blue-200',
                 )
               "
               @click="isMenuOpen = !isMenuOpen"
