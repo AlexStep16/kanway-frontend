@@ -10,6 +10,7 @@ const props = defineProps<{
   status: IStatus
   isDemo?: boolean
   message: IChatMessage
+  isLastMessage?: boolean
   isContentFullWidth?: boolean
   chatId: string
   threadId: string
@@ -173,7 +174,7 @@ function handleRetryAgent() {
 
       <div
         class="flex flex-wrap items-center justify-start gap-1"
-        v-if="props.status.state === StatusStatesEnum.FAILED"
+        v-if="props.status.state === StatusStatesEnum.FAILED && props.isLastMessage"
       >
         <button
           type="button"
@@ -185,6 +186,11 @@ function handleRetryAgent() {
           <RotateCcw class="size-3" />
         </button>
       </div>
+
+      <div
+        class="h-4 w-full"
+        v-if="props.status.state === StatusStatesEnum.FAILED"
+      ></div>
     </div>
   </div>
 </template>

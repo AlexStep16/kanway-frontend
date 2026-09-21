@@ -261,7 +261,7 @@ function getStatusMessageByIteration(iterationId: string) {
           </template>
           <template v-else>
             <template
-              v-for="message in reversedMessages"
+              v-for="(message, index) in reversedMessages"
               :key="message.id"
             >
               <UserBubble
@@ -278,6 +278,7 @@ function getStatusMessageByIteration(iterationId: string) {
                 :is-demo="isDemo"
                 :status="message.content"
                 :message="message"
+                :is-last-message="index === 0"
                 :chat-id="message.chatId"
                 :thread-id="message.threadId"
               />
