@@ -25,9 +25,11 @@ const isMobile = useMediaQuery('(max-width: 768px)')
 
 const isBoardEmpty = computed(() => activeBoardId.value === null)
 const isWorkspaceContentShown = computed(() => {
-  if (isBoardEmpty.value) return false
-
   if (uiStore.isChatFullscreen) return false
+
+  if (isArchiveTabShown.value || isSettingsTabShown.value) return true
+
+  if (isBoardEmpty.value) return false
 
   return true
 })
