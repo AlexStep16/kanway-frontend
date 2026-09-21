@@ -196,7 +196,7 @@ const isRegisterButtonDisabled = computed(() => !email.value || isSendButtonProc
           v-if="loginError && !isPasswordModifiedAfterSubmit"
         >
           <li class="list-inside flex items-center gap-1">
-            <CircleX class="size-3" /><span>{{ loginError.message }}</span>
+            <CircleX class="size-3 shrink-0" /><span>{{ loginError.message }}</span>
           </li>
         </ul>
       </div>

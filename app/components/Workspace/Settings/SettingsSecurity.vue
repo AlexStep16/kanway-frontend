@@ -334,7 +334,9 @@ const deleteTime = computed(() => {
                         "
                       >
                         <li class="list-inside flex items-center gap-1">
-                          <CircleX class="size-3" /><span>{{ errors.passwordConfirmation }}</span>
+                          <CircleX class="size-3 shrink-0" /><span>{{
+                            errors.passwordConfirmation
+                          }}</span>
                         </li>
                       </ul>
                     </div>

@@ -135,7 +135,7 @@ const isRegisterButtonDisabled = computed(() =>
         v-if="registerError && !isPasswordModifiedAfterSubmit"
       >
         <li class="list-inside flex items-center gap-1">
-          <CircleX class="size-3" /><span>{{ registerError.message }}</span>
+          <CircleX class="size-3 shrink-0" /><span>{{ registerError.message }}</span>
         </li>
       </ul>
 
