@@ -18,10 +18,6 @@ const { data: user } = useUser()
 
 const { isMobile, setOpenMobile } = useSidebar()
 
-const isUserHasArchitectorSub = computed(() => {
-  return user.value?.subscriptionId === SubscriptionPlanEnum.Architector
-})
-
 const isUserHasBasicSub = computed(() => {
   return user.value?.subscriptionId === SubscriptionPlanEnum.Basic
 })
@@ -78,22 +74,13 @@ function handleOpenSupport() {
           <DropdownMenuLabel class="p-0 font-normal">
             <UserHeader />
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            class="bg-[linear-gradient(338deg,#8ab6ff_0%,#69a2ff_35%,#cfbbff_100%)] hover:bg-[linear-gradient(338deg,#77abff_0%,#4d91ff_35%,#b798ff_100%)] text-white!"
-            v-if="!isUserHasArchitectorSub"
-            @click="uiStore.isPlansModalOpen = true"
-          >
-            <Sparkles />
-            Улучшить план
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            @click="handleOpenPlans()"
-            v-if="!isUserHasBasicSub"
-          >
-            <Sparkles />
-            Управлять подпиской
-          </DropdownMenuItem>
+          <template v-if="!isUserHasBasicSub">
+            <DropdownMenuSeparator />
+            <DropdownMenuItem @click="handleOpenPlans()">
+              <Sparkles />
+              Управлять подпиской
+            </DropdownMenuItem>
+          </template>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem @click="handleOpenProfile()">

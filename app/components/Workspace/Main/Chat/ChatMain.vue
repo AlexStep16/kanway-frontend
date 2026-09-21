@@ -249,7 +249,7 @@ function getStatusMessageByIteration(iterationId: string) {
             class="chat-message"
           >
             <div class="text-xs overflow-hidden relative">
-              <span class="shimmer-text_muted">Устанавливаю связь...</span>
+              <span class="shimmer-text_muted">Устанавливаю связь</span>
             </div>
           </div>
 
