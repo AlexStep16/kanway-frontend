@@ -82,7 +82,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
         >
           <div class="flex items-start justify-between p-3">
             <div class="flex flex-col grow gap-y-1">
-              <span class="text-sm font-medium text-gray-800">Базовая</span>
+              <span class="text-sm font-medium text-gray-800">Базовый</span>
               <span class="text-lg sm:text-xl text-gray-800 font-bold">Бесплатно</span>
             </div>
           </div>

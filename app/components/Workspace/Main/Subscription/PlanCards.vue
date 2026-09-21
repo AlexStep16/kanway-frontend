@@ -29,7 +29,7 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
       >
         <div class="flex items-start justify-between p-3 size-full">
           <div class="flex flex-col size-full gap-y-1">
-            <span class="text-sm font-medium text-gray-800">Базовая</span>
+            <span class="text-sm font-medium text-gray-800">Базовый</span>
             <span class="text-lg sm:text-xl text-gray-800 font-bold"
               >0<span class="text-sm font-medium">₽/месяц</span></span
             >
