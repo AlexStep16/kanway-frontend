@@ -18,21 +18,24 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
 <template>
   <div class="grid gap-2 grid-flow-row auto-rows-max w-full">
     <template v-if="isSubscriptionsLoading">
-      <div class="rounded-md bg-gray-300 grow animate-pulse h-58 w-40"></div>
-      <div class="rounded-md bg-gray-300 grow animate-pulse h-58 w-40"></div>
-      <div class="rounded-md bg-gray-300 grow animate-pulse h-58 w-40"></div>
+      <div class="rounded-2xl bg-gray-300 grow animate-pulse h-58 w-40"></div>
+      <div class="rounded-2xl bg-gray-300 grow animate-pulse h-58 w-40"></div>
+      <div class="rounded-2xl bg-gray-300 grow animate-pulse h-58 w-40"></div>
     </template>
     <template v-else>
       <div
-        class="rounded-md bg-white border border-gray-200"
+        class="rounded-2xl bg-white border border-gray-200"
         :class="{ 'min-h-65': isHeightIncreased }"
       >
-        <div class="flex items-start justify-between p-3 size-full">
+        <div class="flex items-start justify-between p-4 size-full">
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Базовый</span>
-            <span class="text-lg sm:text-xl text-gray-800 font-bold"
-              >0<span class="text-sm font-medium">₽/месяц</span></span
-            >
+            <div class="flex items-baseline gap-x-1 sm:text-right">
+              <span class="text-lg sm:text-xl font-extrabold tracking-tight text-zinc-900">
+                0₽
+              </span>
+              <span class="text-sm font-medium text-zinc-400">/ навсегда</span>
+            </div>
             <ul class="space-y-2 text-xs text-left grow">
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
@@ -102,17 +105,18 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
       </div>
 
       <div
-        class="rounded-md bg-white border border-gray-200"
+        class="rounded-2xl bg-white border border-gray-200"
         :class="{ 'min-h-65': isHeightIncreased }"
       >
-        <div class="flex items-start justify-between p-3 size-full">
+        <div class="flex items-start justify-between p-4 size-full">
           <div class="flex flex-col size-full gap-y-1">
             <span class="text-sm font-medium text-gray-800">Премиум</span>
-            <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold"
-                >999<span class="text-sm font-medium">₽/месяц</span></span
-              >
-            </span>
+            <div class="flex items-baseline gap-x-1 sm:text-right">
+              <span class="text-lg sm:text-xl font-extrabold tracking-tight text-zinc-900">
+                999₽
+              </span>
+              <span class="text-sm font-medium text-zinc-400">/ месяц</span>
+            </div>
             <ul class="space-y-2 text-xs text-left grow">
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />
@@ -182,17 +186,18 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
       </div>
 
       <div
-        class="rounded-md bg-white border border-gray-200"
+        class="rounded-2xl bg-white border border-gray-200"
         :class="{ 'min-h-65': isHeightIncreased }"
       >
-        <div class="flex items-start justify-between p-3 size-full">
+        <div class="flex items-start justify-between p-4 size-full">
           <div class="flex flex-col gap-y-1 size-full">
             <span class="text-sm font-medium text-gray-800">Архитектор</span>
-            <span class="text-sm text-gray-400">
-              <span class="text-lg sm:text-xl text-gray-800 font-bold"
-                >2499<span class="text-sm font-medium">₽/месяц</span></span
-              >
-            </span>
+            <div class="flex items-baseline gap-x-1 sm:text-right">
+              <span class="text-lg sm:text-xl font-extrabold tracking-tight text-zinc-900">
+                2499₽
+              </span>
+              <span class="text-sm font-medium text-zinc-400">/ месяц</span>
+            </div>
             <ul class="space-y-2 text-xs text-left grow">
               <li class="flex items-center gap-x-1">
                 <Check class="size-3.5 text-blue-600 shrink-0" />

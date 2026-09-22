@@ -46,6 +46,7 @@ export function useDeletePaymentMethod() {
     },
 
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.me })
       queryClient.invalidateQueries({ queryKey: paymentMethodKeys.all })
     },
 

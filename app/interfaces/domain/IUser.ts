@@ -15,6 +15,7 @@ export interface IUser {
   subscriptionId: SubscriptionPlanEnum
   subscriptionUntil?: Date
   isSubscriptionActive?: boolean
+  isAutoRenewEnabled?: boolean
   credits: number
   paidCredits: number
   avatarColor: AvailableColors

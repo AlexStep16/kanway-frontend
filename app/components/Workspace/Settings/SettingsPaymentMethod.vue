@@ -2,6 +2,7 @@
 import type { IPaymentMethod } from '~/interfaces/domain/IPaymentMethod'
 import type { IUser } from '~/interfaces/domain/IUser'
 import { toast } from 'vue-sonner'
+import DeletePaymentMethodModal from '~/components/Modals/DeletePaymentMethodModal.vue'
 
 const props = defineProps<{
   paymentMethod: IPaymentMethod
@@ -11,8 +12,10 @@ const props = defineProps<{
 const { mutate: updatePaymentMethod } = useUpdateUser()
 const { mutate: deletePaymentMethod, isPending: isDeleting } = useDeletePaymentMethod()
 
+const isDeleteModalOpen = ref(false)
+
 function handleUpdatePaymentMethod(methodId: string) {
-  if (!props.user) return
+  if (!props.user || props.user?.paymentMethodId === methodId) return
 
   updatePaymentMethod(
     { id: props.user.id, paymentMethodId: methodId },
@@ -37,6 +40,9 @@ function handleDeletePaymentMethod(methodId: string) {
       onSuccess: () => {
         toast.success('Способ оплаты успешно удален')
       },
+      onSettled: () => {
+        isDeleteModalOpen.value = false
+      },
     },
   )
 }
@@ -53,16 +59,31 @@ function handleDeletePaymentMethod(methodId: string) {
       :for="'payment-method-' + paymentMethod.id"
       class="cursor-pointer flex items-center px-2 sm:px-4 py-2 gap-x-3"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 size-10" viewBox="0 0 400 120">
-        <linearGradient id="a" x1="370" x2="290" gradientUnits="userSpaceOnUse">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="shrink-0 size-10"
+        viewBox="0 0 400 120"
+      >
+        <linearGradient
+          id="a"
+          x1="370"
+          x2="290"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop stop-color="#1F5CD7" />
-          <stop stop-color="#02AEFF" offset="1" />
+          <stop
+            stop-color="#02AEFF"
+            offset="1"
+          />
         </linearGradient>
         <path
           d="m31 13h33c3 0 12-1 16 13 3 9 7 23 13 44h2c6-22 11-37 13-44 4-14 14-13 18-13h31v96h-32v-57h-2l-17 57h-24l-17-57h-3v57h-31m139-96h32v57h3l21-47c4-9 13-10 13-10h30v96h-32v-57h-2l-21 47c-4 9-14 10-14 10h-30m142-29v29h-30v-50h98c-4 12-18 21-34 21"
           fill="#0f754e"
         />
-        <path d="m382 53c4-18-8-40-34-40h-68c2 21 20 40 39 40" fill="url(#a)" />
+        <path
+          d="m382 53c4-18-8-40-34-40h-68c2 21 20 40 39 40"
+          fill="url(#a)"
+        />
       </svg>
 
       <div class="flex justify-start items-start flex-col">
@@ -72,10 +93,13 @@ function handleDeletePaymentMethod(methodId: string) {
         >
         <button
           type="button"
-          @click.stop="handleDeletePaymentMethod(paymentMethod.id)"
+          @click.stop="isDeleteModalOpen = true"
           class="flex items-center gap-x-1 text-xs text-red-500 hover:underline mt-1"
         >
-          <Spinner v-if="isDeleting" class="size-3" />
+          <Spinner
+            v-if="isDeleting"
+            class="size-3"
+          />
           <span>Удалить</span>
         </button>
       </div>
@@ -111,4 +135,11 @@ function handleDeletePaymentMethod(methodId: string) {
       </div>
     </label>
   </div>
+
+  <Teleport to="body">
+    <DeletePaymentMethodModal
+      v-model:open="isDeleteModalOpen"
+      @confirm="handleDeletePaymentMethod(paymentMethod.id)"
+    />
+  </Teleport>
 </template>

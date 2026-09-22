@@ -42,9 +42,12 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
           class="flex flex-col border border-gray-200 text-center rounded-xl p-8"
         >
           <h4 class="font-medium text-lg text-gray-800">Базовый</h4>
-          <span class="mt-5 md:mt-7 font-bold text-3xl md:text-4xl text-gray-800"
-            >0<span class="text-lg md:text-xl font-medium">₽/месяц</span></span
-          >
+          <div class="mt-4 md:mt-6 gap-x-1">
+            <span class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900">
+              0₽
+            </span>
+            <span class="text-base font-medium text-zinc-400">/ навсегда</span>
+          </div>
           <p class="mt-2 text-sm text-gray-500">Для знакомства с ИИ-ассистентом</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
@@ -131,9 +134,12 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
             >
           </p>
           <h4 class="font-medium text-lg text-gray-800">Премиум</h4>
-          <span class="mt-5 md:mt-7 font-bold text-3xl md:text-4xl text-gray-800">
-            999<span class="text-lg md:text-xl font-medium">₽/месяц</span>
-          </span>
+          <div class="mt-4 md:mt-6 gap-x-1">
+            <span class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900">
+              999₽
+            </span>
+            <span class="text-base font-medium text-zinc-400">/ месяц</span>
+          </div>
           <p class="mt-2 text-sm text-gray-500">Для активной работы и роста проектов</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">
@@ -215,9 +221,12 @@ const baseModelsLabel = baseModels.map((model) => model.label).join(', ')
           class="flex flex-col border border-gray-200 text-center rounded-xl p-8"
         >
           <h4 class="font-medium text-lg text-gray-800">Архитектор</h4>
-          <span class="mt-5 md:mt-7 font-bold text-3xl md:text-4xl text-gray-800"
-            >2499<span class="text-lg md:text-xl font-medium">₽/месяц</span></span
-          >
+          <div class="mt-4 md:mt-6 gap-x-1">
+            <span class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900">
+              2499₽
+            </span>
+            <span class="text-base font-medium text-zinc-400">/ месяц</span>
+          </div>
           <p class="mt-2 text-sm text-gray-500">Для проектирования сложных систем и бизнеса</p>
 
           <ul class="mt-5 md:mt-7 space-y-2.5 text-sm text-left grow">

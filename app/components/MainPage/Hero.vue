@@ -83,7 +83,12 @@ import { ChevronRight } from '@lucide/vue'
       </div>
 
       <div
-        class="opacity-0 hero-appear_chat w-full h-150 md:w-140 md:h-170 lg:w-120 lg:h-150 xl:w-140 xl:h-170 relative flex shrink-0 overflow-hidden rounded-[20px] border border-zinc-200/80 bg-white/95 shadow-sm ring-1 ring-black/2 backdrop-blur supports-backdrop-filter:bg-white/90"
+        class="opacity-0 hero-appear_chat shadow-primary w-full h-150 md:w-140 md:h-170 lg:w-120 lg:h-150 xl:w-140 xl:h-170 relative flex shrink-0 overflow-hidden rounded-[20px] border border-zinc-200/80 bg-white/95 ring-1 ring-black/2 backdrop-blur supports-backdrop-filter:bg-white/90"
+        style="
+          box-shadow:
+            0 25px 50px -12px rgba(99, 102, 241, 0.15),
+            0 0 25px rgba(0, 0, 0, 0.05);
+        "
       >
         <DemoChat />
       </div>
