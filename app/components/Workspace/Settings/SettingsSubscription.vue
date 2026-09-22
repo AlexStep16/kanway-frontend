@@ -90,7 +90,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <!-- По подписке -->
         <div class="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-4">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-1 flex-wrap">
             <span class="text-xs font-medium text-zinc-500">По подписке</span>
             <span
               class="inline-flex items-center rounded-2xl bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600"
@@ -110,7 +110,7 @@ const totalCredits = computed(() => userCredits.value + userPaidCredits.value)
 
         <!-- Дополнительные / Оплаченные -->
         <div class="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-4">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-1 flex-wrap">
             <span class="text-xs font-medium text-zinc-500">Оплаченные</span>
             <span
               class="inline-flex items-center rounded-2xl bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700"

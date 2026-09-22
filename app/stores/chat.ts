@@ -85,6 +85,7 @@ export const useChatStore = defineStore('chat', () => {
   function selectChat(chat: IChat) {
     activeChatId.value = chat.id
     uiStore.isChatOpen = true
+    uiStore.selectBoard()
 
     persistActiveChat(chat.id)
 

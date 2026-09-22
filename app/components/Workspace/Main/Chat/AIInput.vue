@@ -136,7 +136,7 @@ defineExpose({
         </Transition>
       </div>
 
-      <div class="flex justify-between items-center gap-2 w-full">
+      <div class="flex justify-between items-center flex-wrap gap-2 w-full">
         <AIModelSelect v-model="chatStore.modelType" />
 
         <div class="flex shrink-0 items-center gap-x-2">
@@ -176,4 +176,3 @@ defineExpose({
     </div>
   </div>
 </template>
-

@@ -106,7 +106,8 @@ const isInitialMessagesLoading = useDelayedLoading(
 )
 
 const observer = ref<ResizeObserver | null>(null)
-const { state, isMobile } = useSidebar()
+const { state } = useSidebar()
+const isMobile = useMediaQuery('(max-width: 768px)')
 
 onMounted(() => {
   chatStore.restoreSession()
@@ -188,7 +189,7 @@ onBeforeUnmount(() => {
     class="relative z-20 flex flex-col bg-white overflow-hidden border-l border-zinc-200"
     :class="[
       uiStore.isChatFullscreen && 'flex-1',
-      !uiStore.isChatFullscreen && 'w-130 lg:flex-[0_0_520px] shrink-0',
+      !uiStore.isChatFullscreen && 'w-130 lg:flex-[0_0_460px] xl:flex-[0_0_520px] shrink-0',
       state === 'collapsed' && activeBoardId && 'ml-0!',
     ]"
   >

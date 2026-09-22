@@ -82,7 +82,7 @@ function toggleAutoRenew() {
     <!-- Верхняя секция: Название тарифа, статус и цена -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div class="space-y-1.5">
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <h3 class="text-lg font-bold tracking-tight text-zinc-900">
             {{ props.subscription.name }}
           </h3>
@@ -91,7 +91,7 @@ function toggleAutoRenew() {
             :class="statusConfig.badgeClass"
           >
             <span
-              class="size-1.5 rounded-full"
+              class="size-1.5 rounded-full shrink-0"
               :class="statusConfig.dotClass"
             />
             {{ statusConfig.label }}
@@ -101,11 +101,11 @@ function toggleAutoRenew() {
 
       <!-- Цена -->
       <div class="sm:text-right">
-        <div class="flex items-baseline sm:justify-end gap-x-1">
+        <div class="flex items-baseline gap-x-1">
           <span class="text-3xl font-extrabold tracking-tight text-zinc-900">
             {{ props.subscription.price }}₽
           </span>
-          <span class="text-sm font-medium text-zinc-400">/ мес.</span>
+          <span class="text-sm font-medium whitespace-nowrap text-zinc-400">/ мес.</span>
         </div>
       </div>
     </div>

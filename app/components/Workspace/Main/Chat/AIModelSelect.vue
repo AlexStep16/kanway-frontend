@@ -56,9 +56,6 @@ function selectModel(model: IAIModelOption, disabled = false) {
 
 <template>
   <div class="flex min-w-0 items-center gap-2">
-    <!-- ========================================================= -->
-    <!-- 1. ДЕСКТОП: Компактный Popover + Tooltip                 -->
-    <!-- ========================================================= -->
     <Popover
       v-if="!isMobile"
       v-model:open="isModelPickerOpen"
@@ -97,7 +94,6 @@ function selectModel(model: IAIModelOption, disabled = false) {
         @open-auto-focus.prevent
       >
         <TooltipProvider :delay-duration="0">
-          <!-- Стандартные модели -->
           <div
             class="px-2 pt-1.5 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
           >
@@ -130,18 +126,14 @@ function selectModel(model: IAIModelOption, disabled = false) {
                     />
                     <span
                       :class="
-                        modelType === model.value
-                          ? 'text-zinc-900 font-medium'
-                          : 'text-zinc-600'
+                        modelType === model.value ? 'text-zinc-900 font-medium' : 'text-zinc-600'
                       "
                     >
                       {{ model.label }}
                     </span>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <span class="text-[11px] text-zinc-400 tabular-nums">{{
-                      model.cost
-                    }}</span>
+                    <span class="text-[11px] text-zinc-400 tabular-nums">{{ model.cost }}</span>
                   </div>
                 </button>
               </TooltipTrigger>
@@ -179,10 +171,8 @@ function selectModel(model: IAIModelOption, disabled = false) {
             </Tooltip>
           </div>
 
-          <!-- Разделитель -->
           <div class="my-1.5 border-t border-zinc-100" />
 
-          <!-- Pro модели -->
           <div
             class="px-2 pt-1 pb-1 text-[11px] font-medium text-zinc-400 flex items-center justify-between"
           >
@@ -227,9 +217,7 @@ function selectModel(model: IAIModelOption, disabled = false) {
                     />
                     <span
                       :class="
-                        modelType === model.value
-                          ? 'text-zinc-900 font-medium'
-                          : 'text-zinc-600'
+                        modelType === model.value ? 'text-zinc-900 font-medium' : 'text-zinc-600'
                       "
                     >
                       {{ model.label }}
@@ -240,9 +228,7 @@ function selectModel(model: IAIModelOption, disabled = false) {
                       v-if="isUserBasic"
                       class="size-3 text-zinc-400"
                     />
-                    <span class="text-[11px] text-zinc-400 tabular-nums">{{
-                      model.cost
-                    }}</span>
+                    <span class="text-[11px] text-zinc-400 tabular-nums">{{ model.cost }}</span>
                   </div>
                 </button>
               </TooltipTrigger>
@@ -313,18 +299,14 @@ function selectModel(model: IAIModelOption, disabled = false) {
 
       <DrawerContent class="max-h-[85vh] flex flex-col overflow-hidden">
         <DrawerHeader class="px-5 py-4 text-left shrink-0">
-          <DrawerTitle class="text-base font-semibold text-zinc-900">
-            Выбор модели
-          </DrawerTitle>
+          <DrawerTitle class="text-base font-semibold text-zinc-900"> Выбор модели </DrawerTitle>
           <DrawerDescription class="text-xs text-zinc-500">
             Выберите модель под вашу задачу
           </DrawerDescription>
         </DrawerHeader>
         <div class="flex-1 overflow-y-auto overflow-x-hidden px-5 pb-8 space-y-4">
           <div>
-            <div
-              class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2"
-            >
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2">
               Стандартные
             </div>
             <div class="flex flex-col gap-2">
@@ -497,4 +479,3 @@ function selectModel(model: IAIModelOption, disabled = false) {
     </Drawer>
   </div>
 </template>
-
