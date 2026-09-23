@@ -1,0 +1,1 @@
+export const MIN_SKELETON_DISPLAY_TIME_MS = 350

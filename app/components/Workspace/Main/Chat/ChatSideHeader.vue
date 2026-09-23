@@ -1,0 +1,59 @@
+<script setup lang="ts">
+import { X, SquareArrowOutUpRight } from '@lucide/vue'
+import TitleChat from '../../Header/TitleChat.vue'
+
+const chatStore = useChatStore()
+const uiStore = useUIStore()
+
+const isMobile = useMediaQuery('(max-width: 768px)')
+</script>
+
+<template>
+  <header
+    class="w-full p-4 flex flex-col gap-1 border-b border-zinc-200/70 bg-white/80 backdrop-blur-sm"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <TooltipProvider
+        :disableHoverableContent="true"
+        :disable="isMobile"
+      >
+        <Tooltip :delayDuration="300">
+          <TooltipTrigger as-child>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              class="border border-zinc-200/80 bg-white/80 text-zinc-600"
+              aria-label="Open"
+              @click="uiStore.openChatFullscreen"
+              v-if="!isMobile"
+            >
+              <SquareArrowOutUpRight class="size-4" />
+            </Button>
+            <SidebarTrigger
+              class="-ml-1"
+              v-else
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Открыть чат</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <TitleChat />
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Close"
+        @click="chatStore.closeChat()"
+        v-if="!isMobile"
+      >
+        <X class="size-4.5 text-zinc-500" />
+      </Button>
+      <div
+        class="size-8"
+        v-else
+      ></div>
+    </div>
+  </header>
+</template>
