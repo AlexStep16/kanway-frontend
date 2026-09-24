@@ -29,6 +29,10 @@ function handleTextareaRef(
   }
 }
 
+function setMessage() {
+  //just mock
+}
+
 function updateTextarea() {
   if (update.value) {
     update.value()
@@ -52,6 +56,7 @@ onUnmounted(() => {
 
 defineExpose({
   updateTextarea,
+  setMessage,
 })
 </script>
 
