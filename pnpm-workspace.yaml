@@ -3,6 +3,7 @@ overrides:
   'rollup': '4.60.3'
 allowBuilds:
   '@parcel/watcher': true
+  '@sentry/cli': false
   'core-js': true
   'esbuild': true
   'vue-demi': true
