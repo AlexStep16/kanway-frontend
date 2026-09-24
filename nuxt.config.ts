@@ -103,17 +103,26 @@ export default defineNuxtConfig({
         { name: 'application-name', content: 'Kanway' },
         { name: 'msapplication-TileColor', content: '#2d89ef' },
         { name: 'theme-color', content: '#3b82f6' },
-        { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://kanway.ru' },
-        { property: 'og:title', content: 'Kanway | AI-агент для управления проектами' },
+        { property: 'og:type', content: 'website', tagPriority: 'critical' },
+        { property: 'og:url', content: 'https://kanway.ru', tagPriority: 'critical' },
+        {
+          property: 'og:title',
+          content: 'Kanway | AI-агент для управления проектами',
+          tagPriority: 'critical',
+        },
         {
           property: 'og:description',
           content:
             'Управляйте доской голосом и через чат. Автоимпорт из Trello и Яндекс Трекера. Попробуйте бесплатно!',
+          tagPriority: 'critical',
         },
-        { property: 'og:image', content: 'https://kanway.ru/og-image.png' },
-        { property: 'og:image:width', content: '1200' },
-        { property: 'og:image:height', content: '630' },
+        {
+          property: 'og:image',
+          content: 'https://kanway.ru/og-image.png',
+          tagPriority: 'critical',
+        },
+        { property: 'og:image:width', content: '1200', tagPriority: 'critical' },
+        { property: 'og:image:height', content: '630', tagPriority: 'critical' },
 
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Kanway | AI-агент для управления проектами' },
