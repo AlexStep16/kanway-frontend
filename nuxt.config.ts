@@ -33,7 +33,7 @@ export default defineNuxtConfig({
     ],
   },
   features: {
-    inlineStyles: true,
+    inlineStyles: false,
   },
   imports: {
     dirs: ['~/composables/**', '~/utils/**', '~/helpers/**'],
