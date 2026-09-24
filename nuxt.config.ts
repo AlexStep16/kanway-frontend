@@ -102,7 +102,26 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-title', content: 'Kanway' },
         { name: 'application-name', content: 'Kanway' },
         { name: 'msapplication-TileColor', content: '#2d89ef' },
-        { name: 'theme-color', content: '#ffffff' },
+        { name: 'theme-color', content: '#3b82f6' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://kanway.ru' },
+        { property: 'og:title', content: 'Kanway | AI-агент для управления проектами' },
+        {
+          property: 'og:description',
+          content:
+            'Управляйте доской голосом и через чат. Автоимпорт из Trello и Яндекс Трекера. Попробуйте бесплатно!',
+        },
+        { property: 'og:image', content: 'https://kanway.ru/og-image.png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Kanway | AI-агент для управления проектами' },
+        {
+          name: 'twitter:description',
+          content: 'Управляйте доской голосом и через чат. Автоимпорт из Trello и Яндекс Трекера.',
+        },
+        { name: 'twitter:image', content: 'https://kanway.ru/og-image.png' },
       ],
       link: [
         { rel: 'canonical', href: 'https://kanway.ru' },
