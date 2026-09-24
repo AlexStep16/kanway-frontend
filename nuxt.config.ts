@@ -118,9 +118,15 @@ export default defineNuxtConfig({
         },
         {
           property: 'og:image',
-          content: 'https://kanway.ru/og-image.png',
+          content: 'https://kanway.ru/og-image.jpg',
           tagPriority: 'critical',
         },
+        {
+          property: 'og:image:secure_url',
+          content: 'https://kanway.ru/og-image.jpg',
+          tagPriority: 'critical',
+        },
+        { property: 'og:image:type', content: 'image/jpeg', tagPriority: 'critical' },
         { property: 'og:image:width', content: '1200', tagPriority: 'critical' },
         { property: 'og:image:height', content: '630', tagPriority: 'critical' },
 
@@ -130,7 +136,7 @@ export default defineNuxtConfig({
           name: 'twitter:description',
           content: 'Управляйте доской голосом и через чат. Автоимпорт из Trello и Яндекс Трекера.',
         },
-        { name: 'twitter:image', content: 'https://kanway.ru/og-image.png' },
+        { name: 'twitter:image', content: 'https://kanway.ru/og-image.jpg' },
       ],
       link: [
         { rel: 'canonical', href: 'https://kanway.ru' },
