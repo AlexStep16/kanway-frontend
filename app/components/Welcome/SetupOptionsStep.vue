@@ -130,7 +130,7 @@ function backToOptionsFromImport() {
             <PlugZap class="size-5 text-gray-500 shrink-0" />
             <div class="flex flex-col">
               <span class="text-sm font-medium text-gray-700">Импорт из других сервисов</span>
-              <span class="text-xs text-gray-400">Перенести доски из Trello</span>
+              <span class="text-xs text-gray-400">Перенести доски из Trello, Яндекс Трекера</span>
             </div>
           </button>
 
