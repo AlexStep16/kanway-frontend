@@ -52,11 +52,16 @@ export function useDeleteChat() {
 
     onSuccess: (result, { id }) => {
       const chatStore = useChatStore()
+      const boardStore = useBoardStore()
 
       toast.success('Чат успешно удален')
 
       if (chatStore.activeChatId === id) {
-        chatStore.closeChat()
+        if (boardStore.activeBoardId) {
+          chatStore.closeChat()
+        } else {
+          chatStore.newChat()
+        }
       }
     },
   })
