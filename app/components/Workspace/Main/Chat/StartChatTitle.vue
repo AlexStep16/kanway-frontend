@@ -27,7 +27,10 @@ defineEmits<{
       >
         Что будем делать сегодня?
       </h2>
-      <div class="flex items-center justify-center flex-wrap gap-2 mt-3">
+      <p class="text-sm text-gray-400 mt-1">
+        Напишите ваш запрос, а агенты сами создадут необходимые доски, колонки и задачи
+      </p>
+      <div class="flex items-center justify-center flex-wrap gap-2 mt-4">
         <Button
           size="sm"
           variant="outlinePrimary"
@@ -35,7 +38,10 @@ defineEmits<{
           :key="tile.title"
           @click="$emit('tile-click', tile)"
         >
-          <component :is="tile.iconComponent" class="size-4" />
+          <component
+            :is="tile.iconComponent"
+            class="size-4"
+          />
           <span class="text-xs">{{ tile.title }}</span>
         </Button>
       </div>
