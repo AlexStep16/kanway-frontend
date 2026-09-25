@@ -67,7 +67,7 @@ import { ChevronRight } from '@lucide/vue'
         <div class="mt-5 max-w-3xl text-center lg:text-left hero-text">
           <p class="opacity-0 hero-appear_description text-base md:text-lg text-gray-600">
             Управляйте своей Kanban-доской с помощью естественного языка. Создавайте, редактируйте и
-            переносите карточки, просто написав об этом в чат.
+            переносите карточки, просто написав об этом в чат или надиктовав голосом.
           </p>
         </div>
 
