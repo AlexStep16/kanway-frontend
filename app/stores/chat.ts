@@ -42,6 +42,7 @@ function getStoredModelType(): ModelsEnum {
 export const useChatStore = defineStore('chat', () => {
   const uiStore = useUIStore()
   const workspaceStore = useWorkspaceStore()
+  const boardStore = useBoardStore()
 
   const temporaryChatId = ref(generateUUID())
   const sessionRestored = ref(false)
@@ -67,6 +68,10 @@ export const useChatStore = defineStore('chat', () => {
 
     uiStore.isChatOpen = true
 
+    if (!boardStore.activeBoardId) {
+      uiStore.isChatFullscreen = true
+    }
+
     if (import.meta.client) {
       localStorage.removeItem(SELECTED_CHAT_ID_KEY)
       localStorage.removeItem(SELECTED_CHAT_WORKSPACE_ID_KEY)
@@ -85,6 +90,11 @@ export const useChatStore = defineStore('chat', () => {
   function selectChat(chat: IChat) {
     activeChatId.value = chat.id
     uiStore.isChatOpen = true
+
+    if (!boardStore.activeBoardId) {
+      uiStore.isChatFullscreen = true
+    }
+
     uiStore.selectBoard()
 
     persistActiveChat(chat.id)
