@@ -1,13 +1,31 @@
 <script lang="ts" setup>
 import { toast } from 'vue-sonner'
+import dayjs from 'dayjs'
 import { LayoutTemplate, PlugZap, Clock3, ArrowLeft } from '@lucide/vue'
 import ImportBoards from '~/components/Import/ImportBoards.vue'
+import { TASK_COLORS_TITLES } from '~/constants/TASK_COLORS'
+
+type TaskColorTitle = (typeof TASK_COLORS_TITLES)[number]
+type TaskColorTone = 'light' | 'medium' | 'dark'
+
+interface BoardTemplateTask {
+  name: string
+  description?: string
+  tags?: string[]
+  color?: {
+    value: TaskColorTitle
+    tone: TaskColorTone
+  }
+  dueInDays?: number
+  isCompleted?: boolean
+}
 
 interface BoardTemplate {
   id: string
   name: string
   description: string
   columns: string[]
+  tasks: Record<string, BoardTemplateTask[]>
 }
 
 const BOARD_TEMPLATES: BoardTemplate[] = [
@@ -16,18 +34,111 @@ const BOARD_TEMPLATES: BoardTemplate[] = [
     name: 'Классический канбан',
     description: 'Бэклог → В работе → Проверка → Готово',
     columns: ['Бэклог', 'В работе', 'Проверка', 'Готово'],
+    tasks: {
+      Бэклог: [
+        {
+          name: 'Нажми микрофон и скажи: «Перенеси синюю задачу из бэклога в работу»',
+          tags: ['подсказка'],
+          color: { value: 'blue', tone: 'medium' },
+        },
+        {
+          name: 'Надиктуй голосом: «Создай задачу "Созвониться с клиентом" на завтра с высоким приоритетом»',
+          tags: ['подсказка'],
+          dueInDays: 0,
+        },
+      ],
+      'В работе': [
+        {
+          name: 'Спроси в чате: «Что у меня сейчас висит в работе?»',
+          tags: ['подсказка'],
+        },
+      ],
+      Готово: [
+        {
+          name: 'Зарегистрироваться в Kanway',
+          color: { value: 'blue', tone: 'light' },
+          isCompleted: true,
+        },
+        {
+          name: 'Создать первую доску',
+          isCompleted: true,
+        },
+      ],
+    },
   },
   {
     id: 'simple',
     name: 'Простой список дел',
     description: 'Сделать → В процессе → Готово',
     columns: ['Сделать', 'В процессе', 'Готово'],
+    tasks: {
+      Сделать: [
+        {
+          name: 'Скажи в микрофон: «Перенеси эту задачу в статус "В процессе"»',
+          tags: ['подсказка'],
+          color: { value: 'blue', tone: 'medium' },
+        },
+        {
+          name: 'Надиктуй голосом: «Добавь три дела: купить кофе, отправить отчет и проверить почту»',
+          tags: ['подсказка'],
+          dueInDays: 0,
+        },
+      ],
+      'В процессе': [
+        {
+          name: 'Спроси агента: «Какие дела у меня горят на сегодня?»',
+          tags: ['подсказка'],
+        },
+      ],
+      Готово: [
+        {
+          name: 'Зарегистрироваться в Kanway',
+          color: { value: 'blue', tone: 'light' },
+          isCompleted: true,
+        },
+        {
+          name: 'Выпить утренний кофе',
+          isCompleted: true,
+        },
+      ],
+    },
   },
   {
     id: 'sprint',
     name: 'Спринт разработки',
     description: 'Бэклог → В разработке → Тестирование → Релиз',
     columns: ['Бэклог', 'В разработке', 'Тестирование', 'Релиз'],
+    tasks: {
+      Бэклог: [
+        {
+          name: 'Скажи агенту: «Создай критический баг "Ошибка авторизации по OAuth"»',
+          tags: ['баг', 'подсказка'],
+          color: { value: 'red', tone: 'medium' },
+          dueInDays: 0,
+        },
+        {
+          name: 'Надиктуй фичу: «Нужно сделать экспорт доски в CSV к пятнице»',
+          tags: ['фича', 'подсказка'],
+        },
+      ],
+      'В разработке': [
+        {
+          name: 'Нажми микрофон и скажи: «Перенеси эту карточку в Тестирование»',
+          tags: ['подсказка'],
+          color: { value: 'blue', tone: 'medium' },
+        },
+      ],
+      Релиз: [
+        {
+          name: 'Инициализировать репозиторий проекта',
+          isCompleted: true,
+        },
+        {
+          name: 'Задеплоить MVP на прод',
+          isCompleted: true,
+        },
+      ],
+    },
   },
 ]
 
@@ -48,6 +159,7 @@ const isCreatingTemplateBoard = ref(false)
 
 const { mutateAsync: createBoardAsync } = useCreateBoard()
 const { mutateAsync: createColumnAsync } = useCreateColumn()
+const { mutateAsync: createTaskAsync } = useCreateTask()
 
 function openTemplatesStep() {
   step.value = 'templates'
@@ -57,6 +169,10 @@ function openTemplatesStep() {
 function backToOptionsFromTemplates() {
   step.value = 'options'
   selectedTemplateId.value = null
+}
+
+function getDueDate(daysFromNow: number): string {
+  return dayjs().add(daysFromNow, 'day').format('YYYY-MM-DD')
 }
 
 async function createTemplateBoard() {
@@ -76,8 +192,38 @@ async function createTemplateBoard() {
       throw new Error('Board creation returned no data')
     }
 
+    const createdColumns: { name: string; id: string }[] = []
+
     for (const columnName of template.columns) {
-      await createColumnAsync({ payload: { name: columnName, boardId: createdBoard.id } })
+      const columnResult = await createColumnAsync({
+        payload: { name: columnName, boardId: createdBoard.id },
+      })
+      const createdColumn = columnResult.data[0]
+
+      if (createdColumn) {
+        createdColumns.push({ name: columnName, id: createdColumn.id })
+      }
+    }
+
+    for (const column of createdColumns) {
+      const tasks = template.tasks[column.name]
+
+      if (!tasks?.length) continue
+
+      for (const task of tasks) {
+        await createTaskAsync({
+          payload: {
+            name: task.name,
+            columnId: column.id,
+            ...(task.description ? { description: task.description } : {}),
+            ...(task.tags?.length ? { tags: task.tags } : {}),
+            ...(task.color ? { color: task.color } : {}),
+            ...(task.isCompleted ? { isCompleted: task.isCompleted } : {}),
+            ...(task.dueInDays != null ? { dueDate: getDueDate(task.dueInDays) } : {}),
+          },
+          boardId: createdBoard.id,
+        })
+      }
     }
 
     emit('finish')
