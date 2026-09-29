@@ -68,6 +68,8 @@ export const useChatStore = defineStore('chat', () => {
 
     uiStore.isChatOpen = true
 
+    uiStore.selectBoard()
+
     if (!boardStore.activeBoardId) {
       uiStore.isChatFullscreen = true
     }
