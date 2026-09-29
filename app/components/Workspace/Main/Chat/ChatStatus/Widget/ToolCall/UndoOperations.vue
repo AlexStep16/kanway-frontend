@@ -86,5 +86,11 @@ const completedTitle = 'Операции отменены'
       </template>
       <ToolCallFiltersList :items="content" />
     </ToolCallCompletedDropdownBase>
+
+    <ToolCallFailedBase
+      v-else-if="props.state === StatusStatesEnum.FAILED"
+      :title="processTitle"
+      :state-classes="stateClasses"
+    />
   </div>
 </template>
