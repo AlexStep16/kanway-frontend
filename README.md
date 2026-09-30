@@ -103,3 +103,78 @@ https://github.com/user-attachments/assets/b79dc168-a71e-42a7-a19b-477192894259
 ├── public/               # Статика, favicon, манифест, скриншоты и медиа
 ├── nuxt.config.ts        # Конфигурация Nitro, Route Rules, SEO и плагинов
 └── package.json          # Конфигурация зависимостей и скриптов
+```
+
+---
+
+## 🚀 Быстрый старт (Локальная разработка)
+
+### Предварительные требования
+- **Node.js** версии 20+
+- **pnpm 11+**: `npm install -g pnpm`
+
+### 1. Клонирование и установка
+
+```bash
+git clone https://github.com/AlexStep16/kanway-nuxt-version.git
+cd kanway-nuxt-version
+pnpm install
+```
+
+### 2. Переменные окружения (.env)
+
+Создайте файл `.env` в корне проекта:
+
+```env
+# URL локального бэкенда
+SERVER_API_URL="http://localhost:3333/api"
+SERVER_BASE_URL="http://localhost:3333"
+
+# Публичные переменные (клиентский доступ)
+NUXT_PUBLIC_SERVER_API_URL="http://localhost:3333/api"
+NUXT_PUBLIC_SERVER_BASE_URL="http://localhost:3333"
+
+# Интеграции OAuth (опционально для локального запуска)
+NUXT_PUBLIC_YANDEX_CLIENT_ID="your_yandex_client_id"
+NUXT_PUBLIC_VK_CLIENT_ID="your_vk_client_id"
+
+# Мониторинг Sentry (опционально)
+SENTRY_DSN="your_sentry_dsn"
+```
+
+### 3. Запуск dev-сервера
+
+```bash
+pnpm dev
+```
+Сервер запустится по адресу: `http://localhost:3000`
+
+---
+
+## 🔨 Доступные команды
+
+```bash
+# Запуск режима разработки с HMR
+pnpm dev
+
+# Сборка production-бандла
+pnpm build
+
+# Статическая генерация страниц (SSG)
+pnpm generate
+
+# Предпросмотр собранного production-билда локально
+pnpm preview
+
+# Подготовка типов Nuxt (postinstall)
+pnpm postinstall
+```
+
+---
+
+## 👨‍💻 Автор
+
+**Александр Иванов** ([@AlexStep16](https://github.com/AlexStep16))  
+*Fullstack & AI Product Developer*
+
+---
