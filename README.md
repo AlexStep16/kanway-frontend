@@ -21,9 +21,10 @@
 
 <div align="center">
   <h3>🎥 Видео-демонстрация работы AI-агента и голосового ввода</h3>
-  <video src="public/Kanway.mp4" controls width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-    Ваш браузер не поддерживает воспроизведение видео. <a href="public/Kanway.mp4">Скачать или открыть Kanway.mp4</a>
-  </video>
+
+https://github.com/user-attachments/assets/b79dc168-a71e-42a7-a19b-477192894259
+
+
 </div>
 
 <br />
